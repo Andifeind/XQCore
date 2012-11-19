@@ -1,0 +1,1 @@
+/home/andi/Webprojects/core/webdocs/js/core-model.spec.js

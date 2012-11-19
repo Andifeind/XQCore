@@ -1,0 +1,1 @@
+/home/andi/Webprojects/akonda/webdocs/js/akonda-console.spec.js

@@ -1,0 +1,86 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Core Test Runner</title>
+  <link rel="stylesheet" href="mocha/mocha.css" />
+  <link rel="stylesheet" href="jscov/reporter.css" />
+  <link rel="stylesheet" href="core-testrunner.css" />
+</head>
+<body>
+  
+  <!-- <div id="navigation">
+    <a href="http://akonda.lc:3000/test/testRunner.html" class="active">Akonda Test runner</a>
+    <a href="http://apps.akonda.lc:3001/test/testRunner.html">Akonda Apps Test runner</a>
+    <form style="display: inline">
+      <label for="enableCoverage">
+        <input type="checkbox" id="enableCoverage" value="1" /> Enable Coverage
+      </label>
+    </form>
+  </div> -->
+
+  <div id="mocha"></div>
+  <div id="coverage"></div> 
+  <div id="menu"></div>
+  
+  <!-- lib files -->
+  <script type="text/javascript" src="http://files.akonda.lc/js/jquery.min.js"></script>
+  <script type="text/javascript" src="http://files.akonda.lc/js/lodash.min.js"></script>
+  <script type="text/javascript" src="http://files.akonda.lc/js/backbone.min.js"></script>
+  <script type="text/javascript" src="jscov/JSCovReporter.js"></script>
+  <script type="text/javascript" src="jscov/reporter.js"></script>
+  <script type="text/javascript" src="mocha/expect.js"></script>
+  <script type="text/javascript" src="mocha/jquery.expect.js"></script>
+  <script type="text/javascript" src="mocha/sinon.js"></script>
+  <script type="text/javascript" src="mocha/mocha.js"></script>
+  <script type="text/javascript" src="http://files.akonda.lc/js/EventEmitter.js"></script>
+  <script type="text/javascript">mocha.setup('bdd')</script>
+
+  <script type="text/javascript">
+    var files = [
+      'core'
+    ];
+
+    var withCoverage = localStorage.getItem('core-test-with-coverage') || false;
+
+    if (withCoverage) {
+      document.getElementById('enableCoverage').checked = true;
+    }
+
+    document.getElementById('enableCoverage').addEventListener('change', function() {
+      if (document.getElementById('enableCoverage').checked) {
+        localStorage.setItem('core-test-with-coverage', true);
+      }
+      else {
+       localStorage.removeItem('core-test-with-coverage'); 
+      }
+    });
+
+    files.forEach(function(f) {
+      if (withCoverage) {
+        document.write('<scr' + 'ipt type="text/javascript" src="src/cov/' + f + '.js"></scr' + 'ipt>');
+        document.write('<scr' + 'ipt type="text/javascript" src="spec/' + f + '.spec.js"></scr' + 'ipt>');
+      }
+      else {
+        document.write('<scr' + 'ipt type="text/javascript" src="src/lib/' + f + '.js"></scr' + 'ipt>');
+        document.write('<scr' + 'ipt type="text/javascript" src="spec/' + f + '.spec.js"></scr' + 'ipt>');
+      }
+    });
+  </script>
+
+  <script type="text/javascript">
+    if (withCoverage) {
+      mocha.run(function () {
+          if (typeof window.__$coverObject !== 'undefined') {
+              var reporter = new JSCovReporter({ coverObject: window.__$coverObject });
+          }
+      });
+    }
+    else {
+      mocha.run(function () {
+          
+      });
+    }
+      
+  </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+#navigation {
+	color: #000;
+	font-size: 13px;
+	font-family: sans-serif;
+	font-weight: bold;
+	margin-top: -50px;
+}
+
+#navigation a:link,
+#navigation a:active,
+#navigation a:visited {
+	background-color: #ddd;
+	color: #000;
+	border-radius: 5px;
+	padding: 2px;
+}
+
+#navigation a.active {
+	background-color: #111;
+	color: #fff;
+	border-radius: 5px;
+	padding: 2px;
+}

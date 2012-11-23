@@ -109,5 +109,43 @@ var CoreModel = (function() {
 		this.attributes = {};
 	};
 
+	/**
+	 * Send an ajax request to a webserver. Sends all models attributes
+	 *
+	 * You must set the server URI first with model.server = 'http://example.com/post'
+	 *
+	 * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
+	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
+	 */
+	model.prototype.send = function(method, callback) {
+		var data;
+
+		method = method || 'POST';
+
+		data = this.get();
+
+		if (!this.server) {
+			this.error('Can not send an ajax request! You must define a server URL first.');
+			return false;
+		}
+
+		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
+
+		$.ajax({
+			url: this.server,
+			method: method,
+			data: data,
+			success: function(data, status, jqXHR) {
+				callback.call(this, null, data, status, jqXHR);
+			}.bind(this),
+			error: function(jqXHR, status, error) {
+				callback.call(this, {
+					type: status,
+					http: error
+				}, null, status, jqXHR);
+			}.bind(this)
+		});
+	}
+
 	return model;
 })();

@@ -26,23 +26,27 @@ var CorePresenter = (function() {
 	return presenter;
 })();
 var CoreModel = (function() {
-	var isValid = false,
-		model,
-		modelData = null;
+	var model;
 
 	model = function(conf) {
+		if (conf === undefined) {
+			conf = {};
+		}
+
 		$.extend(this, conf, new CoreEvent(), new CoreLogger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
+		this.attributes = {};
+		this._isValid = false;
 
 		if (conf.validate) {
 			this.validate = function(formData) {
 				var result;
 
-				isValid = false;
+				this._isValid = false;
 				result = conf.validate.call(this, formData);
-				if (!result || typeof result === 'object' && Object.keys(result).length === 0) {
-					isValid = true;
+				if (!result || (typeof result === 'object' && Object.keys(result).length === 0)) {
+					this._isValid = true;
 				}
 
 				return result;
@@ -61,7 +65,7 @@ var CoreModel = (function() {
 	};
 
 	model.prototype.isValid = function() {
-		return isValid;
+		return this._isValid;
 	};
 
 	/**
@@ -95,18 +99,23 @@ var CoreModel = (function() {
 			}
 		}
 
-		modelData = newData;
+		$.extend(this.attributes, newData);
 	};
 
 	/**
-	 * Gets data from model
+	 * Get one or all attributes from model
 	 *
 	 * @param  {String} key Data key
 	 *
 	 * @return {Object}     Model dataset
 	 */
 	model.prototype.get = function(key) {
-		return modelData[key];
+		if (key === undefined) {
+			return this.attributes;
+		}
+		else {
+			return this.attributes[key];
+		}
 	};
 
 	/**
@@ -116,15 +125,15 @@ var CoreModel = (function() {
 	 * @return {Boolean} Returns true if model has a dataset with key
 	 */
 	model.prototype.has = function(key) {
-		return !!modelData[key];
+		return !!this.attributes[key];
 	};
 
 	/**
 	 * Remove all data from model
 	 */
-	model.prototype.clean = function() {
-		this.log('Clean model');
-		modelData = null;
+	model.prototype.reset = function() {
+		this.log('Reset model');
+		this.attributes = {};
 	};
 
 	return model;

@@ -150,4 +150,186 @@ describe('Core Model', function() {
 
 		expect(testModel.attributes).to.eql({});
 	});
+
+	it('Should make a POST request', function() {
+		//Stub jQuery.ajax
+		sinon.stub(jQuery, 'ajax');
+		testModel = new CoreModel({
+			server: 'http://test.com'
+		});
+
+		testModel.set({
+			a: 'aaa',
+			b: 'bbb',
+			c: 'ccc'
+		});
+
+		testModel.send();
+
+		expect(jQuery.ajax.calledWithMatch({
+			url: 'http://test.com',
+			method: 'POST',
+			data: {
+				a: 'aaa',
+				b: 'bbb',
+				c: 'ccc'
+			}
+		})).to.be(true);
+
+		//Restore jQuery.ajax
+		jQuery.ajax.restore();
+	});
+
+	it('Should make a GET request', function() {
+		//Stub jQuery.ajax
+		sinon.stub(jQuery, 'ajax');
+		testModel = new CoreModel({
+			server: 'http://test.com'
+		});
+
+		testModel.set({
+			a: 'aaa',
+			b: 'bbb',
+			c: 'ccc'
+		});
+
+		testModel.send('GET');
+
+		expect(jQuery.ajax.calledWithMatch({
+			url: 'http://test.com',
+			method: 'GET',
+			data: {
+				a: 'aaa',
+				b: 'bbb',
+				c: 'ccc'
+			}
+		})).to.be(true);
+
+		//Restore jQuery.ajax
+		jQuery.ajax.restore();
+	});
+
+	it('Should make a PUT request', function() {
+		//Stub jQuery.ajax
+		sinon.stub(jQuery, 'ajax');
+		testModel = new CoreModel({
+			server: 'http://test.com'
+		});
+
+		testModel.set({
+			a: 'aaa',
+			b: 'bbb',
+			c: 'ccc'
+		});
+
+		testModel.send('PUT');
+
+		expect(jQuery.ajax.calledWithMatch({
+			url: 'http://test.com',
+			method: 'PUT',
+			data: {
+				a: 'aaa',
+				b: 'bbb',
+				c: 'ccc'
+			}
+		})).to.be(true);
+
+		//Restore jQuery.ajax
+		jQuery.ajax.restore();
+	});
+
+	it('Should make a DELETE request', function() {
+		//Stub jQuery.ajax
+		sinon.stub(jQuery, 'ajax');
+		testModel = new CoreModel({
+			server: 'http://test.com'
+		});
+
+		testModel.set({
+			a: 'aaa',
+			b: 'bbb',
+			c: 'ccc'
+		});
+
+		testModel.send('DELETE');
+
+		expect(jQuery.ajax.calledWithMatch({
+			url: 'http://test.com',
+			method: 'DELETE',
+			data: {
+				a: 'aaa',
+				b: 'bbb',
+				c: 'ccc'
+			}
+		})).to.be(true);
+
+		//Restore jQuery.ajax
+		jQuery.ajax.restore();
+	});
+
+	it('Should send a ajax request, this should point to the model in the success callback', function(done) {
+
+		this.timeout(5000);
+		//Stub jQuery.ajax
+		testModel = new CoreModel({
+			server: 'http://core.lc/test/post-success.php'
+		});
+
+		testModel.set({
+			a: 'aaa',
+			b: 'bbb',
+			c: 'ccc'
+		});
+
+		testModel.send('POST', function(err, data, status) {
+			if (status) {
+				expect(this).to.be(testModel);
+				done();
+			}
+		});
+	});
+
+	it('Should fail a ajax request, 404 page not found', function(done) {
+
+		this.timeout(5000);
+		//Stub jQuery.ajax
+		testModel = new CoreModel({
+			server: 'http://core.lc/test/post-404.php'
+		});
+
+		testModel.set({
+			a: 'aaa',
+			b: 'bbb',
+			c: 'ccc'
+		});
+
+		testModel.send('POST', function(err, status, data) {
+			if (err) {
+				expect(this).to.be(testModel);
+				done();
+			}
+		});
+	});
+
+	it('Should fail a ajax request, 500 server error', function(done) {
+
+		this.timeout(5000);
+		//Stub jQuery.ajax
+		testModel = new CoreModel({
+			server: 'http://core.lc/test/post-500.php'
+		});
+
+		testModel.set({
+			a: 'aaa',
+			b: 'bbb',
+			c: 'ccc'
+		});
+
+		testModel.send('POST', function(err, status, data) {
+			if (err) {
+				expect(this).to.be(testModel);
+				done();
+			}
+		});
+	});
 });

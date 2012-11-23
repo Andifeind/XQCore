@@ -3,24 +3,32 @@ if (typeof __$coverObject === "undefined"){
 	else if (typeof global !== "undefined") global.__$coverObject = {};
 	else throw new Error("cannot find the global scope");
 }
-__$coverObject["webdocs/test/src/lib/core-router.js"] = {};
-__$coverObject["webdocs/test/src/lib/core-router.js"].__code = "var CoreRouter = function(conf) {\n\tvar CoreRouter,\n\t\trouter ;\n\n\tCoreRouter = Backbone.Router.extend(conf);\n\trouter = new CoreRouter();\n\tBackbone.history.start();\n\treturn router;\n};";
-__$coverObject["webdocs/test/src/lib/core-router.js"]["0:179"] = 0;
-__$coverObject["webdocs/test/src/lib/core-router.js"]["35:60"] = 0;
-__$coverObject["webdocs/test/src/lib/core-router.js"]["64:105"] = 0;
-__$coverObject["webdocs/test/src/lib/core-router.js"]["108:133"] = 0;
-__$coverObject["webdocs/test/src/lib/core-router.js"]["136:160"] = 0;
-__$coverObject["webdocs/test/src/lib/core-router.js"]["163:176"] = 0;
-__$coverObject['webdocs/test/src/lib/core-router.js']['0:179']++;
+var __$coverInit = function(name, code){
+	__$coverObject[name] = {__code: code}
+}
+var __$coverInitRange = function(name, range){
+	__$coverObject[name][range] = 0;
+}
+var __$coverCall = function(name, range){
+	__$coverObject[name][range]++;
+}
+__$coverInit("webdocs/test/src/lib/core-router.js", "var CoreRouter = function(conf) {\n\tvar CoreRouter,\n\t\trouter ;\n\n\tCoreRouter = Backbone.Router.extend(conf);\n\trouter = new CoreRouter();\n\tBackbone.history.start();\n\treturn router;\n};");
+__$coverInitRange("webdocs/test/src/lib/core-router.js", "0:179");
+__$coverInitRange("webdocs/test/src/lib/core-router.js", "35:60");
+__$coverInitRange("webdocs/test/src/lib/core-router.js", "64:105");
+__$coverInitRange("webdocs/test/src/lib/core-router.js", "108:133");
+__$coverInitRange("webdocs/test/src/lib/core-router.js", "136:160");
+__$coverInitRange("webdocs/test/src/lib/core-router.js", "163:176");
+__$coverCall('webdocs/test/src/lib/core-router.js', '0:179');
 var CoreRouter = function (conf) {
-    __$coverObject['webdocs/test/src/lib/core-router.js']['35:60']++;
+    __$coverCall('webdocs/test/src/lib/core-router.js', '35:60');
     var CoreRouter, router;
-    __$coverObject['webdocs/test/src/lib/core-router.js']['64:105']++;
+    __$coverCall('webdocs/test/src/lib/core-router.js', '64:105');
     CoreRouter = Backbone.Router.extend(conf);
-    __$coverObject['webdocs/test/src/lib/core-router.js']['108:133']++;
+    __$coverCall('webdocs/test/src/lib/core-router.js', '108:133');
     router = new CoreRouter();
-    __$coverObject['webdocs/test/src/lib/core-router.js']['136:160']++;
+    __$coverCall('webdocs/test/src/lib/core-router.js', '136:160');
     Backbone.history.start();
-    __$coverObject['webdocs/test/src/lib/core-router.js']['163:176']++;
+    __$coverCall('webdocs/test/src/lib/core-router.js', '163:176');
     return router;
 };

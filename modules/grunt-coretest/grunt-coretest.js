@@ -36,7 +36,7 @@ module.exports = function(grunt) {
 				});
 			}
 			else if (/\.js$/.test(filename)) {
-				//Is a spec file
+				//Isn't a spec file
 				libs.push({
 					abspath: abspath,
 					rootdir: rootdir,
@@ -86,12 +86,13 @@ module.exports = function(grunt) {
 		}
 
 		//Parse jsconf files
+		grunt.log.writeln('\nRun coverjs...');
 		exec('coverjs -o webdocs/test/src/cov/ webdocs/test/src/lib/*.js', function(error, stdout, stderr) {
 			if (error !== null) {
 				grunt.log.error('coverjs error: ' + error);
 			}
 
-			grunt.log.writeln(stdout);
+			grunt.log.writeln('Cover', stdout);
 			grunt.log.writeln(stderr);
 		});
 	});

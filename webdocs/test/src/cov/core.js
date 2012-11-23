@@ -3,601 +3,692 @@ if (typeof __$coverObject === "undefined"){
 	else if (typeof global !== "undefined") global.__$coverObject = {};
 	else throw new Error("cannot find the global scope");
 }
-__$coverObject["webdocs/test/src/lib/core.js"] = {};
-__$coverObject["webdocs/test/src/lib/core.js"].__code = "var CoreRouter = function(conf) {\n\tvar CoreRouter,\n\t\trouter ;\n\n\tCoreRouter = Backbone.Router.extend(conf);\n\trouter = new CoreRouter();\n\tBackbone.history.start();\n\treturn router;\n};\nvar CorePresenter = (function() {\n\n\tvar presenter = function(conf) {\n\t\t$.extend(this, conf, new CoreEvent(), new CoreLogger());\n\t\tthis.name = (conf.name || 'Nameless') + 'Presenter';\n\t\tthis.debug = Boolean(conf.debug);\n\t\tthis.eventCallbacks = {};\n\n\t\tthis.log('Initialize presenter with conf:', conf);\n\t\tthis.init();\n\t};\n\n\tpresenter.prototype.init = function() {\n\n\t};\n\n\treturn presenter;\n})();\nvar CoreModel = (function() {\n\tvar isValid = false,\n\t\tmodel,\n\t\tmodelData = null;\n\n\tmodel = function(conf) {\n\t\t$.extend(this, conf, new CoreEvent(), new CoreLogger());\n\t\tthis.name = (conf.name || 'Nameless') + 'Model';\n\t\tthis.debug = Boolean(conf.debug);\n\n\t\tif (conf.validate) {\n\t\t\tthis.validate = function(formData) {\n\t\t\t\tvar result;\n\n\t\t\t\tisValid = false;\n\t\t\t\tresult = conf.validate.call(this, formData);\n\t\t\t\tif (!result || typeof result === 'object' && Object.keys(result).length === 0) {\n\t\t\t\t\tisValid = true;\n\t\t\t\t}\n\n\t\t\t\treturn result;\n\t\t\t}.bind(this);\n\t\t}\n\n\t\tthis.init();\n\t};\n\n\tmodel.prototype.init = function() {\n\n\t};\n\n\tmodel.prototype.validate = function() {\n\n\t};\n\n\tmodel.prototype.isValid = function() {\n\t\treturn isValid;\n\t};\n\n\t/**\n\t * Set model data\n\t *\n\t * @param {Object or String} data/key\n\t * @param {Object} value Data value\n\t */\n\tmodel.prototype.set = function() {\n\t\tvar newData = {},\n\t\t\tvalidateResult;\n\n\t\tif (typeof arguments[0] === 'object') {\n\t\t\t//Add a dataset\n\t\t\t$.extend(newData, arguments[0]);\n\t\t\tthis.log('Set data', arguments[0]);\n\t\t}\n\t\telse if (typeof arguments[0] === 'string') {\n\t\t\tnewData[arguments[0]] = arguments[1];\n\t\t\tthis.log('Set data', arguments[0], arguments[1]);\n\t\t}\n\t\telse {\n\t\t\tthis.warn('Data are incorrect in model.set()', arguments);\n\t\t}\n\n\t\tif (this.validate) {\n\t\t\tvalidateResult = this.validate(newData);\n\t\t\tif (validateResult) {\n\t\t\t\tthis.warn('Validate error in model.set', validateResult);\n\t\t\t\treturn validateResult;\n\t\t\t}\n\t\t}\n\n\t\tmodelData = newData;\n\t};\n\n\t/**\n\t * Gets data from model\n\t *\n\t * @param  {String} key Data key\n\t *\n\t * @return {Object}     Model dataset\n\t */\n\tmodel.prototype.get = function(key) {\n\t\treturn modelData[key];\n\t};\n\n\t/**\n\t * Check wether model has a dataset\n\t *\n\t * @param {String} key Dataset key\n\t * @return {Boolean} Returns true if model has a dataset with key\n\t */\n\tmodel.prototype.has = function(key) {\n\t\treturn !!modelData[key];\n\t};\n\n\t/**\n\t * Remove all data from model\n\t */\n\tmodel.prototype.clean = function() {\n\t\tthis.log('Clean model');\n\t\tmodelData = null;\n\t};\n\n\treturn model;\n})();\nvar CoreView = (function() {\n\n\tvar view = function(presenter, conf) {\n\t\tvar self = this;\n\n\t\t$.extend(this, conf, new CoreEvent(), new CoreLogger());\n\t\tthis.name = (conf.name || 'Nameless') + 'View';\n\t\tthis.presenter = presenter;\n\n\t\tthis.debug = Boolean(conf.debug);\n\t\tthis.container = $(conf.container);\n\t\tif (this.container.length > 0) {\n\t\t\twindow.addEventListener('resize', function(e) {\n\t\t\t\tself.resize(e);\n\t\t\t}, false);\n\n\t\t\tthis.log('Initialize view with conf:', conf);\n\t\t\tthis.log('  ... using Presenter:', this.presenter.name);\n\t\t\tthis.log('  ... using Container:', this.container);\n\n\t\t\t//Send events to presenter\n\t\t\tObject.keys(this.events).forEach(function(key) {\n\t\t\t\tvar split = key.split(' ', 2),\n\t\t\t\t\teventFunc,\n\t\t\t\t\teventName = split[0],\n\t\t\t\t\tselector = split[1] || null;\n\n\t\t\t\tif (split.length === 1 || split.length === 2) {\n\t\t\t\t\teventFunc = this.presenter.events[this.events[key]];\n\t\t\t\t\tif (typeof eventFunc === 'function') {\n\t\t\t\t\t\t//Register event listener\n\t\t\t\t\t\tthis.container.on(eventName, eventFunc);\n\t\t\t\t\t\tthis.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);\n\t\t\t\t\t}\n\t\t\t\t\telse {\n\t\t\t\t\t\tthis.warn('Event handler callback not defined in Presenter:', this.events[key]);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\telse {\n\t\t\t\t\tthis.warn('Incorect event configuration', key);\n\t\t\t\t}\n\t\t\t}, this);\n\n\t\t\t//Self init\n\t\t\tthis.init();\n\t\t}\n\t\telse {\n\t\t\tthis.error('Can\\'t initialize View, Container not found!', this.container);\n\t\t}\n\t};\n\n\tview.prototype.init = function() {\n\n\t};\n\n\tview.prototype.show = function() {\n\t\t\n\t};\n\n\tview.prototype.hide = function() {\n\t\t\n\t};\n\n\tview.prototype.render = function() {\n\t\t\n\t};\n\n\tview.prototype.resize = function() {\n\t\t\n\t};\n\n\n\n\treturn view;\n})();\nvar CoreEvent = (function() {\n\tvar ee,\n\t\tevent;\n\t\n\tfunction indexOf(eventName, callback) {\n\t\tthis.objectName = 'CoreEvent';\n\t\t\n\t\tvar len = this.store.length,\n\t\t\ti = 0,\n\t\t\tel;\n\n\t\tfor (; i < len; i++) {\n\t\t\tel = this.store[i];\n\t\t\tif (eventName === null || eventName === el.event && callback === null || callback === el.callback) {\n\t\t\t\treturn el;\n\t\t\t}\n\t\t}\n\n\t\treturn null;\n\t}\n\n\n\tevent = function(conf) {\n\t\tthis.store = [];\n\t};\n\n\t// event.prototype.on = function(eventName, callback) {\n\n\t// };\n\n\t// event.prototype.once = function(eventName, callback) {\n\n\t// };\n\n\t// event.prototype.emit = function(eventName, data) {\n\n\t// };\n\n\t// event.prototype.remove = function(eventName, callback) {\n\n\t// };\n\n\tee = new EventEmitter();\n\tevent.prototype.emit = function(eventName, data) {\n\t\tif (this.debug) {\n\t\t\tconsole.debug('Akonda Core - Emit event', eventName, data);\n\t\t}\n\t\treturn ee.emitEvent(eventName, [data]);\n\t};\n\n\tevent.prototype.on = function(eventName, listener) {\n\t\tif (this.debug) {\n\t\t\tconsole.debug('Akonda Core - Add listener', eventName, listener);\n\t\t}\n\t\treturn ee.addListener(eventName, listener);\n\t};\n\n\tevent.prototype.once = function(eventName, listener) {\n\t\tvar onceListener = function() {\n\t\t\tee.removeListener(eventName, listener);\n\t\t\tlistener.call(null, arguments);\n\t\t\treturn true;\n\t\t};\n\n\t\tif (this.debug) {\n\t\t\tconsole.debug('Akonda Core - Add once listener', eventName, listener);\n\t\t}\n\t\treturn ee.addListener(eventName, onceListener);\n\t};\n\n\tevent.prototype.off = function(eventName, listener) {\n\t\tif (this.debug) {\n\t\t\tconsole.debug('Akonda Core - Remove listener', eventName, listener);\n\t\t}\n\n\t\tif (listener === undefined) {\n\t\t\treturn ee.removeEvent(eventName);\n\t\t}\n\t\telse {\n\t\t\treturn ee.removeListener(eventName, listener);\n\t\t}\n\t};\n\n\treturn event;\n})();\n\nvar CoreLogger = (function(conf) {\n\n\tvar logger = function() {\n\t\t\n\t};\n\n\tlogger.prototype.log = function() {\n\t\tvar args;\n\n\t\tif (this.debug) {\n\t\t\targs = Array.prototype.slice.call(arguments);\n\t\t\targs.unshift('[' + this.name + ']');\n\t\t\tconsole.log.apply(console, args);\n\t\t}\n\t};\n\n\tlogger.prototype.warn = function() {\n\t\tvar args;\n\n\t\tif (this.debug) {\n\t\t\targs = Array.prototype.slice.call(arguments);\n\t\t\targs.unshift('[' + this.name + ']');\n\t\t\tconsole.warn.apply(console, args);\n\t\t}\n\t};\n\n\tlogger.prototype.error = function() {\n\t\tvar args;\n\n\t\tif (this.debug) {\n\t\t\targs = Array.prototype.slice.call(arguments);\n\t\t\targs.unshift('[' + this.name + ']');\n\t\t\tconsole.error.apply(console, args);\n\t\t}\n\t};\n\n\treturn logger;\n})();\n/**\n * A bunch of helpfull functions\n *\n * @return {Object} Returns a singelton object instance of CoreUtil\n */\nvar CoreUtil = (function($) {\n\n\tvar util = {\n\t\tname: 'CoreUtil',\n\t\tdebug: true\n\t};\n\n\t/**\n\t * Serialize a form and return its values as JSON\n\t *\n\t * @param {Object} Form selector\n\t * @return {Object} FormData as JSON\n\t */\n\tutil.serializeForm = function(selector) {\n\t\tvar formData = {},\n\t\t\tformSelector = $(selector);\n\n\t\tif (formSelector.get(0).tagName === 'INPUT') {\n\n\t\t}\n\t\telse {\n\t\t\tformSelector = formSelector.find(':input');\n\t\t}\n\n\t\tformSelector.serializeArray().forEach(function(item) {\n\t\t\tformData[item.name] = item.value;\n\t\t});\n\n\t\tif (this.debug) {\n\t\t\tconsole.log('Akonda Core - Serialize form:', formSelector, formData);\n\t\t}\n\n\t\treturn formData;\n\t};\n\n\t/**\n\t * Check length of a string or number\n\t *\n\t * @param {String or Number} input this will be checked\n\t * @param {Number} min String can't be shorter than n, Number can't be lower than n\n\t * @param {Number} max String can't be longer than n, Number can't be greater than n\n\t *\n\t * @returns {String} errorMessage on invalid or void on valid\n\t */\n\tutil.checkLength = function(input, min, max) {\n\t\tif (typeof input === 'Number') {\n\t\t\tif (input < min) {\n\t\t\t\treturn 'num-to-small';\n\t\t\t}\n\t\t\telse if (input > max) {\n\t\t\t\treturn 'num-to-large';\n\t\t\t}\n\t\t}\n\t\telse {\n\t\t\tconsole.log(input, input.length);\n\t\t\tif (input.length < min) {\n\t\t\t\treturn 'str-to-short';\n\t\t\t}\n\t\t\telse if (input.length > max) {\n\t\t\t\treturn 'str-to-long';\n\t\t\t}\n\t\t}\n\t};\n\n\t/**\n\t * Checks the equality of two strings\n\t *\n\t * @param {String} str1 First string\n\t * @param {String} str2 Second string\n\t *\n\t * @returns {String} errorMessage on invalid or void on valid\n\t */\n\tutil.checkEqual = function(str1, str2) {\n\t\tif (str1 !== str2) {\n\t\t\treturn 'str-not-equal';\n\t\t}\n\t};\n\n\t/**\n\t * Checks the validity of an email address\n\t *\n\t * @param {String} email e-Mail address\n\t */\n\tutil.checkEmail = function(email) {\n\t\tif (!/^\\S+\\@\\S+\\.[a-z]{2,10}$/.test(email)) {\n\t\t\treturn 'invalid-email';\n\t\t}\n\t};\n\n\treturn util;\n\n})(jQuery);";
-__$coverObject["webdocs/test/src/lib/core.js"]["0:179"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["181:572"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["574:2631"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2633:4327"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4329:6085"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6088:6800"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6914:8841"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["35:60"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["64:105"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["108:133"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["136:160"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["163:176"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["217:499"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["503:546"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["550:566"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["252:307"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["311:362"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["366:398"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["402:426"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["431:480"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["484:495"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["605:653"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["657:1150"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1154:1193"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1197:1240"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1244:1303"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1416:2068"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2188:2253"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2411:2478"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2523:2609"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2613:2625"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["684:739"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["743:790"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["794:826"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["831:1130"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1135:1146"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["855:1126"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["896:906"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["913:928"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["934:977"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["983:1089"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1096:1109"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1069:1083"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1285:1299"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1453:1488"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1493:1849"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1854:2040"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2045:2064"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1555:1586"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1591:1625"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1681:1717"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1722:1770"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1788:1845"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1878:1917"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1922:2036"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["1948:2004"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2010:2031"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2228:2249"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2451:2474"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2562:2585"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2589:2605"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2664:4082"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4086:4124"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4128:4168"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4172:4212"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4216:4258"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4262:4304"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4310:4321"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2705:2720"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2725:2780"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2784:2830"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2834:2860"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2865:2897"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2901:2935"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2939:4078"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["2975:3055"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3061:3105"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3110:3165"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3170:3220"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3256:3950"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3971:3982"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3027:3041"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3309:3415"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3422:3937"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3475:3526"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3533:3861"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3610:3649"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3657:3748"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3775:3854"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["3885:3931"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4000:4074"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4360:4375"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4380:4698"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4703:4749"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5021:5044"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5047:5229"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5233:5427"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5431:5770"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5774:6063"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6067:6079"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4422:4451"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4458:4502"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4507:4679"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4684:4695"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4533:4551"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4556:4675"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4661:4670"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["4730:4745"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5100:5183"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5187:5225"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5121:5179"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5288:5377"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5381:5423"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5309:5373"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5488:5617"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5622:5716"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5720:5766"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5523:5561"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5566:5596"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5601:5612"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5643:5712"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5830:5922"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5927:6059"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5851:5918"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["5960:5992"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6010:6055"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6125:6156"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6160:6361"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6365:6568"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6572:6777"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6781:6794"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6198:6206"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6211:6357"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6232:6276"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6281:6316"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6321:6353"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6404:6412"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6417:6564"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6438:6482"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6487:6522"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6527:6560"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6612:6620"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6625:6773"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6646:6690"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6695:6730"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6735:6769"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["6946:6995"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7136:7566"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7918:8295"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8496:8593"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8696:8813"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8817:8828"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7180:7228"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7233:7343"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7348:7444"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7449:7542"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7547:7562"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7297:7339"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7406:7438"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7470:7538"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["7967:8291"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8003:8111"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8026:8047"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8085:8106"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8129:8161"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8166:8287"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8196:8217"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8262:8282"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8539:8589"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8563:8585"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8734:8809"] = 0;
-__$coverObject["webdocs/test/src/lib/core.js"]["8783:8805"] = 0;
-__$coverObject['webdocs/test/src/lib/core.js']['0:179']++;
+var __$coverInit = function(name, code){
+	__$coverObject[name] = {__code: code}
+}
+var __$coverInitRange = function(name, range){
+	__$coverObject[name][range] = 0;
+}
+var __$coverCall = function(name, range){
+	__$coverObject[name][range]++;
+}
+__$coverInit("webdocs/test/src/lib/core.js", "var CoreRouter = function(conf) {\n\tvar CoreRouter,\n\t\trouter ;\n\n\tCoreRouter = Backbone.Router.extend(conf);\n\trouter = new CoreRouter();\n\tBackbone.history.start();\n\treturn router;\n};\nvar CorePresenter = (function() {\n\n\tvar presenter = function(conf) {\n\t\t$.extend(this, conf, new CoreEvent(), new CoreLogger());\n\t\tthis.name = (conf.name || 'Nameless') + 'Presenter';\n\t\tthis.debug = Boolean(conf.debug);\n\t\tthis.eventCallbacks = {};\n\n\t\tthis.log('Initialize presenter with conf:', conf);\n\t\tthis.init();\n\t};\n\n\tpresenter.prototype.init = function() {\n\n\t};\n\n\treturn presenter;\n})();\nvar CoreModel = (function() {\n\tvar model;\n\n\tmodel = function(conf) {\n\t\tif (conf === undefined) {\n\t\t\tconf = {};\n\t\t}\n\n\t\t$.extend(this, conf, new CoreEvent(), new CoreLogger());\n\t\tthis.name = (conf.name || 'Nameless') + 'Model';\n\t\tthis.debug = Boolean(conf.debug);\n\t\tthis.attributes = {};\n\t\tthis._isValid = false;\n\n\t\tif (conf.validate) {\n\t\t\tthis.validate = function(formData) {\n\t\t\t\tvar result;\n\n\t\t\t\tthis._isValid = false;\n\t\t\t\tresult = conf.validate.call(this, formData);\n\t\t\t\tif (!result || (typeof result === 'object' && Object.keys(result).length === 0)) {\n\t\t\t\t\tthis._isValid = true;\n\t\t\t\t}\n\n\t\t\t\treturn result;\n\t\t\t}.bind(this);\n\t\t}\n\n\t\tthis.init();\n\t};\n\n\tmodel.prototype.init = function() {\n\n\t};\n\n\tmodel.prototype.validate = function() {\n\n\t};\n\n\tmodel.prototype.isValid = function() {\n\t\treturn this._isValid;\n\t};\n\n\t/**\n\t * Set model data\n\t *\n\t * @param {Object or String} data/key\n\t * @param {Object} value Data value\n\t */\n\tmodel.prototype.set = function() {\n\t\tvar newData = {},\n\t\t\tvalidateResult;\n\n\t\tif (typeof arguments[0] === 'object') {\n\t\t\t//Add a dataset\n\t\t\t$.extend(newData, arguments[0]);\n\t\t\tthis.log('Set data', arguments[0]);\n\t\t}\n\t\telse if (typeof arguments[0] === 'string') {\n\t\t\tnewData[arguments[0]] = arguments[1];\n\t\t\tthis.log('Set data', arguments[0], arguments[1]);\n\t\t}\n\t\telse {\n\t\t\tthis.warn('Data are incorrect in model.set()', arguments);\n\t\t}\n\n\t\tif (this.validate) {\n\t\t\tvalidateResult = this.validate(newData);\n\t\t\tif (validateResult) {\n\t\t\t\tthis.warn('Validate error in model.set', validateResult);\n\t\t\t\treturn validateResult;\n\t\t\t}\n\t\t}\n\n\t\t$.extend(this.attributes, newData);\n\t};\n\n\t/**\n\t * Get one or all attributes from model\n\t *\n\t * @param  {String} key Data key\n\t *\n\t * @return {Object}     Model dataset\n\t */\n\tmodel.prototype.get = function(key) {\n\t\tif (key === undefined) {\n\t\t\treturn this.attributes;\n\t\t}\n\t\telse {\n\t\t\treturn this.attributes[key];\n\t\t}\n\t};\n\n\t/**\n\t * Check wether model has a dataset\n\t *\n\t * @param {String} key Dataset key\n\t * @return {Boolean} Returns true if model has a dataset with key\n\t */\n\tmodel.prototype.has = function(key) {\n\t\treturn !!this.attributes[key];\n\t};\n\n\t/**\n\t * Remove all data from model\n\t */\n\tmodel.prototype.reset = function() {\n\t\tthis.log('Reset model');\n\t\tthis.attributes = {};\n\t};\n\n\treturn model;\n})();\nvar CoreView = (function() {\n\n\tvar view = function(presenter, conf) {\n\t\tvar self = this;\n\n\t\t$.extend(this, conf, new CoreEvent(), new CoreLogger());\n\t\tthis.name = (conf.name || 'Nameless') + 'View';\n\t\tthis.presenter = presenter;\n\n\t\tthis.debug = Boolean(conf.debug);\n\t\tthis.container = $(conf.container);\n\t\tif (this.container.length > 0) {\n\t\t\twindow.addEventListener('resize', function(e) {\n\t\t\t\tself.resize(e);\n\t\t\t}, false);\n\n\t\t\tthis.log('Initialize view with conf:', conf);\n\t\t\tthis.log('  ... using Presenter:', this.presenter.name);\n\t\t\tthis.log('  ... using Container:', this.container);\n\n\t\t\t//Send events to presenter\n\t\t\tObject.keys(this.events).forEach(function(key) {\n\t\t\t\tvar split = key.split(' ', 2),\n\t\t\t\t\teventFunc,\n\t\t\t\t\teventName = split[0],\n\t\t\t\t\tselector = split[1] || null;\n\n\t\t\t\tif (split.length === 1 || split.length === 2) {\n\t\t\t\t\teventFunc = this.presenter.events[this.events[key]];\n\t\t\t\t\tif (typeof eventFunc === 'function') {\n\t\t\t\t\t\t//Register event listener\n\t\t\t\t\t\tthis.container.on(eventName, eventFunc);\n\t\t\t\t\t\tthis.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);\n\t\t\t\t\t}\n\t\t\t\t\telse {\n\t\t\t\t\t\tthis.warn('Event handler callback not defined in Presenter:', this.events[key]);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t\telse {\n\t\t\t\t\tthis.warn('Incorect event configuration', key);\n\t\t\t\t}\n\t\t\t}, this);\n\n\t\t\t//Self init\n\t\t\tthis.init();\n\t\t}\n\t\telse {\n\t\t\tthis.error('Can\\'t initialize View, Container not found!', this.container);\n\t\t}\n\t};\n\n\tview.prototype.init = function() {\n\n\t};\n\n\tview.prototype.show = function() {\n\t\t\n\t};\n\n\tview.prototype.hide = function() {\n\t\t\n\t};\n\n\tview.prototype.render = function() {\n\t\t\n\t};\n\n\tview.prototype.resize = function() {\n\t\t\n\t};\n\n\n\n\treturn view;\n})();\nvar CoreEvent = (function() {\n\tvar ee,\n\t\tevent;\n\t\n\tfunction indexOf(eventName, callback) {\n\t\tthis.objectName = 'CoreEvent';\n\t\t\n\t\tvar len = this.store.length,\n\t\t\ti = 0,\n\t\t\tel;\n\n\t\tfor (; i < len; i++) {\n\t\t\tel = this.store[i];\n\t\t\tif (eventName === null || eventName === el.event && callback === null || callback === el.callback) {\n\t\t\t\treturn el;\n\t\t\t}\n\t\t}\n\n\t\treturn null;\n\t}\n\n\n\tevent = function(conf) {\n\t\tthis.store = [];\n\t};\n\n\t// event.prototype.on = function(eventName, callback) {\n\n\t// };\n\n\t// event.prototype.once = function(eventName, callback) {\n\n\t// };\n\n\t// event.prototype.emit = function(eventName, data) {\n\n\t// };\n\n\t// event.prototype.remove = function(eventName, callback) {\n\n\t// };\n\n\tee = new EventEmitter();\n\tevent.prototype.emit = function(eventName, data) {\n\t\tif (this.debug) {\n\t\t\tconsole.debug('Akonda Core - Emit event', eventName, data);\n\t\t}\n\t\treturn ee.emitEvent(eventName, [data]);\n\t};\n\n\tevent.prototype.on = function(eventName, listener) {\n\t\tif (this.debug) {\n\t\t\tconsole.debug('Akonda Core - Add listener', eventName, listener);\n\t\t}\n\t\treturn ee.addListener(eventName, listener);\n\t};\n\n\tevent.prototype.once = function(eventName, listener) {\n\t\tvar onceListener = function() {\n\t\t\tee.removeListener(eventName, listener);\n\t\t\tlistener.call(null, arguments);\n\t\t\treturn true;\n\t\t};\n\n\t\tif (this.debug) {\n\t\t\tconsole.debug('Akonda Core - Add once listener', eventName, listener);\n\t\t}\n\t\treturn ee.addListener(eventName, onceListener);\n\t};\n\n\tevent.prototype.off = function(eventName, listener) {\n\t\tif (this.debug) {\n\t\t\tconsole.debug('Akonda Core - Remove listener', eventName, listener);\n\t\t}\n\n\t\tif (listener === undefined) {\n\t\t\treturn ee.removeEvent(eventName);\n\t\t}\n\t\telse {\n\t\t\treturn ee.removeListener(eventName, listener);\n\t\t}\n\t};\n\n\treturn event;\n})();\n\nvar CoreLogger = (function(conf) {\n\n\t//var timerStore = {};\n\n\tfunction getHumanTime(time) {\n\t\tif (time < 1000) {\n\t\t\treturn time + ' ms';\n\t\t}\n\t\telse if (time < 60000) {\n\t\t\treturn (time / 1000) + ' sec';\n\t\t}\n\t\telse {\n\t\t\treturn (time / 60000) + ' min';\n\t\t}\n\t}\n\n\tvar logger = function() {\n\t\t\n\t};\n\n\tlogger.prototype.log = function() {\n\t\tvar args;\n\n\t\tif (this.debug) {\n\t\t\targs = Array.prototype.slice.call(arguments);\n\t\t\targs.unshift('[' + this.name + ']');\n\t\t\tconsole.log.apply(console, args);\n\t\t}\n\t};\n\n\tlogger.prototype.warn = function() {\n\t\tvar args;\n\n\t\tif (this.debug) {\n\t\t\targs = Array.prototype.slice.call(arguments);\n\t\t\targs.unshift('[' + this.name + ']');\n\t\t\tconsole.warn.apply(console, args);\n\t\t}\n\t};\n\n\tlogger.prototype.error = function() {\n\t\tvar args;\n\n\t\tif (this.debug) {\n\t\t\targs = Array.prototype.slice.call(arguments);\n\t\t\targs.unshift('[' + this.name + ']');\n\t\t\tconsole.error.apply(console, args);\n\t\t}\n\t};\n\n\t/**\n\t * Start a timeTracer\n\t *\n\t * @param {String} timerName Set the name for your (Optional)\n\t * @return {Object} Returns a TimerObject\n\t */\n\tlogger.prototype.timer = function(name) {\n\t\tvar timer = {\n\t\t\tstart: null,\n\t\t\tstop: null,\n\t\t\tname: name,\n\t\t\tend: function() {\n\t\t\t\treturn this;\n\t\t\t}\n\t\t};\n\n\t\t/*if (name) {\n\t\t\tthis.timerStore[name] = timer;\n\t\t}*/\n\n\t\tthis.log('Start Timer', name);\n\n\t\t//Set timer start time\n\t\ttimer.start = Date.now();\n\t\treturn timer;\n\t};\n\n\t/**\n\t * Stops a timer\n\t *\n\t * @param {String or Object} timerName Stops the given timer\n\t */\n\tlogger.prototype.timerEnd = function(timer) {\n\t\t//Set stop timer\n\t\tif (typeof timer === 'object') {\n\t\t\ttimer.stop = Date.now();\n\t\t\tthis.log('Timer ' + timer.name + ' runs: ', getHumanTime(Date.now() - timer.start));\n\t\t}\n\t\telse {\n\t\t\tthis.warn('Not a timer object in logger.timerEnd()', timer);\n\t\t}\n\t};\n\t\n\n\treturn logger;\n})();\n/**\n * A bunch of helpfull functions\n *\n * @return {Object} Returns a singelton object instance of CoreUtil\n */\nvar CoreUtil = (function($) {\n\n\tvar util = {\n\t\tname: 'CoreUtil',\n\t\tdebug: true\n\t};\n\n\t/**\n\t * Serialize a form and return its values as JSON\n\t *\n\t * @param {Object} Form selector\n\t * @return {Object} FormData as JSON\n\t */\n\tutil.serializeForm = function(selector) {\n\t\tvar formData = {},\n\t\t\tformSelector = $(selector);\n\n\t\tif (formSelector.get(0).tagName === 'INPUT') {\n\n\t\t}\n\t\telse {\n\t\t\tformSelector = formSelector.find(':input');\n\t\t}\n\n\t\tformSelector.serializeArray().forEach(function(item) {\n\t\t\tformData[item.name] = item.value;\n\t\t});\n\n\t\tif (this.debug) {\n\t\t\tconsole.log('Akonda Core - Serialize form:', formSelector, formData);\n\t\t}\n\n\t\treturn formData;\n\t};\n\n\t/**\n\t * Check length of a string or number\n\t *\n\t * @param {String or Number} input this will be checked\n\t * @param {Number} min String can't be shorter than n, Number can't be lower than n\n\t * @param {Number} max String can't be longer than n, Number can't be greater than n\n\t *\n\t * @returns {String} errorMessage on invalid or void on valid\n\t */\n\tutil.checkLength = function(input, min, max) {\n\t\tif (typeof input === 'Number') {\n\t\t\tif (input < min) {\n\t\t\t\treturn 'num-to-small';\n\t\t\t}\n\t\t\telse if (input > max) {\n\t\t\t\treturn 'num-to-large';\n\t\t\t}\n\t\t}\n\t\telse {\n\t\t\tconsole.log(input, input.length);\n\t\t\tif (input.length < min) {\n\t\t\t\treturn 'str-to-short';\n\t\t\t}\n\t\t\telse if (input.length > max) {\n\t\t\t\treturn 'str-to-long';\n\t\t\t}\n\t\t}\n\t};\n\n\t/**\n\t * Checks the equality of two strings\n\t *\n\t * @param {String} str1 First string\n\t * @param {String} str2 Second string\n\t *\n\t * @returns {String} errorMessage on invalid or void on valid\n\t */\n\tutil.checkEqual = function(str1, str2) {\n\t\tif (str1 !== str2) {\n\t\t\treturn 'str-not-equal';\n\t\t}\n\t};\n\n\t/**\n\t * Checks the validity of an email address\n\t *\n\t * @param {String} email e-Mail address\n\t */\n\tutil.checkEmail = function(email) {\n\t\tif (!/^\\S+\\@\\S+\\.[a-z]{2,10}$/.test(email)) {\n\t\t\treturn 'invalid-email';\n\t\t}\n\t};\n\n\treturn util;\n\n})(jQuery);");
+__$coverInitRange("webdocs/test/src/lib/core.js", "0:179");
+__$coverInitRange("webdocs/test/src/lib/core.js", "181:572");
+__$coverInitRange("webdocs/test/src/lib/core.js", "574:2827");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2829:4523");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4525:6281");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6284:8079");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8193:10120");
+__$coverInitRange("webdocs/test/src/lib/core.js", "35:60");
+__$coverInitRange("webdocs/test/src/lib/core.js", "64:105");
+__$coverInitRange("webdocs/test/src/lib/core.js", "108:133");
+__$coverInitRange("webdocs/test/src/lib/core.js", "136:160");
+__$coverInitRange("webdocs/test/src/lib/core.js", "163:176");
+__$coverInitRange("webdocs/test/src/lib/core.js", "217:499");
+__$coverInitRange("webdocs/test/src/lib/core.js", "503:546");
+__$coverInitRange("webdocs/test/src/lib/core.js", "550:566");
+__$coverInitRange("webdocs/test/src/lib/core.js", "252:307");
+__$coverInitRange("webdocs/test/src/lib/core.js", "311:362");
+__$coverInitRange("webdocs/test/src/lib/core.js", "366:398");
+__$coverInitRange("webdocs/test/src/lib/core.js", "402:426");
+__$coverInitRange("webdocs/test/src/lib/core.js", "431:480");
+__$coverInitRange("webdocs/test/src/lib/core.js", "484:495");
+__$coverInitRange("webdocs/test/src/lib/core.js", "605:614");
+__$coverInitRange("webdocs/test/src/lib/core.js", "618:1221");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1225:1264");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1268:1311");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1315:1380");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1493:2160");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2296:2439");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2597:2670");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2715:2805");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2809:2821");
+__$coverInitRange("webdocs/test/src/lib/core.js", "645:687");
+__$coverInitRange("webdocs/test/src/lib/core.js", "692:747");
+__$coverInitRange("webdocs/test/src/lib/core.js", "751:798");
+__$coverInitRange("webdocs/test/src/lib/core.js", "802:834");
+__$coverInitRange("webdocs/test/src/lib/core.js", "838:858");
+__$coverInitRange("webdocs/test/src/lib/core.js", "862:883");
+__$coverInitRange("webdocs/test/src/lib/core.js", "888:1201");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1206:1217");
+__$coverInitRange("webdocs/test/src/lib/core.js", "674:683");
+__$coverInitRange("webdocs/test/src/lib/core.js", "912:1197");
+__$coverInitRange("webdocs/test/src/lib/core.js", "953:963");
+__$coverInitRange("webdocs/test/src/lib/core.js", "970:991");
+__$coverInitRange("webdocs/test/src/lib/core.js", "997:1040");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1046:1160");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1167:1180");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1134:1154");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1356:1376");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1530:1565");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1570:1926");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1931:2117");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2122:2156");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1632:1663");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1668:1702");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1758:1794");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1799:1847");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1865:1922");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1955:1994");
+__$coverInitRange("webdocs/test/src/lib/core.js", "1999:2113");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2025:2081");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2087:2108");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2336:2435");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2364:2386");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2404:2431");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2637:2666");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2754:2777");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2781:2801");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2860:4278");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4282:4320");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4324:4364");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4368:4408");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4412:4454");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4458:4500");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4506:4517");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2901:2916");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2921:2976");
+__$coverInitRange("webdocs/test/src/lib/core.js", "2980:3026");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3030:3056");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3061:3093");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3097:3131");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3135:4274");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3171:3251");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3257:3301");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3306:3361");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3366:3416");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3452:4146");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4167:4178");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3223:3237");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3505:3611");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3618:4133");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3671:3722");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3729:4057");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3806:3845");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3853:3944");
+__$coverInitRange("webdocs/test/src/lib/core.js", "3971:4050");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4081:4127");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4196:4270");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4556:4571");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4576:4894");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4899:4945");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5217:5240");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5243:5425");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5429:5623");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5627:5966");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5970:6259");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6263:6275");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4618:4647");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4654:4698");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4703:4875");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4880:4891");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4729:4747");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4752:4871");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4857:4866");
+__$coverInitRange("webdocs/test/src/lib/core.js", "4926:4941");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5296:5379");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5383:5421");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5317:5375");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5484:5573");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5577:5619");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5505:5569");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5684:5813");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5818:5912");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5916:5962");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5719:5757");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5762:5792");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5797:5808");
+__$coverInitRange("webdocs/test/src/lib/core.js", "5839:5908");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6026:6118");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6123:6255");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6047:6114");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6156:6188");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6206:6251");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6346:6539");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6543:6574");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6578:6779");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6783:6986");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6990:7195");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7342:7657");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7755:8054");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8060:8073");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6378:6536");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6400:6419");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6455:6484");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6502:6532");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6616:6624");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6629:6775");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6650:6694");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6699:6734");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6739:6771");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6822:6830");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6835:6982");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6856:6900");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6905:6940");
+__$coverInitRange("webdocs/test/src/lib/core.js", "6945:6978");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7030:7038");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7043:7191");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7064:7108");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7113:7148");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7153:7187");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7386:7492");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7554:7583");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7613:7637");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7641:7653");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7471:7482");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7822:8050");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7858:7881");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7886:7969");
+__$coverInitRange("webdocs/test/src/lib/core.js", "7987:8046");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8225:8274");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8415:8845");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9197:9574");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9775:9872");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9975:10092");
+__$coverInitRange("webdocs/test/src/lib/core.js", "10096:10107");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8459:8507");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8512:8622");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8627:8723");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8728:8821");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8826:8841");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8576:8618");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8685:8717");
+__$coverInitRange("webdocs/test/src/lib/core.js", "8749:8817");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9246:9570");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9282:9390");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9305:9326");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9364:9385");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9408:9440");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9445:9566");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9475:9496");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9541:9561");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9818:9868");
+__$coverInitRange("webdocs/test/src/lib/core.js", "9842:9864");
+__$coverInitRange("webdocs/test/src/lib/core.js", "10013:10088");
+__$coverInitRange("webdocs/test/src/lib/core.js", "10062:10084");
+__$coverCall('webdocs/test/src/lib/core.js', '0:179');
 var CoreRouter = function (conf) {
-    __$coverObject['webdocs/test/src/lib/core.js']['35:60']++;
+    __$coverCall('webdocs/test/src/lib/core.js', '35:60');
     var CoreRouter, router;
-    __$coverObject['webdocs/test/src/lib/core.js']['64:105']++;
+    __$coverCall('webdocs/test/src/lib/core.js', '64:105');
     CoreRouter = Backbone.Router.extend(conf);
-    __$coverObject['webdocs/test/src/lib/core.js']['108:133']++;
+    __$coverCall('webdocs/test/src/lib/core.js', '108:133');
     router = new CoreRouter();
-    __$coverObject['webdocs/test/src/lib/core.js']['136:160']++;
+    __$coverCall('webdocs/test/src/lib/core.js', '136:160');
     Backbone.history.start();
-    __$coverObject['webdocs/test/src/lib/core.js']['163:176']++;
+    __$coverCall('webdocs/test/src/lib/core.js', '163:176');
     return router;
 };
-__$coverObject['webdocs/test/src/lib/core.js']['181:572']++;
+__$coverCall('webdocs/test/src/lib/core.js', '181:572');
 var CorePresenter = function () {
-        __$coverObject['webdocs/test/src/lib/core.js']['217:499']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '217:499');
         var presenter = function (conf) {
-            __$coverObject['webdocs/test/src/lib/core.js']['252:307']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '252:307');
             $.extend(this, conf, new CoreEvent(), new CoreLogger());
-            __$coverObject['webdocs/test/src/lib/core.js']['311:362']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '311:362');
             this.name = (conf.name || 'Nameless') + 'Presenter';
-            __$coverObject['webdocs/test/src/lib/core.js']['366:398']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '366:398');
             this.debug = Boolean(conf.debug);
-            __$coverObject['webdocs/test/src/lib/core.js']['402:426']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '402:426');
             this.eventCallbacks = {};
-            __$coverObject['webdocs/test/src/lib/core.js']['431:480']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '431:480');
             this.log('Initialize presenter with conf:', conf);
-            __$coverObject['webdocs/test/src/lib/core.js']['484:495']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '484:495');
             this.init();
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['503:546']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '503:546');
         presenter.prototype.init = function () {
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['550:566']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '550:566');
         return presenter;
     }();
-__$coverObject['webdocs/test/src/lib/core.js']['574:2631']++;
+__$coverCall('webdocs/test/src/lib/core.js', '574:2827');
 var CoreModel = function () {
-        __$coverObject['webdocs/test/src/lib/core.js']['605:653']++;
-        var isValid = false, model, modelData = null;
-        __$coverObject['webdocs/test/src/lib/core.js']['657:1150']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '605:614');
+        var model;
+        __$coverCall('webdocs/test/src/lib/core.js', '618:1221');
         model = function (conf) {
-            __$coverObject['webdocs/test/src/lib/core.js']['684:739']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '645:687');
+            if (conf === undefined) {
+                __$coverCall('webdocs/test/src/lib/core.js', '674:683');
+                conf = {};
+            }
+            __$coverCall('webdocs/test/src/lib/core.js', '692:747');
             $.extend(this, conf, new CoreEvent(), new CoreLogger());
-            __$coverObject['webdocs/test/src/lib/core.js']['743:790']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '751:798');
             this.name = (conf.name || 'Nameless') + 'Model';
-            __$coverObject['webdocs/test/src/lib/core.js']['794:826']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '802:834');
             this.debug = Boolean(conf.debug);
-            __$coverObject['webdocs/test/src/lib/core.js']['831:1130']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '838:858');
+            this.attributes = {};
+            __$coverCall('webdocs/test/src/lib/core.js', '862:883');
+            this._isValid = false;
+            __$coverCall('webdocs/test/src/lib/core.js', '888:1201');
             if (conf.validate) {
-                __$coverObject['webdocs/test/src/lib/core.js']['855:1126']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '912:1197');
                 this.validate = function (formData) {
-                    __$coverObject['webdocs/test/src/lib/core.js']['896:906']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '953:963');
                     var result;
-                    __$coverObject['webdocs/test/src/lib/core.js']['913:928']++;
-                    isValid = false;
-                    __$coverObject['webdocs/test/src/lib/core.js']['934:977']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '970:991');
+                    this._isValid = false;
+                    __$coverCall('webdocs/test/src/lib/core.js', '997:1040');
                     result = conf.validate.call(this, formData);
-                    __$coverObject['webdocs/test/src/lib/core.js']['983:1089']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '1046:1160');
                     if (!result || typeof result === 'object' && Object.keys(result).length === 0) {
-                        __$coverObject['webdocs/test/src/lib/core.js']['1069:1083']++;
-                        isValid = true;
+                        __$coverCall('webdocs/test/src/lib/core.js', '1134:1154');
+                        this._isValid = true;
                     }
-                    __$coverObject['webdocs/test/src/lib/core.js']['1096:1109']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '1167:1180');
                     return result;
                 }.bind(this);
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['1135:1146']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '1206:1217');
             this.init();
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['1154:1193']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '1225:1264');
         model.prototype.init = function () {
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['1197:1240']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '1268:1311');
         model.prototype.validate = function () {
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['1244:1303']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '1315:1380');
         model.prototype.isValid = function () {
-            __$coverObject['webdocs/test/src/lib/core.js']['1285:1299']++;
-            return isValid;
+            __$coverCall('webdocs/test/src/lib/core.js', '1356:1376');
+            return this._isValid;
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['1416:2068']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '1493:2160');
         model.prototype.set = function () {
-            __$coverObject['webdocs/test/src/lib/core.js']['1453:1488']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '1530:1565');
             var newData = {}, validateResult;
-            __$coverObject['webdocs/test/src/lib/core.js']['1493:1849']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '1570:1926');
             if (typeof arguments[0] === 'object') {
-                __$coverObject['webdocs/test/src/lib/core.js']['1555:1586']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '1632:1663');
                 $.extend(newData, arguments[0]);
-                __$coverObject['webdocs/test/src/lib/core.js']['1591:1625']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '1668:1702');
                 this.log('Set data', arguments[0]);
             } else if (typeof arguments[0] === 'string') {
-                __$coverObject['webdocs/test/src/lib/core.js']['1681:1717']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '1758:1794');
                 newData[arguments[0]] = arguments[1];
-                __$coverObject['webdocs/test/src/lib/core.js']['1722:1770']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '1799:1847');
                 this.log('Set data', arguments[0], arguments[1]);
             } else {
-                __$coverObject['webdocs/test/src/lib/core.js']['1788:1845']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '1865:1922');
                 this.warn('Data are incorrect in model.set()', arguments);
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['1854:2040']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '1931:2117');
             if (this.validate) {
-                __$coverObject['webdocs/test/src/lib/core.js']['1878:1917']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '1955:1994');
                 validateResult = this.validate(newData);
-                __$coverObject['webdocs/test/src/lib/core.js']['1922:2036']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '1999:2113');
                 if (validateResult) {
-                    __$coverObject['webdocs/test/src/lib/core.js']['1948:2004']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '2025:2081');
                     this.warn('Validate error in model.set', validateResult);
-                    __$coverObject['webdocs/test/src/lib/core.js']['2010:2031']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '2087:2108');
                     return validateResult;
                 }
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['2045:2064']++;
-            modelData = newData;
+            __$coverCall('webdocs/test/src/lib/core.js', '2122:2156');
+            $.extend(this.attributes, newData);
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['2188:2253']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '2296:2439');
         model.prototype.get = function (key) {
-            __$coverObject['webdocs/test/src/lib/core.js']['2228:2249']++;
-            return modelData[key];
+            __$coverCall('webdocs/test/src/lib/core.js', '2336:2435');
+            if (key === undefined) {
+                __$coverCall('webdocs/test/src/lib/core.js', '2364:2386');
+                return this.attributes;
+            } else {
+                __$coverCall('webdocs/test/src/lib/core.js', '2404:2431');
+                return this.attributes[key];
+            }
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['2411:2478']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '2597:2670');
         model.prototype.has = function (key) {
-            __$coverObject['webdocs/test/src/lib/core.js']['2451:2474']++;
-            return !!modelData[key];
+            __$coverCall('webdocs/test/src/lib/core.js', '2637:2666');
+            return !!this.attributes[key];
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['2523:2609']++;
-        model.prototype.clean = function () {
-            __$coverObject['webdocs/test/src/lib/core.js']['2562:2585']++;
-            this.log('Clean model');
-            __$coverObject['webdocs/test/src/lib/core.js']['2589:2605']++;
-            modelData = null;
+        __$coverCall('webdocs/test/src/lib/core.js', '2715:2805');
+        model.prototype.reset = function () {
+            __$coverCall('webdocs/test/src/lib/core.js', '2754:2777');
+            this.log('Reset model');
+            __$coverCall('webdocs/test/src/lib/core.js', '2781:2801');
+            this.attributes = {};
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['2613:2625']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '2809:2821');
         return model;
     }();
-__$coverObject['webdocs/test/src/lib/core.js']['2633:4327']++;
+__$coverCall('webdocs/test/src/lib/core.js', '2829:4523');
 var CoreView = function () {
-        __$coverObject['webdocs/test/src/lib/core.js']['2664:4082']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '2860:4278');
         var view = function (presenter, conf) {
-            __$coverObject['webdocs/test/src/lib/core.js']['2705:2720']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '2901:2916');
             var self = this;
-            __$coverObject['webdocs/test/src/lib/core.js']['2725:2780']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '2921:2976');
             $.extend(this, conf, new CoreEvent(), new CoreLogger());
-            __$coverObject['webdocs/test/src/lib/core.js']['2784:2830']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '2980:3026');
             this.name = (conf.name || 'Nameless') + 'View';
-            __$coverObject['webdocs/test/src/lib/core.js']['2834:2860']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '3030:3056');
             this.presenter = presenter;
-            __$coverObject['webdocs/test/src/lib/core.js']['2865:2897']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '3061:3093');
             this.debug = Boolean(conf.debug);
-            __$coverObject['webdocs/test/src/lib/core.js']['2901:2935']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '3097:3131');
             this.container = $(conf.container);
-            __$coverObject['webdocs/test/src/lib/core.js']['2939:4078']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '3135:4274');
             if (this.container.length > 0) {
-                __$coverObject['webdocs/test/src/lib/core.js']['2975:3055']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '3171:3251');
                 window.addEventListener('resize', function (e) {
-                    __$coverObject['webdocs/test/src/lib/core.js']['3027:3041']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '3223:3237');
                     self.resize(e);
                 }, false);
-                __$coverObject['webdocs/test/src/lib/core.js']['3061:3105']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '3257:3301');
                 this.log('Initialize view with conf:', conf);
-                __$coverObject['webdocs/test/src/lib/core.js']['3110:3165']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '3306:3361');
                 this.log('  ... using Presenter:', this.presenter.name);
-                __$coverObject['webdocs/test/src/lib/core.js']['3170:3220']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '3366:3416');
                 this.log('  ... using Container:', this.container);
-                __$coverObject['webdocs/test/src/lib/core.js']['3256:3950']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '3452:4146');
                 Object.keys(this.events).forEach(function (key) {
-                    __$coverObject['webdocs/test/src/lib/core.js']['3309:3415']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '3505:3611');
                     var split = key.split(' ', 2), eventFunc, eventName = split[0], selector = split[1] || null;
-                    __$coverObject['webdocs/test/src/lib/core.js']['3422:3937']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '3618:4133');
                     if (split.length === 1 || split.length === 2) {
-                        __$coverObject['webdocs/test/src/lib/core.js']['3475:3526']++;
+                        __$coverCall('webdocs/test/src/lib/core.js', '3671:3722');
                         eventFunc = this.presenter.events[this.events[key]];
-                        __$coverObject['webdocs/test/src/lib/core.js']['3533:3861']++;
+                        __$coverCall('webdocs/test/src/lib/core.js', '3729:4057');
                         if (typeof eventFunc === 'function') {
-                            __$coverObject['webdocs/test/src/lib/core.js']['3610:3649']++;
+                            __$coverCall('webdocs/test/src/lib/core.js', '3806:3845');
                             this.container.on(eventName, eventFunc);
-                            __$coverObject['webdocs/test/src/lib/core.js']['3657:3748']++;
+                            __$coverCall('webdocs/test/src/lib/core.js', '3853:3944');
                             this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
                         } else {
-                            __$coverObject['webdocs/test/src/lib/core.js']['3775:3854']++;
+                            __$coverCall('webdocs/test/src/lib/core.js', '3971:4050');
                             this.warn('Event handler callback not defined in Presenter:', this.events[key]);
                         }
                     } else {
-                        __$coverObject['webdocs/test/src/lib/core.js']['3885:3931']++;
+                        __$coverCall('webdocs/test/src/lib/core.js', '4081:4127');
                         this.warn('Incorect event configuration', key);
                     }
                 }, this);
-                __$coverObject['webdocs/test/src/lib/core.js']['3971:3982']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '4167:4178');
                 this.init();
             } else {
-                __$coverObject['webdocs/test/src/lib/core.js']['4000:4074']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '4196:4270');
                 this.error('Can\'t initialize View, Container not found!', this.container);
             }
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['4086:4124']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '4282:4320');
         view.prototype.init = function () {
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['4128:4168']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '4324:4364');
         view.prototype.show = function () {
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['4172:4212']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '4368:4408');
         view.prototype.hide = function () {
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['4216:4258']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '4412:4454');
         view.prototype.render = function () {
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['4262:4304']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '4458:4500');
         view.prototype.resize = function () {
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['4310:4321']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '4506:4517');
         return view;
     }();
-__$coverObject['webdocs/test/src/lib/core.js']['4329:6085']++;
+__$coverCall('webdocs/test/src/lib/core.js', '4525:6281');
 var CoreEvent = function () {
-        __$coverObject['webdocs/test/src/lib/core.js']['4360:4375']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '4556:4571');
         var ee, event;
-        __$coverObject['webdocs/test/src/lib/core.js']['4380:4698']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '4576:4894');
         function indexOf(eventName, callback) {
-            __$coverObject['webdocs/test/src/lib/core.js']['4422:4451']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '4618:4647');
             this.objectName = 'CoreEvent';
-            __$coverObject['webdocs/test/src/lib/core.js']['4458:4502']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '4654:4698');
             var len = this.store.length, i = 0, el;
-            __$coverObject['webdocs/test/src/lib/core.js']['4507:4679']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '4703:4875');
             for (; i < len; i++) {
-                __$coverObject['webdocs/test/src/lib/core.js']['4533:4551']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '4729:4747');
                 el = this.store[i];
-                __$coverObject['webdocs/test/src/lib/core.js']['4556:4675']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '4752:4871');
                 if (eventName === null || eventName === el.event && callback === null || callback === el.callback) {
-                    __$coverObject['webdocs/test/src/lib/core.js']['4661:4670']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '4857:4866');
                     return el;
                 }
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['4684:4695']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '4880:4891');
             return null;
         }
-        __$coverObject['webdocs/test/src/lib/core.js']['4703:4749']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '4899:4945');
         event = function (conf) {
-            __$coverObject['webdocs/test/src/lib/core.js']['4730:4745']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '4926:4941');
             this.store = [];
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['5021:5044']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '5217:5240');
         ee = new EventEmitter();
-        __$coverObject['webdocs/test/src/lib/core.js']['5047:5229']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '5243:5425');
         event.prototype.emit = function (eventName, data) {
-            __$coverObject['webdocs/test/src/lib/core.js']['5100:5183']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '5296:5379');
             if (this.debug) {
-                __$coverObject['webdocs/test/src/lib/core.js']['5121:5179']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '5317:5375');
                 console.debug('Akonda Core - Emit event', eventName, data);
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['5187:5225']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '5383:5421');
             return ee.emitEvent(eventName, [data]);
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['5233:5427']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '5429:5623');
         event.prototype.on = function (eventName, listener) {
-            __$coverObject['webdocs/test/src/lib/core.js']['5288:5377']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '5484:5573');
             if (this.debug) {
-                __$coverObject['webdocs/test/src/lib/core.js']['5309:5373']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '5505:5569');
                 console.debug('Akonda Core - Add listener', eventName, listener);
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['5381:5423']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '5577:5619');
             return ee.addListener(eventName, listener);
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['5431:5770']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '5627:5966');
         event.prototype.once = function (eventName, listener) {
-            __$coverObject['webdocs/test/src/lib/core.js']['5488:5617']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '5684:5813');
             var onceListener = function () {
-                __$coverObject['webdocs/test/src/lib/core.js']['5523:5561']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '5719:5757');
                 ee.removeListener(eventName, listener);
-                __$coverObject['webdocs/test/src/lib/core.js']['5566:5596']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '5762:5792');
                 listener.call(null, arguments);
-                __$coverObject['webdocs/test/src/lib/core.js']['5601:5612']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '5797:5808');
                 return true;
             };
-            __$coverObject['webdocs/test/src/lib/core.js']['5622:5716']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '5818:5912');
             if (this.debug) {
-                __$coverObject['webdocs/test/src/lib/core.js']['5643:5712']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '5839:5908');
                 console.debug('Akonda Core - Add once listener', eventName, listener);
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['5720:5766']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '5916:5962');
             return ee.addListener(eventName, onceListener);
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['5774:6063']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '5970:6259');
         event.prototype.off = function (eventName, listener) {
-            __$coverObject['webdocs/test/src/lib/core.js']['5830:5922']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '6026:6118');
             if (this.debug) {
-                __$coverObject['webdocs/test/src/lib/core.js']['5851:5918']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '6047:6114');
                 console.debug('Akonda Core - Remove listener', eventName, listener);
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['5927:6059']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '6123:6255');
             if (listener === undefined) {
-                __$coverObject['webdocs/test/src/lib/core.js']['5960:5992']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '6156:6188');
                 return ee.removeEvent(eventName);
             } else {
-                __$coverObject['webdocs/test/src/lib/core.js']['6010:6055']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '6206:6251');
                 return ee.removeListener(eventName, listener);
             }
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['6067:6079']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '6263:6275');
         return event;
     }();
-__$coverObject['webdocs/test/src/lib/core.js']['6088:6800']++;
+__$coverCall('webdocs/test/src/lib/core.js', '6284:8079');
 var CoreLogger = function (conf) {
-        __$coverObject['webdocs/test/src/lib/core.js']['6125:6156']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '6346:6539');
+        function getHumanTime(time) {
+            __$coverCall('webdocs/test/src/lib/core.js', '6378:6536');
+            if (time < 1000) {
+                __$coverCall('webdocs/test/src/lib/core.js', '6400:6419');
+                return time + ' ms';
+            } else if (time < 60000) {
+                __$coverCall('webdocs/test/src/lib/core.js', '6455:6484');
+                return time / 1000 + ' sec';
+            } else {
+                __$coverCall('webdocs/test/src/lib/core.js', '6502:6532');
+                return time / 60000 + ' min';
+            }
+        }
+        __$coverCall('webdocs/test/src/lib/core.js', '6543:6574');
         var logger = function () {
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['6160:6361']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '6578:6779');
         logger.prototype.log = function () {
-            __$coverObject['webdocs/test/src/lib/core.js']['6198:6206']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '6616:6624');
             var args;
-            __$coverObject['webdocs/test/src/lib/core.js']['6211:6357']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '6629:6775');
             if (this.debug) {
-                __$coverObject['webdocs/test/src/lib/core.js']['6232:6276']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '6650:6694');
                 args = Array.prototype.slice.call(arguments);
-                __$coverObject['webdocs/test/src/lib/core.js']['6281:6316']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '6699:6734');
                 args.unshift('[' + this.name + ']');
-                __$coverObject['webdocs/test/src/lib/core.js']['6321:6353']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '6739:6771');
                 console.log.apply(console, args);
             }
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['6365:6568']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '6783:6986');
         logger.prototype.warn = function () {
-            __$coverObject['webdocs/test/src/lib/core.js']['6404:6412']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '6822:6830');
             var args;
-            __$coverObject['webdocs/test/src/lib/core.js']['6417:6564']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '6835:6982');
             if (this.debug) {
-                __$coverObject['webdocs/test/src/lib/core.js']['6438:6482']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '6856:6900');
                 args = Array.prototype.slice.call(arguments);
-                __$coverObject['webdocs/test/src/lib/core.js']['6487:6522']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '6905:6940');
                 args.unshift('[' + this.name + ']');
-                __$coverObject['webdocs/test/src/lib/core.js']['6527:6560']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '6945:6978');
                 console.warn.apply(console, args);
             }
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['6572:6777']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '6990:7195');
         logger.prototype.error = function () {
-            __$coverObject['webdocs/test/src/lib/core.js']['6612:6620']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '7030:7038');
             var args;
-            __$coverObject['webdocs/test/src/lib/core.js']['6625:6773']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '7043:7191');
             if (this.debug) {
-                __$coverObject['webdocs/test/src/lib/core.js']['6646:6690']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '7064:7108');
                 args = Array.prototype.slice.call(arguments);
-                __$coverObject['webdocs/test/src/lib/core.js']['6695:6730']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '7113:7148');
                 args.unshift('[' + this.name + ']');
-                __$coverObject['webdocs/test/src/lib/core.js']['6735:6769']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '7153:7187');
                 console.error.apply(console, args);
             }
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['6781:6794']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '7342:7657');
+        logger.prototype.timer = function (name) {
+            __$coverCall('webdocs/test/src/lib/core.js', '7386:7492');
+            var timer = {
+                    start: null,
+                    stop: null,
+                    name: name,
+                    end: function () {
+                        __$coverCall('webdocs/test/src/lib/core.js', '7471:7482');
+                        return this;
+                    }
+                };
+            __$coverCall('webdocs/test/src/lib/core.js', '7554:7583');
+            this.log('Start Timer', name);
+            __$coverCall('webdocs/test/src/lib/core.js', '7613:7637');
+            timer.start = Date.now();
+            __$coverCall('webdocs/test/src/lib/core.js', '7641:7653');
+            return timer;
+        };
+        __$coverCall('webdocs/test/src/lib/core.js', '7755:8054');
+        logger.prototype.timerEnd = function (timer) {
+            __$coverCall('webdocs/test/src/lib/core.js', '7822:8050');
+            if (typeof timer === 'object') {
+                __$coverCall('webdocs/test/src/lib/core.js', '7858:7881');
+                timer.stop = Date.now();
+                __$coverCall('webdocs/test/src/lib/core.js', '7886:7969');
+                this.log('Timer ' + timer.name + ' runs: ', getHumanTime(Date.now() - timer.start));
+            } else {
+                __$coverCall('webdocs/test/src/lib/core.js', '7987:8046');
+                this.warn('Not a timer object in logger.timerEnd()', timer);
+            }
+        };
+        __$coverCall('webdocs/test/src/lib/core.js', '8060:8073');
         return logger;
     }();
-__$coverObject['webdocs/test/src/lib/core.js']['6914:8841']++;
+__$coverCall('webdocs/test/src/lib/core.js', '8193:10120');
 var CoreUtil = function ($) {
-        __$coverObject['webdocs/test/src/lib/core.js']['6946:6995']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '8225:8274');
         var util = {
                 name: 'CoreUtil',
                 debug: true
             };
-        __$coverObject['webdocs/test/src/lib/core.js']['7136:7566']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '8415:8845');
         util.serializeForm = function (selector) {
-            __$coverObject['webdocs/test/src/lib/core.js']['7180:7228']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '8459:8507');
             var formData = {}, formSelector = $(selector);
-            __$coverObject['webdocs/test/src/lib/core.js']['7233:7343']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '8512:8622');
             if (formSelector.get(0).tagName === 'INPUT') {
             } else {
-                __$coverObject['webdocs/test/src/lib/core.js']['7297:7339']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '8576:8618');
                 formSelector = formSelector.find(':input');
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['7348:7444']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '8627:8723');
             formSelector.serializeArray().forEach(function (item) {
-                __$coverObject['webdocs/test/src/lib/core.js']['7406:7438']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '8685:8717');
                 formData[item.name] = item.value;
             });
-            __$coverObject['webdocs/test/src/lib/core.js']['7449:7542']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '8728:8821');
             if (this.debug) {
-                __$coverObject['webdocs/test/src/lib/core.js']['7470:7538']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '8749:8817');
                 console.log('Akonda Core - Serialize form:', formSelector, formData);
             }
-            __$coverObject['webdocs/test/src/lib/core.js']['7547:7562']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '8826:8841');
             return formData;
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['7918:8295']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '9197:9574');
         util.checkLength = function (input, min, max) {
-            __$coverObject['webdocs/test/src/lib/core.js']['7967:8291']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '9246:9570');
             if (typeof input === 'Number') {
-                __$coverObject['webdocs/test/src/lib/core.js']['8003:8111']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '9282:9390');
                 if (input < min) {
-                    __$coverObject['webdocs/test/src/lib/core.js']['8026:8047']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '9305:9326');
                     return 'num-to-small';
                 } else if (input > max) {
-                    __$coverObject['webdocs/test/src/lib/core.js']['8085:8106']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '9364:9385');
                     return 'num-to-large';
                 }
             } else {
-                __$coverObject['webdocs/test/src/lib/core.js']['8129:8161']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '9408:9440');
                 console.log(input, input.length);
-                __$coverObject['webdocs/test/src/lib/core.js']['8166:8287']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '9445:9566');
                 if (input.length < min) {
-                    __$coverObject['webdocs/test/src/lib/core.js']['8196:8217']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '9475:9496');
                     return 'str-to-short';
                 } else if (input.length > max) {
-                    __$coverObject['webdocs/test/src/lib/core.js']['8262:8282']++;
+                    __$coverCall('webdocs/test/src/lib/core.js', '9541:9561');
                     return 'str-to-long';
                 }
             }
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['8496:8593']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '9775:9872');
         util.checkEqual = function (str1, str2) {
-            __$coverObject['webdocs/test/src/lib/core.js']['8539:8589']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '9818:9868');
             if (str1 !== str2) {
-                __$coverObject['webdocs/test/src/lib/core.js']['8563:8585']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '9842:9864');
                 return 'str-not-equal';
             }
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['8696:8813']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '9975:10092');
         util.checkEmail = function (email) {
-            __$coverObject['webdocs/test/src/lib/core.js']['8734:8809']++;
+            __$coverCall('webdocs/test/src/lib/core.js', '10013:10088');
             if (!/^\S+\@\S+\.[a-z]{2,10}$/.test(email)) {
-                __$coverObject['webdocs/test/src/lib/core.js']['8783:8805']++;
+                __$coverCall('webdocs/test/src/lib/core.js', '10062:10084');
                 return 'invalid-email';
             }
         };
-        __$coverObject['webdocs/test/src/lib/core.js']['8817:8828']++;
+        __$coverCall('webdocs/test/src/lib/core.js', '10096:10107');
         return util;
     }(jQuery);

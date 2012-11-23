@@ -301,6 +301,20 @@ var CoreEvent = (function() {
 
 var CoreLogger = (function(conf) {
 
+	//var timerStore = {};
+
+	function getHumanTime(time) {
+		if (time < 1000) {
+			return time + ' ms';
+		}
+		else if (time < 60000) {
+			return (time / 1000) + ' sec';
+		}
+		else {
+			return (time / 60000) + ' min';
+		}
+	}
+
 	var logger = function() {
 		
 	};
@@ -334,6 +348,50 @@ var CoreLogger = (function(conf) {
 			console.error.apply(console, args);
 		}
 	};
+
+	/**
+	 * Start a timeTracer
+	 *
+	 * @param {String} timerName Set the name for your (Optional)
+	 * @return {Object} Returns a TimerObject
+	 */
+	logger.prototype.timer = function(name) {
+		var timer = {
+			start: null,
+			stop: null,
+			name: name,
+			end: function() {
+				return this;
+			}
+		};
+
+		/*if (name) {
+			this.timerStore[name] = timer;
+		}*/
+
+		this.log('Start Timer', name);
+
+		//Set timer start time
+		timer.start = Date.now();
+		return timer;
+	};
+
+	/**
+	 * Stops a timer
+	 *
+	 * @param {String or Object} timerName Stops the given timer
+	 */
+	logger.prototype.timerEnd = function(timer) {
+		//Set stop timer
+		if (typeof timer === 'object') {
+			timer.stop = Date.now();
+			this.log('Timer ' + timer.name + ' runs: ', getHumanTime(Date.now() - timer.start));
+		}
+		else {
+			this.warn('Not a timer object in logger.timerEnd()', timer);
+		}
+	};
+	
 
 	return logger;
 })();

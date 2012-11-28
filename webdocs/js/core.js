@@ -10,6 +10,8 @@ var CoreRouter = function(conf) {
 var CorePresenter = (function() {
 
 	var presenter = function(conf) {
+		var self = this;
+
 		$.extend(this, conf, new CoreEvent(), new CoreLogger());
 		this.name = (conf.name || 'Nameless') + 'Presenter';
 		this.debug = Boolean(conf.debug);
@@ -17,6 +19,32 @@ var CorePresenter = (function() {
 
 		this.log('Initialize presenter with conf:', conf);
 		this.init();
+
+		//Setup popstate listener
+		if (conf.routes) {
+			window.addEventListener('popstate', function(e) {
+				self.log('popstate event recived', e);
+				if (!e.state) {
+					return;
+				}
+
+				var tag = e.state.tag;
+
+				if (typeof conf[tag] === 'function') {
+					conf[tag].call(self, e.state.data);
+				}
+			}, false);
+
+			window.addEventListener('hashchange', function(e) {
+				self.log('hashchange event recived', e, location.hash);
+				var tag = location.hash.substring(1);
+
+				if (typeof conf[tag] === 'function') {
+					self.log('Call func', conf[tag]);
+					conf[tag].call(self);
+				}
+			}, false);
+		}
 	};
 
 	presenter.prototype.init = function() {
@@ -135,6 +163,44 @@ var CoreModel = (function() {
 		this.log('Reset model');
 		this.attributes = {};
 	};
+
+	/**
+	 * Send an ajax request to a webserver. Sends all models attributes
+	 *
+	 * You must set the server URI first with model.server = 'http://example.com/post'
+	 *
+	 * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
+	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
+	 */
+	model.prototype.send = function(method, callback) {
+		var data;
+
+		method = method || 'POST';
+
+		data = this.get();
+
+		if (!this.server) {
+			this.error('Can not send an ajax request! You must define a server URL first.');
+			return false;
+		}
+
+		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
+
+		$.ajax({
+			url: this.server,
+			method: method,
+			data: data,
+			success: function(data, status, jqXHR) {
+				callback.call(this, null, data, status, jqXHR);
+			}.bind(this),
+			error: function(jqXHR, status, error) {
+				callback.call(this, {
+					type: status,
+					http: error
+				}, null, status, jqXHR);
+			}.bind(this)
+		});
+	}
 
 	return model;
 })();
@@ -308,10 +374,10 @@ var CoreLogger = (function(conf) {
 			return time + ' ms';
 		}
 		else if (time < 60000) {
-			return (time / 1000) + ' sec';
+			return (Math.round(time / 100) / 10) + ' sec';
 		}
 		else {
-			return (time / 60000) + ' min';
+			return (Math.round(time / 60000)) + ' min ' + Math.round(time % 60000 / 1000) + ' sec';
 		}
 	}
 
@@ -360,8 +426,10 @@ var CoreLogger = (function(conf) {
 			start: null,
 			stop: null,
 			name: name,
+			logger: this,
 			end: function() {
-				return this;
+				this.stop = Date.now();
+				this.logger.log('Timer ' + this.name + ' runs: ', getHumanTime(this.stop - this.start));
 			}
 		};
 
@@ -383,13 +451,11 @@ var CoreLogger = (function(conf) {
 	 */
 	logger.prototype.timerEnd = function(timer) {
 		//Set stop timer
-		if (typeof timer === 'object') {
-			timer.stop = Date.now();
-			this.log('Timer ' + timer.name + ' runs: ', getHumanTime(Date.now() - timer.start));
-		}
-		else {
-			this.warn('Not a timer object in logger.timerEnd()', timer);
-		}
+		
+	};
+
+	logger.prototype.__scope = {
+		getHumanTime: getHumanTime
 	};
 	
 

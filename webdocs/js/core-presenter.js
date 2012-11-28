@@ -2,6 +2,8 @@ var CorePresenter = (function() {
 
 	var presenter = function(conf) {
 		var self = this;
+		
+		conf = conf || {};
 
 		$.extend(this, conf, new CoreEvent(), new CoreLogger());
 		this.name = (conf.name || 'Nameless') + 'Presenter';

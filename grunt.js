@@ -7,7 +7,7 @@ module.exports = function(grunt) {
 		// Lists of files to be linted with JSHint.
 		lint: {
 			files: [
-				'webdocs/js/core-[^.spec].js'
+				'webdocs/js/core-(!.spec).js'
 			],
 			afterconcat: [
 				'webdocs/js/core.js'

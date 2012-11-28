@@ -1,4 +1,4 @@
-var CoreModel = (function() {
+var CoreModel = (function(window, document, $, undefined) {
 	var model;
 
 	model = function(conf) {
@@ -145,7 +145,7 @@ var CoreModel = (function() {
 				}, null, status, jqXHR);
 			}.bind(this)
 		});
-	}
+	};
 
 	return model;
-})();
+})(window, document, jQuery);

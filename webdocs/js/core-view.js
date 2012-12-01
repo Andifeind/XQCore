@@ -28,7 +28,8 @@ var CoreView = (function() {
 					var split = key.split(' ', 2),
 						eventFunc,
 						eventName = split[0],
-						selector = split[1] || null;
+						selector = split[1] || null,
+						self = this;
 
 					if (split.length === 1 || split.length === 2) {
 						eventFunc = this.presenter.events[this.events[key]];
@@ -43,7 +44,7 @@ var CoreView = (function() {
 									tagData = $(e.target).data();
 								}
 
-								eventFunc.call(this.presenter, e, tagData, formData);
+								eventFunc.call(self.presenter, e, tagData, formData);
 							});
 							this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
 						}

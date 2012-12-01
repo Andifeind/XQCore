@@ -14,10 +14,32 @@ var CoreLogger = (function(conf) {
 		}
 	}
 
+	function onScreenConsole() {
+		var conf,
+			html;
+
+		conf = localStorage.get('core-onscreen-console') || {
+			pos: 'bottom'
+		};
+
+		html = '<div id="CoreLogger-OnScreenConsole">\
+			</div>';
+	}
+
+	/**
+	 * CoreLogger is a logging tool to log messages, warnings, errors to the browser or onscreen console
+	 *
+	 * @return {[type]} [description]
+	 */
 	var logger = function() {
 		
 	};
 
+	/**
+	 * Loggs a message to the console
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 */
 	logger.prototype.log = function() {
 		var args;
 
@@ -28,6 +50,11 @@ var CoreLogger = (function(conf) {
 		}
 	};
 
+	/**
+	 * Loggs a warning to the console
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 */
 	logger.prototype.warn = function() {
 		var args;
 
@@ -38,6 +65,11 @@ var CoreLogger = (function(conf) {
 		}
 	};
 
+	/**
+	 * Loggs a error message to the console
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 */
 	logger.prototype.error = function() {
 		var args;
 

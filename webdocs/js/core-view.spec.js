@@ -10,10 +10,15 @@ describe('Core View', function() {
 	});
 
 	it('Should initialize a view', function() {
-		var view,
+		var presenter,
+			view,
 			initFunc = sinon.spy();
 
-		view = new CoreView({}, {
+		presenter = new CorePresenter({
+			
+		});
+
+		view = new CoreView(presenter, {
 			debug: true,
 			name: 'test1',
 			init: initFunc,
@@ -54,6 +59,44 @@ describe('Core View', function() {
 		viewContainer.trigger('mouseup');
 		expect(testSpy1).was.called();
 		expect(testSpy2).was.called();
+	});
+
+	it('Should initialize a view and call presenter.viewInit', function() {
+		var presenter,
+			view,
+			initFunc = sinon.spy();
+
+		presenter = new CorePresenter({
+			'viewInit': initFunc
+		});
+
+		view = new CoreView(presenter, {
+			container: viewContainer
+		});
+
+		expect(view).to.be.an('object');
+		expect(initFunc).was.called();
+	});
+
+	it('Should render a view', function() {
+		var presenter,
+			view;
+
+		presenter = new CorePresenter({
+			'viewInit': function(view) {
+				var data;
+				if (view.name === 'test') {
+					view.render(data);
+				}
+			}
+		});
+
+		view = new CoreView(presenter, {
+			container: viewContainer
+		});
+
+		expect(view).to.be.an('object');
+		$expect(viewContainer).to.contain('ul > li');
 	});
 
 });

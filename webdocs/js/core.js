@@ -11,10 +11,14 @@ var CorePresenter = (function() {
 
 	var presenter = function(conf) {
 		var self = this;
+		
+		this.root = '/';
+		this.debug = false;
+		
+		conf = conf || {};
 
 		$.extend(this, conf, new CoreEvent(), new CoreLogger());
 		this.name = (conf.name || 'Nameless') + 'Presenter';
-		this.debug = Boolean(conf.debug);
 		this.eventCallbacks = {};
 
 		this.log('Initialize presenter with conf:', conf);
@@ -28,7 +32,8 @@ var CorePresenter = (function() {
 					return;
 				}
 
-				var tag = e.state.tag;
+				var tag = e.state.tag,
+					url = e.state.url;
 
 				if (typeof conf[tag] === 'function') {
 					conf[tag].call(self, e.state.data);
@@ -51,9 +56,17 @@ var CorePresenter = (function() {
 
 	};
 
+	/**
+	 * Add a history item to the browser history
+	 */
+	presenter.prototype.pushState = function(data, title, url) {
+		history.pushState(data,title,url);
+	};
+
 	return presenter;
 })();
-var CoreModel = (function() {
+
+var CoreModel = (function(window, document, $, undefined) {
 	var model;
 
 	model = function(conf) {
@@ -200,14 +213,19 @@ var CoreModel = (function() {
 				}, null, status, jqXHR);
 			}.bind(this)
 		});
-	}
+	};
 
 	return model;
-})();
+})(window, document, jQuery);
+
 var CoreView = (function() {
 
 	var view = function(presenter, conf) {
 		var self = this;
+
+		conf = conf || {
+			events: {}
+		};
 
 		$.extend(this, conf, new CoreEvent(), new CoreLogger());
 		this.name = (conf.name || 'Nameless') + 'View';
@@ -225,27 +243,42 @@ var CoreView = (function() {
 			this.log('  ... using Container:', this.container);
 
 			//Send events to presenter
-			Object.keys(this.events).forEach(function(key) {
-				var split = key.split(' ', 2),
-					eventFunc,
-					eventName = split[0],
-					selector = split[1] || null;
+			if (this.events) {
+				Object.keys(this.events).forEach(function(key) {
+					var split = key.split(' ', 2),
+						eventFunc,
+						eventName = split[0],
+						selector = split[1] || null,
+						self = this;
 
-				if (split.length === 1 || split.length === 2) {
-					eventFunc = this.presenter.events[this.events[key]];
-					if (typeof eventFunc === 'function') {
-						//Register event listener
-						this.container.on(eventName, eventFunc);
-						this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
+					if (split.length === 1 || split.length === 2) {
+						eventFunc = this.presenter.events[this.events[key]];
+						if (typeof eventFunc === 'function') {
+							//Register event listener
+							this.container.on(eventName, function(e) {
+								var formData = null,
+									tagData = null;
+
+								if (e.type === 'submit') {
+									formData = CoreUtil.serializeForm(e.target);
+									tagData = $(e.target).data();
+								}
+
+								eventFunc.call(self.presenter, e, tagData, formData);
+							});
+							this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
+						}
+						else {
+							this.warn('Event handler callback not defined in Presenter:', this.events[key]);
+						}
 					}
 					else {
-						this.warn('Event handler callback not defined in Presenter:', this.events[key]);
+						this.warn('Incorect event configuration', key);
 					}
-				}
-				else {
-					this.warn('Incorect event configuration', key);
-				}
-			}, this);
+				}, this);
+			} else {
+				this.warn('No view events defined');
+			}
 
 			//Self init
 			this.init();
@@ -279,6 +312,7 @@ var CoreView = (function() {
 
 	return view;
 })();
+
 var CoreEvent = (function() {
 	var ee,
 		event;
@@ -381,10 +415,32 @@ var CoreLogger = (function(conf) {
 		}
 	}
 
+	function onScreenConsole() {
+		var conf,
+			html;
+
+		conf = localStorage.get('core-onscreen-console') || {
+			pos: 'bottom'
+		};
+
+		html = '<div id="CoreLogger-OnScreenConsole">\
+			</div>';
+	}
+
+	/**
+	 * CoreLogger is a logging tool to log messages, warnings, errors to the browser or onscreen console
+	 *
+	 * @return {[type]} [description]
+	 */
 	var logger = function() {
 		
 	};
 
+	/**
+	 * Loggs a message to the console
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 */
 	logger.prototype.log = function() {
 		var args;
 
@@ -395,6 +451,11 @@ var CoreLogger = (function(conf) {
 		}
 	};
 
+	/**
+	 * Loggs a warning to the console
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 */
 	logger.prototype.warn = function() {
 		var args;
 
@@ -405,6 +466,11 @@ var CoreLogger = (function(conf) {
 		}
 	};
 
+	/**
+	 * Loggs a error message to the console
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 */
 	logger.prototype.error = function() {
 		var args;
 

@@ -48,6 +48,15 @@ var CorePresenter = (function() {
 	};
 
 	/**
+	 * Calling on view init
+	 *
+	 * @param {object} view The initializing view
+	 */
+	presenter.prototype.viewInit = function(view) {
+
+	};
+
+	/**
 	 * Add a history item to the browser history
 	 */
 	presenter.prototype.pushState = function(data, title, url) {

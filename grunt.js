@@ -1,6 +1,7 @@
 module.exports = function(grunt) {
 	grunt.loadTasks('./modules/grunt-coretest');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-contrib-clean');
 	
 	// Project configuration.
 	grunt.initConfig({
@@ -16,7 +17,8 @@ module.exports = function(grunt) {
 		jshint: {
 			options: {
 				browser: true,
-				smarttabs: true
+				smarttabs: true,
+				multistr: true
 			},
 			globals: {
 
@@ -52,10 +54,17 @@ module.exports = function(grunt) {
 					'../akonda-files/webdocs/js/core.min.js': 'webdocs/js/core.min.js'
 				}
 			}
+		},
+		clean: {
+			options: {},
+			build: [
+				'webdocs/js/core.js',
+				'webdocs/js/core.min.js'
+			]
 		}
 	});
 
 	grunt.registerTask('default', 'lint');
 	grunt.registerTask('test', 'coretest');
-	grunt.registerTask('build', 'lint concat:dist lint:afterconcat min copy:akonda');
+	grunt.registerTask('build', 'clean:build lint concat:dist lint:afterconcat min copy:akonda');
 };

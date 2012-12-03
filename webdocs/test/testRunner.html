@@ -1,17 +1,17 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Core Test Runner</title>
+  <title>XQCore Test Runner</title>
   <link rel="stylesheet" href="mocha/mocha.css" />
   <link rel="stylesheet" href="jscov/reporter.css" />
-  <link rel="stylesheet" href="core-testrunner.css" />
+  <link rel="stylesheet" href="xqcore-testrunner.css" />
 </head>
 <body>
   
   <div id="navigation">
     <a href="http://akonda.lc:3000/test/testRunner.html">Akonda Test runner</a>
     <a href="http://apps.akonda.lc:3001/test/testRunner.html">Akonda Apps Test runner</a>
-    <a href="http://core.lc/test/testRunner.html" class="active">Core Test runner</a>
+    <a href="http://xqcore.lc/test/testRunner.html" class="active">XQCore Test runner</a>
     <form style="display: inline">
       <label for="enableCoverage">
         <input type="checkbox" id="enableCoverage" value="1" /> Enable Coverage
@@ -40,15 +40,16 @@
 
   <script type="text/javascript">
     var files = [
-      'core-presenter',
-      'core-model',
-      'core-view',
-      'core-event',
-      'core-logger',
-      'core-util'
+      'xqcore-core',
+      'xqcore-presenter',
+      'xqcore-model',
+      'xqcore-view',
+      'xqcore-event',
+      'xqcore-logger',
+      'xqcore-util'
     ];
 
-    var withCoverage = localStorage.getItem('core-test-with-coverage') || false;
+    var withCoverage = localStorage.getItem('xqcore-test-with-coverage') || false;
 
     if (withCoverage) {
       document.getElementById('enableCoverage').checked = true;
@@ -56,10 +57,10 @@
 
     document.getElementById('enableCoverage').addEventListener('change', function() {
       if (document.getElementById('enableCoverage').checked) {
-        localStorage.setItem('core-test-with-coverage', true);
+        localStorage.setItem('xqcore-test-with-coverage', true);
       }
       else {
-       localStorage.removeItem('core-test-with-coverage'); 
+       localStorage.removeItem('xqcore-test-with-coverage'); 
       }
     });
 

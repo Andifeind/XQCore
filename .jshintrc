@@ -9,9 +9,7 @@
 		"after",
 		"afterEach",
 		"sinon",
-		"CorePresenter",
-		"CoreModel",
-		"CoreView"
+		"XQCore"
 	],
 
 	/**

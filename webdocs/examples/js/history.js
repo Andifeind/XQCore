@@ -1,6 +1,6 @@
 $(function() {
 
-	var presenter = new CorePresenter({
+	var presenter = new XQCore.Presenter({
 		debug: true,
 		name: 'history',
 		root: '/examples/',
@@ -52,7 +52,7 @@ $(function() {
 		}
 	});
 
-	var view = new CoreView(presenter, {
+	var view = new XQCore.View(presenter, {
 		debug: true,
 		name: 'history',
 		container: 'body',

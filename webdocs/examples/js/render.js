@@ -3,7 +3,7 @@ var renderPresenter,
 	renderView;
 
 $(function() {
-	renderPresenter = new CorePresenter({
+	renderPresenter = new XQCore.Presenter({
 		debug: true,
 		name: 'Render',
 		viewInit: function(view) {
@@ -22,12 +22,12 @@ $(function() {
 		}
 	});
 
-	renderModel = new CoreModel({
+	renderModel = new XQCore.Model({
 		debug: true,
 		name: 'Render'
 	});
 
-	renderView = new CoreView(renderPresenter, {
+	renderView = new XQCore.View(renderPresenter, {
 		debug: true,
 		name: 'Render',
 		container: '#render-container',

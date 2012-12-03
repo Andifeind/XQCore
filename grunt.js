@@ -1,5 +1,5 @@
 module.exports = function(grunt) {
-	grunt.loadTasks('./modules/grunt-coretest');
+	grunt.loadTasks('./modules/grunt-xqcoretest');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	
@@ -8,10 +8,10 @@ module.exports = function(grunt) {
 		// Lists of files to be linted with JSHint.
 		lint: {
 			files: [
-				'webdocs/js/core-(!.spec).js'
+				'webdocs/js/xqcore-(!.spec).js'
 			],
 			afterconcat: [
-				'webdocs/js/core.js'
+				'webdocs/js/xqcore.js'
 			]
 		},
 		jshint: {
@@ -27,44 +27,44 @@ module.exports = function(grunt) {
 		concat: {
 			dist: {
 				src: [
-					'webdocs/js/core-router.js',
-					'webdocs/js/core-presenter.js',
-					'webdocs/js/core-model.js',
-					'webdocs/js/core-view.js',
-					'webdocs/js/core-event.js',
-					'webdocs/js/core-logger.js',
-					'webdocs/js/core-util.js'
+					'webdocs/js/xqcore-router.js',
+					'webdocs/js/xqcore-presenter.js',
+					'webdocs/js/xqcore-model.js',
+					'webdocs/js/xqcore-view.js',
+					'webdocs/js/xqcore-event.js',
+					'webdocs/js/xqcore-logger.js',
+					'webdocs/js/xqcore-util.js'
 				],
-				dest: 'webdocs/js/core.js'
+				dest: 'webdocs/js/xqcore.js'
 			}
 		},
 		min: {
 			dist: {
-				src: ['webdocs/js/core.js'],
-				dest: 'webdocs/js/core.min.js'
+				src: ['webdocs/js/xqcore.js'],
+				dest: 'webdocs/js/xqcore.min.js'
 			}
 		},
-		coretest: {
+		xqcoretest: {
 			ignore_files: ['init.js', '*.min.js']
 		},
 		copy: {
 			akonda: {
 				files: {
-					'../akonda-files/webdocs/js/core.js': 'webdocs/js/core.js',
-					'../akonda-files/webdocs/js/core.min.js': 'webdocs/js/core.min.js'
+					'../akonda-files/webdocs/js/xqcore.js': 'webdocs/js/xqcore.js',
+					'../akonda-files/webdocs/js/xqcore.min.js': 'webdocs/js/xqcore.min.js'
 				}
 			}
 		},
 		clean: {
 			options: {},
 			build: [
-				'webdocs/js/core.js',
-				'webdocs/js/core.min.js'
+				'webdocs/js/xqcore.js',
+				'webdocs/js/xqcore.min.js'
 			]
 		}
 	});
 
 	grunt.registerTask('default', 'lint');
-	grunt.registerTask('test', 'coretest');
+	grunt.registerTask('test', 'xqcoretest');
 	grunt.registerTask('build', 'lint concat:dist lint:afterconcat min copy:akonda');
 };

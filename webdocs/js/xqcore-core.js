@@ -1,1 +1,3 @@
-var XQCore = {};
+var XQCore = {
+	version: 0.1
+};

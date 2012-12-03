@@ -9,7 +9,8 @@
 		"after",
 		"afterEach",
 		"sinon",
-		"XQCore"
+		"XQCore",
+		"Handlebars"
 	],
 
 	/**

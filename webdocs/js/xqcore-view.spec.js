@@ -79,13 +79,12 @@ describe('XQCore View', function() {
 	});
 
 	it('Should render a view triggered by presenter.viewInit()', function() {
-		var presenter,
-			view;
+		var testPresenter,
+			testView;
 
-		presenter = new XQCore.Presenter({
+		testPresenter = new XQCore.Presenter({
 			'viewInit': function(view) {
-				var data;
-				if (view.name === 'test') {
+				if (view.name === 'testView') {
 					view.render({
 						listing:[
 							{text: 'aaa'},
@@ -99,7 +98,7 @@ describe('XQCore View', function() {
 			}
 		});
 
-		view = new XQCore.View(presenter, {
+		testView = new XQCore.View(testPresenter, {
 			name: 'test',
 			container: viewContainer,
 			template: '<ul>\
@@ -109,7 +108,7 @@ describe('XQCore View', function() {
 				</ul>'
 		});
 
-		expect(view).to.be.an('object');
+		expect(testView).to.be.an('object');
 		$expect(viewContainer).to.have('ul > li');
 	});
 

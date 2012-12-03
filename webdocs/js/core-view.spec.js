@@ -78,7 +78,7 @@ describe('Core View', function() {
 		expect(initFunc).was.called();
 	});
 
-	it('Should render a view', function() {
+	it('Should render a view triggered by presenter.viewInit()', function() {
 		var presenter,
 			view;
 
@@ -86,17 +86,31 @@ describe('Core View', function() {
 			'viewInit': function(view) {
 				var data;
 				if (view.name === 'test') {
-					view.render(data);
+					view.render({
+						listing:[
+							{text: 'aaa'},
+							{text: 'bbb'},
+							{text: 'ccc'},
+							{text: 'ddd'},
+							{text: 'eee'}
+						]
+					});
 				}
 			}
 		});
 
 		view = new CoreView(presenter, {
-			container: viewContainer
+			name: 'test',
+			container: viewContainer,
+			template: '<ul>\
+				{{#each listing}}\
+				<li>{{text}}</li>\
+				{{/each}}\
+				</ul>'
 		});
 
 		expect(view).to.be.an('object');
-		$expect(viewContainer).to.contain('ul > li');
+		$expect(viewContainer).to.have('ul > li');
 	});
 
 });

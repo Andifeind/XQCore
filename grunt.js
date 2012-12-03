@@ -66,5 +66,5 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', 'lint');
 	grunt.registerTask('test', 'coretest');
-	grunt.registerTask('build', 'clean:build lint concat:dist lint:afterconcat min copy:akonda');
+	grunt.registerTask('build', 'lint concat:dist lint:afterconcat min copy:akonda');
 };

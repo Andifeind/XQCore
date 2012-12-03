@@ -54,6 +54,7 @@ var CorePresenter = (function() {
 	 */
 	presenter.prototype.viewInit = function(view) {
 
+			console.log('I',view.name, view);
 	};
 
 	/**

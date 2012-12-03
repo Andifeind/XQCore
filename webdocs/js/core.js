@@ -57,6 +57,16 @@ var CorePresenter = (function() {
 	};
 
 	/**
+	 * Calling on view init
+	 *
+	 * @param {object} view The initializing view
+	 */
+	presenter.prototype.viewInit = function(view) {
+
+			console.log('I',view.name, view);
+	};
+
+	/**
 	 * Add a history item to the browser history
 	 */
 	presenter.prototype.pushState = function(data, title, url) {
@@ -224,7 +234,7 @@ var CoreView = (function() {
 		var self = this;
 
 		conf = conf || {
-			events: {}
+			events: null
 		};
 
 		$.extend(this, conf, new CoreEvent(), new CoreLogger());
@@ -282,6 +292,9 @@ var CoreView = (function() {
 
 			//Self init
 			this.init();
+
+			//Call presenter.initView()
+			this.presenter.viewInit(this);
 		}
 		else {
 			this.error('Can\'t initialize View, Container not found!', this.container);
@@ -300,8 +313,10 @@ var CoreView = (function() {
 		
 	};
 
-	view.prototype.render = function() {
-		
+	view.prototype.render = function(data) {
+		this.log('Render view template', this.template, 'with data:', data);
+		var template = Handlebars.compile(this.template);
+		this.container.html(template(data));
 	};
 
 	view.prototype.resize = function() {

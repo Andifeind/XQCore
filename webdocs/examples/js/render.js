@@ -32,7 +32,7 @@ $(function() {
 		name: 'Render',
 		container: '#render-container',
 		template: '<ul>\
-			{{each #listing}}\
+			{{#each listing}}\
 				<li>{{color}}\
 			{{/each}}\
 			'

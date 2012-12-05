@@ -1,6 +1,26 @@
 var XQCore = {
 	version: 0.1
 };
+
+/**
+ * Implement require support
+ *
+ * File must be absolute to the document root
+ *
+ * @param {String} file Filename to be load
+ */
+if (!window.include) {
+	window.include = function(file, callback) {
+		var url = location.protocol + '//' + location.host + file;
+		$.ajax({
+			url: url,
+			dataType: "script",
+			success: callback,
+			async: false
+		});
+	};
+}
+
 XQCore.Presenter = (function() {
 
 	var presenter = function(conf) {
@@ -235,67 +255,71 @@ XQCore.View = (function() {
 		this.presenter = presenter;
 
 		this.debug = Boolean(conf.debug);
-		this.container = $(conf.container);
-		if (this.container.length > 0) {
-			window.addEventListener('resize', function(e) {
-				self.resize(e);
-			}, false);
 
-			this.log('Initialize view with conf:', conf);
-			this.log('  ... using Presenter:', this.presenter.name);
-			this.log('  ... using Container:', this.container);
+		$(function() {
+			this.container = $(conf.container);
+			if (this.container.length > 0) {
+				window.addEventListener('resize', function(e) {
+					self.resize(e);
+				}, false);
 
-			//Send events to presenter
-			if (this.events) {
-				Object.keys(this.events).forEach(function(key) {
-					var split = key.split(' ', 2),
-						eventFunc,
-						eventName = split[0],
-						selector = split[1] || null,
-						self = this;
+				this.log('Initialize view with conf:', conf);
+				this.log('  ... using Presenter:', this.presenter.name);
+				this.log('  ... using Container:', this.container);
 
-					if (split.length === 1 || split.length === 2) {
-						eventFunc = this.presenter.events[this.events[key]];
-						if (typeof eventFunc === 'function') {
-							//Register event listener
-							this.container.on(eventName, function(e) {
-								var formData = null,
-									tagData = null;
+				//Send events to presenter
+				if (this.events) {
+					Object.keys(this.events).forEach(function(key) {
+						var split = key.split(' ', 2),
+							eventFunc,
+							eventName = split[0],
+							selector = split[1] || null,
+							self = this;
 
-								if (e.type === 'submit') {
-									formData = XQCore.Util.serializeForm(e.target);
-									tagData = $(e.target).data();
-								}
+						if (split.length === 1 || split.length === 2) {
+							eventFunc = this.presenter.events[this.events[key]];
+							if (typeof eventFunc === 'function') {
+								//Register event listener
+								this.container.on(eventName, function(e) {
+									var formData = null,
+										tagData = null;
 
-								eventFunc.call(self.presenter, e, tagData, formData);
-							});
-							this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
+									if (e.type === 'submit') {
+										formData = XQCore.Util.serializeForm(e.target);
+										tagData = $(e.target).data();
+									}
+
+									eventFunc.call(self.presenter, e, tagData, formData);
+								});
+								this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
+							}
+							else {
+								this.warn('Event handler callback not defined in Presenter:', this.events[key]);
+							}
 						}
 						else {
-							this.warn('Event handler callback not defined in Presenter:', this.events[key]);
+							this.warn('Incorect event configuration', key);
 						}
-					}
-					else {
-						this.warn('Incorect event configuration', key);
-					}
-				}, this);
-			} else {
-				this.warn('No view events defined');
+					}, this);
+				} else {
+					this.warn('No view events defined');
+				}
+
+				//Self init
+				this.init();
+
+				//Call presenter.initView()
+				this.presenter.viewInit(this);
 			}
-
-			//Self init
-			this.init();
-
-			//Call presenter.initView()
-			this.presenter.viewInit(this);
-		}
-		else {
-			this.error('Can\'t initialize View, Container not found!', this.container);
-		}
+			else {
+				this.error('Can\'t initialize View, Container not found!', this.container);
+			}
+		}.bind(this));
 	};
 
 	view.prototype.init = function() {
 
+				console.log('View Init2', this);
 	};
 
 	view.prototype.show = function() {

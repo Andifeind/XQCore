@@ -56,7 +56,6 @@ module.exports = function(grunt) {
 			}
 		},
 		clean: {
-			options: {},
 			build: [
 				'webdocs/js/xqcore.js',
 				'webdocs/js/xqcore.min.js'

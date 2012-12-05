@@ -3,8 +3,16 @@ if (typeof __$coverObject === "undefined"){
 	else if (typeof global !== "undefined") global.__$coverObject = {};
 	else throw new Error("cannot find the global scope");
 }
-__$coverObject["webdocs/test/src/lib/xqcore-core.js"] = {};
-__$coverObject["webdocs/test/src/lib/xqcore-core.js"].__code = "var XQCore = {\n\tversion: 0.1\n};";
-__$coverObject["webdocs/test/src/lib/xqcore-core.js"]["0:30"] = 0;
-__$coverObject['webdocs/test/src/lib/xqcore-core.js']['0:30']++;
-var XQCore = {version: 0.1};
+var __$coverInit = function(name, code){
+	__$coverObject[name] = {__code: code}
+}
+var __$coverInitRange = function(name, range){
+	__$coverObject[name][range] = 0;
+}
+var __$coverCall = function(name, range){
+	__$coverObject[name][range]++;
+}
+__$coverInit("webdocs/test/src/lib/xqcore-core.js", "var XQCore = {\n\tversion: 0.1\n};\n");
+__$coverInitRange("webdocs/test/src/lib/xqcore-core.js", "0:30");
+__$coverCall('webdocs/test/src/lib/xqcore-core.js', '0:30');
+var XQCore = { version: 0.1 };

@@ -1,13 +1,7 @@
-var CoreRouter = function(conf) {
-	var CoreRouter,
-		router ;
-
-	CoreRouter = Backbone.Router.extend(conf);
-	router = new CoreRouter();
-	Backbone.history.start();
-	return router;
+var XQCore = {
+	version: 0.1
 };
-var CorePresenter = (function() {
+XQCore.Presenter = (function() {
 
 	var presenter = function(conf) {
 		var self = this;
@@ -17,7 +11,7 @@ var CorePresenter = (function() {
 		
 		conf = conf || {};
 
-		$.extend(this, conf, new CoreEvent(), new CoreLogger());
+		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
 
@@ -63,7 +57,6 @@ var CorePresenter = (function() {
 	 */
 	presenter.prototype.viewInit = function(view) {
 
-			console.log('I',view.name, view);
 	};
 
 	/**
@@ -76,7 +69,7 @@ var CorePresenter = (function() {
 	return presenter;
 })();
 
-var CoreModel = (function(window, document, $, undefined) {
+XQCore.Model = (function(window, document, $, undefined) {
 	var model;
 
 	model = function(conf) {
@@ -84,7 +77,7 @@ var CoreModel = (function(window, document, $, undefined) {
 			conf = {};
 		}
 
-		$.extend(this, conf, new CoreEvent(), new CoreLogger());
+		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
 		this.attributes = {};
@@ -228,7 +221,7 @@ var CoreModel = (function(window, document, $, undefined) {
 	return model;
 })(window, document, jQuery);
 
-var CoreView = (function() {
+XQCore.View = (function() {
 
 	var view = function(presenter, conf) {
 		var self = this;
@@ -237,7 +230,7 @@ var CoreView = (function() {
 			events: null
 		};
 
-		$.extend(this, conf, new CoreEvent(), new CoreLogger());
+		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'View';
 		this.presenter = presenter;
 
@@ -270,7 +263,7 @@ var CoreView = (function() {
 									tagData = null;
 
 								if (e.type === 'submit') {
-									formData = CoreUtil.serializeForm(e.target);
+									formData = XQCore.Util.serializeForm(e.target);
 									tagData = $(e.target).data();
 								}
 
@@ -328,12 +321,12 @@ var CoreView = (function() {
 	return view;
 })();
 
-var CoreEvent = (function() {
+XQCore.Event = (function() {
 	var ee,
 		event;
 	
 	function indexOf(eventName, callback) {
-		this.objectName = 'CoreEvent';
+		this.objectName = 'XQCore.Event';
 		
 		var len = this.store.length,
 			i = 0,
@@ -373,14 +366,14 @@ var CoreEvent = (function() {
 	ee = new EventEmitter();
 	event.prototype.emit = function(eventName, data) {
 		if (this.debug) {
-			console.debug('Akonda Core - Emit event', eventName, data);
+			console.debug('XQCore - Emit event', eventName, data);
 		}
 		return ee.emitEvent(eventName, [data]);
 	};
 
 	event.prototype.on = function(eventName, listener) {
 		if (this.debug) {
-			console.debug('Akonda Core - Add listener', eventName, listener);
+			console.debug('XQCore - Add listener', eventName, listener);
 		}
 		return ee.addListener(eventName, listener);
 	};
@@ -393,14 +386,14 @@ var CoreEvent = (function() {
 		};
 
 		if (this.debug) {
-			console.debug('Akonda Core - Add once listener', eventName, listener);
+			console.debug('XQCore - Add once listener', eventName, listener);
 		}
 		return ee.addListener(eventName, onceListener);
 	};
 
 	event.prototype.off = function(eventName, listener) {
 		if (this.debug) {
-			console.debug('Akonda Core - Remove listener', eventName, listener);
+			console.debug('XQCore - Remove listener', eventName, listener);
 		}
 
 		if (listener === undefined) {
@@ -414,7 +407,7 @@ var CoreEvent = (function() {
 	return event;
 })();
 
-var CoreLogger = (function(conf) {
+XQCore.Logger = (function(conf) {
 
 	//var timerStore = {};
 
@@ -434,16 +427,16 @@ var CoreLogger = (function(conf) {
 		var conf,
 			html;
 
-		conf = localStorage.get('core-onscreen-console') || {
+		conf = localStorage.get('xqcore-onscreen-console') || {
 			pos: 'bottom'
 		};
 
-		html = '<div id="CoreLogger-OnScreenConsole">\
+		html = '<div id="XQCoreLogger-OnScreenConsole">\
 			</div>';
 	}
 
 	/**
-	 * CoreLogger is a logging tool to log messages, warnings, errors to the browser or onscreen console
+	 * XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console
 	 *
 	 * @return {[type]} [description]
 	 */
@@ -545,12 +538,12 @@ var CoreLogger = (function(conf) {
 /**
  * A bunch of helpfull functions
  *
- * @return {Object} Returns a singelton object instance of CoreUtil
+ * @return {Object} Returns a singelton object instance of XQCore.Util
  */
-var CoreUtil = (function($) {
+XQCore.Util = (function($) {
 
 	var util = {
-		name: 'CoreUtil',
+		name: 'XQCore.Util',
 		debug: true
 	};
 
@@ -576,7 +569,7 @@ var CoreUtil = (function($) {
 		});
 
 		if (this.debug) {
-			console.log('Akonda Core - Serialize form:', formSelector, formData);
+			console.log('XQCore - Serialize form:', formSelector, formData);
 		}
 
 		return formData;

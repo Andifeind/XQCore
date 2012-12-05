@@ -27,7 +27,7 @@ module.exports = function(grunt) {
 		concat: {
 			dist: {
 				src: [
-					'webdocs/js/xqcore-router.js',
+					'webdocs/js/xqcore-core.js',
 					'webdocs/js/xqcore-presenter.js',
 					'webdocs/js/xqcore-model.js',
 					'webdocs/js/xqcore-view.js',

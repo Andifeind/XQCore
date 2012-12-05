@@ -142,7 +142,7 @@
 	/**
 	 * This option prohibits the use of unsafe . in regular expressions.
 	 */
-	"regexp": true,
+	"regexp": false,
 
 	/**
 	 * This option prohibits the use of explicitly undeclared variables. This option is very useful for spotting leaking and mistyped
@@ -176,7 +176,7 @@
 	 *
   	 * In addition to that, this option will warn you about unused global variables declared via /*global ... * /.
   	 */
-  	 //"unused": true,
+  	 "unused": true,
 
   	/**
   	 * This option requires all functions to run in EcmaScript 5's strict mode. Strict mode is a way to opt in to a restricted variant of
@@ -297,13 +297,13 @@
 	 * var name = (function() { return 'Anton' }());
 	 * This is a very niche use case that is useful only when you use automatic JavaScript code generators.
 	 */
-	"lastsemic": false,
+	"lastsemic": true,
 
 	/**
 	 * This option suppresses most of the warnings about possibly unsafe line breakings in your code. It doesn't suppress warnings
 	 * about comma-first coding style. To suppress those you have to use laxcomma (see below).
 	 */
-	"laxbreak": false,	
+	"laxbreak": true,	
 	
 	/**
 	 *
@@ -510,7 +510,7 @@
 	 * // [...]
 	 * };
 	 */
-	"onevar": true,	
+	"onevar": false,	
 		
 	/**
 	 * This option makes JSHint stop on the first error or warning.

@@ -17,6 +17,23 @@ XQCore.Presenter = (function() {
 
 		//Setup popstate listener
 		if (conf.routes) {
+			this.Router = new XQCore.Router();
+
+			//Add routes
+			Object.keys(conf.routes).forEach(function(route) {
+				var callback = this.routes[route];
+				if (typeof callback === 'string') {
+					callback = this[callback];
+				}
+
+				if (typeof callback === 'function') {
+					this.Router.addRoute(route, callback);
+				}
+				else {
+					this.warn('Router callback isn\'t a function', callback, 'of route', route);
+				}
+			});
+
 			window.addEventListener('popstate', function(e) {
 				self.log('popstate event recived', e);
 				if (!e.state) {

@@ -105,6 +105,7 @@
 						splats.push(val);
 					}
 				}
+
 				return {
 					params: params,
 					splats: splats,
@@ -122,44 +123,72 @@
 	 *
 	 * @return {Object}
 	 */
-	var getRouter = function() {
-	  //using 'new' is optional
-	  return {
-	    routes: [],
-	    routeMap : {},
-	    addRoute: function(path, fn) {
-	      if (!path) {
-			throw new Error(' route requires a path');
-	      }
+	// var getRouter = function() {
+	//   //using 'new' is optional
+	//   return {
+	//     routes: [],
+	//     routeMap : {},
+	//     addRoute: function(path, fn) {
+	//       if (!path) {
+	//         throw new Error(' route requires a path');
+	//       }
 
-	      if (!fn) {
-	       throw new Error(' route ' + path.toString() + ' requires a callback');
-	      }
+	//       if (!fn) {
+	//        throw new Error(' route ' + path.toString() + ' requires a callback');
+	//       }
 
-	      var route = new Route(path);
-	      route.fn = fn;
+	//       var route = new Route(path);
+	//       route.fn = fn;
 
-	      this.routes.push(route);
-	      this.routeMap[path] = fn;
-	    },
+	//       this.routes.push(route);
+	//       this.routeMap[path] = fn;
+	//     },
 
-	    match: function(pathname) {
-	      var route = match(this.routes, pathname);
-	      if(route){
-	        route.fn = this.routeMap[route.route];
-	      }
-	      return route;
-	    }
-	  };
+	//     match: function(pathname) {
+	//       var route = match(this.routes, pathname);
+	//       if(route){
+	//         route.fn = this.routeMap[route.route];
+	//       }
+	//       return route;
+	//     }
+	//   };
+	// };
+
+	var router = function(conf) {
+		conf = $.extend({
+			debug: false
+		}, conf);
+
+		this.debug = Boolean(conf.debug);
+
+		this.routes = [];
+	    this.routeMap = {};
 	};
 
-	// module.exports = {
-	//   Route: Route,
-	//   pathToRegExp: pathToRegExp,
-	//   match: match,
-	//   Router: Router
-	// }
+	router.prototype.addRoute = function(path, fn) {
+		if (!path) {
+			throw new Error(' route requires a path');
+		}
 
-	return getRouter();
+		if (!fn) {
+			throw new Error(' route ' + path.toString() + ' requires a callback');
+		}
+
+		var route = new Route(path);
+		route.fn = fn;
+
+		this.routes.push(route);
+		this.routeMap[path] = fn;
+	};
+
+	router.prototype.match = function(pathname) {
+		var route = match(this.routes, pathname);
+		if(route){
+			route.fn = this.routeMap[route.route];
+		}
+		return route;
+	};
+
+	return router;
 
 });

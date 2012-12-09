@@ -110,6 +110,26 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
+	 * Push data to a subdataset
+	 *
+	 * @param {String} path path to subdataset
+	 * @param {Object} data data to add
+	 */
+	model.prototype.push = function(path, data) {
+		var dataset = this.attributes;
+		path.split('.').forEach(function(key) {
+			dataset = dataset[key];
+		});
+
+		if (dataset instanceof Array) {
+			dataset.push(data);
+		}
+		else {
+			dataset = $.extend(dataset, data);
+		}
+	};
+
+	/**
 	 * Send an ajax request to a webserver. Sends all models attributes
 	 *
 	 * You must set the server URI first with model.server = 'http://example.com/post'

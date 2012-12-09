@@ -1,4 +1,4 @@
-XQCore.View = (function() {
+XQCore.View = (function(undefined) {
 
 	var view = function(presenter, conf) {
 		var self = this;
@@ -30,14 +30,14 @@ XQCore.View = (function() {
 						var split = key.split(' ', 2),
 							eventFunc,
 							eventName = split[0],
-							selector = split[1] || null,
+							selector = split[1] || this.container,
 							self = this;
 
 						if (split.length === 1 || split.length === 2) {
 							eventFunc = this.presenter.events[this.events[key]];
 							if (typeof eventFunc === 'function') {
 								//Register event listener
-								this.container.on(eventName, function(e) {
+								$(selector).on(eventName, function(e) {
 									var formData = null,
 										tagData = null;
 
@@ -95,6 +95,69 @@ XQCore.View = (function() {
 
 	view.prototype.resize = function() {
 		
+	};
+
+	/**
+	 * Appends a html fragment to a html element
+	 * You must set the itemTemplate and subSelector  option first
+	 *
+	 * @param {String} selector parent selector
+	 * @param {Object} data item data
+	 * @param {Object} options Appending options (not implemented yet)
+	 */
+	view.prototype.append = function(data, options) {
+		this.manipulate('append', data, options);
+	};
+
+	/**
+	 * Prepends a html fragment to a html element
+	 * You must set the itemTemplate and subSelector option first
+	 *
+	 * @param {Object} data item data
+	 * @param {Object} options Prepending options (not implemented yet)
+	 */
+	view.prototype.prepend = function(data, options) {
+		this.manipulate('prepend', data, options);
+	};
+
+	/**
+	 * Manipulates a dom node
+	 *
+	 * @param  {String} action  Manipulation method
+	 * @param  {[type]} data    [description]
+	 * @param  {[type]} options (not implemented yet)
+	 *
+	 * @return {[type]}         [description]
+	 */
+	view.prototype.manipulate = function(action, data, options) {
+		if (this.subSelector === undefined) {
+			this.warn('You must set the subSelector option');
+			return false;
+		}
+
+		if (this.itemTemplate === undefined) {
+			this.warn('You must set the itemTemplate option');
+			return false;
+		}
+
+		var selector = $(this.subSelector),
+			html = Handlebars.compile(this.itemTemplate)(data);
+
+		if (options) {
+			//TODO handle transition options
+		}
+
+		switch (action) {
+			case 'append':
+				$(html).appendTo(selector);
+				break;
+			case 'prepend':
+				$(html).prependTo(selector);
+				break;
+			default:
+				this.error('undefined action in view.manipulate()', action);
+		}
+
 	};
 
 

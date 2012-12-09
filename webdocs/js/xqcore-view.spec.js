@@ -112,4 +112,131 @@ describe('XQCore View', function() {
 		$expect(viewContainer).to.have('ul > li');
 	});
 
+	it('Should forget to set the subSelector and should log an error to the console', function() {
+		var presenter = new XQCore.Presenter({
+		});
+
+		var view = new XQCore.View(presenter, {
+			debug: true,
+			container: viewContainer
+		});
+
+		var	log = sinon.spy(view, 'warn');
+
+		view.append({
+			test: 'aaa'
+		});
+
+
+		expect(log).was.called();
+		expect(log).was.calledWith('You must set the subSelector option');
+	});
+
+	it('Should forget to set the itemTemplate and should log an error to the console', function() {
+		var presenter = new XQCore.Presenter({
+		});
+
+		var view = new XQCore.View(presenter, {
+			debug: true,
+			container: viewContainer,
+			subSelector: '#test'
+		});
+
+		var	log = sinon.spy(view, 'warn');
+
+		view.append({
+			test: 'aaa'
+		});
+
+
+		expect(log).was.called();
+		expect(log).was.calledWith('You must set the itemTemplate option');
+	});
+
+	it('Should add a html fragment to an existing html node', function() {
+		var presenter = new XQCore.Presenter({
+		});
+
+		var view = new XQCore.View(presenter, {
+			debug: true,
+			container: viewContainer,
+			subSelector: '#test',
+			itemTemplate: '<span>{{name}}</span>'
+		});
+
+		var	log = sinon.spy(view, 'warn');
+		
+		view.append({
+			name: 'aaa'
+		});
+		
+		view.append({
+			name: 'bbb'
+		});
+		
+		view.append({
+			name: 'ccc'
+		});
+		
+		view.append({
+			name: 'ddd'
+		});
+		
+		view.append({
+			name: 'eee'
+		});
+
+
+		expect(log).was.notCalled();
+		$expect('#test > span').to.exist();
+		$expect('#test > span:eq(0)').to.contain('aaa');
+		$expect('#test > span:eq(1)').to.contain('bbb');
+		$expect('#test > span:eq(2)').to.contain('ccc');
+		$expect('#test > span:eq(3)').to.contain('ddd');
+		$expect('#test > span:eq(4)').to.contain('eee');
+	});
+
+	it('Should prepend a html fragment to an existing html node', function() {
+		var presenter = new XQCore.Presenter({
+		});
+
+		var view = new XQCore.View(presenter, {
+			debug: true,
+			container: viewContainer,
+			subSelector: '#test',
+			itemTemplate: '<span>{{name}}</span>'
+		});
+
+		var	log = sinon.spy(view, 'warn');
+		
+		view.prepend({
+			name: 'aaa'
+		});
+		
+		view.prepend({
+			name: 'bbb'
+		});
+		
+		view.prepend({
+			name: 'ccc'
+		});
+		
+		view.prepend({
+			name: 'ddd'
+		});
+		
+		view.prepend({
+			name: 'eee'
+		});
+
+
+		expect(log).was.notCalled();
+		$expect('#test > span').to.exist();
+		$expect('#test > span:eq(0)').to.contain('eee');
+		$expect('#test > span:eq(1)').to.contain('ddd');
+		$expect('#test > span:eq(2)').to.contain('ccc');
+		$expect('#test > span:eq(3)').to.contain('bbb');
+		$expect('#test > span:eq(4)').to.contain('aaa');
+	});
+
 });

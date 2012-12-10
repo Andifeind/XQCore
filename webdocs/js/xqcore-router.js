@@ -9,7 +9,7 @@
  * Copyright Aaron Blohowiak and TJ Holowaychuk 2011.
  * https://github.com/aaronblohowiak/routes.js
  */
- XQCore.Router = (function() {
+ XQCore.Router = (function(undefined) {
 
 	/**
 	 * Convert path to route object
@@ -191,4 +191,4 @@
 
 	return router;
 
-});
+})();

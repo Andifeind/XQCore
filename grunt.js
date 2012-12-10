@@ -2,6 +2,7 @@ module.exports = function(grunt) {
 	grunt.loadTasks('./modules/grunt-xqcoretest');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-contrib-watch');
 	
 	// Project configuration.
 	grunt.initConfig({
@@ -60,6 +61,10 @@ module.exports = function(grunt) {
 				'webdocs/js/xqcore.js',
 				'webdocs/js/xqcore.min.js'
 			]
+		},
+		watch: {
+			files: 'webdocs/js/xqcore-*.js',
+			tasks: ['build']
 		}
 	});
 

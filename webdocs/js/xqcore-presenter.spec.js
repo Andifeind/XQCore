@@ -21,7 +21,7 @@ describe('XQCore Presenter', function() {
 		expect(initFunc).was.called();
 	});
 
-	it('Should define routes', function(done) {
+	xit('Should define routes', function(done) {
 		var presenter,
 			testRoute = sinon.spy();
 
@@ -31,7 +31,6 @@ describe('XQCore Presenter', function() {
 			routes: {
 				'test': 'test'
 			},
-
 			test: function() {
 				location.hash = '';
 				expect(this).to.be(presenter);

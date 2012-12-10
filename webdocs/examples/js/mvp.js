@@ -46,7 +46,8 @@ var presenter = new XQCore.Presenter({
 			timer.end();
 		},
 		removeItem: function(e, tagData) {
-			console.log('Remove', e, tagData);
+			model1.remove('items', tagData.itemIndex);
+			view1.remove(tagData.itemIndex);
 		}
 	}
 });

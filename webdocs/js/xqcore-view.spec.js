@@ -36,7 +36,7 @@ describe('XQCore View', function() {
 			testSpy2 = sinon.spy();
 
 		presenter = new XQCore.Presenter({
-			'events': {
+			events: {
 				'test1': testSpy1,
 				'test2': testSpy2
 			}
@@ -55,8 +55,8 @@ describe('XQCore View', function() {
 		expect(view).to.be.an('object');
 		expect(presenter).to.be.an('object');
 		
-		viewContainer.trigger('mousedown');
-		viewContainer.trigger('mouseup');
+		viewContainer.find('#test').trigger('mousedown');
+		viewContainer.find('#test').trigger('mouseup');
 		expect(testSpy1).was.called();
 		expect(testSpy2).was.called();
 	});

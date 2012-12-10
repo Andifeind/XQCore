@@ -153,7 +153,7 @@ XQCore.View = (function(undefined) {
 		}
 
 		var selector = $(this.subSelector),
-			html = Handlebars.compile(this.itemTemplate)(data);
+			html;
 
 		if (options) {
 			//TODO handle transition options
@@ -161,13 +161,15 @@ XQCore.View = (function(undefined) {
 
 		switch (action) {
 			case 'append':
+				html = Handlebars.compile(this.itemTemplate)(data);
 				$(html).appendTo(selector);
 				break;
 			case 'prepend':
+				html = Handlebars.compile(this.itemTemplate)(data);
 				$(html).prependTo(selector);
 				break;
 			case 'remove':
-				selector.children().index(data).remove();
+				selector.children().eq(data).remove();
 				break;
 			default:
 				this.error('undefined action in view.manipulate()', action);
@@ -185,25 +187,26 @@ XQCore.View = (function(undefined) {
 	 */
 	var getItemIndex = function(el) {
 		var index = null,
-			container = $(this.container),
-			curEl = el,
-			nextEl = curEl.parent.parentNode,
+			container = $(this.container).get(0),
+			curEl = $(el),
+			nextEl = curEl.parent(),
 			subSelector = $(this.subSelector).get(0),
 			d = 0;
 
 		if (this.subSelector) {
 			do {
-				if (nextEl === subSelector) {
-					return nextEl.index(curEl);
+				if (nextEl.get(0) === subSelector) {
+					return $(curEl).index();
 				}
-				curEl = curEl.parentNode;
-				nextEl = curEl.parentNode;
+				curEl = curEl.parent();
+				nextEl = curEl.parent();
 
 				if (++d > 100) {
+					console.log(curEl, nextEl);
 					console.error('Break loop!');
 					break;
 				}
-			} while(curEl && curEl !== container);
+			} while(curEl.length && curEl.get(0) !== container);
 		}
 
 		return index;

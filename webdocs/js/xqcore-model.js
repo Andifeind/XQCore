@@ -154,6 +154,32 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
+	 * Remove a subset
+	 *
+	 * @param {String} path path to subset
+	 * @param {Number} index Index of the subsut to remove
+	 *
+	 * @return {Object} removed subset
+	 */
+	model.prototype.remove = function(path, index) {
+		var dataset = this.attributes,
+			data = null;
+		path.split('.').forEach(function(key) {
+			dataset = dataset[key];
+		});
+
+		if (dataset instanceof Array) {
+			data = dataset.splice(index, 1);
+			data = data[0] || null;
+		}
+		else {
+			this.warn('Model.remove() doesn\'t work with Objects in model', this.name);
+		}
+
+		return data;
+	};
+
+	/**
 	 * Send an ajax request to a webserver. Sends all models attributes
 	 *
 	 * You must set the server URI first with model.server = 'http://example.com/post'

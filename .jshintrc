@@ -4,6 +4,8 @@
 		"expect",
 		"$expect",
 		"it",
+		"xit",
+		"xdescribe",
 		"before",
 		"beforeEach",
 		"after",

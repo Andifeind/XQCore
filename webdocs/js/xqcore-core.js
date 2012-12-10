@@ -3,7 +3,7 @@ var XQCore = {
 };
 
 /**
- * Implement require support
+ * Implement include support
  *
  * File must be absolute to the document root
  *

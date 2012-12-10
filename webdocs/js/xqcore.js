@@ -3,7 +3,7 @@ var XQCore = {
 };
 
 /**
- * Implement require support
+ * Implement include support
  *
  * File must be absolute to the document root
  *
@@ -262,6 +262,32 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
+	 * Remove a subset
+	 *
+	 * @param {String} path path to subset
+	 * @param {Number} index Index of the subsut to remove
+	 *
+	 * @return {Object} removed subset
+	 */
+	model.prototype.remove = function(path, index) {
+		var dataset = this.attributes,
+			data = null;
+		path.split('.').forEach(function(key) {
+			dataset = dataset[key];
+		});
+
+		if (dataset instanceof Array) {
+			data = dataset.splice(index, 1);
+			data = data[0] || null;
+		}
+		else {
+			this.warn('Model.remove() doesn\'t work with Objects in model', this.name);
+		}
+
+		return data;
+	};
+
+	/**
 	 * Send an ajax request to a webserver. Sends all models attributes
 	 *
 	 * You must set the server URI first with model.server = 'http://example.com/post'
@@ -457,7 +483,7 @@ XQCore.View = (function(undefined) {
 		}
 
 		var selector = $(this.subSelector),
-			html = Handlebars.compile(this.itemTemplate)(data);
+			html;
 
 		if (options) {
 			//TODO handle transition options
@@ -465,13 +491,15 @@ XQCore.View = (function(undefined) {
 
 		switch (action) {
 			case 'append':
+				html = Handlebars.compile(this.itemTemplate)(data);
 				$(html).appendTo(selector);
 				break;
 			case 'prepend':
+				html = Handlebars.compile(this.itemTemplate)(data);
 				$(html).prependTo(selector);
 				break;
 			case 'remove':
-				selector.children().index(data).remove();
+				selector.children().eq(data).remove();
 				break;
 			default:
 				this.error('undefined action in view.manipulate()', action);
@@ -489,25 +517,26 @@ XQCore.View = (function(undefined) {
 	 */
 	var getItemIndex = function(el) {
 		var index = null,
-			container = $(this.container),
+			container = $(this.container).get(0),
 			curEl = $(el),
 			nextEl = curEl.parent(),
-			subSelector = $(this.subSelector),
+			subSelector = $(this.subSelector).get(0),
 			d = 0;
 
 		if (this.subSelector) {
 			do {
-				if (nextEl === subSelector) {
-					return nextEl.index(curEl);
+				if (nextEl.get(0) === subSelector) {
+					return $(curEl).index();
 				}
 				curEl = curEl.parent();
 				nextEl = curEl.parent();
 
 				if (++d > 100) {
+					console.log(curEl, nextEl);
 					console.error('Break loop!');
 					break;
 				}
-			} while(curEl && curEl !== container);
+			} while(curEl.length && curEl.get(0) !== container);
 		}
 
 		return index;

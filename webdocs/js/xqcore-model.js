@@ -110,12 +110,12 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Push data to a subdataset
+	 * Append data to a subset
 	 *
-	 * @param {String} path path to subdataset
+	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
-	model.prototype.push = function(path, data) {
+	model.prototype.append = function(path, data) {
 		var dataset = this.attributes;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
@@ -127,6 +127,30 @@ XQCore.Model = (function(window, document, $, undefined) {
 		else {
 			dataset = $.extend(dataset, data);
 		}
+
+		return data;
+	};
+
+	/**
+	 * Prepend data to a subset
+	 *
+	 * @param {String} path path to subset
+	 * @param {Object} data data to add
+	 */
+	model.prototype.prepend = function(path, data) {
+		var dataset = this.attributes;
+		path.split('.').forEach(function(key) {
+			dataset = dataset[key];
+		});
+
+		if (dataset instanceof Array) {
+			dataset.unshift(data);
+		}
+		else {
+			dataset = $.extend(data, dataset);
+		}
+
+		return data;
 	};
 
 	/**

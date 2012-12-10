@@ -40,6 +40,23 @@ XQCore.Presenter = (function() {
 
 		//Setup popstate listener
 		if (conf.routes) {
+			this.Router = new XQCore.Router();
+
+			//Add routes
+			Object.keys(conf.routes).forEach(function(route) {
+				var callback = this.routes[route];
+				if (typeof callback === 'string') {
+					callback = this[callback];
+				}
+
+				if (typeof callback === 'function') {
+					this.Router.addRoute(route, callback);
+				}
+				else {
+					this.warn('Router callback isn\'t a function', callback, 'of route', route);
+				}
+			});
+
 			window.addEventListener('popstate', function(e) {
 				self.log('popstate event recived', e);
 				if (!e.state) {
@@ -201,12 +218,12 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Push data to a subdataset
+	 * Append data to a subset
 	 *
-	 * @param {String} path path to subdataset
+	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
-	model.prototype.push = function(path, data) {
+	model.prototype.append = function(path, data) {
 		var dataset = this.attributes;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
@@ -218,6 +235,30 @@ XQCore.Model = (function(window, document, $, undefined) {
 		else {
 			dataset = $.extend(dataset, data);
 		}
+
+		return data;
+	};
+
+	/**
+	 * Prepend data to a subset
+	 *
+	 * @param {String} path path to subset
+	 * @param {Object} data data to add
+	 */
+	model.prototype.prepend = function(path, data) {
+		var dataset = this.attributes;
+		path.split('.').forEach(function(key) {
+			dataset = dataset[key];
+		});
+
+		if (dataset instanceof Array) {
+			dataset.unshift(data);
+		}
+		else {
+			dataset = $.extend(data, dataset);
+		}
+
+		return data;
 	};
 
 	/**
@@ -300,14 +341,17 @@ XQCore.View = (function(undefined) {
 							eventFunc = this.presenter.events[this.events[key]];
 							if (typeof eventFunc === 'function') {
 								//Register event listener
-								$(selector).on(eventName, function(e) {
+								this.container.delegate(selector, eventName, function(e) {
 									var formData = null,
 										tagData = null;
 
 									if (e.type === 'submit') {
 										formData = XQCore.Util.serializeForm(e.target);
-										tagData = $(e.target).data();
 									}
+
+									tagData = $.extend($(e.target).data(), {
+										itemIndex: getItemIndex.call(self, e.target)
+									});
 
 									eventFunc.call(self.presenter, e, tagData, formData);
 								});
@@ -384,6 +428,15 @@ XQCore.View = (function(undefined) {
 	};
 
 	/**
+	 * Remove a item from a dom node
+	 *
+	 * @param {Number} index Remove item <index> from a node list
+	 */
+	view.prototype.remove = function(index) {
+		this.manipulate('remove', index);
+	};
+
+	/**
 	 * Manipulates a dom node
 	 *
 	 * @param  {String} action  Manipulation method
@@ -417,10 +470,47 @@ XQCore.View = (function(undefined) {
 			case 'prepend':
 				$(html).prependTo(selector);
 				break;
+			case 'remove':
+				selector.children().index(data).remove();
+				break;
 			default:
 				this.error('undefined action in view.manipulate()', action);
 		}
 
+	};
+
+	/**
+	 * Gets the index of a subSelector item
+	 * This function must binded to the view
+	 *
+	 * @param  {Object} el Start element.
+	 *
+	 * @return {Number}    index of the element or null
+	 */
+	var getItemIndex = function(el) {
+		var index = null,
+			container = $(this.container),
+			curEl = $(el),
+			nextEl = curEl.parent(),
+			subSelector = $(this.subSelector),
+			d = 0;
+
+		if (this.subSelector) {
+			do {
+				if (nextEl === subSelector) {
+					return nextEl.index(curEl);
+				}
+				curEl = curEl.parent();
+				nextEl = curEl.parent();
+
+				if (++d > 100) {
+					console.error('Break loop!');
+					break;
+				}
+			} while(curEl && curEl !== container);
+		}
+
+		return index;
 	};
 
 

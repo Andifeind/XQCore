@@ -37,14 +37,17 @@ XQCore.View = (function(undefined) {
 							eventFunc = this.presenter.events[this.events[key]];
 							if (typeof eventFunc === 'function') {
 								//Register event listener
-								$(selector).on(eventName, function(e) {
+								this.container.delegate(selector, eventName, function(e) {
 									var formData = null,
 										tagData = null;
 
 									if (e.type === 'submit') {
 										formData = XQCore.Util.serializeForm(e.target);
-										tagData = $(e.target).data();
 									}
+
+									tagData = $.extend($(e.target).data(), {
+										itemIndex: getItemIndex.call(self, e.target)
+									});
 
 									eventFunc.call(self.presenter, e, tagData, formData);
 								});
@@ -121,6 +124,15 @@ XQCore.View = (function(undefined) {
 	};
 
 	/**
+	 * Remove a item from a dom node
+	 *
+	 * @param {Number} index Remove item <index> from a node list
+	 */
+	view.prototype.remove = function(index) {
+		this.manipulate('remove', index);
+	};
+
+	/**
 	 * Manipulates a dom node
 	 *
 	 * @param  {String} action  Manipulation method
@@ -154,10 +166,47 @@ XQCore.View = (function(undefined) {
 			case 'prepend':
 				$(html).prependTo(selector);
 				break;
+			case 'remove':
+				selector.children().index(data).remove();
+				break;
 			default:
 				this.error('undefined action in view.manipulate()', action);
 		}
 
+	};
+
+	/**
+	 * Gets the index of a subSelector item
+	 * This function must binded to the view
+	 *
+	 * @param  {Object} el Start element.
+	 *
+	 * @return {Number}    index of the element or null
+	 */
+	var getItemIndex = function(el) {
+		var index = null,
+			container = $(this.container),
+			curEl = el,
+			nextEl = curEl.parent.parentNode,
+			subSelector = $(this.subSelector).get(0),
+			d = 0;
+
+		if (this.subSelector) {
+			do {
+				if (nextEl === subSelector) {
+					return nextEl.index(curEl);
+				}
+				curEl = curEl.parentNode;
+				nextEl = curEl.parentNode;
+
+				if (++d > 100) {
+					console.error('Break loop!');
+					break;
+				}
+			} while(curEl && curEl !== container);
+		}
+
+		return index;
 	};
 
 

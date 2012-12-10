@@ -5,6 +5,7 @@ XQCore.Presenter = (function() {
 		
 		this.root = '/';
 		this.debug = false;
+		this.routes = [];
 		
 		conf = conf || {};
 
@@ -32,7 +33,7 @@ XQCore.Presenter = (function() {
 				else {
 					this.warn('Router callback isn\'t a function', callback, 'of route', route);
 				}
-			});
+			}.bind(this));
 
 			window.addEventListener('popstate', function(e) {
 				self.log('popstate event recived', e);

@@ -19,7 +19,8 @@ module.exports = function(grunt) {
 			options: {
 				browser: true,
 				smarttabs: true,
-				multistr: true
+				multistr: true,
+				laxbreak: true
 			},
 			globals: {
 
@@ -34,7 +35,8 @@ module.exports = function(grunt) {
 					'webdocs/js/xqcore-view.js',
 					'webdocs/js/xqcore-event.js',
 					'webdocs/js/xqcore-logger.js',
-					'webdocs/js/xqcore-util.js'
+					'webdocs/js/xqcore-util.js',
+					'webdocs/js/xqcore-router.js'
 				],
 				dest: 'webdocs/js/xqcore.js'
 			}

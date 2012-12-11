@@ -27,6 +27,11 @@ XQCore.Model = (function(window, document, $, undefined) {
 		}
 
 		this.init();
+
+		//Add default values
+		if (this.defaults) {
+			this.set(this.defaults);
+		}
 	};
 
 	model.prototype.init = function() {

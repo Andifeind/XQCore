@@ -1,5 +1,6 @@
 var XQCore = {
-	version: 0.1
+	version: 0.1,
+	defaultRoute: 'default'
 };
 
 /**
@@ -39,6 +40,33 @@ XQCore.Presenter = (function() {
 		this.log('Initialize presenter with conf:', conf);
 		this.init();
 
+		this.registeredViews = [];
+		this.fireViewInit = function(view) {
+			var allReady = true;
+			this.registeredViews.forEach(function(item) {
+				if (view === item.view) {
+					item.isReady = true;
+				}
+
+				if (item.isReady === false) {
+					allReady = false;
+				}
+			});
+
+			this.viewInit(view);
+
+			if (allReady === true) {
+				this.emit('views.ready');
+			}
+		};
+
+		this.registerView = function(view) {
+			this.registeredViews.push({
+				view: view,
+				isReady: false
+			});
+		};
+
 		//Setup popstate listener
 		if (conf.routes) {
 			this.Router = new XQCore.Router();
@@ -60,27 +88,39 @@ XQCore.Presenter = (function() {
 
 			window.addEventListener('popstate', function(e) {
 				self.log('popstate event recived', e);
-				if (!e.state) {
-					return;
+
+				var route = XQCore.defaultRoute;
+				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+					route = location.hash.substr(2);
 				}
 
-				var tag = e.state.tag,
-					url = e.state.url;
-
-				if (typeof conf[tag] === 'function') {
-					conf[tag].call(self, e.state.data);
+				route = self.Router.match(route);
+				if (route) {
+					route.fn.call(self, e.state);
 				}
 			}, false);
 
 			window.addEventListener('hashchange', function(e) {
 				self.log('hashchange event recived', e, location.hash);
-				var tag = location.hash.substring(1);
+				// var tag = location.hash.substring(1);
 
-				if (typeof conf[tag] === 'function') {
-					self.log('Call func', conf[tag]);
-					conf[tag].call(self);
-				}
+				// if (typeof conf[tag] === 'function') {
+				//	self.log('Call func', conf[tag]);
+				//	conf[tag].call(self);
+				// }
 			}, false);
+
+			this.on('views.ready',function() {
+				var route = XQCore.defaultRoute;
+				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+					route = location.hash.substr(2);
+				}
+
+				route = self.Router.match(route);
+				if (route) {
+					route.fn.call(self);
+				}
+			});
 		}
 	};
 
@@ -101,7 +141,7 @@ XQCore.Presenter = (function() {
 	 * Add a history item to the browser history
 	 */
 	presenter.prototype.pushState = function(data, title, url) {
-		history.pushState(data,title,url);
+		history.pushState(data, title, url);
 	};
 
 	return presenter;
@@ -136,6 +176,11 @@ XQCore.Model = (function(window, document, $, undefined) {
 		}
 
 		this.init();
+
+		//Add default values
+		if (this.defaults) {
+			this.set(this.defaults);
+		}
 	};
 
 	model.prototype.init = function() {
@@ -344,6 +389,9 @@ XQCore.View = (function(undefined) {
 
 		this.debug = Boolean(conf.debug);
 
+		//Register view at presenter
+		this.presenter.registerView(this);
+
 		$(function() {
 			this.container = $(conf.container);
 			if (this.container.length > 0) {
@@ -400,7 +448,7 @@ XQCore.View = (function(undefined) {
 				this.init();
 
 				//Call presenter.initView()
-				this.presenter.viewInit(this);
+				this.presenter.fireViewInit(this);
 			}
 			else {
 				this.error('Can\'t initialize View, Container not found!', this.container);
@@ -1048,6 +1096,21 @@ XQCore.Util = (function($) {
 			route.fn = this.routeMap[route.route];
 		}
 		return route;
+	};
+
+	/**
+	 * Fires a give route
+	 *
+	 * @param  {String} route	The route to fire
+	 * @param  {Object}	data	Callback data
+	 *
+	 * @return {Boolean}       Returns the matched route
+	 */
+	router.prototype.fire = function(route, data) {
+		route = this.match(route);
+		if (route) {
+			route.fn(data);
+		}
 	};
 
 	return router;

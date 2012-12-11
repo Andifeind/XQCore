@@ -13,6 +13,9 @@ XQCore.View = (function(undefined) {
 
 		this.debug = Boolean(conf.debug);
 
+		//Register view at presenter
+		this.presenter.registerView(this);
+
 		$(function() {
 			this.container = $(conf.container);
 			if (this.container.length > 0) {
@@ -69,7 +72,7 @@ XQCore.View = (function(undefined) {
 				this.init();
 
 				//Call presenter.initView()
-				this.presenter.viewInit(this);
+				this.presenter.fireViewInit(this);
 			}
 			else {
 				this.error('Can\'t initialize View, Container not found!', this.container);

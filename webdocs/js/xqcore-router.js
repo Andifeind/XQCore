@@ -189,6 +189,21 @@
 		return route;
 	};
 
+	/**
+	 * Fires a give route
+	 *
+	 * @param  {String} route	The route to fire
+	 * @param  {Object}	data	Callback data
+	 *
+	 * @return {Boolean}       Returns the matched route
+	 */
+	router.prototype.fire = function(route, data) {
+		route = this.match(route);
+		if (route) {
+			route.fn(data);
+		}
+	};
+
 	return router;
 
 })();

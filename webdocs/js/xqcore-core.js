@@ -1,5 +1,6 @@
 var XQCore = {
-	version: 0.1
+	version: 0.1,
+	defaultRoute: 'default'
 };
 
 /**

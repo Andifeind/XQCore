@@ -16,6 +16,33 @@ XQCore.Presenter = (function() {
 		this.log('Initialize presenter with conf:', conf);
 		this.init();
 
+		this.registeredViews = [];
+		this.fireViewInit = function(view) {
+			var allReady = true;
+			this.registeredViews.forEach(function(item) {
+				if (view === item.view) {
+					item.isReady = true;
+				}
+
+				if (item.isReady === false) {
+					allReady = false;
+				}
+			});
+
+			this.viewInit(view);
+
+			if (allReady === true) {
+				this.emit('views.ready');
+			}
+		};
+
+		this.registerView = function(view) {
+			this.registeredViews.push({
+				view: view,
+				isReady: false
+			});
+		};
+
 		//Setup popstate listener
 		if (conf.routes) {
 			this.Router = new XQCore.Router();
@@ -37,27 +64,39 @@ XQCore.Presenter = (function() {
 
 			window.addEventListener('popstate', function(e) {
 				self.log('popstate event recived', e);
-				if (!e.state) {
-					return;
+
+				var route = XQCore.defaultRoute;
+				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+					route = location.hash.substr(2);
 				}
 
-				var tag = e.state.tag,
-					url = e.state.url;
-
-				if (typeof conf[tag] === 'function') {
-					conf[tag].call(self, e.state.data);
+				route = self.Router.match(route);
+				if (route) {
+					route.fn.call(self, e.state);
 				}
 			}, false);
 
 			window.addEventListener('hashchange', function(e) {
 				self.log('hashchange event recived', e, location.hash);
-				var tag = location.hash.substring(1);
+				// var tag = location.hash.substring(1);
 
-				if (typeof conf[tag] === 'function') {
-					self.log('Call func', conf[tag]);
-					conf[tag].call(self);
-				}
+				// if (typeof conf[tag] === 'function') {
+				//	self.log('Call func', conf[tag]);
+				//	conf[tag].call(self);
+				// }
 			}, false);
+
+			this.on('views.ready',function() {
+				var route = XQCore.defaultRoute;
+				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+					route = location.hash.substr(2);
+				}
+
+				route = self.Router.match(route);
+				if (route) {
+					route.fn.call(self);
+				}
+			});
 		}
 	};
 
@@ -78,7 +117,7 @@ XQCore.Presenter = (function() {
 	 * Add a history item to the browser history
 	 */
 	presenter.prototype.pushState = function(data, title, url) {
-		history.pushState(data,title,url);
+		history.pushState(data, title, url);
 	};
 
 	return presenter;

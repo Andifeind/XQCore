@@ -20,7 +20,7 @@ describe('XQCore Model', function() {
 		expect(initFunc.called).to.be(true);
 	});
 
-	it('Should set and get attributes to the model', function() {
+	it('Should set and get propertys to the model', function() {
 		testModel = new XQCore.Model({
 
 		});
@@ -64,7 +64,7 @@ describe('XQCore Model', function() {
 		expect(testModel.has('z')).to.be(false);
 	});
 
-	it('Should validate attributes and shouldn\'t be added to the model if the validation fails', function() {
+	it('Should validate propertys and shouldn\'t be added to the model if the validation fails', function() {
 		testModel = new XQCore.Model({
 			validate: function() {
 				return null; //Validation is successfull
@@ -83,7 +83,7 @@ describe('XQCore Model', function() {
 			c: 'ccc'
 		});
 
-		expect(testModel.attributes).to.eql({
+		expect(testModel.propertys).to.eql({
 			a: 'aaa',
 			b: 'bbb',
 			c: 'ccc'
@@ -95,7 +95,7 @@ describe('XQCore Model', function() {
 			c: 'ccc'
 		});
 
-		expect(testModel2.attributes).to.eql({});
+		expect(testModel2.propertys).to.eql({});
 	});
 
 	it('Should gets the validating state of the model', function() {
@@ -127,7 +127,7 @@ describe('XQCore Model', function() {
 		expect(testModel2.isValid()).to.be(false);
 	});
 
-	it('Should reset the model attributes', function() {
+	it('Should reset the model propertys', function() {
 		testModel = new XQCore.Model({
 			validate: function() {
 				return null; //Validation is successfull
@@ -140,7 +140,7 @@ describe('XQCore Model', function() {
 			c: 'ccc'
 		});
 
-		expect(testModel.attributes).to.eql({
+		expect(testModel.propertys).to.eql({
 			a: 'aaa',
 			b: 'bbb',
 			c: 'ccc'
@@ -148,13 +148,14 @@ describe('XQCore Model', function() {
 
 		testModel.reset();
 
-		expect(testModel.attributes).to.eql({});
+		expect(testModel.propertys).to.eql({});
 	});
 
 	it('Should make a POST request', function() {
 		//Stub jQuery.ajax
 		sinon.stub(jQuery, 'ajax');
 		testModel = new XQCore.Model({
+			debug: true,
 			server: 'http://test.com'
 		});
 
@@ -166,15 +167,15 @@ describe('XQCore Model', function() {
 
 		testModel.send();
 
-		expect(jQuery.ajax.calledWithMatch({
+		expect(jQuery.ajax).was.calledWith(sinon.match({
 			url: 'http://test.com',
-			method: 'POST',
+			type: 'POST',
 			data: {
 				a: 'aaa',
 				b: 'bbb',
 				c: 'ccc'
 			}
-		})).to.be(true);
+		}));
 
 		//Restore jQuery.ajax
 		jQuery.ajax.restore();
@@ -195,15 +196,15 @@ describe('XQCore Model', function() {
 
 		testModel.send('GET');
 
-		expect(jQuery.ajax.calledWithMatch({
+		expect(jQuery.ajax).was.calledWith(sinon.match({
 			url: 'http://test.com',
-			method: 'GET',
+			type: 'GET',
 			data: {
 				a: 'aaa',
 				b: 'bbb',
 				c: 'ccc'
 			}
-		})).to.be(true);
+		}));
 
 		//Restore jQuery.ajax
 		jQuery.ajax.restore();
@@ -224,15 +225,15 @@ describe('XQCore Model', function() {
 
 		testModel.send('PUT');
 
-		expect(jQuery.ajax.calledWithMatch({
+		expect(jQuery.ajax).was.calledWith(sinon.match({
 			url: 'http://test.com',
-			method: 'PUT',
+			type: 'PUT',
 			data: {
 				a: 'aaa',
 				b: 'bbb',
 				c: 'ccc'
 			}
-		})).to.be(true);
+		}));
 
 		//Restore jQuery.ajax
 		jQuery.ajax.restore();
@@ -253,15 +254,15 @@ describe('XQCore Model', function() {
 
 		testModel.send('DELETE');
 
-		expect(jQuery.ajax.calledWithMatch({
+		expect(jQuery.ajax).was.calledWith(sinon.match({
 			url: 'http://test.com',
-			method: 'DELETE',
+			type: 'DELETE',
 			data: {
 				a: 'aaa',
 				b: 'bbb',
 				c: 'ccc'
 			}
-		})).to.be(true);
+		}));
 
 		//Restore jQuery.ajax
 		jQuery.ajax.restore();
@@ -281,7 +282,7 @@ describe('XQCore Model', function() {
 			c: 'ccc'
 		});
 
-		testModel.send('POST', function(err, data, status) {
+		testModel.send('POST', null, function(err, data, status) {
 			if (status) {
 				expect(this).to.be(testModel);
 				done();
@@ -303,7 +304,7 @@ describe('XQCore Model', function() {
 			c: 'ccc'
 		});
 
-		testModel.send('POST', function(err, status, data) {
+		testModel.send('POST', null, function(err) {
 			if (err) {
 				expect(this).to.be(testModel);
 				done();
@@ -325,11 +326,61 @@ describe('XQCore Model', function() {
 			c: 'ccc'
 		});
 
-		testModel.send('POST', function(err, status, data) {
+		testModel.send('POST', null, function(err) {
 			if (err) {
 				expect(this).to.be(testModel);
 				done();
 			}
 		});
+	});
+
+	it('Should search a property, searching in the first level', function() {
+		testModel = new XQCore.Model({
+			
+		});
+
+		testModel.set({
+			a: [
+				{name: 'aaa1'},
+				{name: 'aaa2'},
+				{name: 'aaa3'},
+				{name: 'aaa4'},
+				{name: 'aaa5'}
+			]
+		});
+
+		var result = testModel.search('a', {
+			name: 'aaa3'
+		});
+
+		console.log('Result', result);
+
+		expect(result).to.be(testModel.propertys.a[2]);
+	});
+
+	it('Should search a property, searching in the third level', function() {
+		testModel = new XQCore.Model({
+			
+		});
+
+		testModel.set({
+			data: {
+				values: {
+					a: [
+						{name: 'aaa1'},
+						{name: 'aaa2'},
+						{name: 'aaa3'},
+						{name: 'aaa4'},
+						{name: 'aaa5'}
+					]
+				}
+			}
+		});
+
+		var result = testModel.search('data.values.a', {
+			name: 'aaa3'
+		});
+
+		expect(result).to.be(testModel.propertys.data.values.a[2]);
 	});
 });

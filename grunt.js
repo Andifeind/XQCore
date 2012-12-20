@@ -1,8 +1,6 @@
 module.exports = function(grunt) {
 	grunt.loadTasks('./modules/grunt-xqcoretest');
-	grunt.loadNpmTasks('grunt-contrib-copy');
-	grunt.loadNpmTasks('grunt-contrib-clean');
-	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-contrib');
 	
 	// Project configuration.
 	grunt.initConfig({
@@ -72,5 +70,5 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', 'lint');
 	grunt.registerTask('test', 'xqcoretest');
-	grunt.registerTask('build', 'lint concat:dist lint:afterconcat min copy:akonda');
+	grunt.registerTask('build', 'lint:files clean:build concat:dist lint:afterconcat min copy:akonda');
 };

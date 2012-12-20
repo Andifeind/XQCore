@@ -13,9 +13,6 @@ XQCore.Presenter = (function() {
 		this.name = (conf.name || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
 
-		this.log('Initialize presenter with conf:', conf);
-		this.init();
-
 		this.registeredViews = [];
 		this.fireViewInit = function(view) {
 			var allReady = true;
@@ -97,6 +94,11 @@ XQCore.Presenter = (function() {
 					route.fn.call(self);
 				}
 			});
+		}
+
+		this.log('Initialize presenter with conf:', conf);
+		if (this.init) {
+			this.init();
 		}
 	};
 

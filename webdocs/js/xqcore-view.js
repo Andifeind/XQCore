@@ -18,6 +18,8 @@ XQCore.View = (function(undefined) {
 
 		$(function() {
 			this.container = $(conf.container);
+			this.$el = this.container;
+			this.el = $(conf.container).get(0);
 			if (this.container.length > 0) {
 				window.addEventListener('resize', function(e) {
 					self.resize(e);
@@ -31,13 +33,26 @@ XQCore.View = (function(undefined) {
 				if (this.events) {
 					Object.keys(this.events).forEach(function(key) {
 						var split = key.split(' ', 2),
-							eventFunc,
+							eventFunc = this.events[key],
 							eventName = split[0],
 							selector = split[1] || this.container,
-							self = this;
+							self = this,
+							eventDest;
+
+						if (typeof eventFunc === 'function') {
+							eventDest = this;
+						}
+						else if (eventFunc.indexOf('view:') === 0) {
+							eventFunc = this[eventFunc.substr(5)];
+							eventDest = this;
+						}
+						else {
+							eventFunc = this.presenter.events[this.events[key]];
+							eventDest = this.presenter;
+						}
 
 						if (split.length === 1 || split.length === 2) {
-							eventFunc = this.presenter.events[this.events[key]];
+							
 							if (typeof eventFunc === 'function') {
 								//Register event listener
 								this.container.delegate(selector, eventName, function(e) {
@@ -52,7 +67,7 @@ XQCore.View = (function(undefined) {
 										itemIndex: getItemIndex.call(self, e.target)
 									});
 
-									eventFunc.call(self.presenter, e, tagData, formData);
+									eventFunc.call(eventDest, e, tagData, formData);
 								});
 								this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
 							}
@@ -97,6 +112,14 @@ XQCore.View = (function(undefined) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = Handlebars.compile(this.template);
 		this.container.html(template(data));
+
+		this.emit('content.change');
+	};
+
+	view.prototype.renderHTML = function(template, data) {
+		this.log('Render view html snipet', template, 'with data:', data);
+		template = Handlebars.compile(template);
+		return template(data);
 	};
 
 	view.prototype.resize = function() {
@@ -155,7 +178,7 @@ XQCore.View = (function(undefined) {
 			return false;
 		}
 
-		var selector = $(this.subSelector),
+		var selector = $(this.subSelector, this.container),
 			html;
 
 		if (options) {
@@ -178,6 +201,65 @@ XQCore.View = (function(undefined) {
 				this.error('undefined action in view.manipulate()', action);
 		}
 
+	};
+
+	/**
+	 * Gets the data of an element
+	 *
+	 * @param {Object} selector DOM el or a jQuery selector of the element
+	 *
+	 * @return {Object} Returns the data of an element or null
+	 */
+	view.prototype.getElementData = function(selector) {
+		var el = $(selector, this.container);
+		if (el.length) {
+			var data = {},
+				attrs = el.get(0).attributes,
+				i;
+
+			for (i = 0; i < attrs.length; i++) {
+				if (attrs[i].name.indexOf('data-') === 0) {
+					var name = attrs[i].name.substr(5),
+						value = attrs[i].value;
+
+					if (typeof value === 'string') {
+						try {
+							if (value === 'true' || value === 'TRUE') {
+								value = true;
+							}
+							else if (value === 'false' || value === 'FALSE') {
+								value = false;
+							}
+							else if (value === 'null' || value === 'NULL') {
+								value = null;
+							}
+							else if (value === 'undefined') {
+								value = undefined;
+							}
+							else if (+value + '' === value) {
+								value = +value;
+							}
+							else {
+								value = JSON.parse(value);
+								console.log(value);
+							}
+						}
+						catch(err) {
+
+						}
+					}
+
+					data[name] = value;
+				}
+			}
+
+			console.log('Get data', data);
+
+			return data;
+		}
+		else {
+			return null;
+		}
 	};
 
 	/**

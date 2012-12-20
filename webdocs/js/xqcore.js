@@ -37,9 +37,6 @@ XQCore.Presenter = (function() {
 		this.name = (conf.name || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
 
-		this.log('Initialize presenter with conf:', conf);
-		this.init();
-
 		this.registeredViews = [];
 		this.fireViewInit = function(view) {
 			var allReady = true;
@@ -122,6 +119,11 @@ XQCore.Presenter = (function() {
 				}
 			});
 		}
+
+		this.log('Initialize presenter with conf:', conf);
+		if (this.init) {
+			this.init();
+		}
 	};
 
 	presenter.prototype.init = function() {
@@ -150,6 +152,17 @@ XQCore.Presenter = (function() {
 XQCore.Model = (function(window, document, $, undefined) {
 	var model;
 
+	var undotify = function(path, obj) {
+		if(path) {
+			path = path.split('.');
+			path.forEach(function(key) {
+				obj = obj[key];
+			});
+		}
+
+		return obj;
+	};
+
 	model = function(conf) {
 		if (conf === undefined) {
 			conf = {};
@@ -158,7 +171,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
-		this.attributes = {};
+		this.propertys = {};
 		this._isValid = false;
 
 		if (conf.validate) {
@@ -226,11 +239,11 @@ XQCore.Model = (function(window, document, $, undefined) {
 			}
 		}
 
-		$.extend(this.attributes, newData);
+		$.extend(this.propertys, newData);
 	};
 
 	/**
-	 * Get one or all attributes from model
+	 * Get one or all propertys from model
 	 *
 	 * @param  {String} key Data key
 	 *
@@ -238,10 +251,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.get = function(key) {
 		if (key === undefined) {
-			return this.attributes;
+			return this.propertys;
 		}
 		else {
-			return this.attributes[key];
+			return this.propertys[key];
 		}
 	};
 
@@ -252,7 +265,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @return {Boolean} Returns true if model has a dataset with key
 	 */
 	model.prototype.has = function(key) {
-		return !!this.attributes[key];
+		return !!this.propertys[key];
 	};
 
 	/**
@@ -260,7 +273,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.reset = function() {
 		this.log('Reset model');
-		this.attributes = {};
+		this.propertys = {};
 	};
 
 	/**
@@ -270,7 +283,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	model.prototype.append = function(path, data) {
-		var dataset = this.attributes;
+		var dataset = this.propertys;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
 		});
@@ -292,7 +305,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	model.prototype.prepend = function(path, data) {
-		var dataset = this.attributes;
+		var dataset = this.propertys;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
 		});
@@ -316,7 +329,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @return {Object} removed subset
 	 */
 	model.prototype.remove = function(path, index) {
-		var dataset = this.attributes,
+		var dataset = this.propertys,
 			data = null;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
@@ -334,41 +347,149 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Send an ajax request to a webserver. Sends all models attributes
+	 * Called on before sending an ajax request
+	 * You can use this function to manipulate all data they be send to the server
+	 *
+	 * @param {Object} data The data to send to the server
+	 * @return {Object} data
+	 */
+	model.prototype.onSend = function(data) {
+		return data;
+	};
+
+	/**
+	 * Send an ajax request to the webserver.
 	 *
 	 * You must set the server URI first with model.server = 'http://example.com/post'
 	 *
 	 * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
+	 * @param {Object} data The data to sent to the server
 	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
 	 */
-	model.prototype.send = function(method, callback) {
-		var data;
-
-		method = method || 'POST';
-
-		data = this.get();
+	model.prototype.send = function(method, data, callback) {
 
 		if (!this.server) {
 			this.error('Can not send an ajax request! You must define a server URL first.');
 			return false;
 		}
 
+		if (data === undefined) {
+			data = this.get();
+		}
+
+		if (method === undefined) {
+			method = 'POST';
+		}
+
+		//Handle onSend
+		if (typeof this.onSend === 'function') {
+			data = this.onSend.call(this, data);
+		}
+
 		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
 
 		$.ajax({
 			url: this.server,
-			method: method,
+			type: method,
 			data: data,
 			success: function(data, status, jqXHR) {
-				callback.call(this, null, data, status, jqXHR);
+				if (typeof callback === 'function') {
+					callback.call(this, null, data, status, jqXHR);
+				}
 			}.bind(this),
 			error: function(jqXHR, status, error) {
-				callback.call(this, {
-					type: status,
-					http: error
-				}, null, status, jqXHR);
+				if (typeof callback === 'function') {
+					callback.call(this, {
+						type: status,
+						http: error
+					}, null, status, jqXHR);
+				}
 			}.bind(this)
 		});
+	};
+
+	/**
+	 * Sends a POST to the Datastore
+	 *
+	 * @param  {Object}   data     Dato to sending
+	 * @param  {Function} callback Calling on response
+	 *
+	 * callback: void function(err, data, status, jqXHR)
+	 *
+	 */
+	model.prototype.sendPOST = function(data, callback) {
+		this.send('POST', data, callback);
+	};
+
+	/**
+	 * Sends a GET to the Datastore
+	 *
+	 * @param  {Object}   data     Dato to sending
+	 * @param  {Function} callback Calling on response
+	 *
+	 * callback: void function(err, data, status, jqXHR)
+	 *
+	 */
+	model.prototype.sendGET = function(data, callback) {
+		this.send('GET', data, callback);
+	};
+
+	/**
+	 * Sends a UPDATE to the Datastore
+	 *
+	 * @param  {Object}   data     Dato to sending
+	 * @param  {Function} callback Calling on response
+	 *
+	 * callback: void function(err, data, status, jqXHR)
+	 *
+	 */
+	model.prototype.sendUPDATE = function(data, callback) {
+		this.send('UPDATE', data, callback);
+	};
+
+	/**
+	 * Sends a DELETE to the Datastore
+	 *
+	 * @param  {Object}   data     Dato to sending
+	 * @param  {Function} callback Calling on response
+	 *
+	 * callback: void function(err, data, status, jqXHR)
+	 *
+	 */
+	model.prototype.sendDELETE = function(data, callback) {
+		this.send('DELETE', data, callback);
+	};
+
+	/**
+	 * Search a item in models propertys
+	 *
+	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
+	 * @param {Object} searchfor Searching for object
+	 * @return {Object} Returns the first matched item
+	 */
+	model.prototype.search = function(path, searchfor) {
+		var parent = undotify(path, this.propertys);
+		for (var i = 0; i < parent.length; i++) {
+			var prop = parent[i],
+				matching;
+
+			for (var p in searchfor) {
+				if (searchfor.hasOwnProperty(p)) {
+					if (prop[p] && prop[p] === searchfor[p]) {
+						matching = true;
+					}
+					else {
+						matching = false;
+						break;
+					}
+				}
+			}
+
+			if (matching === true) {
+				return prop;
+			}
+
+		}
 	};
 
 	return model;
@@ -394,6 +515,8 @@ XQCore.View = (function(undefined) {
 
 		$(function() {
 			this.container = $(conf.container);
+			this.$el = this.container;
+			this.el = $(conf.container).get(0);
 			if (this.container.length > 0) {
 				window.addEventListener('resize', function(e) {
 					self.resize(e);
@@ -407,13 +530,26 @@ XQCore.View = (function(undefined) {
 				if (this.events) {
 					Object.keys(this.events).forEach(function(key) {
 						var split = key.split(' ', 2),
-							eventFunc,
+							eventFunc = this.events[key],
 							eventName = split[0],
 							selector = split[1] || this.container,
-							self = this;
+							self = this,
+							eventDest;
+
+						if (typeof eventFunc === 'function') {
+							eventDest = this;
+						}
+						else if (eventFunc.indexOf('view:') === 0) {
+							eventFunc = this[eventFunc.substr(5)];
+							eventDest = this;
+						}
+						else {
+							eventFunc = this.presenter.events[this.events[key]];
+							eventDest = this.presenter;
+						}
 
 						if (split.length === 1 || split.length === 2) {
-							eventFunc = this.presenter.events[this.events[key]];
+							
 							if (typeof eventFunc === 'function') {
 								//Register event listener
 								this.container.delegate(selector, eventName, function(e) {
@@ -428,7 +564,7 @@ XQCore.View = (function(undefined) {
 										itemIndex: getItemIndex.call(self, e.target)
 									});
 
-									eventFunc.call(self.presenter, e, tagData, formData);
+									eventFunc.call(eventDest, e, tagData, formData);
 								});
 								this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
 							}
@@ -473,6 +609,14 @@ XQCore.View = (function(undefined) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = Handlebars.compile(this.template);
 		this.container.html(template(data));
+
+		this.emit('content.change');
+	};
+
+	view.prototype.renderHTML = function(template, data) {
+		this.log('Render view html snipet', template, 'with data:', data);
+		template = Handlebars.compile(template);
+		return template(data);
 	};
 
 	view.prototype.resize = function() {
@@ -531,7 +675,7 @@ XQCore.View = (function(undefined) {
 			return false;
 		}
 
-		var selector = $(this.subSelector),
+		var selector = $(this.subSelector, this.container),
 			html;
 
 		if (options) {
@@ -554,6 +698,65 @@ XQCore.View = (function(undefined) {
 				this.error('undefined action in view.manipulate()', action);
 		}
 
+	};
+
+	/**
+	 * Gets the data of an element
+	 *
+	 * @param {Object} selector DOM el or a jQuery selector of the element
+	 *
+	 * @return {Object} Returns the data of an element or null
+	 */
+	view.prototype.getElementData = function(selector) {
+		var el = $(selector, this.container);
+		if (el.length) {
+			var data = {},
+				attrs = el.get(0).attributes,
+				i;
+
+			for (i = 0; i < attrs.length; i++) {
+				if (attrs[i].name.indexOf('data-') === 0) {
+					var name = attrs[i].name.substr(5),
+						value = attrs[i].value;
+
+					if (typeof value === 'string') {
+						try {
+							if (value === 'true' || value === 'TRUE') {
+								value = true;
+							}
+							else if (value === 'false' || value === 'FALSE') {
+								value = false;
+							}
+							else if (value === 'null' || value === 'NULL') {
+								value = null;
+							}
+							else if (value === 'undefined') {
+								value = undefined;
+							}
+							else if (+value + '' === value) {
+								value = +value;
+							}
+							else {
+								value = JSON.parse(value);
+								console.log(value);
+							}
+						}
+						catch(err) {
+
+						}
+					}
+
+					data[name] = value;
+				}
+			}
+
+			console.log('Get data', data);
+
+			return data;
+		}
+		else {
+			return null;
+		}
 	};
 
 	/**
@@ -596,7 +799,284 @@ XQCore.View = (function(undefined) {
 	return view;
 })();
 
+/**
+ * XQCore EventEmitter
+ *
+ * Based on EventEmitter v4.0.2 by Oliver Caldwell
+ * http://git.io/ee
+ *
+ */
 XQCore.Event = (function() {
+
+	//EventEmitter.js
+
+	/**
+	 * EventEmitter v4.0.2 - git.io/ee
+	 * Oliver Caldwell
+	 * MIT license
+	 */
+
+	var EventEmitter = (function() {
+	    // JSHint config - http://www.jshint.com/
+	    /*jshint laxcomma:true*/
+
+	    // Place the script in strict mode
+	    'use strict';
+
+	    /**
+	     * Class for managing events.
+	     * Can be extended to provide event functionality in other classes.
+	     *
+	     * @class Manages event registering and emitting.
+	     */
+	    function EventEmitter(){}
+
+	    // Shortcuts to improve speed and size
+
+	        // Easy access to the prototype
+	    var proto = EventEmitter.prototype
+
+	      // Existence of a native indexOf
+	      , nativeIndexOf = Array.prototype.indexOf ? true : false;
+
+	    /**
+	     * Finds the index of the listener for the event in it's storage array
+	     *
+	     * @param {Function} listener Method to look for.
+	     * @param {Function[]} listeners Array of listeners to search through.
+	     * @return {Number} Index of the specified listener, -1 if not found
+	     */
+	    function indexOfListener(listener, listeners) {
+	        // Return the index via the native method if possible
+	        if(nativeIndexOf) {
+	            return listeners.indexOf(listener);
+	        }
+
+	        // There is no native method
+	        // Use a manual loop to find the index
+	        var i = listeners.length;
+	        while(i--) {
+	            // If the listener matches, return it's index
+	            if(listeners[i] === listener) {
+	                return i;
+	            }
+	        }
+
+	        // Default to returning -1
+	        return -1;
+	    }
+
+	    /**
+	     * Returns the listener array for the specified event.
+	     * Will initialise the event object and listener arrays if required.
+	     *
+	     * @param {String} evt Name of the event to return the listeners from.
+	     * @return {Function[]} All listener functions for the event.
+	     * @doc
+	     */
+	    proto.getListeners = function(evt) {
+	        // Create a shortcut to the storage object
+	        // Initialise it if it does not exists yet
+	        var events = this._events || (this._events = {});
+
+	        // Return the listener array
+	        // Initialise it if it does not exist
+	        return events[evt] || (events[evt] = []);
+	    };
+
+	    /**
+	     * Adds a listener function to the specified event.
+	     * The listener will not be added if it is a duplicate.
+	     * If the listener returns true then it will be removed after it is called.
+	     *
+	     * @param {String} evt Name of the event to attach the listener to.
+	     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     * @doc
+	     */
+	    proto.addListener = function(evt, listener) {
+	        // Fetch the listeners
+	        var listeners = this.getListeners(evt);
+
+	        // Push the listener into the array if it is not already there
+	        if(indexOfListener(listener, listeners) === -1) {
+	            listeners.push(listener);
+	        }
+
+	        // Return the instance of EventEmitter to allow chaining
+	        return this;
+	    };
+
+	    /**
+	     * Removes a listener function from the specified event.
+	     *
+	     * @param {String} evt Name of the event to remove the listener from.
+	     * @param {Function} listener Method to remove from the event.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     * @doc
+	     */
+	    proto.removeListener = function(evt, listener) {
+	        // Fetch the listeners
+	        // And get the index of the listener in the array
+	        var listeners = this.getListeners(evt)
+	          , index = indexOfListener(listener, listeners);
+
+	        // If the listener was found then remove it
+	        if(index !== -1) {
+	            listeners.splice(index, 1);
+
+	            // If there are no more listeners in this array then remove it
+	            if(listeners.length === 0) {
+	                this._events[evt] = null;
+	            }
+	        }
+
+	        // Return the instance of EventEmitter to allow chaining
+	        return this;
+	    };
+
+	    /**
+	     * Adds listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be added.
+	     *
+	     * @param {String|Object} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     * @doc
+	     */
+	    proto.addListeners = function(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(false, evt, listeners);
+	    };
+
+	    /**
+	     * Removes listeners in bulk using the manipulateListeners method.
+	     * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be removed.
+	     *
+	     * @param {String|Object} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     * @doc
+	     */
+	    proto.removeListeners = function(evt, listeners) {
+	        // Pass through to manipulateListeners
+	        return this.manipulateListeners(true, evt, listeners);
+	    };
+
+	    /**
+	     * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
+	     * The first argument will determine if the listeners are removed (true) or added (false).
+	     * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
+	     * You can also pass it an event name and an array of listeners to be added/removed.
+	     *
+	     * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
+	     * @param {String|Object} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
+	     * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     * @doc
+	     */
+	    proto.manipulateListeners = function(remove, evt, listeners) {
+	        // Initialise any required variables
+	        var i
+	          , value
+	          , single = remove ? this.removeListener : this.addListener
+	          , multiple = remove ? this.removeListeners : this.addListeners;
+
+	        // If evt is an object then pass each of it's properties to this method
+	        if(typeof evt === 'object') {
+	            for(i in evt) {
+	                if(evt.hasOwnProperty(i) && (value = evt[i])) {
+	                    // Pass the single listener straight through to the singular method
+	                    if(typeof value === 'function') {
+	                        single.call(this, i, value);
+	                    }
+	                    else {
+	                        // Otherwise pass back to the multiple function
+	                        multiple.call(this, i, value);
+	                    }
+	                }
+	            }
+	        }
+	        else {
+	            // So evt must be a string
+	            // And listeners must be an array of listeners
+	            // Loop over it and pass each one to the multiple method
+	            i = listeners.length;
+	            while(i--) {
+	                single.call(this, evt, listeners[i]);
+	            }
+	        }
+
+	        // Return the instance of EventEmitter to allow chaining
+	        return this;
+	    };
+
+	    /**
+	     * Removes all listeners from a specified event.
+	     * If you do not specify an event then all listeners will be removed.
+	     * That means every event will be emptied.
+	     *
+	     * @param {String} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     * @doc
+	     */
+	    proto.removeEvent = function(evt) {
+	        // Remove different things depending on the state of evt
+	        if(evt) {
+	            // Remove all listeners for the specified event
+	            this._events[evt] = null;
+	        }
+	        else {
+	            // Remove all listeners in all events
+	            this._events = null;
+	        }
+
+	        // Return the instance of EventEmitter to allow chaining
+	        return this;
+	    };
+
+	    /**
+	     * Emits an event of your choice.
+	     * When emitted, every listener attached to that event will be executed.
+	     * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
+	     * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
+	     * So they will not arrive within the array on the other side, they will be separate.
+	     *
+	     * @param {String} evt Name of the event to emit and execute listeners for.
+	     * @param {Array} [args] Optional array of arguments to be passed to each argument.
+	     * @return {Object} Current instance of EventEmitter for chaining.
+	     * @doc
+	     */
+	    proto.emitEvent = function(evt, args) {
+	        // Get the listeners for the event
+	        // Also initialise any other required variables
+	        var listeners = this.getListeners(evt)
+	          , i = listeners.length
+	          , response;
+
+	        // Loop over all listeners assigned to the event
+	        // Apply the arguments array to each listener function
+	        while(i--) {
+	            // If the listener returns true then it shall be removed from the event
+	            // The function is executed either with a basic call or an apply if there is an args array
+	            response = args ? listeners[i].apply(null, args) : listeners[i]();
+	            if(response === true) {
+	                this.removeListener(evt, listeners[i]);
+	            }
+	        }
+
+	        // Return the instance of EventEmitter to allow chaining
+	        return this;
+	    };
+
+	    return EventEmitter;
+	}());
+
+	//End EventEmitter.js
+
+
 	var ee,
 		event;
 	
@@ -682,6 +1162,13 @@ XQCore.Event = (function() {
 	return event;
 })();
 
+/**
+ * XQCore Logger
+ *
+ * Based on EventEmitter.js
+ * 
+ * 
+ */
 XQCore.Logger = (function(conf) {
 
 	//var timerStore = {};

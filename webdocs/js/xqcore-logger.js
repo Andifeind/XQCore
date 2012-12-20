@@ -1,3 +1,10 @@
+/**
+ * XQCore Logger
+ *
+ * Based on EventEmitter.js
+ * 
+ * 
+ */
 XQCore.Logger = (function(conf) {
 
 	//var timerStore = {};

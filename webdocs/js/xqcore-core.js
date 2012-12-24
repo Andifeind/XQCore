@@ -1,3 +1,4 @@
+/*jshint evil:true */
 var XQCore = {
 	version: 0.1,
 	defaultRoute: 'default'
@@ -19,5 +20,25 @@ if (!window.include) {
 			success: callback,
 			async: false
 		});
+	};
+
+	window.preload = function(file) {
+		var url = location.protocol + '//' + location.host + file,
+			script;
+
+		$.ajax({
+			url: url,
+			dataType: "text",
+			success: function(data) {
+				script = data;
+			},
+			async: false
+		});
+
+		return {
+			execute: function(scope) {
+				eval.call(scope || window, script);
+			}
+		};
 	};
 }

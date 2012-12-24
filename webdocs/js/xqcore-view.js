@@ -111,7 +111,7 @@ XQCore.View = (function(undefined) {
 	view.prototype.render = function(data) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = Handlebars.compile(this.template);
-		this.container.html(template(data));
+		this.container.html(template(data || {}));
 
 		this.emit('content.change');
 	};

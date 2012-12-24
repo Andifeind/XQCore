@@ -314,7 +314,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 *
 	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
 	 * @param {Object} searchfor Searching for object
-	 * @return {Object} Returns the first matched item
+	 * @return {Object} Returns the first matched item or null
 	 */
 	model.prototype.search = function(path, searchfor) {
 		var parent = undotify(path, this.propertys);
@@ -339,6 +339,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 			}
 
 		}
+
+		return null;
 	};
 
 	return model;

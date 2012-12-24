@@ -1,3 +1,4 @@
+/*jshint evil:true */
 var XQCore = {
 	version: 0.1,
 	defaultRoute: 'default'
@@ -19,6 +20,26 @@ if (!window.include) {
 			success: callback,
 			async: false
 		});
+	};
+
+	window.preload = function(file) {
+		var url = location.protocol + '//' + location.host + file,
+			script;
+
+		$.ajax({
+			url: url,
+			dataType: "text",
+			success: function(data) {
+				script = data;
+			},
+			async: false
+		});
+
+		return {
+			execute: function(scope) {
+				eval.call(scope || window, script);
+			}
+		};
 	};
 }
 
@@ -465,7 +486,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 *
 	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
 	 * @param {Object} searchfor Searching for object
-	 * @return {Object} Returns the first matched item
+	 * @return {Object} Returns the first matched item or null
 	 */
 	model.prototype.search = function(path, searchfor) {
 		var parent = undotify(path, this.propertys);
@@ -490,6 +511,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 			}
 
 		}
+
+		return null;
 	};
 
 	return model;
@@ -608,7 +631,7 @@ XQCore.View = (function(undefined) {
 	view.prototype.render = function(data) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = Handlebars.compile(this.template);
-		this.container.html(template(data));
+		this.container.html(template(data || {}));
 
 		this.emit('content.change');
 	};

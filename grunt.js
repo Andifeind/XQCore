@@ -34,7 +34,9 @@ module.exports = function(grunt) {
 					'webdocs/js/xqcore-event.js',
 					'webdocs/js/xqcore-logger.js',
 					'webdocs/js/xqcore-util.js',
-					'webdocs/js/xqcore-router.js'
+					'webdocs/js/xqcore-router.js',
+
+					'webdocs/js/plugins/xqcore-viewslide.js'
 				],
 				dest: 'webdocs/js/xqcore.js'
 			}
@@ -63,7 +65,7 @@ module.exports = function(grunt) {
 			]
 		},
 		watch: {
-			files: 'webdocs/js/xqcore-*.js',
+			files: 'webdocs/js/**/*.js',
 			tasks: ['build']
 		}
 	});

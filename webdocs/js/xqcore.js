@@ -521,11 +521,14 @@ XQCore.Model = (function(window, document, $, undefined) {
 XQCore.View = (function(undefined) {
 
 	var view = function(presenter, conf) {
-		var self = this;
 
 		conf = conf || {
 			events: null
 		};
+
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
 
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'View';
@@ -535,6 +538,15 @@ XQCore.View = (function(undefined) {
 
 		//Register view at presenter
 		this.presenter.registerView(this);
+
+		
+	};
+
+	view.prototype.init = function() {
+		var self = this,
+			conf = this.conf;
+
+		console.log('View Init2', this);
 
 		$(function() {
 			this.container = $(conf.container);
@@ -552,10 +564,10 @@ XQCore.View = (function(undefined) {
 				//Send events to presenter
 				if (this.events) {
 					Object.keys(this.events).forEach(function(key) {
-						var split = key.split(' ', 2),
+						var spacePos = key.indexOf(' '),
 							eventFunc = this.events[key],
-							eventName = split[0],
-							selector = split[1] || this.container,
+							eventName = key.substr(0, spacePos),
+							selector = key.substr(spacePos + 1) || this.container,
 							self = this,
 							eventDest;
 
@@ -568,10 +580,13 @@ XQCore.View = (function(undefined) {
 						}
 						else {
 							eventFunc = this.presenter.events[this.events[key]];
+							if (typeof eventFunc === 'string') {
+								eventFunc = this.presenter[this.events[key]];
+							}
 							eventDest = this.presenter;
 						}
 
-						if (split.length === 1 || split.length === 2) {
+						if (eventFunc && eventName) {
 							
 							if (typeof eventFunc === 'function') {
 								//Register event listener
@@ -603,8 +618,10 @@ XQCore.View = (function(undefined) {
 					this.warn('No view events defined');
 				}
 
-				//Self init
-				this.init();
+				// custom init
+				if (typeof this.customInit === 'function') {
+					this.customInit.call(this);
+				}
 
 				//Call presenter.initView()
 				this.presenter.fireViewInit(this);
@@ -613,11 +630,6 @@ XQCore.View = (function(undefined) {
 				this.error('Can\'t initialize View, Container not found!', this.container);
 			}
 		}.bind(this));
-	};
-
-	view.prototype.init = function() {
-
-				console.log('View Init2', this);
 	};
 
 	view.prototype.show = function() {
@@ -1123,6 +1135,7 @@ XQCore.Event = (function() {
 
 	event = function(conf) {
 		this.store = [];
+		this.ee = new EventEmitter();
 	};
 
 	// event.prototype.on = function(eventName, callback) {
@@ -1141,24 +1154,23 @@ XQCore.Event = (function() {
 
 	// };
 
-	ee = new EventEmitter();
 	event.prototype.emit = function(eventName, data) {
 		if (this.debug) {
 			console.debug('XQCore - Emit event', eventName, data);
 		}
-		return ee.emitEvent(eventName, [data]);
+		return this.ee.emitEvent(eventName, [data], this);
 	};
 
 	event.prototype.on = function(eventName, listener) {
 		if (this.debug) {
-			console.debug('XQCore - Add listener', eventName, listener);
+			console.debug('XQCore - Add listener', eventName, listener, this);
 		}
-		return ee.addListener(eventName, listener);
+		return this.ee.addListener(eventName, listener);
 	};
 
 	event.prototype.once = function(eventName, listener) {
 		var onceListener = function() {
-			ee.removeListener(eventName, listener);
+			this.ee.removeListener(eventName, listener);
 			listener.call(null, arguments);
 			return true;
 		};
@@ -1166,7 +1178,7 @@ XQCore.Event = (function() {
 		if (this.debug) {
 			console.debug('XQCore - Add once listener', eventName, listener);
 		}
-		return ee.addListener(eventName, onceListener);
+		return this.ee.addListener(eventName, onceListener);
 	};
 
 	event.prototype.off = function(eventName, listener) {
@@ -1175,10 +1187,10 @@ XQCore.Event = (function() {
 		}
 
 		if (listener === undefined) {
-			return ee.removeEvent(eventName);
+			return this.ee.removeEvent(eventName);
 		}
 		else {
-			return ee.removeListener(eventName, listener);
+			return this.ee.removeListener(eventName, listener);
 		}
 	};
 
@@ -1626,3 +1638,91 @@ XQCore.Util = (function($) {
 	return router;
 
 })();
+(function(proto, undefined) {
+	console.log('View slide', proto);
+	var cssTransition;
+
+	var setTransitionFunction = function() {
+		return 'transition' in document.body.style ? 'transition' :
+				'MozTransition' in document.body.style ? 'MozTransition' :
+				'WebkitTransition' in document.body.style ? 'WebkitTransition' :
+				'OTransition' in document.body.style ? 'OTransition' :
+				'MsTransition' in document.body.style ? 'MsTransition' :
+				undefined;
+	};
+
+	proto.slideIn = function(conf) {
+		conf = $.extend({
+			parent: this.el.parentNode,
+			transition: 'left .75s',
+			direction: 'auto'
+		}, conf);
+
+		if (cssTransition === undefined) {
+			cssTransition = setTransitionFunction();
+		}
+
+		if (conf.parent && this.el) {
+			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
+			console.log({
+				el: conf.parent,
+				cw: conf.parent.clientWidth,
+				ow: conf.parent.offsetWidth,
+				w: conf.parent.style.width
+			});
+			var posX = conf.parent.offsetWidth;
+			this.el.style.display = 'block';
+			this.el.style[cssTransition] = 'none';
+			this.el.style.left = posX + 'px';
+			window.setTimeout(function() {
+				this.el.style[cssTransition] = conf.transition;
+				this.el.style.left = '0';
+			}.bind(this));
+		}
+		else {
+			this.warn('> slide plugin > Can\'t slide view! View or parent not found! View', this.el, 'in container', conf.parent);
+		}
+	};
+
+	proto.slideOut = function(conf) {
+		conf = $.extend({
+			parent: this.el.parentNode,
+			transition: 'left .75s',
+			direction: 'auto'
+		}, conf);
+
+		if (cssTransition === undefined) {
+			cssTransition = setTransitionFunction();
+		}
+
+		if (conf.parent && this.el) {
+			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
+			console.log({
+				el: conf.parent,
+				cw: conf.parent.clientWidth,
+				ow: conf.parent.offsetWidth,
+				w: conf.parent.style.width
+			});
+			var posX = conf.parent.offsetWidth;
+				this.el.style[cssTransition] = conf.transition;
+				this.el.style.left = posX + 'px';
+
+			var transitionEndFunc = function() {
+				if (+this.el.style.left.replace('px', '') >= posX) {
+					this.el.style.display = 'none';
+					this.el.style[cssTransition] = 'none';
+				}
+				else {
+					console.warn('Old transitionEndFunc???', this.el, +this.el.style.left.replace('px', ''), this.el.style[cssTransition]);
+				}
+				this.el.removeEventListener('transitionend', transitionEndFunc);
+			}.bind(this);
+			
+			this.el.addEventListener('transitionend', transitionEndFunc);
+		}
+		else {
+			this.warn('> slide plugin > Can\'t slide view! View or parent not found! View', this.el, 'in container', conf.parent);
+		}
+	};
+
+})(XQCore.View.prototype);

@@ -1,11 +1,14 @@
 XQCore.View = (function(undefined) {
 
 	var view = function(presenter, conf) {
-		var self = this;
 
 		conf = conf || {
 			events: null
 		};
+
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
 
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'View';
@@ -15,6 +18,15 @@ XQCore.View = (function(undefined) {
 
 		//Register view at presenter
 		this.presenter.registerView(this);
+
+		
+	};
+
+	view.prototype.init = function() {
+		var self = this,
+			conf = this.conf;
+
+		console.log('View Init2', this);
 
 		$(function() {
 			this.container = $(conf.container);
@@ -32,10 +44,10 @@ XQCore.View = (function(undefined) {
 				//Send events to presenter
 				if (this.events) {
 					Object.keys(this.events).forEach(function(key) {
-						var split = key.split(' ', 2),
+						var spacePos = key.indexOf(' '),
 							eventFunc = this.events[key],
-							eventName = split[0],
-							selector = split[1] || this.container,
+							eventName = key.substr(0, spacePos),
+							selector = key.substr(spacePos + 1) || this.container,
 							self = this,
 							eventDest;
 
@@ -48,10 +60,13 @@ XQCore.View = (function(undefined) {
 						}
 						else {
 							eventFunc = this.presenter.events[this.events[key]];
+							if (typeof eventFunc === 'string') {
+								eventFunc = this.presenter[this.events[key]];
+							}
 							eventDest = this.presenter;
 						}
 
-						if (split.length === 1 || split.length === 2) {
+						if (eventFunc && eventName) {
 							
 							if (typeof eventFunc === 'function') {
 								//Register event listener
@@ -83,8 +98,10 @@ XQCore.View = (function(undefined) {
 					this.warn('No view events defined');
 				}
 
-				//Self init
-				this.init();
+				// custom init
+				if (typeof this.customInit === 'function') {
+					this.customInit.call(this);
+				}
 
 				//Call presenter.initView()
 				this.presenter.fireViewInit(this);
@@ -93,11 +110,6 @@ XQCore.View = (function(undefined) {
 				this.error('Can\'t initialize View, Container not found!', this.container);
 			}
 		}.bind(this));
-	};
-
-	view.prototype.init = function() {
-
-				console.log('View Init2', this);
 	};
 
 	view.prototype.show = function() {

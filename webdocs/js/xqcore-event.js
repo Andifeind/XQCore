@@ -299,6 +299,7 @@ XQCore.Event = (function() {
 
 	event = function(conf) {
 		this.store = [];
+		this.ee = new EventEmitter();
 	};
 
 	// event.prototype.on = function(eventName, callback) {
@@ -317,24 +318,23 @@ XQCore.Event = (function() {
 
 	// };
 
-	ee = new EventEmitter();
 	event.prototype.emit = function(eventName, data) {
 		if (this.debug) {
 			console.debug('XQCore - Emit event', eventName, data);
 		}
-		return ee.emitEvent(eventName, [data]);
+		return this.ee.emitEvent(eventName, [data], this);
 	};
 
 	event.prototype.on = function(eventName, listener) {
 		if (this.debug) {
-			console.debug('XQCore - Add listener', eventName, listener);
+			console.debug('XQCore - Add listener', eventName, listener, this);
 		}
-		return ee.addListener(eventName, listener);
+		return this.ee.addListener(eventName, listener);
 	};
 
 	event.prototype.once = function(eventName, listener) {
 		var onceListener = function() {
-			ee.removeListener(eventName, listener);
+			this.ee.removeListener(eventName, listener);
 			listener.call(null, arguments);
 			return true;
 		};
@@ -342,7 +342,7 @@ XQCore.Event = (function() {
 		if (this.debug) {
 			console.debug('XQCore - Add once listener', eventName, listener);
 		}
-		return ee.addListener(eventName, onceListener);
+		return this.ee.addListener(eventName, onceListener);
 	};
 
 	event.prototype.off = function(eventName, listener) {
@@ -351,10 +351,10 @@ XQCore.Event = (function() {
 		}
 
 		if (listener === undefined) {
-			return ee.removeEvent(eventName);
+			return this.ee.removeEvent(eventName);
 		}
 		else {
-			return ee.removeListener(eventName, listener);
+			return this.ee.removeListener(eventName, listener);
 		}
 	};
 

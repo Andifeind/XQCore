@@ -1,6 +1,12 @@
 XQCore.View = (function(undefined) {
 
-	var view = function(presenter, conf) {
+	var view = function(conf) {
+
+		if (arguments.length === 2) {
+			this.presenter = arguments[0];
+			conf = arguments[1];
+			console.info('Defining View with presenter is deprecated.');
+		}
 
 		conf = conf || {
 			events: null
@@ -12,21 +18,24 @@ XQCore.View = (function(undefined) {
 
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'View';
-		this.presenter = presenter;
 
 		this.debug = Boolean(conf.debug);
-
-		//Register view at presenter
-		this.presenter.registerView(this);
-
-		
 	};
 
-	view.prototype.init = function() {
+	view.prototype.init = function(presenter) {
 		var self = this,
 			conf = this.conf;
 
+		//If old style
+		if (!presenter) {
+			presenter = this.presenter;
+			presenter.registerView(this);
+		}
+
 		console.log('View Init2', this);
+
+		//Register view at presenter
+		this.presenter = presenter;
 
 		$(function() {
 			this.container = $(conf.container);

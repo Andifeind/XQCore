@@ -9,6 +9,10 @@ XQCore.Presenter = (function() {
 		
 		conf = conf || {};
 
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
+
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
@@ -95,15 +99,26 @@ XQCore.Presenter = (function() {
 				}
 			});
 		}
-
-		this.log('Initialize presenter with conf:', conf);
-		if (this.init) {
-			this.init();
-		}
 	};
 
-	presenter.prototype.init = function() {
+	presenter.prototype.init = function(views) {
 
+		console.log('views', views);
+		if (views instanceof Array) {
+			for (var i = 0; i < views.length; i++) {
+				this.registerView(views[i]);
+				views[i].init(this);
+			}
+		}
+		else {
+			this.registerView(views);
+			views.init(this);
+		}
+
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
 	};
 
 	/**

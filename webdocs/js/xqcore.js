@@ -54,6 +54,10 @@ XQCore.Presenter = (function() {
 		
 		conf = conf || {};
 
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
+
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
@@ -140,15 +144,26 @@ XQCore.Presenter = (function() {
 				}
 			});
 		}
-
-		this.log('Initialize presenter with conf:', conf);
-		if (this.init) {
-			this.init();
-		}
 	};
 
-	presenter.prototype.init = function() {
+	presenter.prototype.init = function(views) {
 
+		console.log('views', views);
+		if (views instanceof Array) {
+			for (var i = 0; i < views.length; i++) {
+				this.registerView(views[i]);
+				views[i].init(this);
+			}
+		}
+		else {
+			this.registerView(views);
+			views.init(this);
+		}
+
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
 	};
 
 	/**
@@ -189,6 +204,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 			conf = {};
 		}
 
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
+
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
@@ -218,7 +237,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	model.prototype.init = function() {
-
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
 	};
 
 	model.prototype.validate = function() {
@@ -490,26 +512,29 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.search = function(path, searchfor) {
 		var parent = undotify(path, this.propertys);
-		for (var i = 0; i < parent.length; i++) {
-			var prop = parent[i],
-				matching;
 
-			for (var p in searchfor) {
-				if (searchfor.hasOwnProperty(p)) {
-					if (prop[p] && prop[p] === searchfor[p]) {
-						matching = true;
-					}
-					else {
-						matching = false;
-						break;
+		if (parent) {
+			for (var i = 0; i < parent.length; i++) {
+				var prop = parent[i],
+					matching;
+
+				for (var p in searchfor) {
+					if (searchfor.hasOwnProperty(p)) {
+						if (prop[p] && prop[p] === searchfor[p]) {
+							matching = true;
+						}
+						else {
+							matching = false;
+							break;
+						}
 					}
 				}
-			}
 
-			if (matching === true) {
-				return prop;
-			}
+				if (matching === true) {
+					return prop;
+				}
 
+			}
 		}
 
 		return null;
@@ -520,7 +545,13 @@ XQCore.Model = (function(window, document, $, undefined) {
 
 XQCore.View = (function(undefined) {
 
-	var view = function(presenter, conf) {
+	var view = function(conf) {
+
+		if (arguments.length === 2) {
+			this.presenter = arguments[0];
+			conf = arguments[1];
+			console.info('Defining View with presenter is deprecated.');
+		}
 
 		conf = conf || {
 			events: null
@@ -532,21 +563,24 @@ XQCore.View = (function(undefined) {
 
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'View';
-		this.presenter = presenter;
 
 		this.debug = Boolean(conf.debug);
-
-		//Register view at presenter
-		this.presenter.registerView(this);
-
-		
 	};
 
-	view.prototype.init = function() {
+	view.prototype.init = function(presenter) {
 		var self = this,
 			conf = this.conf;
 
+		//If old style
+		if (!presenter) {
+			presenter = this.presenter;
+			presenter.registerView(this);
+		}
+
 		console.log('View Init2', this);
+
+		//Register view at presenter
+		this.presenter = presenter;
 
 		$(function() {
 			this.container = $(conf.container);

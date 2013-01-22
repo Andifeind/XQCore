@@ -53,15 +53,21 @@ module.exports = function(grunt) {
 		copy: {
 			akonda: {
 				files: {
-					'../akonda-files/webdocs/js/xqcore.js': 'webdocs/js/xqcore.js',
-					'../akonda-files/webdocs/js/xqcore.min.js': 'webdocs/js/xqcore.min.js'
+					'../akonda/akonda-files/webdocs/js/xqcore.js': 'webdocs/js/xqcore.js',
+					'../akonda/akonda-files/webdocs/js/xqcore.min.js': 'webdocs/js/xqcore.min.js'
+				}
+			},
+			frogshit: {
+				files: {
+					'../frogshit/webdocs/js/xqcore.js': 'webdocs/js/xqcore.js',
+					'../frogshit/webdocs/js/xqcore.min.js': 'webdocs/js/xqcore.min.js'
 				}
 			}
 		},
 		clean: {
 			build: [
-				'webdocs/js/xqcore.js',
-				'webdocs/js/xqcore.min.js'
+				'webdocs/js/ext/xqcore.js',
+				'webdocs/js/ext/xqcore.min.js'
 			]
 		},
 		watch: {

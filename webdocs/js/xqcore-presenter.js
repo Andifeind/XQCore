@@ -95,18 +95,22 @@ XQCore.Presenter = (function() {
 
 				route = self.Router.match(route);
 				if (route) {
-					route.fn.call(self);
+					route.fn.call(self, route);
 				}
 			});
 		}
 	};
 
 	presenter.prototype.init = function(views) {
+		var i;
 
 		console.log('views', views);
 		if (views instanceof Array) {
-			for (var i = 0; i < views.length; i++) {
+			for (i = 0; i < views.length; i++) {
 				this.registerView(views[i]);
+			}
+
+			for (i = 0; i < views.length; i++) {
 				views[i].init(this);
 			}
 		}

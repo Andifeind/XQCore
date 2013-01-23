@@ -9,6 +9,10 @@ XQCore.Presenter = (function() {
 		
 		conf = conf || {};
 
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
+
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
@@ -91,19 +95,34 @@ XQCore.Presenter = (function() {
 
 				route = self.Router.match(route);
 				if (route) {
-					route.fn.call(self);
+					route.fn.call(self, route);
 				}
 			});
 		}
-
-		this.log('Initialize presenter with conf:', conf);
-		if (this.init) {
-			this.init();
-		}
 	};
 
-	presenter.prototype.init = function() {
+	presenter.prototype.init = function(views) {
+		var i;
 
+		console.log('views', views);
+		if (views instanceof Array) {
+			for (i = 0; i < views.length; i++) {
+				this.registerView(views[i]);
+			}
+
+			for (i = 0; i < views.length; i++) {
+				views[i].init(this);
+			}
+		}
+		else {
+			this.registerView(views);
+			views.init(this);
+		}
+
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
 	};
 
 	/**

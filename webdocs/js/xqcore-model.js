@@ -17,6 +17,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 			conf = {};
 		}
 
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
+
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
@@ -46,7 +50,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	model.prototype.init = function() {
-
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
 	};
 
 	model.prototype.validate = function() {
@@ -318,26 +325,29 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.search = function(path, searchfor) {
 		var parent = undotify(path, this.propertys);
-		for (var i = 0; i < parent.length; i++) {
-			var prop = parent[i],
-				matching;
 
-			for (var p in searchfor) {
-				if (searchfor.hasOwnProperty(p)) {
-					if (prop[p] && prop[p] === searchfor[p]) {
-						matching = true;
-					}
-					else {
-						matching = false;
-						break;
+		if (parent) {
+			for (var i = 0; i < parent.length; i++) {
+				var prop = parent[i],
+					matching;
+
+				for (var p in searchfor) {
+					if (searchfor.hasOwnProperty(p)) {
+						if (prop[p] && prop[p] === searchfor[p]) {
+							matching = true;
+						}
+						else {
+							matching = false;
+							break;
+						}
 					}
 				}
-			}
 
-			if (matching === true) {
-				return prop;
-			}
+				if (matching === true) {
+					return prop;
+				}
 
+			}
 		}
 
 		return null;

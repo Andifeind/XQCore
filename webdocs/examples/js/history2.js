@@ -14,9 +14,16 @@ $(function() {
 				e.preventDefault();
 
 				console.log(id, num, e.target.id, this, e.target,e);
-				this.pushState({
-					page: id
-				}, 'Test ' + num,'#!test' + num + '.html');
+				if (num === '4') {
+					this.replaceState({
+						page: id
+					}, 'Test ' + num,'#!test' + num + '.html');
+				}
+				else {
+					this.pushState({
+						page: id
+					}, 'Test ' + num,'#!test' + num + '.html');
+				}
 				this['link' + num]();
 			}
 		},

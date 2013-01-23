@@ -137,5 +137,12 @@ XQCore.Presenter = (function() {
 		history.pushState(data, title, url);
 	};
 
+	/**
+	 * Add a history item to the browser history
+	 */
+	presenter.prototype.replaceState = function(data, title, url) {
+		history.replaceState(data, title, url);
+	};
+
 	return presenter;
 })();

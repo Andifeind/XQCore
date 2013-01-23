@@ -1,11 +1,16 @@
 (function(exports) {
 
-	var module = function() {
+	var mymodule = function() {
 		console.log('Require 1');
 	};
 
-	exports = {
-		version: '0.1'
+	
+
+	exports.require1 = {
+		version: '0.1',
+		bla:function() {
+
+		}
 	};
 
 })(exports);

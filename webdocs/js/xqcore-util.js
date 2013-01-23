@@ -92,6 +92,18 @@ XQCore.Util = (function($) {
 		}
 	};
 
+	/**
+	 * Checks the validity of an url
+	 *
+	 * @param {String} url URL
+	 */
+	util.checkUrl = function(url) {
+
+		if (!/^http(s)?:\/\/\S\.[a-zA-Z]{2,10}\/?$/.test(url)) {
+			return 'invalid-url';
+		}
+	};
+
 	return util;
 
 })(jQuery);

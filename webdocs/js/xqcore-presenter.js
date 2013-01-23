@@ -67,24 +67,20 @@ XQCore.Presenter = (function() {
 				self.log('popstate event recived', e);
 
 				var route = XQCore.defaultRoute;
-				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-					route = location.hash.substr(2);
+				if (XQCore.html5Routes) {
+					var pattern = new RegExp('^' + self.root);
+					route = location.pathname.replace(pattern, '');
+				}
+				else {
+					if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+						route = location.hash.substr(2);
+					}
 				}
 
 				route = self.Router.match(route);
 				if (route) {
 					route.fn.call(self, e.state);
 				}
-			}, false);
-
-			window.addEventListener('hashchange', function(e) {
-				self.log('hashchange event recived', e, location.hash);
-				// var tag = location.hash.substring(1);
-
-				// if (typeof conf[tag] === 'function') {
-				//	self.log('Call func', conf[tag]);
-				//	conf[tag].call(self);
-				// }
 			}, false);
 
 			this.on('views.ready',function() {

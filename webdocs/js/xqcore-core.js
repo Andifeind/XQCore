@@ -1,7 +1,8 @@
 /*jshint evil:true */
 var XQCore = {
 	version: 0.1,
-	defaultRoute: 'default'
+	defaultRoute: 'default',
+	html5Routes: false
 };
 
 /**

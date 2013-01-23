@@ -1,6 +1,6 @@
 $(function() {
 
-	XQCore.html5Routes = true;
+	XQCore.html5Routes = false;
 
 	var presenter = new XQCore.Presenter({
 		debug: true,
@@ -16,7 +16,7 @@ $(function() {
 				console.log(id, num, e.target.id, this, e.target,e);
 				this.pushState({
 					page: id
-				}, 'Test ' + num,'test' + num + '.html');
+				}, 'Test ' + num,'#!test' + num + '.html');
 				this['link' + num]();
 			}
 		},

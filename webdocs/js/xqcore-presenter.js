@@ -144,5 +144,32 @@ XQCore.Presenter = (function() {
 		history.replaceState(data, title, url);
 	};
 
+	/**
+	 * Navigates to a route, updates the browser history.
+	 *
+	 * options: {
+	 *   push: true     //Update the browser history with pushState
+	 *   replace: false //Use replaceState instead of pushState
+	 * }
+	 *
+	 * @param {String} url Route url
+	 * @param {Object} data Data object
+	 * @param {Object} options Options object (optional)
+	 */
+	presenter.prototype.navigateTo = function(url, data, options) {
+		if (options.push === true && options.replace === false) {
+			history.pushState(data, '', url);
+		}
+		else if (options.push === true && options.replace === true) {
+			history.replaceState(data, '', url);
+		}
+		else {
+			var route = this.Router.match(route);
+			if (route) {
+				route.fn.call(this, data);
+			}
+		}
+	};
+
 	return presenter;
 })();

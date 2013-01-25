@@ -96,7 +96,7 @@ XQCore.Presenter = (function(undefined) {
 
 				route = self.Router.match(route);
 				if (route) {
-					var data = e.state;
+					var data = e.state || {};
 					if (XQCore.callerEvent) {
 						data[XQCore.callerEvent] = 'popstate';
 					}

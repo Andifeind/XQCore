@@ -24,7 +24,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
-		this.propertys = {};
+		this.properties = {};
 		this._isValid = false;
 
 		if (conf.validate) {
@@ -51,7 +51,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	model.prototype.init = function() {
-		
+
 		if (this.debug) {
 			XQCore._dump[this.name] = this;
 		}
@@ -101,11 +101,11 @@ XQCore.Model = (function(window, document, $, undefined) {
 			}
 		}
 
-		$.extend(this.propertys, newData);
+		$.extend(this.properties, newData);
 	};
 
 	/**
-	 * Get one or all propertys from model
+	 * Get one or all properties from model
 	 *
 	 * @param  {String} key Data key
 	 *
@@ -113,10 +113,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.get = function(key) {
 		if (key === undefined) {
-			return this.propertys;
+			return this.properties;
 		}
 		else {
-			return this.propertys[key];
+			return this.properties[key];
 		}
 	};
 
@@ -127,7 +127,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @return {Boolean} Returns true if model has a dataset with key
 	 */
 	model.prototype.has = function(key) {
-		return !!this.propertys[key];
+		return !!this.properties[key];
 	};
 
 	/**
@@ -135,7 +135,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.reset = function() {
 		this.log('Reset model');
-		this.propertys = {};
+		this.properties = {};
 	};
 
 	/**
@@ -145,7 +145,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	model.prototype.append = function(path, data) {
-		var dataset = this.propertys;
+		var dataset = this.properties;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
 		});
@@ -167,7 +167,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	model.prototype.prepend = function(path, data) {
-		var dataset = this.propertys;
+		var dataset = this.properties;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
 		});
@@ -191,7 +191,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @return {Object} removed subset
 	 */
 	model.prototype.remove = function(path, index) {
-		var dataset = this.propertys,
+		var dataset = this.properties,
 			data = null;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
@@ -323,14 +323,14 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Search a item in models propertys
+	 * Search a item in models properties
 	 *
 	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
 	 * @param {Object} searchfor Searching for object
 	 * @return {Object} Returns the first matched item or null
 	 */
 	model.prototype.search = function(path, searchfor) {
-		var parent = undotify(path, this.propertys);
+		var parent = undotify(path, this.properties);
 
 		if (parent) {
 			for (var i = 0; i < parent.length; i++) {

@@ -1,4 +1,4 @@
-XQCore.Presenter = (function() {
+XQCore.Presenter = (function(undefined) {
 
 	var presenter = function(conf) {
 		var self = this;
@@ -44,6 +44,23 @@ XQCore.Presenter = (function() {
 			});
 		};
 
+		this.getView = function(viewName) {
+			var i, view;
+
+			for (i = 0; i < this.registeredViews.length; i++) {
+				view = this.registeredViews[i].view;
+				if (view.name === viewName) {
+					return view;
+				}
+			}
+		};
+	};
+
+	presenter.prototype.init = function(views) {
+		var i,
+			self = this,
+			conf = this.conf;
+
 		//Setup popstate listener
 		if (conf.routes) {
 			this.Router = new XQCore.Router();
@@ -79,7 +96,12 @@ XQCore.Presenter = (function() {
 
 				route = self.Router.match(route);
 				if (route) {
-					route.fn.call(self, e.state);
+					var data = e.state;
+					if (XQCore.callerEvent) {
+						data[XQCore.callerEvent] = 'popstate';
+					}
+
+					route.fn.call(self, data);
 				}
 			}, false);
 
@@ -95,11 +117,13 @@ XQCore.Presenter = (function() {
 				}
 			});
 		}
-	};
 
-	presenter.prototype.init = function(views) {
-		var i;
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
 
+		//Initialize views
 		console.log('views', views);
 		if (views instanceof Array) {
 			for (i = 0; i < views.length; i++) {
@@ -114,11 +138,6 @@ XQCore.Presenter = (function() {
 			this.registerView(views);
 			views.init(this);
 		}
-
-		// custom init
-		if (typeof this.customInit === 'function') {
-			this.customInit.call(this);
-		}
 	};
 
 	/**
@@ -132,43 +151,54 @@ XQCore.Presenter = (function() {
 
 	/**
 	 * Add a history item to the browser history
+	 *
+	 * @param {Object} data Data object
+	 * @param {String} url Page URL (Optional) defaults to the curent URL
 	 */
-	presenter.prototype.pushState = function(data, title, url) {
-		history.pushState(data, title, url);
+	presenter.prototype.pushState = function(data, url) {
+		// this.log('Check State', data, history.state, XQCore.compare(data, history.state));
+		// if (XQCore.compare(data, history.state)) {
+		// 	this.warn('Abborting history.pushState because data are equale to current history state');
+		// }
+		var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
+		url = hash + url;
+		history.pushState(data, '', url || null);
+		this.log('Update history with pushState', data, url);
 	};
 
 	/**
 	 * Add a history item to the browser history
+	 *
+	 * @param {Object} data Data object
+	 * @param {String} url Page URL (Optional) defaults to the current URL
 	 */
-	presenter.prototype.replaceState = function(data, title, url) {
-		history.replaceState(data, title, url);
+	presenter.prototype.replaceState = function(data, url) {
+		// if (data === history.state) {
+		// 	this.warn('Abborting history.replaceState because data are equale to current history state');
+		// }
+		var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
+		url = hash + url;
+		history.replaceState(data, '', url || null);
+		this.log('Update history with replaceState', data, url);
 	};
 
 	/**
-	 * Navigates to a route, updates the browser history.
-	 *
-	 * options: {
-	 *   push: true     //Update the browser history with pushState
-	 *   replace: false //Use replaceState instead of pushState
-	 * }
+	 * Navigates to a route
 	 *
 	 * @param {String} url Route url
 	 * @param {Object} data Data object
-	 * @param {Object} options Options object (optional)
 	 */
-	presenter.prototype.navigateTo = function(url, data, options) {
-		if (options.push === true && options.replace === false) {
-			history.pushState(data, '', url);
-		}
-		else if (options.push === true && options.replace === true) {
-			history.replaceState(data, '', url);
-		}
-		else {
-			var route = this.Router.match(route);
-			if (route) {
-				route.fn.call(this, data);
+	presenter.prototype.navigateTo = function(url, data) {
+		var route = this.Router.match(url);
+		if (route) {
+			if (XQCore.callerEvent) {
+				data = data || {};
+				data[XQCore.callerEvent] = 'redirect';
 			}
+			route.fn.call(this, data);
 		}
+
+		this.log('Navigate to', url, data);
 	};
 
 	return presenter;

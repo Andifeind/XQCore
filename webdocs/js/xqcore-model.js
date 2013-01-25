@@ -47,9 +47,15 @@ XQCore.Model = (function(window, document, $, undefined) {
 		if (this.defaults) {
 			this.set(this.defaults);
 		}
+
 	};
 
 	model.prototype.init = function() {
+		
+		if (this.debug) {
+			XQCore._dump[this.name] = this;
+		}
+
 		// custom init
 		if (typeof this.customInit === 'function') {
 			this.customInit.call(this);

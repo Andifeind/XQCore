@@ -1,7 +1,10 @@
 /*jshint evil:true */
 var XQCore = {
-	version: 0.1,
-	defaultRoute: 'default'
+	version: 0.2,
+	defaultRoute: 'default',
+	html5Routes: false,
+	hashBang: '#!',
+	callerEvent: 'callerEvent'
 };
 
 /**
@@ -43,7 +46,17 @@ if (!window.include) {
 	};
 }
 
-XQCore.Presenter = (function() {
+
+XQCore._dump = {};
+XQCore.dump = function(componentName) {
+	if (XQCore._dump[componentName]) {
+		console.log('[XQCore dump]', componentName, XQCore._dump[componentName]);
+		return XQCore._dump[componentName];
+	}
+
+	return false;
+};
+XQCore.Presenter = (function(undefined) {
 
 	var presenter = function(conf) {
 		var self = this;
@@ -89,6 +102,23 @@ XQCore.Presenter = (function() {
 			});
 		};
 
+		this.getView = function(viewName) {
+			var i, view;
+
+			for (i = 0; i < this.registeredViews.length; i++) {
+				view = this.registeredViews[i].view;
+				if (view.name === viewName) {
+					return view;
+				}
+			}
+		};
+	};
+
+	presenter.prototype.init = function(views) {
+		var i,
+			self = this,
+			conf = this.conf;
+
 		//Setup popstate listener
 		if (conf.routes) {
 			this.Router = new XQCore.Router();
@@ -112,24 +142,25 @@ XQCore.Presenter = (function() {
 				self.log('popstate event recived', e);
 
 				var route = XQCore.defaultRoute;
-				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-					route = location.hash.substr(2);
+				if (XQCore.html5Routes) {
+					var pattern = new RegExp('^' + self.root);
+					route = location.pathname.replace(pattern, '');
+				}
+				else {
+					if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+						route = location.hash.substr(2);
+					}
 				}
 
 				route = self.Router.match(route);
 				if (route) {
-					route.fn.call(self, e.state);
+					var data = e.state;
+					if (XQCore.callerEvent) {
+						data[XQCore.callerEvent] = 'popstate';
+					}
+
+					route.fn.call(self, data);
 				}
-			}, false);
-
-			window.addEventListener('hashchange', function(e) {
-				self.log('hashchange event recived', e, location.hash);
-				// var tag = location.hash.substring(1);
-
-				// if (typeof conf[tag] === 'function') {
-				//	self.log('Call func', conf[tag]);
-				//	conf[tag].call(self);
-				// }
 			}, false);
 
 			this.on('views.ready',function() {
@@ -144,11 +175,13 @@ XQCore.Presenter = (function() {
 				}
 			});
 		}
-	};
 
-	presenter.prototype.init = function(views) {
-		var i;
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
 
+		//Initialize views
 		console.log('views', views);
 		if (views instanceof Array) {
 			for (i = 0; i < views.length; i++) {
@@ -163,11 +196,6 @@ XQCore.Presenter = (function() {
 			this.registerView(views);
 			views.init(this);
 		}
-
-		// custom init
-		if (typeof this.customInit === 'function') {
-			this.customInit.call(this);
-		}
 	};
 
 	/**
@@ -181,9 +209,54 @@ XQCore.Presenter = (function() {
 
 	/**
 	 * Add a history item to the browser history
+	 *
+	 * @param {Object} data Data object
+	 * @param {String} url Page URL (Optional) defaults to the curent URL
 	 */
-	presenter.prototype.pushState = function(data, title, url) {
-		history.pushState(data, title, url);
+	presenter.prototype.pushState = function(data, url) {
+		// this.log('Check State', data, history.state, XQCore.compare(data, history.state));
+		// if (XQCore.compare(data, history.state)) {
+		// 	this.warn('Abborting history.pushState because data are equale to current history state');
+		// }
+		var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
+		url = hash + url;
+		history.pushState(data, '', url || null);
+		this.log('Update history with pushState', data, url);
+	};
+
+	/**
+	 * Add a history item to the browser history
+	 *
+	 * @param {Object} data Data object
+	 * @param {String} url Page URL (Optional) defaults to the current URL
+	 */
+	presenter.prototype.replaceState = function(data, url) {
+		// if (data === history.state) {
+		// 	this.warn('Abborting history.replaceState because data are equale to current history state');
+		// }
+		var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
+		url = hash + url;
+		history.replaceState(data, '', url || null);
+		this.log('Update history with replaceState', data, url);
+	};
+
+	/**
+	 * Navigates to a route
+	 *
+	 * @param {String} url Route url
+	 * @param {Object} data Data object
+	 */
+	presenter.prototype.navigateTo = function(url, data) {
+		var route = this.Router.match(url);
+		if (route) {
+			if (XQCore.callerEvent) {
+				data = data || {};
+				data[XQCore.callerEvent] = 'redirect';
+			}
+			route.fn.call(this, data);
+		}
+
+		this.log('Navigate to', url, data);
 	};
 
 	return presenter;
@@ -238,9 +311,15 @@ XQCore.Model = (function(window, document, $, undefined) {
 		if (this.defaults) {
 			this.set(this.defaults);
 		}
+
 	};
 
 	model.prototype.init = function() {
+		
+		if (this.debug) {
+			XQCore._dump[this.name] = this;
+		}
+
 		// custom init
 		if (typeof this.customInit === 'function') {
 			this.customInit.call(this);
@@ -1463,6 +1542,41 @@ XQCore.Util = (function($) {
 			return 'invalid-email';
 		}
 	};
+
+	// /**
+	//  * Compares to objects
+	//  *
+	//  * @param  {Object} a          object a
+	//  * @param  {Object} b          object b
+	//  *
+	//  * @return {Boolean}           Returns true if object a equals to object b
+	//  */
+	// util.compare = function (a, b) {
+	        
+	// 	/*
+	// 	    Original script title: "Object.identical.js"; version 1.12
+	// 	    Copyright (c) 2011, Chris O'Brien, prettycode.org
+	// 	    http://github.com/prettycode/Object.identical.js
+	// 	*/
+	
+	//     function sort(object) {
+	//         if (Array.isArray(object)) {
+	//             return object.sort();
+	//         }
+	//         else if (typeof object !== "object" || object === null) {
+	//             return object;
+	//         }
+
+	//         return Object.keys(object).sort().map(function(key) {
+	//             return {
+	//                 key: key,
+	//                 value: sort(object[key])
+	//             };
+	//         });
+	//     }
+	    
+	//     return JSON.stringify(sort(a)) === JSON.stringify(sort(b));
+	// };
 
 	return util;
 

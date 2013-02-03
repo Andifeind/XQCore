@@ -41,13 +41,13 @@ XQCore.Model = (function(window, document, $, undefined) {
 			}.bind(this);
 		}
 
-		this.init();
 
 		//Add default values
 		if (this.defaults) {
 			this.set(this.defaults);
 		}
 
+		this.init();
 	};
 
 	model.prototype.init = function() {
@@ -145,6 +145,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	model.prototype.append = function(path, data) {
+		this.log('Append data to', path, data);
 		var dataset = this.properties;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
@@ -154,7 +155,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 			dataset.push(data);
 		}
 		else {
-			dataset = $.extend(dataset, data);
+			$.extend(dataset, data);
 		}
 
 		return data;
@@ -167,6 +168,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	model.prototype.prepend = function(path, data) {
+		this.log('Prepend data to', path, data);
 		var dataset = this.properties;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
@@ -176,7 +178,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 			dataset.unshift(data);
 		}
 		else {
-			dataset = $.extend(data, dataset);
+			$.extend(data, dataset);
 		}
 
 		return data;

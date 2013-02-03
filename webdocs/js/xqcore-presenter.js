@@ -38,10 +38,21 @@ XQCore.Presenter = (function(undefined) {
 		};
 
 		this.registerView = function(view) {
-			this.registeredViews.push({
-				view: view,
-				isReady: false
-			});
+			var i;
+			if (view instanceof Array) {
+				for (i = 0; i < view.length; i++) {
+					this.registeredViews.push({
+						view: view[i],
+						isReady: false
+					});
+				}
+			}
+			else {
+				this.registeredViews.push({
+					view: view,
+					isReady: false
+				});
+			}
 		};
 
 		this.getView = function(viewName) {
@@ -129,15 +140,14 @@ XQCore.Presenter = (function(undefined) {
 			for (i = 0; i < views.length; i++) {
 				this.registerView(views[i]);
 			}
-
-			for (i = 0; i < views.length; i++) {
-				views[i].init(this);
-			}
 		}
-		else {
+		else if (views) {
 			this.registerView(views);
-			views.init(this);
 		}
+
+		this.registeredViews.forEach(function(view) {
+			view.view.init(self);
+		});
 	};
 
 	/**

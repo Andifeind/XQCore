@@ -1,0 +1,79 @@
+#!/usr/bin/env node
+var fs = require('fs'),
+	readline = require('readline'),
+	projectName,
+	modulePath = process.argv[2];
+
+var rl = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
+rl.question('Enter module name: ', function(answer) {
+	projectName = answer;
+	rl.close();
+
+	createProject();
+});
+
+var createProject = function() {
+
+
+	if (typeof modulePath === 'string') {
+		modulePath = modulePath.replace(/\/$/, '');
+	}
+	else {
+		modulePath = 'webdocs/js/modules';
+	}
+
+	if (!fs.existsSync(modulePath)) {
+		console.log('Skipping... module path doesn\'t exists!\n  ' + modulePath);
+		return;
+	}
+	console.log('Using module path ' + modulePath);
+
+	createDir(modulePath + '/' + projectName);
+	createDir(modulePath + '/' + projectName + '/presenter');
+	createDir(modulePath + '/' + projectName + '/models');
+	createDir(modulePath + '/' + projectName + '/desktop-views');
+	createDir(modulePath + '/' + projectName + '/desktop-views/templates');
+	createDir(modulePath + '/' + projectName + '/desktop-views/styles');
+	createFile(modulePath + '/' + projectName + '/presenter/' + projectName + '.presenter.js');
+	createFile(modulePath + '/' + projectName + '/models/' + projectName + '.model.js');
+	createFile(modulePath + '/' + projectName + '/desktop-views/' + projectName + '.view.js');
+	createFile(modulePath + '/' + projectName + '/desktop-views/styles/' + projectName + '.less');
+};
+
+var createDir = function(dirName) {
+	if (fs.existsSync(dirName)) {
+		console.log('Dir ' + dirName + ' exists .... skipping');
+	}
+	else {
+		fs.mkdirSync(dirName);
+		console.log('Dir ' + dirName + ' created .... ok');
+	}
+};
+
+var createFile = function(fileName, template) {
+	if (fs.existsSync(fileName)) {
+		console.log('File ' + fileName + ' exists .... skipping');
+	}
+	else {
+		if (template) {
+			fs.readFile(fileName, function(err, data) {
+				if (err) {
+					throw err;
+				}
+
+				fs.writeFile(fileName, data, function() {
+					console.log('File ' + fileName + ' created .... ok');
+				});
+			});
+		}
+		else {
+			fs.writeFile(fileName, '', function() {
+				console.log('File ' + fileName + ' created .... ok');
+			});
+		}
+	}
+};

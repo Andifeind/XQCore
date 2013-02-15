@@ -43,835 +43,6 @@ if (!window.include) {
 	};
 }
 
-XQCore.Presenter = (function() {
-
-	var presenter = function(conf) {
-		var self = this;
-		
-		this.root = '/';
-		this.debug = false;
-		this.routes = [];
-		
-		conf = conf || {};
-
-		this.customInit = conf.init;
-		this.conf = conf;
-		delete conf.init;
-
-		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
-		this.name = (conf.name || 'Nameless') + 'Presenter';
-		this.eventCallbacks = {};
-
-		this.registeredViews = [];
-		this.fireViewInit = function(view) {
-			var allReady = true;
-			this.registeredViews.forEach(function(item) {
-				if (view === item.view) {
-					item.isReady = true;
-				}
-
-				if (item.isReady === false) {
-					allReady = false;
-				}
-			});
-
-			this.viewInit(view);
-
-			if (allReady === true) {
-				this.emit('views.ready');
-			}
-		};
-
-		this.registerView = function(view) {
-			this.registeredViews.push({
-				view: view,
-				isReady: false
-			});
-		};
-
-		//Setup popstate listener
-		if (conf.routes) {
-			this.Router = new XQCore.Router();
-
-			//Add routes
-			Object.keys(conf.routes).forEach(function(route) {
-				var callback = this.routes[route];
-				if (typeof callback === 'string') {
-					callback = this[callback];
-				}
-
-				if (typeof callback === 'function') {
-					this.Router.addRoute(route, callback);
-				}
-				else {
-					this.warn('Router callback isn\'t a function', callback, 'of route', route);
-				}
-			}.bind(this));
-
-			window.addEventListener('popstate', function(e) {
-				self.log('popstate event recived', e);
-
-				var route = XQCore.defaultRoute;
-				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-					route = location.hash.substr(2);
-				}
-
-				route = self.Router.match(route);
-				if (route) {
-					route.fn.call(self, e.state);
-				}
-			}, false);
-
-			window.addEventListener('hashchange', function(e) {
-				self.log('hashchange event recived', e, location.hash);
-				// var tag = location.hash.substring(1);
-
-				// if (typeof conf[tag] === 'function') {
-				//	self.log('Call func', conf[tag]);
-				//	conf[tag].call(self);
-				// }
-			}, false);
-
-			this.on('views.ready',function() {
-				var route = XQCore.defaultRoute;
-				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-					route = location.hash.substr(2);
-				}
-
-				route = self.Router.match(route);
-				if (route) {
-					route.fn.call(self, route);
-				}
-			});
-		}
-	};
-
-	presenter.prototype.init = function(views) {
-		var i;
-
-		console.log('views', views);
-		if (views instanceof Array) {
-			for (i = 0; i < views.length; i++) {
-				this.registerView(views[i]);
-			}
-
-			for (i = 0; i < views.length; i++) {
-				views[i].init(this);
-			}
-		}
-		else {
-			this.registerView(views);
-			views.init(this);
-		}
-
-		// custom init
-		if (typeof this.customInit === 'function') {
-			this.customInit.call(this);
-		}
-	};
-
-	/**
-	 * Calling on view init
-	 *
-	 * @param {object} view The initializing view
-	 */
-	presenter.prototype.viewInit = function(view) {
-
-	};
-
-	/**
-	 * Add a history item to the browser history
-	 */
-	presenter.prototype.pushState = function(data, title, url) {
-		history.pushState(data, title, url);
-	};
-
-	return presenter;
-})();
-
-XQCore.Model = (function(window, document, $, undefined) {
-	var model;
-
-	var undotify = function(path, obj) {
-		if(path) {
-			path = path.split('.');
-			path.forEach(function(key) {
-				obj = obj[key];
-			});
-		}
-
-		return obj;
-	};
-
-	model = function(conf) {
-		if (conf === undefined) {
-			conf = {};
-		}
-
-		this.customInit = conf.init;
-		this.conf = conf;
-		delete conf.init;
-
-		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
-		this.name = (conf.name || 'Nameless') + 'Model';
-		this.debug = Boolean(conf.debug);
-		this.propertys = {};
-		this._isValid = false;
-
-		if (conf.validate) {
-			this.validate = function(formData) {
-				var result;
-
-				this._isValid = false;
-				result = conf.validate.call(this, formData);
-				if (!result || (typeof result === 'object' && Object.keys(result).length === 0)) {
-					this._isValid = true;
-				}
-
-				return result;
-			}.bind(this);
-		}
-
-		this.init();
-
-		//Add default values
-		if (this.defaults) {
-			this.set(this.defaults);
-		}
-	};
-
-	model.prototype.init = function() {
-		// custom init
-		if (typeof this.customInit === 'function') {
-			this.customInit.call(this);
-		}
-	};
-
-	model.prototype.validate = function() {
-
-	};
-
-	model.prototype.isValid = function() {
-		return this._isValid;
-	};
-
-	/**
-	 * Set model data
-	 *
-	 * @param {Object or String} data/key
-	 * @param {Object} value Data value
-	 */
-	model.prototype.set = function() {
-		var newData = {},
-			validateResult;
-
-		if (typeof arguments[0] === 'object') {
-			//Add a dataset
-			$.extend(newData, arguments[0]);
-			this.log('Set data', arguments[0]);
-		}
-		else if (typeof arguments[0] === 'string') {
-			newData[arguments[0]] = arguments[1];
-			this.log('Set data', arguments[0], arguments[1]);
-		}
-		else {
-			this.warn('Data are incorrect in model.set()', arguments);
-		}
-
-		if (this.validate) {
-			validateResult = this.validate(newData);
-			if (validateResult) {
-				this.warn('Validate error in model.set', validateResult);
-				return validateResult;
-			}
-		}
-
-		$.extend(this.propertys, newData);
-	};
-
-	/**
-	 * Get one or all propertys from model
-	 *
-	 * @param  {String} key Data key
-	 *
-	 * @return {Object}     Model dataset
-	 */
-	model.prototype.get = function(key) {
-		if (key === undefined) {
-			return this.propertys;
-		}
-		else {
-			return this.propertys[key];
-		}
-	};
-
-	/**
-	 * Check wether model has a dataset
-	 *
-	 * @param {String} key Dataset key
-	 * @return {Boolean} Returns true if model has a dataset with key
-	 */
-	model.prototype.has = function(key) {
-		return !!this.propertys[key];
-	};
-
-	/**
-	 * Remove all data from model
-	 */
-	model.prototype.reset = function() {
-		this.log('Reset model');
-		this.propertys = {};
-	};
-
-	/**
-	 * Append data to a subset
-	 *
-	 * @param {String} path path to subset
-	 * @param {Object} data data to add
-	 */
-	model.prototype.append = function(path, data) {
-		var dataset = this.propertys;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
-
-		if (dataset instanceof Array) {
-			dataset.push(data);
-		}
-		else {
-			dataset = $.extend(dataset, data);
-		}
-
-		return data;
-	};
-
-	/**
-	 * Prepend data to a subset
-	 *
-	 * @param {String} path path to subset
-	 * @param {Object} data data to add
-	 */
-	model.prototype.prepend = function(path, data) {
-		var dataset = this.propertys;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
-
-		if (dataset instanceof Array) {
-			dataset.unshift(data);
-		}
-		else {
-			dataset = $.extend(data, dataset);
-		}
-
-		return data;
-	};
-
-	/**
-	 * Remove a subset
-	 *
-	 * @param {String} path path to subset
-	 * @param {Number} index Index of the subsut to remove
-	 *
-	 * @return {Object} removed subset
-	 */
-	model.prototype.remove = function(path, index) {
-		var dataset = this.propertys,
-			data = null;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
-
-		if (dataset instanceof Array) {
-			data = dataset.splice(index, 1);
-			data = data[0] || null;
-		}
-		else {
-			this.warn('Model.remove() doesn\'t work with Objects in model', this.name);
-		}
-
-		return data;
-	};
-
-	/**
-	 * Called on before sending an ajax request
-	 * You can use this function to manipulate all data they be send to the server
-	 *
-	 * @param {Object} data The data to send to the server
-	 * @return {Object} data
-	 */
-	model.prototype.onSend = function(data) {
-		return data;
-	};
-
-	/**
-	 * Send an ajax request to the webserver.
-	 *
-	 * You must set the server URI first with model.server = 'http://example.com/post'
-	 *
-	 * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
-	 * @param {Object} data The data to sent to the server
-	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
-	 */
-	model.prototype.send = function(method, data, callback) {
-
-		if (!this.server) {
-			this.error('Can not send an ajax request! You must define a server URL first.');
-			return false;
-		}
-
-		if (data === undefined) {
-			data = this.get();
-		}
-
-		if (method === undefined) {
-			method = 'POST';
-		}
-
-		//Handle onSend
-		if (typeof this.onSend === 'function') {
-			data = this.onSend.call(this, data);
-		}
-
-		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
-
-		$.ajax({
-			url: this.server,
-			type: method,
-			data: data,
-			success: function(data, status, jqXHR) {
-				if (typeof callback === 'function') {
-					callback.call(this, null, data, status, jqXHR);
-				}
-			}.bind(this),
-			error: function(jqXHR, status, error) {
-				if (typeof callback === 'function') {
-					callback.call(this, {
-						type: status,
-						http: error
-					}, null, status, jqXHR);
-				}
-			}.bind(this)
-		});
-	};
-
-	/**
-	 * Sends a POST to the Datastore
-	 *
-	 * @param  {Object}   data     Dato to sending
-	 * @param  {Function} callback Calling on response
-	 *
-	 * callback: void function(err, data, status, jqXHR)
-	 *
-	 */
-	model.prototype.sendPOST = function(data, callback) {
-		this.send('POST', data, callback);
-	};
-
-	/**
-	 * Sends a GET to the Datastore
-	 *
-	 * @param  {Object}   data     Dato to sending
-	 * @param  {Function} callback Calling on response
-	 *
-	 * callback: void function(err, data, status, jqXHR)
-	 *
-	 */
-	model.prototype.sendGET = function(data, callback) {
-		this.send('GET', data, callback);
-	};
-
-	/**
-	 * Sends a UPDATE to the Datastore
-	 *
-	 * @param  {Object}   data     Dato to sending
-	 * @param  {Function} callback Calling on response
-	 *
-	 * callback: void function(err, data, status, jqXHR)
-	 *
-	 */
-	model.prototype.sendUPDATE = function(data, callback) {
-		this.send('UPDATE', data, callback);
-	};
-
-	/**
-	 * Sends a DELETE to the Datastore
-	 *
-	 * @param  {Object}   data     Dato to sending
-	 * @param  {Function} callback Calling on response
-	 *
-	 * callback: void function(err, data, status, jqXHR)
-	 *
-	 */
-	model.prototype.sendDELETE = function(data, callback) {
-		this.send('DELETE', data, callback);
-	};
-
-	/**
-	 * Search a item in models propertys
-	 *
-	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
-	 * @param {Object} searchfor Searching for object
-	 * @return {Object} Returns the first matched item or null
-	 */
-	model.prototype.search = function(path, searchfor) {
-		var parent = undotify(path, this.propertys);
-
-		if (parent) {
-			for (var i = 0; i < parent.length; i++) {
-				var prop = parent[i],
-					matching;
-
-				for (var p in searchfor) {
-					if (searchfor.hasOwnProperty(p)) {
-						if (prop[p] && prop[p] === searchfor[p]) {
-							matching = true;
-						}
-						else {
-							matching = false;
-							break;
-						}
-					}
-				}
-
-				if (matching === true) {
-					return prop;
-				}
-
-			}
-		}
-
-		return null;
-	};
-
-	return model;
-})(window, document, jQuery);
-
-XQCore.View = (function(undefined) {
-
-	var view = function(conf) {
-
-		if (arguments.length === 2) {
-			this.presenter = arguments[0];
-			conf = arguments[1];
-			console.info('Defining View with presenter is deprecated.');
-		}
-
-		conf = conf || {
-			events: null
-		};
-
-		this.customInit = conf.init;
-		this.conf = conf;
-		delete conf.init;
-
-		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
-		this.name = (conf.name || 'Nameless') + 'View';
-
-		this.debug = Boolean(conf.debug);
-	};
-
-	view.prototype.init = function(presenter) {
-		var self = this,
-			conf = this.conf;
-
-		//If old style
-		if (!presenter) {
-			presenter = this.presenter;
-			presenter.registerView(this);
-		}
-
-		console.log('View Init2', this);
-
-		//Register view at presenter
-		this.presenter = presenter;
-
-		$(function() {
-			this.container = $(conf.container);
-			this.$el = this.container;
-			this.el = $(conf.container).get(0);
-			if (this.container.length > 0) {
-				window.addEventListener('resize', function(e) {
-					self.resize(e);
-				}, false);
-
-				this.log('Initialize view with conf:', conf);
-				this.log('  ... using Presenter:', this.presenter.name);
-				this.log('  ... using Container:', this.container);
-
-				//Send events to presenter
-				if (this.events) {
-					Object.keys(this.events).forEach(function(key) {
-						var spacePos = key.indexOf(' '),
-							eventFunc = this.events[key],
-							eventName = key.substr(0, spacePos),
-							selector = key.substr(spacePos + 1) || this.container,
-							self = this,
-							eventDest;
-
-						if (typeof eventFunc === 'function') {
-							eventDest = this;
-						}
-						else if (eventFunc.indexOf('view:') === 0) {
-							eventFunc = this[eventFunc.substr(5)];
-							eventDest = this;
-						}
-						else {
-							eventFunc = this.presenter.events[this.events[key]];
-							if (typeof eventFunc === 'string') {
-								eventFunc = this.presenter[this.events[key]];
-							}
-							eventDest = this.presenter;
-						}
-
-						if (eventFunc && eventName) {
-							
-							if (typeof eventFunc === 'function') {
-								//Register event listener
-								this.container.delegate(selector, eventName, function(e) {
-									var formData = null,
-										tagData = null;
-
-									if (e.type === 'submit') {
-										formData = XQCore.Util.serializeForm(e.target);
-									}
-
-									tagData = $.extend($(e.target).data(), {
-										itemIndex: getItemIndex.call(self, e.target)
-									});
-
-									eventFunc.call(eventDest, e, tagData, formData);
-								});
-								this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
-							}
-							else {
-								this.warn('Event handler callback not defined in Presenter:', this.events[key]);
-							}
-						}
-						else {
-							this.warn('Incorect event configuration', key);
-						}
-					}, this);
-				} else {
-					this.warn('No view events defined');
-				}
-
-				// custom init
-				if (typeof this.customInit === 'function') {
-					this.customInit.call(this);
-				}
-
-				//Call presenter.initView()
-				this.presenter.fireViewInit(this);
-			}
-			else {
-				this.error('Can\'t initialize View, Container not found!', this.container);
-			}
-		}.bind(this));
-	};
-
-	view.prototype.show = function() {
-		
-	};
-
-	view.prototype.hide = function() {
-		
-	};
-
-	view.prototype.render = function(data) {
-		this.log('Render view template', this.template, 'with data:', data);
-		var template = Handlebars.compile(this.template);
-		this.container.html(template(data || {}));
-
-		this.emit('content.change');
-	};
-
-	view.prototype.renderHTML = function(template, data) {
-		this.log('Render view html snipet', template, 'with data:', data);
-		template = Handlebars.compile(template);
-		return template(data);
-	};
-
-	view.prototype.resize = function() {
-		
-	};
-
-	/**
-	 * Appends a html fragment to a html element
-	 * You must set the itemTemplate and subSelector  option first
-	 *
-	 * @param {String} selector parent selector
-	 * @param {Object} data item data
-	 * @param {Object} options Appending options (not implemented yet)
-	 */
-	view.prototype.append = function(data, options) {
-		this.manipulate('append', data, options);
-	};
-
-	/**
-	 * Prepends a html fragment to a html element
-	 * You must set the itemTemplate and subSelector option first
-	 *
-	 * @param {Object} data item data
-	 * @param {Object} options Prepending options (not implemented yet)
-	 */
-	view.prototype.prepend = function(data, options) {
-		this.manipulate('prepend', data, options);
-	};
-
-	/**
-	 * Remove a item from a dom node
-	 *
-	 * @param {Number} index Remove item <index> from a node list
-	 */
-	view.prototype.remove = function(index) {
-		this.manipulate('remove', index);
-	};
-
-	/**
-	 * Manipulates a dom node
-	 *
-	 * @param  {String} action  Manipulation method
-	 * @param  {[type]} data    [description]
-	 * @param  {[type]} options (not implemented yet)
-	 *
-	 * @return {[type]}         [description]
-	 */
-	view.prototype.manipulate = function(action, data, options) {
-		if (this.subSelector === undefined) {
-			this.warn('You must set the subSelector option');
-			return false;
-		}
-
-		if (this.itemTemplate === undefined) {
-			this.warn('You must set the itemTemplate option');
-			return false;
-		}
-
-		var selector = $(this.subSelector, this.container),
-			html;
-
-		if (options) {
-			//TODO handle transition options
-		}
-
-		switch (action) {
-			case 'append':
-				html = Handlebars.compile(this.itemTemplate)(data);
-				$(html).appendTo(selector);
-				break;
-			case 'prepend':
-				html = Handlebars.compile(this.itemTemplate)(data);
-				$(html).prependTo(selector);
-				break;
-			case 'remove':
-				selector.children().eq(data).remove();
-				break;
-			default:
-				this.error('undefined action in view.manipulate()', action);
-		}
-
-	};
-
-	/**
-	 * Gets the data of an element
-	 *
-	 * @param {Object} selector DOM el or a jQuery selector of the element
-	 *
-	 * @return {Object} Returns the data of an element or null
-	 */
-	view.prototype.getElementData = function(selector) {
-		var el = $(selector, this.container);
-		if (el.length) {
-			var data = {},
-				attrs = el.get(0).attributes,
-				i;
-
-			for (i = 0; i < attrs.length; i++) {
-				if (attrs[i].name.indexOf('data-') === 0) {
-					var name = attrs[i].name.substr(5),
-						value = attrs[i].value;
-
-					if (typeof value === 'string') {
-						try {
-							if (value === 'true' || value === 'TRUE') {
-								value = true;
-							}
-							else if (value === 'false' || value === 'FALSE') {
-								value = false;
-							}
-							else if (value === 'null' || value === 'NULL') {
-								value = null;
-							}
-							else if (value === 'undefined') {
-								value = undefined;
-							}
-							else if (+value + '' === value) {
-								value = +value;
-							}
-							else {
-								value = JSON.parse(value);
-								console.log(value);
-							}
-						}
-						catch(err) {
-
-						}
-					}
-
-					data[name] = value;
-				}
-			}
-
-			console.log('Get data', data);
-
-			return data;
-		}
-		else {
-			return null;
-		}
-	};
-
-	/**
-	 * Gets the index of a subSelector item
-	 * This function must binded to the view
-	 *
-	 * @param  {Object} el Start element.
-	 *
-	 * @return {Number}    index of the element or null
-	 */
-	var getItemIndex = function(el) {
-		var index = null,
-			container = $(this.container).get(0),
-			curEl = $(el),
-			nextEl = curEl.parent(),
-			subSelector = $(this.subSelector).get(0),
-			d = 0;
-
-		if (this.subSelector) {
-			do {
-				if (nextEl.get(0) === subSelector) {
-					return $(curEl).index();
-				}
-				curEl = curEl.parent();
-				nextEl = curEl.parent();
-
-				if (++d > 100) {
-					console.log(curEl, nextEl);
-					console.error('Break loop!');
-					break;
-				}
-			} while(curEl.length && curEl.get(0) !== container);
-		}
-
-		return index;
-	};
-
-
-
-	return view;
-})();
-
 /**
  * XQCore EventEmitter
  *
@@ -1235,6 +406,859 @@ XQCore.Event = (function() {
 	return event;
 })();
 
+XQCore.GetSet = (function(window, document, $, undefined) {
+	var getset = function() {
+
+	};
+
+	var undotify = function(path, obj) {
+		if(path) {
+			path = path.split('.');
+			path.forEach(function(key) {
+				obj = obj[key];
+			});
+		}
+
+		return obj;
+	};
+
+	$.extend(getset.prototype, new XQCore.Event());
+
+	/**
+	 * Set getset data
+	 *
+	 * @param {Object or String} data/key
+	 * @param {Object} value Data value
+	 */
+	getset.prototype.set = function() {
+		var newData = {},
+			validateResult;
+
+		if (typeof arguments[0] === 'object') {
+			//Add a dataset
+			$.extend(newData, arguments[0]);
+			this.log('Set data', arguments[0]);
+		}
+		else if (typeof arguments[0] === 'string') {
+			newData[arguments[0]] = arguments[1];
+			this.log('Set data', arguments[0], arguments[1]);
+		}
+		else {
+			this.warn('Data are incorrect in getset.set()', arguments);
+		}
+
+		if (this.validate) {
+			validateResult = this.validate(newData);
+			if (validateResult) {
+				this.warn('Validate error in getset.set', validateResult);
+				return validateResult;
+			}
+		}
+
+		$.extend(this.propertys, newData);
+		this.emit('data.change', newData);
+	};
+
+	/**
+	 * Get one or all propertys from getset
+	 *
+	 * @param  {String} key Data key
+	 *
+	 * @return {Object}     getset dataset
+	 */
+	getset.prototype.get = function(key) {
+		if (key === undefined) {
+			return this.propertys;
+		}
+		else {
+			return this.propertys[key];
+		}
+	};
+
+	/**
+	 * Check wether getset has a dataset
+	 *
+	 * @param {String} key Dataset key
+	 * @return {Boolean} Returns true if getset has a dataset with key
+	 */
+	getset.prototype.has = function(key) {
+		return !!this.propertys[key];
+	};
+
+	/**
+	 * Remove all data from getset
+	 */
+	getset.prototype.reset = function() {
+		this.log('Reset getset');
+		this.propertys = {};
+	};
+
+	/**
+	 * Append data to a subset
+	 *
+	 * @param {String} path path to subset
+	 * @param {Object} data data to add
+	 */
+	getset.prototype.append = function(path, data) {
+		var dataset = this.propertys;
+		path.split('.').forEach(function(key) {
+			dataset = dataset[key];
+		});
+
+		if (dataset instanceof Array) {
+			dataset.push(data);
+		}
+		else {
+			dataset = $.extend(dataset, data);
+		}
+
+		return data;
+	};
+
+	/**
+	 * Prepend data to a subset
+	 *
+	 * @param {String} path path to subset
+	 * @param {Object} data data to add
+	 */
+	getset.prototype.prepend = function(path, data) {
+		var dataset = this.propertys;
+		path.split('.').forEach(function(key) {
+			dataset = dataset[key];
+		});
+
+		if (dataset instanceof Array) {
+			dataset.unshift(data);
+		}
+		else {
+			dataset = $.extend(data, dataset);
+		}
+
+		return data;
+	};
+
+	/**
+	 * Remove a subset
+	 *
+	 * @param {String} path path to subset
+	 * @param {Number} index Index of the subsut to remove
+	 *
+	 * @return {Object} removed subset
+	 */
+	getset.prototype.remove = function(path, index) {
+		var dataset = this.propertys,
+			data = null;
+		path.split('.').forEach(function(key) {
+			dataset = dataset[key];
+		});
+
+		if (dataset instanceof Array) {
+			data = dataset.splice(index, 1);
+			data = data[0] || null;
+		}
+		else {
+			this.warn('getset.remove() doesn\'t work with Objects in getset', this.name);
+		}
+
+		return data;
+	};
+
+	/**
+	 * Search a item in models propertys
+	 *
+	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
+	 * @param {Object} searchfor Searching for object
+	 * @return {Object} Returns the first matched item or null
+	 */
+	getset.prototype.search = function(path, searchfor) {
+		var parent = undotify(path, this.propertys);
+
+		if (parent) {
+			for (var i = 0; i < parent.length; i++) {
+				var prop = parent[i],
+					matching;
+
+				for (var p in searchfor) {
+					if (searchfor.hasOwnProperty(p)) {
+						if (prop[p] && prop[p] === searchfor[p]) {
+							matching = true;
+						}
+						else {
+							matching = false;
+							break;
+						}
+					}
+				}
+
+				if (matching === true) {
+					return prop;
+				}
+
+			}
+		}
+
+		return null;
+	};
+
+
+	return getset;
+})(window, document, jQuery);
+XQCore.Presenter = (function() {
+
+	var presenter = function(conf) {
+		var self = this;
+		
+		this.root = '/';
+		this.debug = false;
+		this.routes = [];
+		
+		conf = conf || {};
+
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
+
+		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
+		this.name = (conf.name || 'Nameless') + 'Presenter';
+		this.eventCallbacks = {};
+
+		this.registeredViews = [];
+		this.fireViewInit = function(view) {
+			var allReady = true;
+			this.registeredViews.forEach(function(item) {
+				if (view === item.view) {
+					item.isReady = true;
+				}
+
+				if (item.isReady === false) {
+					allReady = false;
+				}
+			});
+
+			this.viewInit(view);
+
+			if (allReady === true) {
+				this.emit('views.ready');
+			}
+		};
+
+		this.registerView = function(view) {
+			this.registeredViews.push({
+				view: view,
+				isReady: false
+			});
+		};
+
+		//Setup popstate listener
+		if (conf.routes) {
+			this.Router = new XQCore.Router();
+
+			//Add routes
+			Object.keys(conf.routes).forEach(function(route) {
+				var callback = this.routes[route];
+				if (typeof callback === 'string') {
+					callback = this[callback];
+				}
+
+				if (typeof callback === 'function') {
+					this.Router.addRoute(route, callback);
+				}
+				else {
+					this.warn('Router callback isn\'t a function', callback, 'of route', route);
+				}
+			}.bind(this));
+
+			window.addEventListener('popstate', function(e) {
+				self.log('popstate event recived', e);
+
+				var route = XQCore.defaultRoute;
+				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+					route = location.hash.substr(2);
+				}
+
+				route = self.Router.match(route);
+				if (route) {
+					route.fn.call(self, e.state);
+				}
+			}, false);
+
+			window.addEventListener('hashchange', function(e) {
+				self.log('hashchange event recived', e, location.hash);
+				// var tag = location.hash.substring(1);
+
+				// if (typeof conf[tag] === 'function') {
+				//	self.log('Call func', conf[tag]);
+				//	conf[tag].call(self);
+				// }
+			}, false);
+
+			this.on('views.ready',function() {
+				var route = XQCore.defaultRoute;
+				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+					route = location.hash.substr(2);
+				}
+
+				route = self.Router.match(route);
+				if (route) {
+					route.fn.call(self, route);
+				}
+			});
+		}
+	};
+
+	presenter.prototype.init = function(views) {
+		var i;
+
+		console.log('views', views);
+		if (views instanceof Array) {
+			for (i = 0; i < views.length; i++) {
+				this.registerView(views[i]);
+			}
+
+			for (i = 0; i < views.length; i++) {
+				views[i].init(this);
+			}
+		}
+		else {
+			this.registerView(views);
+			views.init(this);
+		}
+
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
+	};
+
+	/**
+	 * Calling on view init
+	 *
+	 * @param {object} view The initializing view
+	 */
+	presenter.prototype.viewInit = function(view) {
+
+	};
+
+	/**
+	 * Add a history item to the browser history
+	 */
+	presenter.prototype.pushState = function(data, title, url) {
+		history.pushState(data, title, url);
+	};
+
+	return presenter;
+})();
+
+XQCore.Model = (function(window, document, $, undefined) {
+	var model;
+
+	var undotify = function(path, obj) {
+		if(path) {
+			path = path.split('.');
+			path.forEach(function(key) {
+				obj = obj[key];
+			});
+		}
+
+		return obj;
+	};
+
+	model = function(conf) {
+		if (conf === undefined) {
+			conf = {};
+		}
+
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
+
+		$.extend(this, conf, new XQCore.Logger());
+		this.name = (conf.name || 'Nameless') + 'Model';
+		this.debug = Boolean(conf.debug);
+		this.propertys = {};
+		this._isValid = false;
+
+		if (conf.validate) {
+			this.validate = function(formData) {
+				var result;
+
+				this._isValid = false;
+				result = conf.validate.call(this, formData);
+				if (!result || (typeof result === 'object' && Object.keys(result).length === 0)) {
+					this._isValid = true;
+				}
+
+				return result;
+			}.bind(this);
+		}
+
+		this.init();
+
+		//Add default values
+		if (this.defaults) {
+			this.set(this.defaults);
+		}
+	};
+
+	$.extend(model.prototype, XQCore.GetSet.prototype);
+
+	model.prototype.init = function() {
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
+	};
+
+	model.prototype.validate = function() {
+
+	};
+
+	model.prototype.isValid = function() {
+		return this._isValid;
+	};
+
+	/**
+	 * Called on before sending an ajax request
+	 * You can use this function to manipulate all data they be send to the server
+	 *
+	 * @param {Object} data The data to send to the server
+	 * @return {Object} data
+	 */
+	model.prototype.onSend = function(data) {
+		return data;
+	};
+
+	/**
+	 * Send an ajax request to the webserver.
+	 *
+	 * You must set the server URI first with model.server = 'http://example.com/post'
+	 *
+	 * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
+	 * @param {Object} data The data to sent to the server
+	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
+	 */
+	model.prototype.send = function(method, data, callback) {
+
+		if (!this.server) {
+			this.error('Can not send an ajax request! You must define a server URL first.');
+			return false;
+		}
+
+		if (data === undefined) {
+			data = this.get();
+		}
+
+		if (method === undefined) {
+			method = 'POST';
+		}
+
+		//Handle onSend
+		if (typeof this.onSend === 'function') {
+			data = this.onSend.call(this, data);
+		}
+
+		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
+
+		$.ajax({
+			url: this.server,
+			type: method,
+			data: data,
+			success: function(data, status, jqXHR) {
+				if (typeof callback === 'function') {
+					callback.call(this, null, data, status, jqXHR);
+				}
+			}.bind(this),
+			error: function(jqXHR, status, error) {
+				if (typeof callback === 'function') {
+					callback.call(this, {
+						type: status,
+						http: error
+					}, null, status, jqXHR);
+				}
+			}.bind(this)
+		});
+	};
+
+	/**
+	 * Sends a POST to the Datastore
+	 *
+	 * @param  {Object}   data     Dato to sending
+	 * @param  {Function} callback Calling on response
+	 *
+	 * callback: void function(err, data, status, jqXHR)
+	 *
+	 */
+	model.prototype.sendPOST = function(data, callback) {
+		this.send('POST', data, callback);
+	};
+
+	/**
+	 * Sends a GET to the Datastore
+	 *
+	 * @param  {Object}   data     Dato to sending
+	 * @param  {Function} callback Calling on response
+	 *
+	 * callback: void function(err, data, status, jqXHR)
+	 *
+	 */
+	model.prototype.sendGET = function(data, callback) {
+		this.send('GET', data, callback);
+	};
+
+	/**
+	 * Sends a UPDATE to the Datastore
+	 *
+	 * @param  {Object}   data     Dato to sending
+	 * @param  {Function} callback Calling on response
+	 *
+	 * callback: void function(err, data, status, jqXHR)
+	 *
+	 */
+	model.prototype.sendUPDATE = function(data, callback) {
+		this.send('UPDATE', data, callback);
+	};
+
+	/**
+	 * Sends a DELETE to the Datastore
+	 *
+	 * @param  {Object}   data     Dato to sending
+	 * @param  {Function} callback Calling on response
+	 *
+	 * callback: void function(err, data, status, jqXHR)
+	 *
+	 */
+	model.prototype.sendDELETE = function(data, callback) {
+		this.send('DELETE', data, callback);
+	};
+
+	return model;
+})(window, document, jQuery);
+
+XQCore.View = (function(undefined) {
+
+	var view = function(conf) {
+
+		if (arguments.length === 2) {
+			this.presenter = arguments[0];
+			conf = arguments[1];
+			console.info('Defining View with presenter is deprecated.');
+		}
+
+		conf = conf || {
+			events: null
+		};
+
+		this.customInit = conf.init;
+		this.conf = conf;
+		delete conf.init;
+
+		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
+		this.name = (conf.name || 'Nameless') + 'View';
+
+		this.debug = Boolean(conf.debug);
+	};
+
+	view.prototype.init = function(presenter) {
+		var self = this,
+			conf = this.conf;
+
+		//If old style
+		if (!presenter) {
+			presenter = this.presenter;
+			presenter.registerView(this);
+		}
+
+		console.log('View Init2', this);
+
+		//Register view at presenter
+		this.presenter = presenter;
+
+		$(function() {
+			this.container = $(conf.container);
+			this.$el = this.container;
+			this.el = $(conf.container).get(0);
+			if (this.container.length > 0) {
+				window.addEventListener('resize', function(e) {
+					self.resize(e);
+				}, false);
+
+				this.log('Initialize view with conf:', conf);
+				this.log('  ... using Presenter:', this.presenter.name);
+				this.log('  ... using Container:', this.container);
+
+				//Send events to presenter
+				if (this.events) {
+					Object.keys(this.events).forEach(function(key) {
+						var spacePos = key.indexOf(' '),
+							eventFunc = this.events[key],
+							eventName = key.substr(0, spacePos),
+							selector = key.substr(spacePos + 1) || this.container,
+							self = this,
+							eventDest;
+
+						if (typeof eventFunc === 'function') {
+							eventDest = this;
+						}
+						else if (eventFunc.indexOf('view:') === 0) {
+							eventFunc = this[eventFunc.substr(5)];
+							eventDest = this;
+						}
+						else {
+							eventFunc = this.presenter.events[this.events[key]];
+							if (typeof eventFunc === 'string') {
+								eventFunc = this.presenter[this.events[key]];
+							}
+							eventDest = this.presenter;
+						}
+
+						if (eventFunc && eventName) {
+							
+							if (typeof eventFunc === 'function') {
+								//Register event listener
+								this.container.delegate(selector, eventName, function(e) {
+									var formData = null,
+										tagData = null;
+
+									if (e.type === 'submit') {
+										formData = XQCore.Util.serializeForm(e.target);
+									}
+
+									tagData = $.extend($(e.target).data(), {
+										itemIndex: getItemIndex.call(self, e.target)
+									});
+
+									eventFunc.call(eventDest, e, tagData, formData);
+								});
+								this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
+							}
+							else {
+								this.warn('Event handler callback not defined in Presenter:', this.events[key]);
+							}
+						}
+						else {
+							this.warn('Incorect event configuration', key);
+						}
+					}, this);
+				} else {
+					this.warn('No view events defined');
+				}
+
+				// custom init
+				if (typeof this.customInit === 'function') {
+					this.customInit.call(this);
+				}
+
+				//Call presenter.initView()
+				this.presenter.fireViewInit(this);
+			}
+			else {
+				this.error('Can\'t initialize View, Container not found!', this.container);
+			}
+		}.bind(this));
+	};
+
+	view.prototype.show = function() {
+		
+	};
+
+	view.prototype.hide = function() {
+		
+	};
+
+	view.prototype.render = function(data) {
+		this.log('Render view template', this.template, 'with data:', data);
+		var template = Handlebars.compile(this.template);
+		this.container.html(template(data || {}));
+
+		this.emit('content.change');
+	};
+
+	view.prototype.renderHTML = function(template, data) {
+		this.log('Render view html snipet', template, 'with data:', data);
+		template = Handlebars.compile(template);
+		return template(data);
+	};
+
+	view.prototype.resize = function() {
+		
+	};
+
+	/**
+	 * Appends a html fragment to a html element
+	 * You must set the itemTemplate and subSelector  option first
+	 *
+	 * @param {String} selector parent selector
+	 * @param {Object} data item data
+	 * @param {Object} options Appending options (not implemented yet)
+	 */
+	view.prototype.append = function(data, options) {
+		this.manipulate('append', data, options);
+	};
+
+	/**
+	 * Prepends a html fragment to a html element
+	 * You must set the itemTemplate and subSelector option first
+	 *
+	 * @param {Object} data item data
+	 * @param {Object} options Prepending options (not implemented yet)
+	 */
+	view.prototype.prepend = function(data, options) {
+		this.manipulate('prepend', data, options);
+	};
+
+	/**
+	 * Remove a item from a dom node
+	 *
+	 * @param {Number} index Remove item <index> from a node list
+	 */
+	view.prototype.remove = function(index) {
+		this.manipulate('remove', index);
+	};
+
+	/**
+	 * Manipulates a dom node
+	 *
+	 * @param  {String} action  Manipulation method
+	 * @param  {[type]} data    [description]
+	 * @param  {[type]} options (not implemented yet)
+	 *
+	 * @return {[type]}         [description]
+	 */
+	view.prototype.manipulate = function(action, data, options) {
+		if (this.subSelector === undefined) {
+			this.warn('You must set the subSelector option');
+			return false;
+		}
+
+		if (this.itemTemplate === undefined) {
+			this.warn('You must set the itemTemplate option');
+			return false;
+		}
+
+		var selector = $(this.subSelector, this.container),
+			html;
+
+		if (options) {
+			//TODO handle transition options
+		}
+
+		switch (action) {
+			case 'append':
+				html = Handlebars.compile(this.itemTemplate)(data);
+				$(html).appendTo(selector);
+				break;
+			case 'prepend':
+				html = Handlebars.compile(this.itemTemplate)(data);
+				$(html).prependTo(selector);
+				break;
+			case 'remove':
+				selector.children().eq(data).remove();
+				break;
+			default:
+				this.error('undefined action in view.manipulate()', action);
+		}
+
+	};
+
+	/**
+	 * Gets the data of an element
+	 *
+	 * @param {Object} selector DOM el or a jQuery selector of the element
+	 *
+	 * @return {Object} Returns the data of an element or null
+	 */
+	view.prototype.getElementData = function(selector) {
+		var el = $(selector, this.container);
+		if (el.length) {
+			var data = {},
+				attrs = el.get(0).attributes,
+				i;
+
+			for (i = 0; i < attrs.length; i++) {
+				if (attrs[i].name.indexOf('data-') === 0) {
+					var name = attrs[i].name.substr(5),
+						value = attrs[i].value;
+
+					if (typeof value === 'string') {
+						try {
+							if (value === 'true' || value === 'TRUE') {
+								value = true;
+							}
+							else if (value === 'false' || value === 'FALSE') {
+								value = false;
+							}
+							else if (value === 'null' || value === 'NULL') {
+								value = null;
+							}
+							else if (value === 'undefined') {
+								value = undefined;
+							}
+							else if (+value + '' === value) {
+								value = +value;
+							}
+							else {
+								value = JSON.parse(value);
+								console.log(value);
+							}
+						}
+						catch(err) {
+
+						}
+					}
+
+					data[name] = value;
+				}
+			}
+
+			console.log('Get data', data);
+
+			return data;
+		}
+		else {
+			return null;
+		}
+	};
+
+	/**
+	 * Gets the index of a subSelector item
+	 * This function must binded to the view
+	 *
+	 * @param  {Object} el Start element.
+	 *
+	 * @return {Number}    index of the element or null
+	 */
+	var getItemIndex = function(el) {
+		var index = null,
+			container = $(this.container).get(0),
+			curEl = $(el),
+			nextEl = curEl.parent(),
+			subSelector = $(this.subSelector).get(0),
+			d = 0;
+
+		if (this.subSelector) {
+			do {
+				if (nextEl.get(0) === subSelector) {
+					return $(curEl).index();
+				}
+				curEl = curEl.parent();
+				nextEl = curEl.parent();
+
+				if (++d > 100) {
+					console.log(curEl, nextEl);
+					console.error('Break loop!');
+					break;
+				}
+			} while(curEl.length && curEl.get(0) !== container);
+		}
+
+		return index;
+	};
+
+
+
+	return view;
+})();
+
 /**
  * XQCore Logger
  *
@@ -1461,6 +1485,18 @@ XQCore.Util = (function($) {
 	util.checkEmail = function(email) {
 		if (!/^\S+\@\S+\.[a-z]{2,10}$/.test(email)) {
 			return 'invalid-email';
+		}
+	};
+
+	/**
+	 * Checks the validity of an url
+	 *
+	 * @param {String} url URL
+	 */
+	util.checkUrl = function(url) {
+
+		if (!/^http(s)?:\/\/\S\.[a-zA-Z]{2,10}\/?$/.test(url)) {
+			return 'invalid-url';
 		}
 	};
 

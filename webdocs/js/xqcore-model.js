@@ -21,7 +21,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		this.conf = conf;
 		delete conf.init;
 
-		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
+		$.extend(this, conf, new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
 		this.propertys = {};
@@ -49,6 +49,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 		}
 	};
 
+	$.extend(model.prototype, XQCore.GetSet.prototype);
+
 	model.prototype.init = function() {
 		// custom init
 		if (typeof this.customInit === 'function') {
@@ -62,144 +64,6 @@ XQCore.Model = (function(window, document, $, undefined) {
 
 	model.prototype.isValid = function() {
 		return this._isValid;
-	};
-
-	/**
-	 * Set model data
-	 *
-	 * @param {Object or String} data/key
-	 * @param {Object} value Data value
-	 */
-	model.prototype.set = function() {
-		var newData = {},
-			validateResult;
-
-		if (typeof arguments[0] === 'object') {
-			//Add a dataset
-			$.extend(newData, arguments[0]);
-			this.log('Set data', arguments[0]);
-		}
-		else if (typeof arguments[0] === 'string') {
-			newData[arguments[0]] = arguments[1];
-			this.log('Set data', arguments[0], arguments[1]);
-		}
-		else {
-			this.warn('Data are incorrect in model.set()', arguments);
-		}
-
-		if (this.validate) {
-			validateResult = this.validate(newData);
-			if (validateResult) {
-				this.warn('Validate error in model.set', validateResult);
-				return validateResult;
-			}
-		}
-
-		$.extend(this.propertys, newData);
-	};
-
-	/**
-	 * Get one or all propertys from model
-	 *
-	 * @param  {String} key Data key
-	 *
-	 * @return {Object}     Model dataset
-	 */
-	model.prototype.get = function(key) {
-		if (key === undefined) {
-			return this.propertys;
-		}
-		else {
-			return this.propertys[key];
-		}
-	};
-
-	/**
-	 * Check wether model has a dataset
-	 *
-	 * @param {String} key Dataset key
-	 * @return {Boolean} Returns true if model has a dataset with key
-	 */
-	model.prototype.has = function(key) {
-		return !!this.propertys[key];
-	};
-
-	/**
-	 * Remove all data from model
-	 */
-	model.prototype.reset = function() {
-		this.log('Reset model');
-		this.propertys = {};
-	};
-
-	/**
-	 * Append data to a subset
-	 *
-	 * @param {String} path path to subset
-	 * @param {Object} data data to add
-	 */
-	model.prototype.append = function(path, data) {
-		var dataset = this.propertys;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
-
-		if (dataset instanceof Array) {
-			dataset.push(data);
-		}
-		else {
-			dataset = $.extend(dataset, data);
-		}
-
-		return data;
-	};
-
-	/**
-	 * Prepend data to a subset
-	 *
-	 * @param {String} path path to subset
-	 * @param {Object} data data to add
-	 */
-	model.prototype.prepend = function(path, data) {
-		var dataset = this.propertys;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
-
-		if (dataset instanceof Array) {
-			dataset.unshift(data);
-		}
-		else {
-			dataset = $.extend(data, dataset);
-		}
-
-		return data;
-	};
-
-	/**
-	 * Remove a subset
-	 *
-	 * @param {String} path path to subset
-	 * @param {Number} index Index of the subsut to remove
-	 *
-	 * @return {Object} removed subset
-	 */
-	model.prototype.remove = function(path, index) {
-		var dataset = this.propertys,
-			data = null;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
-
-		if (dataset instanceof Array) {
-			data = dataset.splice(index, 1);
-			data = data[0] || null;
-		}
-		else {
-			this.warn('Model.remove() doesn\'t work with Objects in model', this.name);
-		}
-
-		return data;
 	};
 
 	/**
@@ -314,43 +178,6 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.sendDELETE = function(data, callback) {
 		this.send('DELETE', data, callback);
-	};
-
-	/**
-	 * Search a item in models propertys
-	 *
-	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
-	 * @param {Object} searchfor Searching for object
-	 * @return {Object} Returns the first matched item or null
-	 */
-	model.prototype.search = function(path, searchfor) {
-		var parent = undotify(path, this.propertys);
-
-		if (parent) {
-			for (var i = 0; i < parent.length; i++) {
-				var prop = parent[i],
-					matching;
-
-				for (var p in searchfor) {
-					if (searchfor.hasOwnProperty(p)) {
-						if (prop[p] && prop[p] === searchfor[p]) {
-							matching = true;
-						}
-						else {
-							matching = false;
-							break;
-						}
-					}
-				}
-
-				if (matching === true) {
-					return prop;
-				}
-
-			}
-		}
-
-		return null;
 	};
 
 	return model;

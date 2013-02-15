@@ -18,12 +18,15 @@ describe('XQCore View', function() {
 			
 		});
 
-		view = new XQCore.View(presenter, {
+		view = new XQCore.View({
 			debug: true,
 			name: 'test1',
 			init: initFunc,
 			container: viewContainer
 		});
+
+		presenter.registerView(view);
+		presenter.init();
 
 		expect(view).to.be.an('object');
 		expect(initFunc).was.called();
@@ -42,7 +45,7 @@ describe('XQCore View', function() {
 			}
 		});
 
-		view = new XQCore.View(presenter, {
+		view = new XQCore.View({
 			debug: true,
 			name: 'test1',
 			container: viewContainer,
@@ -51,6 +54,9 @@ describe('XQCore View', function() {
 				'mouseup #test': 'test2'
 			}
 		});
+
+		presenter.registerView(view);
+		presenter.init();
 
 		expect(view).to.be.an('object');
 		expect(presenter).to.be.an('object');

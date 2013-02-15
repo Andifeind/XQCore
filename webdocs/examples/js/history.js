@@ -52,7 +52,8 @@ $(function() {
 		}
 	});
 
-	var view = new XQCore.View(presenter, {
+
+	var view = new XQCore.View({
 		debug: true,
 		name: 'history',
 		container: 'body',
@@ -63,5 +64,7 @@ $(function() {
 			$('#out').html(data.text);
 		}
 	});
+
+	presenter.init(view);
 
 });

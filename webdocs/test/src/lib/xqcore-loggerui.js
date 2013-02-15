@@ -1,0 +1,1 @@
+/home/andi/Webprojects/xqcore/webdocs/js/plugins/xqcore-loggerui.js

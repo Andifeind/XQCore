@@ -18,6 +18,7 @@ describe('XQCore Presenter', function() {
 		});
 
 		expect(presenter).to.be.an('object');
+		presenter.init();
 		expect(initFunc).was.called();
 	});
 

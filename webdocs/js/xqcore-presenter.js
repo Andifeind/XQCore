@@ -1,4 +1,4 @@
-XQCore.Presenter = (function() {
+XQCore.Presenter = (function(undefined) {
 
 	var presenter = function(conf) {
 		var self = this;
@@ -38,11 +38,39 @@ XQCore.Presenter = (function() {
 		};
 
 		this.registerView = function(view) {
-			this.registeredViews.push({
-				view: view,
-				isReady: false
-			});
+			var i;
+			if (view instanceof Array) {
+				for (i = 0; i < view.length; i++) {
+					this.registeredViews.push({
+						view: view[i],
+						isReady: false
+					});
+				}
+			}
+			else {
+				this.registeredViews.push({
+					view: view,
+					isReady: false
+				});
+			}
 		};
+
+		this.getView = function(viewName) {
+			var i, view;
+
+			for (i = 0; i < this.registeredViews.length; i++) {
+				view = this.registeredViews[i].view;
+				if (view.name === viewName) {
+					return view;
+				}
+			}
+		};
+	};
+
+	presenter.prototype.init = function(views) {
+		var i,
+			self = this,
+			conf = this.conf;
 
 		//Setup popstate listener
 		if (conf.routes) {
@@ -67,24 +95,25 @@ XQCore.Presenter = (function() {
 				self.log('popstate event recived', e);
 
 				var route = XQCore.defaultRoute;
-				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-					route = location.hash.substr(2);
+				if (XQCore.html5Routes) {
+					var pattern = new RegExp('^' + self.root);
+					route = location.pathname.replace(pattern, '');
+				}
+				else {
+					if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+						route = location.hash.substr(2);
+					}
 				}
 
 				route = self.Router.match(route);
 				if (route) {
-					route.fn.call(self, e.state);
+					var data = e.state || {};
+					if (XQCore.callerEvent) {
+						data[XQCore.callerEvent] = 'popstate';
+					}
+
+					route.fn.call(self, data);
 				}
-			}, false);
-
-			window.addEventListener('hashchange', function(e) {
-				self.log('hashchange event recived', e, location.hash);
-				// var tag = location.hash.substring(1);
-
-				// if (typeof conf[tag] === 'function') {
-				//	self.log('Call func', conf[tag]);
-				//	conf[tag].call(self);
-				// }
 			}, false);
 
 			this.on('views.ready',function() {
@@ -99,30 +128,26 @@ XQCore.Presenter = (function() {
 				}
 			});
 		}
-	};
-
-	presenter.prototype.init = function(views) {
-		var i;
-
-		console.log('views', views);
-		if (views instanceof Array) {
-			for (i = 0; i < views.length; i++) {
-				this.registerView(views[i]);
-			}
-
-			for (i = 0; i < views.length; i++) {
-				views[i].init(this);
-			}
-		}
-		else {
-			this.registerView(views);
-			views.init(this);
-		}
 
 		// custom init
 		if (typeof this.customInit === 'function') {
 			this.customInit.call(this);
 		}
+
+		//Initialize views
+		console.log('views', views);
+		if (views instanceof Array) {
+			for (i = 0; i < views.length; i++) {
+				this.registerView(views[i]);
+			}
+		}
+		else if (views) {
+			this.registerView(views);
+		}
+
+		this.registeredViews.forEach(function(view) {
+			view.view.init(self);
+		});
 	};
 
 	/**
@@ -136,9 +161,54 @@ XQCore.Presenter = (function() {
 
 	/**
 	 * Add a history item to the browser history
+	 *
+	 * @param {Object} data Data object
+	 * @param {String} url Page URL (Optional) defaults to the curent URL
 	 */
-	presenter.prototype.pushState = function(data, title, url) {
-		history.pushState(data, title, url);
+	presenter.prototype.pushState = function(data, url) {
+		// this.log('Check State', data, history.state, XQCore.compare(data, history.state));
+		// if (XQCore.compare(data, history.state)) {
+		// 	this.warn('Abborting history.pushState because data are equale to current history state');
+		// }
+		var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
+		url = hash + url;
+		history.pushState(data, '', url || null);
+		this.log('Update history with pushState', data, url);
+	};
+
+	/**
+	 * Add a history item to the browser history
+	 *
+	 * @param {Object} data Data object
+	 * @param {String} url Page URL (Optional) defaults to the current URL
+	 */
+	presenter.prototype.replaceState = function(data, url) {
+		// if (data === history.state) {
+		// 	this.warn('Abborting history.replaceState because data are equale to current history state');
+		// }
+		var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
+		url = hash + url;
+		history.replaceState(data, '', url || null);
+		this.log('Update history with replaceState', data, url);
+	};
+
+	/**
+	 * Navigates to a route
+	 *
+	 * @param {String} url Route url
+	 * @param {Object} data Data object
+	 */
+	presenter.prototype.navigateTo = function(url, data) {
+		var route = this.Router.match(url);
+		if (route) {
+			if (XQCore.callerEvent) {
+				data = data || {};
+				data[XQCore.callerEvent] = 'redirect';
+			}
+			route.fn.call(this, data);
+		}
+
+		this.log('Navigate to', url, data);
 	};
 
 	return presenter;

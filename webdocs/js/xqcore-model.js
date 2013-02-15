@@ -24,7 +24,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		$.extend(this, conf, new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
-		this.propertys = {};
+		this.properties = {};
 		this._isValid = false;
 
 		if (conf.validate) {
@@ -41,17 +41,23 @@ XQCore.Model = (function(window, document, $, undefined) {
 			}.bind(this);
 		}
 
-		this.init();
 
 		//Add default values
 		if (this.defaults) {
 			this.set(this.defaults);
 		}
+
+		this.init();
 	};
 
 	$.extend(model.prototype, XQCore.GetSet.prototype);
 
 	model.prototype.init = function() {
+
+		if (this.debug) {
+			XQCore._dump[this.name] = this;
+		}
+
 		// custom init
 		if (typeof this.customInit === 'function') {
 			this.customInit.call(this);
@@ -67,6 +73,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
+		var dataset = this.properties;
+		var dataset = this.properties;
 	 * Called on before sending an ajax request
 	 * You can use this function to manipulate all data they be send to the server
 	 *

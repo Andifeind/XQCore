@@ -1,7 +1,10 @@
 /*jshint evil:true */
 var XQCore = {
-	version: 0.1,
-	defaultRoute: 'default'
+	version: 0.2,
+	defaultRoute: 'default',
+	html5Routes: false,
+	hashBang: '#!',
+	callerEvent: 'callerEvent'
 };
 
 /**
@@ -42,3 +45,14 @@ if (!window.include) {
 		};
 	};
 }
+
+
+XQCore._dump = {};
+XQCore.dump = function(componentName) {
+	if (XQCore._dump[componentName]) {
+		console.log('[XQCore dump]', componentName, XQCore._dump[componentName]);
+		return XQCore._dump[componentName];
+	}
+
+	return false;
+};

@@ -1,6 +1,6 @@
 $(function() {
 
-	XQCore.html5Routes = true;
+	XQCore.html5Routes = false;
 
 	var presenter = new XQCore.Presenter({
 		debug: true,
@@ -14,9 +14,16 @@ $(function() {
 				e.preventDefault();
 
 				console.log(id, num, e.target.id, this, e.target,e);
-				this.pushState({
-					page: id
-				}, 'Test ' + num,'test' + num + '.html');
+				if (num === '4') {
+					this.replaceState({
+						page: id
+					}, 'Test ' + num,'#!test' + num + '.html');
+				}
+				else {
+					this.pushState({
+						page: id
+					}, 'Test ' + num,'#!test' + num + '.html');
+				}
 				this['link' + num]();
 			}
 		},
@@ -29,27 +36,32 @@ $(function() {
 		},
 		link1: function() {
 			view.update({
-				text: 'link1 was clicked'
+				text: 'link1 was clicked',
+				num: 1
 			});
 		},
 		link2: function() {
 			view.update({
-				text: 'link2 was clicked'
+				text: 'link2 was clicked',
+				num: 2
 			});
 		},
 		link3: function() {
 			view.update({
-				text: 'link3 was clicked'
+				text: 'link3 was clicked',
+				num: 3
 			});
 		},
 		link4: function() {
 			view.update({
-				text: 'link4 was clicked'
+				text: 'link4 was clicked',
+				num: 4
 			});
 		},
 		link5: function() {
 			view.update({
-				text: 'link5 was clicked'
+				text: 'link5 was clicked',
+				num: 5
 			});
 		}
 	});
@@ -62,6 +74,7 @@ $(function() {
 			'click a': 'linkClick'
 		},
 		update: function(data) {
+			document.title = 'Example ' + data.num;
 			$('#out').html(data.text);
 		}
 	});

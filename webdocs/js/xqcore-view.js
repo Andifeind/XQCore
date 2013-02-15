@@ -86,6 +86,9 @@ XQCore.View = (function(undefined) {
 									if (e.type === 'submit') {
 										formData = XQCore.Util.serializeForm(e.target);
 									}
+									else if (e.type === 'keydown' || e.type === 'keyup' || e.type === 'keypress') {
+										formData = $(e.target).val();
+									}
 
 									tagData = $.extend($(e.target).data(), {
 										itemIndex: getItemIndex.call(self, e.target)

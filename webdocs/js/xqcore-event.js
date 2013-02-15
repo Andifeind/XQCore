@@ -358,5 +358,9 @@ XQCore.Event = (function() {
 		}
 	};
 
+	event.prototype.getListeners = function(eventName) {
+		return this.ee.getListeners(eventName);
+	};
+
 	return event;
 })();

@@ -1,4 +1,11 @@
 /*jshint evil:true */
+
+/**
+ * XQCore main object
+ *
+ * @package XQcore
+ * @type {Object}
+ */
 var XQCore = {
 	version: 0.2,
 	defaultRoute: 'default',

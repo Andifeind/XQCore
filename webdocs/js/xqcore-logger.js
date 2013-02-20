@@ -36,6 +36,9 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console
 	 *
+	 * @package XQCore.Logger
+	 * @class XQCore Logger class
+	 *
 	 * @return {[type]} [description]
 	 */
 	var logger = function() {
@@ -44,6 +47,8 @@ XQCore.Logger = (function(conf) {
 
 	/**
 	 * Loggs a message to the console
+	 *
+	 * @method log
 	 *
 	 * @param {Any} msg logs all arguments to the console
 	 */

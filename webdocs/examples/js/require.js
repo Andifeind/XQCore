@@ -1,2 +1,2 @@
 var require1 = require('js/modules/require1.js');
-require1();
+console.log('require1',require1);

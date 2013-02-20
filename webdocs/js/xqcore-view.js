@@ -134,7 +134,7 @@ XQCore.View = (function(undefined) {
 
 	view.prototype.render = function(data) {
 		this.log('Render view template', this.template, 'with data:', data);
-		var template = Handlebars.compile(this.template);
+		var template = typeof this.template === 'function' ? this.template : Handlebars.compile(this.template);
 		this.container.html(template(data || {}));
 
 		this.emit('content.change');
@@ -142,7 +142,7 @@ XQCore.View = (function(undefined) {
 
 	view.prototype.renderHTML = function(template, data) {
 		this.log('Render view html snipet', template, 'with data:', data);
-		template = Handlebars.compile(template);
+		template = typeof template === 'function' ? template : Handlebars.compile(template);
 		return template(data);
 	};
 

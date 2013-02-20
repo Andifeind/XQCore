@@ -47,8 +47,12 @@
         },
         "webdocs/js/xqcore-presenter.js": {
             "name": "webdocs/js/xqcore-presenter.js",
-            "modules": {},
-            "classes": {},
+            "modules": {
+                "XQCore Presenter": 1
+            },
+            "classes": {
+                "XQCore.Presenter": 1
+            },
             "fors": {},
             "namespaces": {}
         },
@@ -74,7 +78,23 @@
             "namespaces": {}
         }
     },
-    "modules": {},
+    "modules": {
+        "XQCore Presenter": {
+            "name": "XQCore Presenter",
+            "submodules": {},
+            "classes": {
+                "Manages event registering and emitting.": 1,
+                "XQCore Logger class": 1,
+                "XQCore.Presenter": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 8,
+            "description": "XQCore Presenter"
+        }
+    },
     "classes": {
         "Manages event registering and emitting.": {
             "name": "Manages event registering and emitting.",
@@ -84,6 +104,7 @@
             "extensions": [],
             "plugin_for": [],
             "extension_for": [],
+            "module": "XQCore Presenter",
             "file": "webdocs/js/xqcore-event.js",
             "line": 25,
             "description": "Class for managing events.\nCan be extended to provide event functionality in other classes."
@@ -96,6 +117,7 @@
             "extensions": [],
             "plugin_for": [],
             "extension_for": [],
+            "module": "XQCore Presenter",
             "file": "webdocs/js/xqcore-logger.js",
             "line": 36,
             "description": "XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console",
@@ -104,6 +126,29 @@
                 "description": "[description]",
                 "type": "[type]"
             }
+        },
+        "XQCore.Presenter": {
+            "name": "XQCore.Presenter",
+            "shortname": "XQCore.Presenter",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "XQCore Presenter",
+            "namespace": "",
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 8,
+            "description": "XQCore.Presenter base class",
+            "is_constructor": 1,
+            "extends": "XQCore.Event",
+            "params": [
+                {
+                    "name": "conf",
+                    "description": "Presenter extend object",
+                    "type": "Object"
+                }
+            ]
         }
     },
     "classitems": [
@@ -565,7 +610,7 @@
             "file": "webdocs/js/xqcore-model.js",
             "line": 75,
             "description": "var dataset = this.properties;\nvar dataset = this.properties;\n\t * Called on before sending an ajax request\n\t * You can use this function to manipulate all data they be send to the server\n\t *\n\t * @param {Object} data The data to send to the server\n\t * @return {Object} data",
-            "class": ""
+            "class": "XQCore.Presenter"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
@@ -588,7 +633,7 @@
                     "type": "Function"
                 }
             ],
-            "class": ""
+            "class": "XQCore.Presenter"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
@@ -606,7 +651,7 @@
                     "type": "Function"
                 }
             ],
-            "class": ""
+            "class": "XQCore.Presenter"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
@@ -624,7 +669,7 @@
                     "type": "Function"
                 }
             ],
-            "class": ""
+            "class": "XQCore.Presenter"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
@@ -642,7 +687,7 @@
                     "type": "Function"
                 }
             ],
-            "class": ""
+            "class": "XQCore.Presenter"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
@@ -660,11 +705,11 @@
                     "type": "Function"
                 }
             ],
-            "class": ""
+            "class": "XQCore.Presenter"
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 153,
+            "line": 169,
             "description": "Calling on view init",
             "params": [
                 {
@@ -673,11 +718,12 @@
                     "type": "Object"
                 }
             ],
-            "class": ""
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 162,
+            "line": 178,
             "description": "Add a history item to the browser history",
             "params": [
                 {
@@ -691,11 +737,12 @@
                     "type": "String"
                 }
             ],
-            "class": ""
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 179,
+            "line": 195,
             "description": "Add a history item to the browser history",
             "params": [
                 {
@@ -709,11 +756,12 @@
                     "type": "String"
                 }
             ],
-            "class": ""
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 195,
+            "line": 211,
             "description": "Navigates to a route",
             "params": [
                 {
@@ -727,7 +775,27 @@
                     "type": "Object"
                 }
             ],
-            "class": ""
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 231,
+            "description": "Show a view if it's not visible and update the history state",
+            "params": [
+                {
+                    "name": "viewName",
+                    "description": "The name of the view",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "Data it's neede to showing the view",
+                    "type": "Object"
+                }
+            ],
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-router.js",
@@ -736,7 +804,8 @@
             "author": "Andi Heinkelein - noname-media.com",
             "copyright": "Andi Heinkelein - noname-media.com",
             "package": "XQCore\n\nBased on router.js\nCopyright Aaron Blohowiak and TJ Holowaychuk 2011.\nhttps://github.com/aaronblohowiak/routes.js",
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-router.js",
@@ -753,7 +822,8 @@
                 "description": "",
                 "type": "Object"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-router.js",
@@ -775,7 +845,8 @@
                 "description": "",
                 "type": "RegExp"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-router.js",
@@ -797,7 +868,8 @@
                 "description": "",
                 "type": "Object"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-router.js",
@@ -807,7 +879,8 @@
                 "description": "",
                 "type": "Object"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-router.js",
@@ -829,7 +902,8 @@
                 "description": "Returns the matched route",
                 "type": "Boolean"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-util.js",
@@ -839,7 +913,8 @@
                 "description": "Returns a singelton object instance of XQCore.Util",
                 "type": "Object"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-util.js",
@@ -856,7 +931,8 @@
                 "description": "FormData as JSON",
                 "type": "Object"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-util.js",
@@ -883,7 +959,8 @@
                 "description": "errorMessage on invalid or void on valid",
                 "type": "String"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-util.js",
@@ -905,7 +982,8 @@
                 "description": "errorMessage on invalid or void on valid",
                 "type": "String"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-util.js",
@@ -918,7 +996,8 @@
                     "type": "String"
                 }
             ],
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-util.js",
@@ -931,11 +1010,47 @@
                     "type": "String"
                 }
             ],
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 153,
+            "line": 3,
+            "description": "XQCore.View",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "conf",
+                    "description": "[description]",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": "",
+            "module": "XQCore Presenter"
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 34,
+            "description": "Init function",
+            "itemtype": "method",
+            "name": "init",
+            "params": [
+                {
+                    "name": "presenter",
+                    "description": "Views presenter object",
+                    "type": "Object"
+                }
+            ],
+            "class": "",
+            "module": "XQCore Presenter"
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 169,
             "description": "Appends a html fragment to a html element\nYou must set the itemTemplate and subSelector  option first",
             "params": [
                 {
@@ -954,11 +1069,12 @@
                     "type": "Object"
                 }
             ],
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 165,
+            "line": 181,
             "description": "Prepends a html fragment to a html element\nYou must set the itemTemplate and subSelector option first",
             "params": [
                 {
@@ -972,11 +1088,12 @@
                     "type": "Object"
                 }
             ],
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 176,
+            "line": 192,
             "description": "Remove a item from a dom node",
             "params": [
                 {
@@ -985,11 +1102,12 @@
                     "type": "Number"
                 }
             ],
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 185,
+            "line": 201,
             "description": "Manipulates a dom node",
             "params": [
                 {
@@ -1012,11 +1130,12 @@
                 "description": "[description]",
                 "type": "[type]"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 230,
+            "line": 246,
             "description": "Gets the data of an element",
             "params": [
                 {
@@ -1029,11 +1148,12 @@
                 "description": "Returns the data of an element or null",
                 "type": "Object"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 289,
+            "line": 305,
             "description": "Gets the index of a subSelector item\nThis function must binded to the view",
             "params": [
                 {
@@ -1046,7 +1166,8 @@
                 "description": "index of the element or null",
                 "type": "Number"
             },
-            "class": ""
+            "class": "",
+            "module": "XQCore Presenter"
         }
     ],
     "warnings": [
@@ -1236,19 +1357,23 @@
         },
         {
             "message": "Missing item type\nCalling on view init",
-            "line": " webdocs/js/xqcore-presenter.js:153"
+            "line": " webdocs/js/xqcore-presenter.js:169"
         },
         {
             "message": "Missing item type\nAdd a history item to the browser history",
-            "line": " webdocs/js/xqcore-presenter.js:162"
+            "line": " webdocs/js/xqcore-presenter.js:178"
         },
         {
             "message": "Missing item type\nAdd a history item to the browser history",
-            "line": " webdocs/js/xqcore-presenter.js:179"
+            "line": " webdocs/js/xqcore-presenter.js:195"
         },
         {
             "message": "Missing item type\nNavigates to a route",
-            "line": " webdocs/js/xqcore-presenter.js:195"
+            "line": " webdocs/js/xqcore-presenter.js:211"
+        },
+        {
+            "message": "Missing item type\nShow a view if it's not visible and update the history state",
+            "line": " webdocs/js/xqcore-presenter.js:231"
         },
         {
             "message": "Missing item type\nXQCore Router API",
@@ -1299,28 +1424,32 @@
             "line": " webdocs/js/xqcore-util.js:95"
         },
         {
+            "message": "Missing item type\nXQCore.View",
+            "line": " webdocs/js/xqcore-view.js:3"
+        },
+        {
             "message": "Missing item type\nAppends a html fragment to a html element\nYou must set the itemTemplate and subSelector  option first",
-            "line": " webdocs/js/xqcore-view.js:153"
+            "line": " webdocs/js/xqcore-view.js:169"
         },
         {
             "message": "Missing item type\nPrepends a html fragment to a html element\nYou must set the itemTemplate and subSelector option first",
-            "line": " webdocs/js/xqcore-view.js:165"
+            "line": " webdocs/js/xqcore-view.js:181"
         },
         {
             "message": "Missing item type\nRemove a item from a dom node",
-            "line": " webdocs/js/xqcore-view.js:176"
+            "line": " webdocs/js/xqcore-view.js:192"
         },
         {
             "message": "Missing item type\nManipulates a dom node",
-            "line": " webdocs/js/xqcore-view.js:185"
+            "line": " webdocs/js/xqcore-view.js:201"
         },
         {
             "message": "Missing item type\nGets the data of an element",
-            "line": " webdocs/js/xqcore-view.js:230"
+            "line": " webdocs/js/xqcore-view.js:246"
         },
         {
             "message": "Missing item type\nGets the index of a subSelector item\nThis function must binded to the view",
-            "line": " webdocs/js/xqcore-view.js:289"
+            "line": " webdocs/js/xqcore-view.js:305"
         }
     ]
 }

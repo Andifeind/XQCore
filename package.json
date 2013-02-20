@@ -2,12 +2,12 @@
   "name": "XQCore",
   "version": "0.1.0",
   "description": "MVP Javascript Framework",
-  "dependencies": {
-    
-  },
+  "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.0",
-    "grunt-contrib": "~0.3.0"
+    "grunt-contrib": "~0.4.0",
+    "grunt-contrib-yuidoc": "~0.4.0",
+    "grunt-contrib-clean": "~0.4.0"
   },
   "scripts": {
     "test": "test"

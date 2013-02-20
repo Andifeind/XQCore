@@ -1,5 +1,14 @@
 XQCore.View = (function(undefined) {
 
+	/**
+	 * XQCore.View
+	 *
+	 * @constructor
+	 *
+	 * @param  {[type]} conf [description]
+	 *
+	 * @return {[type]}      [description]
+	 */
 	var view = function(conf) {
 
 		if (arguments.length === 2) {
@@ -22,6 +31,13 @@ XQCore.View = (function(undefined) {
 		this.debug = Boolean(conf.debug);
 	};
 
+	/**
+	 * Init function
+	 *
+	 * @method init
+	 *
+	 * @param  {Object} presenter Views presenter object
+	 */
 	view.prototype.init = function(presenter) {
 		var self = this,
 			conf = this.conf;

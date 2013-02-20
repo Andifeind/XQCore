@@ -1,5 +1,21 @@
+/**
+ * XQCore Presenter
+ *
+ * @module XQCore Presenter
+ */
 XQCore.Presenter = (function(undefined) {
 
+	/**
+	 * XQCore.Presenter base class
+	 *
+	 * @class XQCore.Presenter
+	 * @constructor
+	 *
+	 * @extends XQCore.Logger
+	 * @extends XQCore.Event
+	 *
+	 * @param  {Object} conf Presenter extend object
+	 */
 	var presenter = function(conf) {
 		var self = this;
 		
@@ -16,6 +32,13 @@ XQCore.Presenter = (function(undefined) {
 		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
+
+		/**
+		 * Points to the last shown view
+		 *
+		 * @property {Object} lastShownView Points to the last shown view
+		 */
+		this.lastShownView = null;
 
 		this.registeredViews = [];
 		this.fireViewInit = function(view) {
@@ -55,16 +78,7 @@ XQCore.Presenter = (function(undefined) {
 			}
 		};
 
-		this.getView = function(viewName) {
-			var i, view;
-
-			for (i = 0; i < this.registeredViews.length; i++) {
-				view = this.registeredViews[i].view;
-				if (view.name === viewName) {
-					return view;
-				}
-			}
-		};
+		
 	};
 
 	presenter.prototype.init = function(views) {
@@ -107,10 +121,12 @@ XQCore.Presenter = (function(undefined) {
 
 				route = self.Router.match(route);
 				if (route) {
-					var data = e.state || {};
+					var data = e.state || route.params;
 					if (XQCore.callerEvent) {
 						data[XQCore.callerEvent] = 'popstate';
 					}
+
+					self.log('Trigger route', route, data);
 
 					route.fn.call(self, data);
 				}
@@ -124,7 +140,14 @@ XQCore.Presenter = (function(undefined) {
 
 				route = self.Router.match(route);
 				if (route) {
-					route.fn.call(self, route);
+					var data = route.params;
+					if (XQCore.callerEvent) {
+						data[XQCore.callerEvent] = 'pageload';
+					}
+
+					self.log('Trigger route', route, data);
+
+					route.fn.call(self, route.params);
 				}
 			});
 		}
@@ -209,6 +232,62 @@ XQCore.Presenter = (function(undefined) {
 		}
 
 		this.log('Navigate to', url, data);
+	};
+
+	/**
+	 * Gets a view by it's name
+	 *
+	 * @method getView
+	 * @param {String} viewName Required view name
+	 * @return {Object} Returns view object or null if no view was found
+	 */
+	presenter.prototype.getView = function(viewName) {
+		var i, view;
+
+		for (i = 0; i < this.registeredViews.length; i++) {
+			view = this.registeredViews[i].view;
+			if (view.name === viewName) {
+				return view;
+			}
+		}
+
+		return null;
+	};
+
+
+	/**
+	 * Show a view if it's not visible and update the history state
+	 *
+	 * @method showView
+	 *
+	 * @param  {String} viewName The name of the view
+	 * @param  {Object} data Data it's neede to showing the view
+	 *
+	 */
+	presenter.prototype.showView = function(viewName, data) {
+		var view = this.getView(viewName + 'View');
+		if (!view) {
+			this.warn('View not defined!', viewName);
+			return;
+		}
+
+		if (XQCore.callerEvent && data[XQCore.callerEvent] !== 'popstate' &&
+			XQCore.callerEvent && data[XQCore.callerEvent] !== 'pageload') {
+			this.pushState(data || null, view.url);
+		}
+
+		this.log('Show view:', viewName, data);
+		this.log('Hide view:', this.lastShownView);
+
+		if (this.lastShownView !== view) {
+			if (this.lastShownView && typeof this.lastShownView.hide === 'function') {
+				this.lastShownView.hide();
+				view.show();
+			}
+			else {
+				view.show(true);
+			}
+		}
 	};
 
 	return presenter;

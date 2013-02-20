@@ -24,8 +24,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 		$.extend(this, conf, new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
-		this.properties = {};
 		this._isValid = false;
+		this.properties = {};
 
 		if (conf.validate) {
 			this.validate = function(formData) {
@@ -73,8 +73,6 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
-		var dataset = this.properties;
-		var dataset = this.properties;
 	 * Called on before sending an ajax request
 	 * You can use this function to manipulate all data they be send to the server
 	 *

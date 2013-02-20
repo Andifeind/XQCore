@@ -1,6 +1,6 @@
 XQCore.GetSet = (function(window, document, $, undefined) {
 	var getset = function() {
-
+		this.properties = {};
 	};
 
 	var undotify = function(path, obj) {
@@ -47,12 +47,12 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			}
 		}
 
-		$.extend(this.propertys, newData);
+		$.extend(this.properties, newData);
 		this.emit('data.change', newData);
 	};
 
 	/**
-	 * Get one or all propertys from getset
+	 * Get one or all properties from getset
 	 *
 	 * @param  {String} key Data key
 	 *
@@ -60,10 +60,10 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 */
 	getset.prototype.get = function(key) {
 		if (key === undefined) {
-			return this.propertys;
+			return this.properties;
 		}
 		else {
-			return this.propertys[key];
+			return this.properties[key];
 		}
 	};
 
@@ -74,7 +74,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 * @return {Boolean} Returns true if getset has a dataset with key
 	 */
 	getset.prototype.has = function(key) {
-		return !!this.propertys[key];
+		return !!this.properties[key];
 	};
 
 	/**
@@ -82,7 +82,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 */
 	getset.prototype.reset = function() {
 		this.log('Reset getset');
-		this.propertys = {};
+		this.properties = {};
 	};
 
 	/**
@@ -92,7 +92,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	getset.prototype.append = function(path, data) {
-		var dataset = this.propertys;
+		var dataset = this.properties;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
 		});
@@ -114,7 +114,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	getset.prototype.prepend = function(path, data) {
-		var dataset = this.propertys;
+		var dataset = this.properties;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
 		});
@@ -138,7 +138,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 * @return {Object} removed subset
 	 */
 	getset.prototype.remove = function(path, index) {
-		var dataset = this.propertys,
+		var dataset = this.properties,
 			data = null;
 		path.split('.').forEach(function(key) {
 			dataset = dataset[key];
@@ -156,14 +156,14 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Search a item in models propertys
+	 * Search a item in models properties
 	 *
 	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
 	 * @param {Object} searchfor Searching for object
 	 * @return {Object} Returns the first matched item or null
 	 */
 	getset.prototype.search = function(path, searchfor) {
-		var parent = undotify(path, this.propertys);
+		var parent = undotify(path, this.properties);
 
 		if (parent) {
 			for (var i = 0; i < parent.length; i++) {

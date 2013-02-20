@@ -1,21 +1,22 @@
 module.exports = function(grunt) {
 	grunt.loadTasks('./modules/grunt-xqcoretest');
 	grunt.loadNpmTasks('grunt-contrib');
+	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-yuidoc');
+	grunt.loadNpmTasks('grunt-contrib-concat');
 	
 	// Project configuration.
 	grunt.initConfig({
-			pkg: grunt.file.readJSON('package.json'),
+		pkg: grunt.file.readJSON('package.json'),
+
 		// Lists of files to be linted with JSHint.
-		lint: {
+		jshint: {
 			files: [
 				'webdocs/js/xqcore-(!.spec).js'
 			],
 			afterconcat: [
 				'webdocs/js/xqcore.js'
-			]
-		},
-		jshint: {
+			],
 			options: {
 				browser: true,
 				smarttabs: true,
@@ -44,10 +45,11 @@ module.exports = function(grunt) {
 				dest: 'webdocs/js/xqcore.js'
 			}
 		},
-		min: {
+		uglify: {
 			dist: {
-				src: ['webdocs/js/xqcore.js'],
-				dest: 'webdocs/js/xqcore.min.js'
+				files: {
+					'webdocs/js/xqcore.min.js': ['webdocs/js/xqcore.js']
+				}
 			}
 		},
 		xqcoretest: {
@@ -95,5 +97,5 @@ module.exports = function(grunt) {
 	grunt.registerTask('default', 'lint');
 	grunt.registerTask('doc', 'yuidoc');
 	grunt.registerTask('test', 'xqcoretest');
-	grunt.registerTask('build', 'lint:files clean:build concat:dist lint:afterconcat min copy:akonda');
+	grunt.registerTask('build', ['jshint:files', 'clean:build', 'concat:dist', 'jshint:afterconcat', 'uglify', 'copy:akonda']);
 };

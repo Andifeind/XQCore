@@ -1,9 +1,11 @@
 module.exports = function(grunt) {
 	grunt.loadTasks('./modules/grunt-xqcoretest');
 	grunt.loadNpmTasks('grunt-contrib');
+	grunt.loadNpmTasks('grunt-contrib-yuidoc');
 	
 	// Project configuration.
 	grunt.initConfig({
+			pkg: grunt.file.readJSON('package.json'),
 		// Lists of files to be linted with JSHint.
 		lint: {
 			files: [
@@ -74,10 +76,24 @@ module.exports = function(grunt) {
 		watch: {
 			files: 'webdocs/js/**/*.js',
 			tasks: ['build']
+		},
+		yuidoc: {
+			compile: {
+				name: '<%= pkg.name %>',
+				description: '<%= pkg.description %>',
+				version: '<%= pkg.version %>',
+				url: '<%= pkg.homepage %>',
+				options: {
+					paths: 'webdocs/js/',
+					outdir: 'webdocs/doc/yuidoc/',
+					exclude: 'xqcore.js, xqcore.min.js'
+				}
+			}
 		}
 	});
 
 	grunt.registerTask('default', 'lint');
+	grunt.registerTask('doc', 'yuidoc');
 	grunt.registerTask('test', 'xqcoretest');
 	grunt.registerTask('build', 'lint:files clean:build concat:dist lint:afterconcat min copy:akonda');
 };

@@ -1,0 +1,1326 @@
+{
+    "project": {
+        "name": "XQCore",
+        "description": "MVP Javascript Framework",
+        "version": "0.1.0",
+        "url": ""
+    },
+    "files": {
+        "webdocs/js/xqcore-core.js": {
+            "name": "webdocs/js/xqcore-core.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "webdocs/js/xqcore-event.js": {
+            "name": "webdocs/js/xqcore-event.js",
+            "modules": {},
+            "classes": {
+                "Manages event registering and emitting.": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "webdocs/js/xqcore-getset.js": {
+            "name": "webdocs/js/xqcore-getset.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "webdocs/js/xqcore-logger.js": {
+            "name": "webdocs/js/xqcore-logger.js",
+            "modules": {},
+            "classes": {
+                "XQCore Logger class": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "webdocs/js/xqcore-model.js": {
+            "name": "webdocs/js/xqcore-model.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "webdocs/js/xqcore-presenter.js": {
+            "name": "webdocs/js/xqcore-presenter.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "webdocs/js/xqcore-router.js": {
+            "name": "webdocs/js/xqcore-router.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "webdocs/js/xqcore-util.js": {
+            "name": "webdocs/js/xqcore-util.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "webdocs/js/xqcore-view.js": {
+            "name": "webdocs/js/xqcore-view.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {},
+    "classes": {
+        "Manages event registering and emitting.": {
+            "name": "Manages event registering and emitting.",
+            "shortname": "Manages event registering and emitting.",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 25,
+            "description": "Class for managing events.\nCan be extended to provide event functionality in other classes."
+        },
+        "XQCore Logger class": {
+            "name": "XQCore Logger class",
+            "shortname": "XQCore Logger class",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "file": "webdocs/js/xqcore-logger.js",
+            "line": 36,
+            "description": "XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console",
+            "package": "XQCore.Logger",
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            }
+        }
+    },
+    "classitems": [
+        {
+            "file": "webdocs/js/xqcore-core.js",
+            "line": 3,
+            "description": "XQCore main object",
+            "package": "XQcore",
+            "type": "{Object}",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-core.js",
+            "line": 17,
+            "description": "Implement include support\n\nFile must be absolute to the document root",
+            "params": [
+                {
+                    "name": "file",
+                    "description": "Filename to be load",
+                    "type": "String"
+                }
+            ],
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 1,
+            "description": "XQCore EventEmitter\n\nBased on EventEmitter v4.0.2 by Oliver Caldwell\nhttp://git.io/ee",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 12,
+            "description": "EventEmitter v4.0.2 - git.io/ee\nOliver Caldwell\nMIT license",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 41,
+            "description": "Finds the index of the listener for the event in it's storage array",
+            "params": [
+                {
+                    "name": "listener",
+                    "description": "Method to look for.",
+                    "type": "Function"
+                },
+                {
+                    "name": "listeners",
+                    "description": "Array of listeners to search through.",
+                    "type": "Function[]"
+                }
+            ],
+            "return": {
+                "description": "Index of the specified listener, -1 if not found",
+                "type": "Number"
+            },
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 68,
+            "description": "Returns the listener array for the specified event.\nWill initialise the event object and listener arrays if required.",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "Name of the event to return the listeners from.",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "All listener functions for the event.",
+                "type": "Function[]"
+            },
+            "doc": "",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 86,
+            "description": "Adds a listener function to the specified event.\nThe listener will not be added if it is a duplicate.\nIf the listener returns true then it will be removed after it is called.",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "Name of the event to attach the listener to.",
+                    "type": "String"
+                },
+                {
+                    "name": "listener",
+                    "description": "Method to be called when the event is emitted. If the function returns true then it will be removed after calling.",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "Current instance of EventEmitter for chaining.",
+                "type": "Object"
+            },
+            "doc": "",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 109,
+            "description": "Removes a listener function from the specified event.",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "Name of the event to remove the listener from.",
+                    "type": "String"
+                },
+                {
+                    "name": "listener",
+                    "description": "Method to remove from the event.",
+                    "type": "Function"
+                }
+            ],
+            "return": {
+                "description": "Current instance of EventEmitter for chaining.",
+                "type": "Object"
+            },
+            "doc": "",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 137,
+            "description": "Adds listeners in bulk using the manipulateListeners method.\nIf you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.\nYou can also pass it an event name and an array of listeners to be added.",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.",
+                    "type": "String|Object"
+                },
+                {
+                    "name": "listeners",
+                    "description": "An optional array of listener functions to add.",
+                    "type": "Function[]",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "Current instance of EventEmitter for chaining.",
+                "type": "Object"
+            },
+            "doc": "",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 152,
+            "description": "Removes listeners in bulk using the manipulateListeners method.\nIf you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.\nYou can also pass it an event name and an array of listeners to be removed.",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.",
+                    "type": "String|Object"
+                },
+                {
+                    "name": "listeners",
+                    "description": "An optional array of listener functions to remove.",
+                    "type": "Function[]",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "Current instance of EventEmitter for chaining.",
+                "type": "Object"
+            },
+            "doc": "",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 167,
+            "description": "Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.\nThe first argument will determine if the listeners are removed (true) or added (false).\nIf you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.\nYou can also pass it an event name and an array of listeners to be added/removed.",
+            "params": [
+                {
+                    "name": "remove",
+                    "description": "True if you want to remove listeners, false if you want to add.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "evt",
+                    "description": "An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.",
+                    "type": "String|Object"
+                },
+                {
+                    "name": "listeners",
+                    "description": "An optional array of listener functions to add/remove.",
+                    "type": "Function[]",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "Current instance of EventEmitter for chaining.",
+                "type": "Object"
+            },
+            "doc": "",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 215,
+            "description": "Removes all listeners from a specified event.\nIf you do not specify an event then all listeners will be removed.\nThat means every event will be emptied.",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "Optional name of the event to remove all listeners for. Will remove from every event if not passed.",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "Current instance of EventEmitter for chaining.",
+                "type": "Object"
+            },
+            "doc": "",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-event.js",
+            "line": 239,
+            "description": "Emits an event of your choice.\nWhen emitted, every listener attached to that event will be executed.\nIf you pass the optional argument array then those arguments will be passed to every listener upon execution.\nBecause it uses `apply`, your array of arguments will be passed as if you wrote them out separately.\nSo they will not arrive within the array on the other side, they will be separate.",
+            "params": [
+                {
+                    "name": "evt",
+                    "description": "Name of the event to emit and execute listeners for.",
+                    "type": "String"
+                },
+                {
+                    "name": "args",
+                    "description": "Optional array of arguments to be passed to each argument.",
+                    "type": "Array",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "Current instance of EventEmitter for chaining.",
+                "type": "Object"
+            },
+            "doc": "",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 19,
+            "description": "Set getset data",
+            "params": [
+                {
+                    "name": "data/key",
+                    "description": "",
+                    "type": "Object or String"
+                },
+                {
+                    "name": "value",
+                    "description": "Data value",
+                    "type": "Object"
+                }
+            ],
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 54,
+            "description": "Get one or all propertys from getset",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "Data key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "getset dataset",
+                "type": "Object"
+            },
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 70,
+            "description": "Check wether getset has a dataset",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "Dataset key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "Returns true if getset has a dataset with key",
+                "type": "Boolean"
+            },
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 80,
+            "description": "Remove all data from getset",
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 88,
+            "description": "Append data to a subset",
+            "params": [
+                {
+                    "name": "path",
+                    "description": "path to subset",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "data to add",
+                    "type": "Object"
+                }
+            ],
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 110,
+            "description": "Prepend data to a subset",
+            "params": [
+                {
+                    "name": "path",
+                    "description": "path to subset",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "data to add",
+                    "type": "Object"
+                }
+            ],
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 132,
+            "description": "Remove a subset",
+            "params": [
+                {
+                    "name": "path",
+                    "description": "path to subset",
+                    "type": "String"
+                },
+                {
+                    "name": "index",
+                    "description": "Index of the subsut to remove",
+                    "type": "Number"
+                }
+            ],
+            "return": {
+                "description": "removed subset",
+                "type": "Object"
+            },
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 158,
+            "description": "Search a item in models propertys",
+            "params": [
+                {
+                    "name": "path",
+                    "description": "to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)",
+                    "type": "String"
+                },
+                {
+                    "name": "searchfor",
+                    "description": "Searching for object",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Returns the first matched item or null",
+                "type": "Object"
+            },
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-logger.js",
+            "line": 1,
+            "description": "XQCore Logger\n\nBased on EventEmitter.js",
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-logger.js",
+            "line": 48,
+            "description": "Loggs a message to the console",
+            "itemtype": "method",
+            "name": "log",
+            "params": [
+                {
+                    "name": "msg",
+                    "description": "logs all arguments to the console",
+                    "type": "Any"
+                }
+            ],
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-logger.js",
+            "line": 65,
+            "description": "Loggs a warning to the console",
+            "params": [
+                {
+                    "name": "msg",
+                    "description": "logs all arguments to the console",
+                    "type": "Any"
+                }
+            ],
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-logger.js",
+            "line": 80,
+            "description": "Loggs a error message to the console",
+            "params": [
+                {
+                    "name": "msg",
+                    "description": "logs all arguments to the console",
+                    "type": "Any"
+                }
+            ],
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-logger.js",
+            "line": 95,
+            "description": "Start a timeTracer",
+            "params": [
+                {
+                    "name": "timerName",
+                    "description": "Set the name for your (Optional)",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "Returns a TimerObject",
+                "type": "Object"
+            },
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-logger.js",
+            "line": 124,
+            "description": "Stops a timer",
+            "params": [
+                {
+                    "name": "timerName",
+                    "description": "Stops the given timer",
+                    "type": "String or Object"
+                }
+            ],
+            "class": "XQCore Logger class"
+        },
+        {
+            "file": "webdocs/js/xqcore-model.js",
+            "line": 75,
+            "description": "var dataset = this.properties;\nvar dataset = this.properties;\n\t * Called on before sending an ajax request\n\t * You can use this function to manipulate all data they be send to the server\n\t *\n\t * @param {Object} data The data to send to the server\n\t * @return {Object} data",
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-model.js",
+            "line": 88,
+            "description": "Send an ajax request to the webserver.\n\nYou must set the server URI first with model.server = 'http://example.com/post'",
+            "params": [
+                {
+                    "name": "Method",
+                    "description": "send method, GET, POST, PUT, DELETE (default POST)",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "The data to sent to the server",
+                    "type": "Object"
+                },
+                {
+                    "name": "callback",
+                    "description": "Calls callback(err, data, status, jqXHR) if response was receiving",
+                    "type": "Function"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-model.js",
+            "line": 139,
+            "description": "Sends a POST to the Datastore",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "Dato to sending",
+                    "type": "Object"
+                },
+                {
+                    "name": "callback",
+                    "description": "Calling on response\n\ncallback: void function(err, data, status, jqXHR)",
+                    "type": "Function"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-model.js",
+            "line": 152,
+            "description": "Sends a GET to the Datastore",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "Dato to sending",
+                    "type": "Object"
+                },
+                {
+                    "name": "callback",
+                    "description": "Calling on response\n\ncallback: void function(err, data, status, jqXHR)",
+                    "type": "Function"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-model.js",
+            "line": 165,
+            "description": "Sends a UPDATE to the Datastore",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "Dato to sending",
+                    "type": "Object"
+                },
+                {
+                    "name": "callback",
+                    "description": "Calling on response\n\ncallback: void function(err, data, status, jqXHR)",
+                    "type": "Function"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-model.js",
+            "line": 178,
+            "description": "Sends a DELETE to the Datastore",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "Dato to sending",
+                    "type": "Object"
+                },
+                {
+                    "name": "callback",
+                    "description": "Calling on response\n\ncallback: void function(err, data, status, jqXHR)",
+                    "type": "Function"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 153,
+            "description": "Calling on view init",
+            "params": [
+                {
+                    "name": "view",
+                    "description": "The initializing view",
+                    "type": "Object"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 162,
+            "description": "Add a history item to the browser history",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "Data object",
+                    "type": "Object"
+                },
+                {
+                    "name": "url",
+                    "description": "Page URL (Optional) defaults to the curent URL",
+                    "type": "String"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 179,
+            "description": "Add a history item to the browser history",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "Data object",
+                    "type": "Object"
+                },
+                {
+                    "name": "url",
+                    "description": "Page URL (Optional) defaults to the current URL",
+                    "type": "String"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 195,
+            "description": "Navigates to a route",
+            "params": [
+                {
+                    "name": "url",
+                    "description": "Route url",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "Data object",
+                    "type": "Object"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-router.js",
+            "line": 1,
+            "description": "XQCore Router API",
+            "author": "Andi Heinkelein - noname-media.com",
+            "copyright": "Andi Heinkelein - noname-media.com",
+            "package": "XQCore\n\nBased on router.js\nCopyright Aaron Blohowiak and TJ Holowaychuk 2011.\nhttps://github.com/aaronblohowiak/routes.js",
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-router.js",
+            "line": 14,
+            "description": "Convert path to route object\n\nA string or RegExp should be passed,\nwill return { re, src, keys} obj",
+            "params": [
+                {
+                    "name": "path",
+                    "description": "",
+                    "type": "String / RegExp"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-router.js",
+            "line": 43,
+            "description": "Normalize the given path string,\nreturning a regular expression.\n\nAn empty array should be passed,\nwhich will contain the placeholder\nkey names. For example \"/user/:id\" will\nthen contain [\"id\"].",
+            "params": [
+                {
+                    "name": "path",
+                    "description": "",
+                    "type": "String"
+                },
+                {
+                    "name": "keys",
+                    "description": "",
+                    "type": "Array"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "RegExp"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-router.js",
+            "line": 75,
+            "description": "Attempt to match the given request to\none of the routes. When successful\na  {fn, params, splats} obj is returned",
+            "params": [
+                {
+                    "name": "routes",
+                    "description": "",
+                    "type": "Array"
+                },
+                {
+                    "name": "uri",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-router.js",
+            "line": 118,
+            "description": "Default \"normal\" router constructor.\naccepts path, fn tuples via addRoute\nreturns {fn, params, splats, route}\n via match",
+            "return": {
+                "description": "",
+                "type": "Object"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-router.js",
+            "line": 192,
+            "description": "Fires a give route",
+            "params": [
+                {
+                    "name": "route",
+                    "description": "The route to fire",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "Callback data",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Returns the matched route",
+                "type": "Boolean"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-util.js",
+            "line": 1,
+            "description": "A bunch of helpfull functions",
+            "return": {
+                "description": "Returns a singelton object instance of XQCore.Util",
+                "type": "Object"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-util.js",
+            "line": 13,
+            "description": "Serialize a form and return its values as JSON",
+            "params": [
+                {
+                    "name": "Form",
+                    "description": "selector",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "FormData as JSON",
+                "type": "Object"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-util.js",
+            "line": 41,
+            "description": "Check length of a string or number",
+            "params": [
+                {
+                    "name": "input",
+                    "description": "this will be checked",
+                    "type": "String or Number"
+                },
+                {
+                    "name": "min",
+                    "description": "String can't be shorter than n, Number can't be lower than n",
+                    "type": "Number"
+                },
+                {
+                    "name": "max",
+                    "description": "String can't be longer than n, Number can't be greater than n",
+                    "type": "Number"
+                }
+            ],
+            "return": {
+                "description": "errorMessage on invalid or void on valid",
+                "type": "String"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-util.js",
+            "line": 70,
+            "description": "Checks the equality of two strings",
+            "params": [
+                {
+                    "name": "str1",
+                    "description": "First string",
+                    "type": "String"
+                },
+                {
+                    "name": "str2",
+                    "description": "Second string",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "errorMessage on invalid or void on valid",
+                "type": "String"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-util.js",
+            "line": 84,
+            "description": "Checks the validity of an email address",
+            "params": [
+                {
+                    "name": "email",
+                    "description": "e-Mail address",
+                    "type": "String"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-util.js",
+            "line": 95,
+            "description": "Checks the validity of an url",
+            "params": [
+                {
+                    "name": "url",
+                    "description": "URL",
+                    "type": "String"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 153,
+            "description": "Appends a html fragment to a html element\nYou must set the itemTemplate and subSelector  option first",
+            "params": [
+                {
+                    "name": "selector",
+                    "description": "parent selector",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "item data",
+                    "type": "Object"
+                },
+                {
+                    "name": "options",
+                    "description": "Appending options (not implemented yet)",
+                    "type": "Object"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 165,
+            "description": "Prepends a html fragment to a html element\nYou must set the itemTemplate and subSelector option first",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "item data",
+                    "type": "Object"
+                },
+                {
+                    "name": "options",
+                    "description": "Prepending options (not implemented yet)",
+                    "type": "Object"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 176,
+            "description": "Remove a item from a dom node",
+            "params": [
+                {
+                    "name": "index",
+                    "description": "Remove item <index> from a node list",
+                    "type": "Number"
+                }
+            ],
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 185,
+            "description": "Manipulates a dom node",
+            "params": [
+                {
+                    "name": "action",
+                    "description": "Manipulation method",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "[description]",
+                    "type": "[type]"
+                },
+                {
+                    "name": "options",
+                    "description": "(not implemented yet)",
+                    "type": "[type]"
+                }
+            ],
+            "return": {
+                "description": "[description]",
+                "type": "[type]"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 230,
+            "description": "Gets the data of an element",
+            "params": [
+                {
+                    "name": "selector",
+                    "description": "DOM el or a jQuery selector of the element",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "Returns the data of an element or null",
+                "type": "Object"
+            },
+            "class": ""
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 289,
+            "description": "Gets the index of a subSelector item\nThis function must binded to the view",
+            "params": [
+                {
+                    "name": "el",
+                    "description": "Start element.",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "index of the element or null",
+                "type": "Number"
+            },
+            "class": ""
+        }
+    ],
+    "warnings": [
+        {
+            "message": "unknown tag: package",
+            "line": " webdocs/js/xqcore-core.js:3"
+        },
+        {
+            "message": "unknown tag: doc",
+            "line": " webdocs/js/xqcore-event.js:68"
+        },
+        {
+            "message": "unknown tag: doc",
+            "line": " webdocs/js/xqcore-event.js:86"
+        },
+        {
+            "message": "unknown tag: doc",
+            "line": " webdocs/js/xqcore-event.js:109"
+        },
+        {
+            "message": "unknown tag: doc",
+            "line": " webdocs/js/xqcore-event.js:137"
+        },
+        {
+            "message": "unknown tag: doc",
+            "line": " webdocs/js/xqcore-event.js:152"
+        },
+        {
+            "message": "unknown tag: doc",
+            "line": " webdocs/js/xqcore-event.js:167"
+        },
+        {
+            "message": "unknown tag: doc",
+            "line": " webdocs/js/xqcore-event.js:215"
+        },
+        {
+            "message": "unknown tag: doc",
+            "line": " webdocs/js/xqcore-event.js:239"
+        },
+        {
+            "message": "unknown tag: package",
+            "line": " webdocs/js/xqcore-logger.js:36"
+        },
+        {
+            "message": "unknown tag: copyright",
+            "line": " webdocs/js/xqcore-router.js:1"
+        },
+        {
+            "message": "unknown tag: package",
+            "line": " webdocs/js/xqcore-router.js:1"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " webdocs/js/xqcore-util.js:41"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " webdocs/js/xqcore-util.js:70"
+        },
+        {
+            "message": "Missing item type\nXQCore main object",
+            "line": " webdocs/js/xqcore-core.js:3"
+        },
+        {
+            "message": "Missing item type\nImplement include support\n\nFile must be absolute to the document root",
+            "line": " webdocs/js/xqcore-core.js:17"
+        },
+        {
+            "message": "Missing item type\nXQCore EventEmitter\n\nBased on EventEmitter v4.0.2 by Oliver Caldwell\nhttp://git.io/ee",
+            "line": " webdocs/js/xqcore-event.js:1"
+        },
+        {
+            "message": "Missing item type\nEventEmitter v4.0.2 - git.io/ee\nOliver Caldwell\nMIT license",
+            "line": " webdocs/js/xqcore-event.js:12"
+        },
+        {
+            "message": "Missing item type\nFinds the index of the listener for the event in it's storage array",
+            "line": " webdocs/js/xqcore-event.js:41"
+        },
+        {
+            "message": "Missing item type\nReturns the listener array for the specified event.\nWill initialise the event object and listener arrays if required.",
+            "line": " webdocs/js/xqcore-event.js:68"
+        },
+        {
+            "message": "Missing item type\nAdds a listener function to the specified event.\nThe listener will not be added if it is a duplicate.\nIf the listener returns true then it will be removed after it is called.",
+            "line": " webdocs/js/xqcore-event.js:86"
+        },
+        {
+            "message": "Missing item type\nRemoves a listener function from the specified event.",
+            "line": " webdocs/js/xqcore-event.js:109"
+        },
+        {
+            "message": "Missing item type\nAdds listeners in bulk using the manipulateListeners method.\nIf you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.\nYou can also pass it an event name and an array of listeners to be added.",
+            "line": " webdocs/js/xqcore-event.js:137"
+        },
+        {
+            "message": "Missing item type\nRemoves listeners in bulk using the manipulateListeners method.\nIf you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.\nYou can also pass it an event name and an array of listeners to be removed.",
+            "line": " webdocs/js/xqcore-event.js:152"
+        },
+        {
+            "message": "Missing item type\nEdits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.\nThe first argument will determine if the listeners are removed (true) or added (false).\nIf you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.\nYou can also pass it an event name and an array of listeners to be added/removed.",
+            "line": " webdocs/js/xqcore-event.js:167"
+        },
+        {
+            "message": "Missing item type\nRemoves all listeners from a specified event.\nIf you do not specify an event then all listeners will be removed.\nThat means every event will be emptied.",
+            "line": " webdocs/js/xqcore-event.js:215"
+        },
+        {
+            "message": "Missing item type\nEmits an event of your choice.\nWhen emitted, every listener attached to that event will be executed.\nIf you pass the optional argument array then those arguments will be passed to every listener upon execution.\nBecause it uses `apply`, your array of arguments will be passed as if you wrote them out separately.\nSo they will not arrive within the array on the other side, they will be separate.",
+            "line": " webdocs/js/xqcore-event.js:239"
+        },
+        {
+            "message": "Missing item type\nSet getset data",
+            "line": " webdocs/js/xqcore-getset.js:19"
+        },
+        {
+            "message": "Missing item type\nGet one or all propertys from getset",
+            "line": " webdocs/js/xqcore-getset.js:54"
+        },
+        {
+            "message": "Missing item type\nCheck wether getset has a dataset",
+            "line": " webdocs/js/xqcore-getset.js:70"
+        },
+        {
+            "message": "Missing item type\nRemove all data from getset",
+            "line": " webdocs/js/xqcore-getset.js:80"
+        },
+        {
+            "message": "Missing item type\nAppend data to a subset",
+            "line": " webdocs/js/xqcore-getset.js:88"
+        },
+        {
+            "message": "Missing item type\nPrepend data to a subset",
+            "line": " webdocs/js/xqcore-getset.js:110"
+        },
+        {
+            "message": "Missing item type\nRemove a subset",
+            "line": " webdocs/js/xqcore-getset.js:132"
+        },
+        {
+            "message": "Missing item type\nSearch a item in models propertys",
+            "line": " webdocs/js/xqcore-getset.js:158"
+        },
+        {
+            "message": "Missing item type\nXQCore Logger\n\nBased on EventEmitter.js",
+            "line": " webdocs/js/xqcore-logger.js:1"
+        },
+        {
+            "message": "Missing item type\nLoggs a warning to the console",
+            "line": " webdocs/js/xqcore-logger.js:65"
+        },
+        {
+            "message": "Missing item type\nLoggs a error message to the console",
+            "line": " webdocs/js/xqcore-logger.js:80"
+        },
+        {
+            "message": "Missing item type\nStart a timeTracer",
+            "line": " webdocs/js/xqcore-logger.js:95"
+        },
+        {
+            "message": "Missing item type\nStops a timer",
+            "line": " webdocs/js/xqcore-logger.js:124"
+        },
+        {
+            "message": "Missing item type\nvar dataset = this.properties;\nvar dataset = this.properties;\n\t * Called on before sending an ajax request\n\t * You can use this function to manipulate all data they be send to the server\n\t *\n\t * @param {Object} data The data to send to the server\n\t * @return {Object} data",
+            "line": " webdocs/js/xqcore-model.js:75"
+        },
+        {
+            "message": "Missing item type\nSend an ajax request to the webserver.\n\nYou must set the server URI first with model.server = 'http://example.com/post'",
+            "line": " webdocs/js/xqcore-model.js:88"
+        },
+        {
+            "message": "Missing item type\nSends a POST to the Datastore",
+            "line": " webdocs/js/xqcore-model.js:139"
+        },
+        {
+            "message": "Missing item type\nSends a GET to the Datastore",
+            "line": " webdocs/js/xqcore-model.js:152"
+        },
+        {
+            "message": "Missing item type\nSends a UPDATE to the Datastore",
+            "line": " webdocs/js/xqcore-model.js:165"
+        },
+        {
+            "message": "Missing item type\nSends a DELETE to the Datastore",
+            "line": " webdocs/js/xqcore-model.js:178"
+        },
+        {
+            "message": "Missing item type\nCalling on view init",
+            "line": " webdocs/js/xqcore-presenter.js:153"
+        },
+        {
+            "message": "Missing item type\nAdd a history item to the browser history",
+            "line": " webdocs/js/xqcore-presenter.js:162"
+        },
+        {
+            "message": "Missing item type\nAdd a history item to the browser history",
+            "line": " webdocs/js/xqcore-presenter.js:179"
+        },
+        {
+            "message": "Missing item type\nNavigates to a route",
+            "line": " webdocs/js/xqcore-presenter.js:195"
+        },
+        {
+            "message": "Missing item type\nXQCore Router API",
+            "line": " webdocs/js/xqcore-router.js:1"
+        },
+        {
+            "message": "Missing item type\nConvert path to route object\n\nA string or RegExp should be passed,\nwill return { re, src, keys} obj",
+            "line": " webdocs/js/xqcore-router.js:14"
+        },
+        {
+            "message": "Missing item type\nNormalize the given path string,\nreturning a regular expression.\n\nAn empty array should be passed,\nwhich will contain the placeholder\nkey names. For example \"/user/:id\" will\nthen contain [\"id\"].",
+            "line": " webdocs/js/xqcore-router.js:43"
+        },
+        {
+            "message": "Missing item type\nAttempt to match the given request to\none of the routes. When successful\na  {fn, params, splats} obj is returned",
+            "line": " webdocs/js/xqcore-router.js:75"
+        },
+        {
+            "message": "Missing item type\nDefault \"normal\" router constructor.\naccepts path, fn tuples via addRoute\nreturns {fn, params, splats, route}\n via match",
+            "line": " webdocs/js/xqcore-router.js:118"
+        },
+        {
+            "message": "Missing item type\nFires a give route",
+            "line": " webdocs/js/xqcore-router.js:192"
+        },
+        {
+            "message": "Missing item type\nA bunch of helpfull functions",
+            "line": " webdocs/js/xqcore-util.js:1"
+        },
+        {
+            "message": "Missing item type\nSerialize a form and return its values as JSON",
+            "line": " webdocs/js/xqcore-util.js:13"
+        },
+        {
+            "message": "Missing item type\nCheck length of a string or number",
+            "line": " webdocs/js/xqcore-util.js:41"
+        },
+        {
+            "message": "Missing item type\nChecks the equality of two strings",
+            "line": " webdocs/js/xqcore-util.js:70"
+        },
+        {
+            "message": "Missing item type\nChecks the validity of an email address",
+            "line": " webdocs/js/xqcore-util.js:84"
+        },
+        {
+            "message": "Missing item type\nChecks the validity of an url",
+            "line": " webdocs/js/xqcore-util.js:95"
+        },
+        {
+            "message": "Missing item type\nAppends a html fragment to a html element\nYou must set the itemTemplate and subSelector  option first",
+            "line": " webdocs/js/xqcore-view.js:153"
+        },
+        {
+            "message": "Missing item type\nPrepends a html fragment to a html element\nYou must set the itemTemplate and subSelector option first",
+            "line": " webdocs/js/xqcore-view.js:165"
+        },
+        {
+            "message": "Missing item type\nRemove a item from a dom node",
+            "line": " webdocs/js/xqcore-view.js:176"
+        },
+        {
+            "message": "Missing item type\nManipulates a dom node",
+            "line": " webdocs/js/xqcore-view.js:185"
+        },
+        {
+            "message": "Missing item type\nGets the data of an element",
+            "line": " webdocs/js/xqcore-view.js:230"
+        },
+        {
+            "message": "Missing item type\nGets the index of a subSelector item\nThis function must binded to the view",
+            "line": " webdocs/js/xqcore-view.js:289"
+        }
+    ]
+}

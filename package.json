@@ -1,0 +1,27 @@
+{
+  "name": "XQCore",
+  "version": "0.1.0",
+  "description": "MVP Javascript Framework",
+  "dependencies": {
+    
+  },
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib": "~0.3.0"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://andi@ceres/var/git/xqcore.git"
+  },
+  "keywords": [
+    "mvp",
+    "javascript",
+    "framework",
+    "mvc"
+  ],
+  "author": "Andi Heinkelein",
+  "license": "MIT"
+}

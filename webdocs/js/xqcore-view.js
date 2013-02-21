@@ -148,12 +148,21 @@ XQCore.View = (function(undefined) {
 		
 	};
 
+	/**
+	 * Render view
+	 *
+	 * @method render
+	 * @emits content.change
+	 *
+	 * @param  {Object} data Render data
+	 *
+	 */
 	view.prototype.render = function(data) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = typeof this.template === 'function' ? this.template : Handlebars.compile(this.template);
 		this.container.html(template(data || {}));
 
-		this.emit('content.change');
+		this.emit('content.change', data);
 	};
 
 	view.prototype.renderHTML = function(template, data) {

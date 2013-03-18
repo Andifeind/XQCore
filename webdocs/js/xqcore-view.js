@@ -312,6 +312,18 @@ XQCore.View = (function(undefined) {
 	};
 
 	/**
+	 * Trigger a view event to the presenter
+	 *
+	 * @param {String} eventName Event of the triggered event
+	 * @param {Object} e EventObject
+	 * @param {Object} tag Tag data
+	 * @param {Object} data Event data
+	 */
+	view.prototype.triggerEvent = function(eventName, e, tag, data) {
+		this.presenter.events[eventName].call(this.presenter, e, tag, data);
+	};
+
+	/**
 	 * Gets the index of a subSelector item
 	 * This function must binded to the view
 	 *

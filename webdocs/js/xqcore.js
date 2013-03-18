@@ -456,7 +456,8 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 */
 	getset.prototype.set = function() {
 		var newData = {},
-			validateResult;
+			validateResult,
+			key;
 
 		if (typeof arguments[0] === 'object') {
 			//Add a dataset
@@ -465,6 +466,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		}
 		else if (typeof arguments[0] === 'string') {
 			newData[arguments[0]] = arguments[1];
+			key = arguments[0];
 			this.log('Set data', arguments[0], arguments[1]);
 		}
 		else {
@@ -481,6 +483,10 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 		$.extend(this.properties, newData);
 		this.emit('data.change', newData);
+
+		if (key) {
+			this.emit('change.' + key, newData[key]);
+		}
 	};
 
 	/**
@@ -1424,6 +1430,18 @@ XQCore.View = (function(undefined) {
 		else {
 			return null;
 		}
+	};
+
+	/**
+	 * Trigger a view event to the presenter
+	 *
+	 * @param {String} eventName Event of the triggered event
+	 * @param {Object} e EventObject
+	 * @param {Object} tag Tag data
+	 * @param {Object} data Event data
+	 */
+	view.prototype.triggerEvent = function(eventName, e, tag, data) {
+		this.presenter.events[eventName].call(this.presenter, e, tag, data);
 	};
 
 	/**

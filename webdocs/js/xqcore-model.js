@@ -161,7 +161,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Sends a UPDATE to the Datastore
+	 * Sends a PUT to the Datastore
 	 *
 	 * @param  {Object}   data     Dato to sending
 	 * @param  {Function} callback Calling on response
@@ -169,8 +169,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendUPDATE = function(data, callback) {
-		this.send('UPDATE', data, callback);
+	model.prototype.sendPUT = function(data, callback) {
+		this.send('PUT', data, callback);
 	};
 
 	/**

@@ -1,6 +1,15 @@
 XQCore.GetSet = (function(window, document, $, undefined) {
-	var getset = function() {
+	var getset = function(conf) {
 		this.properties = {};
+		this._isValid = false;
+
+		if (conf) {
+			this.schema = conf.schema;
+			this.debug = Boolean(conf.debug);
+		}
+
+		this.name = 'GetSet';
+		$.extend(this, new XQCore.Logger());
 	};
 
 	var undotify = function(path, obj) {
@@ -24,6 +33,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 */
 	getset.prototype.set = function() {
 		var newData = {},
+			oldData = this.get(),
 			validateResult,
 			key;
 
@@ -33,24 +43,28 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			this.log('Set data', arguments[0]);
 		}
 		else if (typeof arguments[0] === 'string') {
-			newData[arguments[0]] = arguments[1];
+			newData = this.get();
 			key = arguments[0];
-			this.log('Set data', arguments[0], arguments[1]);
+			var val = arguments[1];
+
+			newData[key] = val;
+			this.log('Set data', arguments[0], arguments[1], newData);
 		}
 		else {
 			this.warn('Data are incorrect in getset.set()', arguments);
 		}
 
-		if (this.validate) {
+		if (this.schema) {
 			validateResult = this.validate(newData);
-			if (validateResult) {
+			if (validateResult !== true) {
 				this.warn('Validate error in getset.set', validateResult);
+				this.emit('validation.error', validateResult);
 				return validateResult;
 			}
 		}
 
-		$.extend(this.properties, newData);
-		this.emit('data.change', newData);
+		this.properties = newData;
+		this.emit('data.change', newData, oldData);
 
 		if (key) {
 			this.emit('change.' + key, newData[key]);
@@ -196,6 +210,158 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		}
 
 		return null;
+	};
+
+	getset.prototype.validate = function(data) {
+		var failed = [];
+
+		if (this.schema) {
+			Object.keys(this.schema).forEach(function(key) {
+				var validationResult = this.validateOne(key, data[key]);
+
+				if (validationResult !== null) {
+					failed.push(validationResult);
+				}
+			}.bind(this));
+		}
+
+		return failed === [] ? null : failed;
+	};
+
+	getset.prototype.validateOne = function(key, value) {
+		var failed = null,
+			schema = this.schema[key];
+
+		console.log('Schema', schema, schema.match);
+		if ((value === undefined || value === null) && schema.default) {
+			value = schema.default;
+		}
+
+		if ((value === undefined || value === null) && schema.required === true) {
+			failed = {
+				property: key,
+				msg: 'Property is undefined or null, but it\'s required',
+				errCode: 10
+			};
+		}
+		else if (schema.type === 'string') {
+			if (schema.type !== typeof(value)) {
+				failed = {
+					property: key,
+					msg: 'Property type is a ' + typeof(value) + ', but a string is required',
+					errCode: 11
+				};
+			}
+			else if(schema.min && schema.min > value.length) {
+				failed = {
+					property: key,
+					msg: 'String length is too short',
+					errCode: 12
+				};
+			}
+			else if(schema.max && schema.max < value.length) {
+				failed = {
+					property: key,
+					msg: 'String length is too long',
+					errCode: 13
+				};
+			}
+			else if(schema.match && !schema.match.test(value)) {
+				failed = {
+					property: key,
+					msg: 'String doesn\'t match regexp',
+					errCode: 14
+				};
+			}
+
+		}
+		else if(schema.type === 'number') {
+			if (schema.type !== typeof(value)) {
+				failed = {
+					property: key,
+					msg: 'Property type is a ' + typeof(value) + ', but a number is required',
+					errCode: 21
+				};
+			}
+			else if(schema.min && schema.min > value) {
+				failed = {
+					property: key,
+					msg: 'Number is too low',
+					errCode: 22
+				};
+			}
+			else if(schema.max && schema.max < value) {
+				failed = {
+					property: key,
+					msg: 'Number is too high',
+					errCode: 23
+				};
+			}
+		}
+		else if(schema.type === 'date') {
+			var date = Date.parse(value);
+			if (isNaN(date)) {
+				failed = {
+					property: key,
+					msg: 'Property isn\'t a valid date',
+					errCode: 31
+				};
+			}
+		}
+		else if(schema.type === 'array') {
+			if (!Array.isArray(value)) {
+				failed = {
+					property: key,
+					msg: 'Property type is a ' + typeof(value) + ', but an array is required',
+					errCode: 41
+				};
+			}
+			else if(schema.min && schema.min > value.length) {
+				failed = {
+					property: key,
+					msg: 'Array length is ' + value.length + ' but must be greater than ' + schema.min,
+					errCode: 42
+				};
+			}
+			else if(schema.max && schema.max < value.length) {
+				failed = {
+					property: key,
+					msg: 'Array length is ' + value.length + ' but must be lesser than ' + schema.max,
+					errCode: 43
+				};
+			}
+		}
+		else if(schema.type === 'object') {
+			if (typeof(value) !== 'object') {
+				failed = {
+					property: key,
+					msg: 'Property isn\'t a valid object',
+					errCode: 51
+				};
+			}
+		}
+		else if(schema.type === 'boolean') {
+			if (typeof(value) !== 'object') {
+				failed = {
+					property: key,
+					msg: 'Property isn\'t a valid boolean',
+					errCode: 61
+				};
+			}
+		}
+		else {
+
+		}
+
+		if (failed !== null) {
+			this.warn('Validation error on property', key, failed, 'Data:', value);
+		}
+
+		return failed;
+	};
+
+	getset.prototype.isValid = function() {
+		return this._isValid;
 	};
 
 

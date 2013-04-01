@@ -994,8 +994,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 		}
 	};
 
-	model.prototype.validate = function() {
-
+	model.prototype.validate = function(method, url, data) {
+		return true;
 	};
 
 	model.prototype.isValid = function() {
@@ -1022,12 +1022,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @param {Object} data The data to sent to the server
 	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
 	 */
-	model.prototype.send = function(method, data, callback) {
-
-		if (!this.server) {
-			this.error('Can not send an ajax request! You must define a server URL first.');
-			return false;
-		}
+	model.prototype.send = function(method, url, data, callback) {
 
 		if (data === undefined) {
 			data = this.get();
@@ -1035,6 +1030,18 @@ XQCore.Model = (function(window, document, $, undefined) {
 
 		if (method === undefined) {
 			method = 'POST';
+		}
+
+		//Run validation
+		var validationStatus = this.validate(method, url, data);
+		if (validationStatus !== true) {
+			callback({
+				error: 'Validation error',
+				msg: validationStatus
+			});
+
+			this.warn('Validation error in ' + method + ' request to ' + url, validationStatus, data);
+			return;
 		}
 
 		//Handle onSend
@@ -1045,7 +1052,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
 
 		$.ajax({
-			url: this.server,
+			url: url,
 			type: method,
 			data: data,
 			success: function(data, status, jqXHR) {
@@ -1073,8 +1080,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendPOST = function(data, callback) {
-		this.send('POST', data, callback);
+	model.prototype.sendPOST = function(url, data, callback) {
+		this.send('POST', url, data, callback);
 	};
 
 	/**
@@ -1086,8 +1093,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendGET = function(data, callback) {
-		this.send('GET', data, callback);
+	model.prototype.sendGET = function(url, data, callback) {
+		this.send('GET', url, data, callback);
 	};
 
 	/**
@@ -1099,8 +1106,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendPUT = function(data, callback) {
-		this.send('PUT', data, callback);
+	model.prototype.sendPUT = function(url, data, callback) {
+		this.send('PUT', url, data, callback);
 	};
 
 	/**
@@ -1112,8 +1119,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendDELETE = function(data, callback) {
-		this.send('DELETE', data, callback);
+	model.prototype.sendDELETE = function(url, data, callback) {
+		this.send('DELETE', url, data, callback);
 	};
 
 	return model;

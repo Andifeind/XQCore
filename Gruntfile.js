@@ -32,11 +32,11 @@ module.exports = function(grunt) {
 				src: [
 					'webdocs/js/xqcore-core.js',
 					'webdocs/js/xqcore-event.js',
+					'webdocs/js/xqcore-logger.js',
 					'webdocs/js/xqcore-getset.js',
 					'webdocs/js/xqcore-presenter.js',
 					'webdocs/js/xqcore-model.js',
 					'webdocs/js/xqcore-view.js',
-					'webdocs/js/xqcore-logger.js',
 					'webdocs/js/xqcore-util.js',
 					'webdocs/js/xqcore-router.js',
 

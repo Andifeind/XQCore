@@ -242,7 +242,7 @@
 	 * ES5 compatibility table by Juriy Zaytsev
 	 * ECMAScript 5 support in Mozilla
 	 */
-	"es5": false,
+	"es5": true,
 
 	/**
 	 * This option tells JSHint that your code uses ES.next specific features such as const. Note that these features are not finalized

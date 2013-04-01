@@ -24,23 +24,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 		$.extend(this, conf, new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
-		this._isValid = false;
+		// this._isValid = false;
 		this.properties = {};
-
-		if (conf.validate) {
-			this.validate = function(formData) {
-				var result;
-
-				this._isValid = false;
-				result = conf.validate.call(this, formData);
-				if (!result || (typeof result === 'object' && Object.keys(result).length === 0)) {
-					this._isValid = true;
-				}
-
-				return result;
-			}.bind(this);
-		}
-
 
 		//Add default values
 		if (this.defaults) {
@@ -50,7 +35,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		this.init();
 	};
 
-	$.extend(model.prototype, XQCore.GetSet.prototype);
+	$.extend(model.prototype, new XQCore.GetSet());
 
 	model.prototype.init = function() {
 
@@ -93,11 +78,6 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
 	 */
 	model.prototype.send = function(method, data, callback) {
-
-		if (!this.server) {
-			this.error('Can not send an ajax request! You must define a server URL first.');
-			return false;
-		}
 
 		if (data === undefined) {
 			data = this.get();

@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://andi@ceres/var/git/xqcore.git"
+    "url": "ssh://kallisto@kallisto/~/xqcore.git"
   },
   "keywords": [
     "mvp",

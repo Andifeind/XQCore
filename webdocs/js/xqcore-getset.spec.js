@@ -9,7 +9,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should set data to the dataset', function() {
 		var test = new XQCore.GetSet({
-			debug: true
 		});
 
 		test.set({
@@ -40,7 +39,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate an item an should get an undefined but required error', function(done) {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'string', required: true }
 			}
@@ -61,7 +59,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a undefined but required error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'string', required: true }
 			}
@@ -69,7 +66,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', undefined);
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Property is undefined or null, but it\'s required');
@@ -78,7 +74,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a type error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'string' }
 			}
@@ -86,7 +81,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', 1);
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Property type is a number, but a string is required');
@@ -95,7 +89,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a string to short error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'string', min: 10 }
 			}
@@ -103,7 +96,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', 'test');
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('String length is too short');
@@ -112,7 +104,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a string to long error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'string', max: 10 }
 			}
@@ -120,7 +111,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', 'testing ist so beautifull');
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('String length is too long');
@@ -129,7 +119,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a string doesn\'t match regexp', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'string', match: /^a/ }
 			}
@@ -137,7 +126,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', 'blabla');
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('String doesn\'t match regexp');
@@ -146,7 +134,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a type error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'number' }
 			}
@@ -154,7 +141,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', '1');
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Property type is a string, but a number is required');
@@ -163,7 +149,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a number to low error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'number', min: 10 }
 			}
@@ -171,7 +156,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', 9);
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Number is too low');
@@ -180,7 +164,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a number to high error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'number', max: 10 }
 			}
@@ -188,7 +171,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', 12);
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Number is too high');
@@ -197,7 +179,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a not a valid date error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'date' }
 			}
@@ -205,7 +186,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', 'Not a date');
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Property isn\'t a valid date');
@@ -214,7 +194,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a type not an array error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'array' }
 			}
@@ -225,7 +204,6 @@ describe('XQCore GetSet', function() {
 			b: 'bb'
 		});
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Property type is a object, but an array is required');
@@ -234,7 +212,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get an array length to low error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'array', min: 5 }
 			}
@@ -244,7 +221,6 @@ describe('XQCore GetSet', function() {
 			'aa', 'bb', 'cc'
 		]);
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Array length is 3 but must be greater than 5');
@@ -253,7 +229,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get an array length to long error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'array', max: 2 }
 			}
@@ -263,7 +238,6 @@ describe('XQCore GetSet', function() {
 			'aa', 'bb', 'cc'
 		]);
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Array length is 3 but must be lesser than 2');
@@ -272,7 +246,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a not a valid object error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'object' }
 			}
@@ -280,7 +253,6 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', 'Not an object');
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Property isn\'t a valid object');
@@ -289,7 +261,6 @@ describe('XQCore GetSet', function() {
 
 	it('Should validate one and should get a not a valid boolean error', function() {
 		var test = new XQCore.GetSet({
-			debug: true,
 			schema: {
 				'test': { type: 'boolean' }
 			}
@@ -297,11 +268,24 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', 'Not a boolean');
 
-		expect(test.isValid()).to.be(false);
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Property isn\'t a valid boolean');
 		expect(err.errCode).to.equal(61);
+	});
+
+	it('A empty string should cause a validation error if property is required', function() {
+		var test = new XQCore.GetSet({
+			schema: {
+				'test': { type: 'string', required: true }
+			}
+		});
+
+		var err = test.validateOne('test', '');
+		expect(err).to.be.an('object');
+		expect(err.property).to.equal('test');
+		expect(err.msg).to.equal('Property is undefined or null, but it\'s required');
+		expect(err.errCode).to.equal(10);
 	});
 
 });

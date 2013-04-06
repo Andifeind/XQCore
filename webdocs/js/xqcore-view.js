@@ -92,7 +92,7 @@ XQCore.View = (function(undefined) {
 						}
 
 						if (eventFunc && eventName) {
-							
+
 							if (typeof eventFunc === 'function') {
 								//Register event listener
 								this.container.delegate(selector, eventName, function(e) {
@@ -122,8 +122,6 @@ XQCore.View = (function(undefined) {
 							this.warn('Incorect event configuration', key);
 						}
 					}, this);
-				} else {
-					this.warn('No view events defined');
 				}
 
 				// custom init
@@ -141,11 +139,11 @@ XQCore.View = (function(undefined) {
 	};
 
 	view.prototype.show = function() {
-		
+
 	};
 
 	view.prototype.hide = function() {
-		
+
 	};
 
 	/**
@@ -172,7 +170,7 @@ XQCore.View = (function(undefined) {
 	};
 
 	view.prototype.resize = function() {
-		
+
 	};
 
 	/**

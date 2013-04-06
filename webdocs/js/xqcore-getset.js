@@ -80,6 +80,8 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		if (key) {
 			this.emit('change.' + key, newData[key]);
 		}
+
+		return true;
 	};
 
 	/**
@@ -255,7 +257,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			value = schema.default;
 		}
 
-		if ((value === undefined || value === null) && schema.required === true) {
+		if ((value === undefined || value === null || value === '') && schema.required === true) {
 			failed = {
 				property: key,
 				msg: 'Property is undefined or null, but it\'s required',
@@ -294,6 +296,10 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 		}
 		else if(schema.type === 'number') {
+			if (schema.convert && typeof(value) === 'string') {
+				value = parseInt(value, 10);
+			}
+
 			if (schema.type !== typeof(value)) {
 				failed = {
 					property: key,
@@ -317,13 +323,15 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			}
 		}
 		else if(schema.type === 'date') {
-			var date = Date.parse(value);
-			if (isNaN(date)) {
-				failed = {
-					property: key,
-					msg: 'Property isn\'t a valid date',
-					errCode: 31
-				};
+			if (value) {
+				var date = Date.parse(value);
+				if (isNaN(date)) {
+					failed = {
+						property: key,
+						msg: 'Property isn\'t a valid date',
+						errCode: 31
+					};
+				}
 			}
 		}
 		else if(schema.type === 'array') {

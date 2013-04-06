@@ -4,7 +4,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-yuidoc');
 	grunt.loadNpmTasks('grunt-contrib-concat');
-	
+
 	// Project configuration.
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
@@ -21,7 +21,8 @@ module.exports = function(grunt) {
 				browser: true,
 				smarttabs: true,
 				multistr: true,
-				laxbreak: true
+				laxbreak: true,
+				es5: true
 			},
 			globals: {
 

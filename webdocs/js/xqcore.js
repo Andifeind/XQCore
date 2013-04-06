@@ -430,9 +430,159 @@ XQCore.Event = (function() {
 	return event;
 })();
 
+/**
+ * XQCore Logger
+ *
+ * Based on EventEmitter.js
+ * 
+ * 
+ */
+XQCore.Logger = (function(conf) {
+
+	//var timerStore = {};
+
+	function getHumanTime(time) {
+		if (time < 1000) {
+			return time + ' ms';
+		}
+		else if (time < 60000) {
+			return (Math.round(time / 100) / 10) + ' sec';
+		}
+		else {
+			return (Math.round(time / 60000)) + ' min ' + Math.round(time % 60000 / 1000) + ' sec';
+		}
+	}
+
+	function onScreenConsole() {
+		var conf,
+			html;
+
+		conf = localStorage.get('xqcore-onscreen-console') || {
+			pos: 'bottom'
+		};
+
+		html = '<div id="XQCoreLogger-OnScreenConsole">\
+			</div>';
+	}
+
+	/**
+	 * XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console
+	 *
+	 * @package XQCore.Logger
+	 * @class XQCore Logger class
+	 *
+	 * @return {[type]} [description]
+	 */
+	var logger = function() {
+		
+	};
+
+	/**
+	 * Loggs a message to the console
+	 *
+	 * @method log
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 */
+	logger.prototype.log = function() {
+		var args;
+
+		if (this.debug) {
+			args = Array.prototype.slice.call(arguments);
+			args.unshift('[' + this.name + ']');
+			console.log.apply(console, args);
+		}
+	};
+
+	/**
+	 * Loggs a warning to the console
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 */
+	logger.prototype.warn = function() {
+		var args;
+
+		if (this.debug) {
+			args = Array.prototype.slice.call(arguments);
+			args.unshift('[' + this.name + ']');
+			console.warn.apply(console, args);
+		}
+	};
+
+	/**
+	 * Loggs a error message to the console
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 */
+	logger.prototype.error = function() {
+		var args;
+
+		if (this.debug) {
+			args = Array.prototype.slice.call(arguments);
+			args.unshift('[' + this.name + ']');
+			console.error.apply(console, args);
+		}
+	};
+
+	/**
+	 * Start a timeTracer
+	 *
+	 * @param {String} timerName Set the name for your (Optional)
+	 * @return {Object} Returns a TimerObject
+	 */
+	logger.prototype.timer = function(name) {
+		var timer = {
+			start: null,
+			stop: null,
+			name: name,
+			logger: this,
+			end: function() {
+				this.stop = Date.now();
+				this.logger.log('Timer ' + this.name + ' runs: ', getHumanTime(this.stop - this.start));
+			}
+		};
+
+		/*if (name) {
+			this.timerStore[name] = timer;
+		}*/
+
+		this.log('Start Timer', name);
+
+		//Set timer start time
+		timer.start = Date.now();
+		return timer;
+	};
+
+	/**
+	 * Stops a timer
+	 *
+	 * @param {String or Object} timerName Stops the given timer
+	 */
+	logger.prototype.timerEnd = function(timer) {
+		//Set stop timer
+		
+	};
+
+	logger.prototype.__scope = {
+		getHumanTime: getHumanTime
+	};
+	
+
+	return logger;
+})();
 XQCore.GetSet = (function(window, document, $, undefined) {
-	var getset = function() {
+	var getset = function(conf) {
 		this.properties = {};
+		this._isValid = false;
+
+		if (conf) {
+			this.schema = conf.schema;
+			this.debug = Boolean(conf.debug);
+		}
+
+		this.name = 'GetSet';
+		$.extend(this, new XQCore.Logger());
+		$.extend(this, new XQCore.Event());
 	};
 
 	var undotify = function(path, obj) {
@@ -446,7 +596,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		return obj;
 	};
 
-	$.extend(getset.prototype, new XQCore.Event());
+	// $.extend(getset.prototype, new XQCore.Event());
 
 	/**
 	 * Set getset data
@@ -456,6 +606,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 */
 	getset.prototype.set = function() {
 		var newData = {},
+			oldData = this.get(),
 			validateResult,
 			key;
 
@@ -465,28 +616,44 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			this.log('Set data', arguments[0]);
 		}
 		else if (typeof arguments[0] === 'string') {
-			newData[arguments[0]] = arguments[1];
+			newData = this.get();
 			key = arguments[0];
-			this.log('Set data', arguments[0], arguments[1]);
+			var val = arguments[1];
+
+			newData[key] = val;
+			this.log('Set data', arguments[0], arguments[1], newData);
 		}
 		else {
 			this.warn('Data are incorrect in getset.set()', arguments);
 		}
 
-		if (this.validate) {
+		if (this.schema) {
 			validateResult = this.validate(newData);
-			if (validateResult) {
+			if (validateResult !== null) {
 				this.warn('Validate error in getset.set', validateResult);
-				return validateResult;
+				this.emit('validation.error', validateResult);
+				return false;
 			}
 		}
 
-		$.extend(this.properties, newData);
-		this.emit('data.change', newData);
+		if (this.customValidate) {
+			console.log('Use custom validation', this.customValidate);
+			validateResult = this.customValidate(newData);
+			if (validateResult !== null) {
+				this.warn('Validate error in getset.set', validateResult);
+				this.emit('validation.error', validateResult);
+				return false;
+			}
+		}
+
+		this.properties = newData;
+		this.emit('data.change', newData, oldData);
 
 		if (key) {
 			this.emit('change.' + key, newData[key]);
 		}
+
+		return true;
 	};
 
 	/**
@@ -628,6 +795,171 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		}
 
 		return null;
+	};
+
+	getset.prototype.validate = function(data) {
+		var failed = [];
+
+		if (this.schema) {
+			Object.keys(this.schema).forEach(function(key) {
+				var validationResult = this.validateOne(key, data[key]);
+
+				if (validationResult !== null) {
+					failed.push(validationResult);
+				}
+			}.bind(this));
+		}
+
+		if (failed.length === 0) {
+			this._isValid = true;
+			return null;
+		}
+		else {
+			this._isValid = false;
+			return failed;
+		}
+	};
+
+	getset.prototype.validateOne = function(key, value) {
+		var failed = null,
+			schema = this.schema[key];
+
+		console.log('Schema', schema, schema.match);
+		if ((value === undefined || value === null) && schema.default) {
+			value = schema.default;
+		}
+
+		if ((value === undefined || value === null || value === '') && schema.required === true) {
+			failed = {
+				property: key,
+				msg: 'Property is undefined or null, but it\'s required',
+				errCode: 10
+			};
+		}
+		else if (schema.type === 'string') {
+			if (schema.type !== typeof(value)) {
+				failed = {
+					property: key,
+					msg: 'Property type is a ' + typeof(value) + ', but a string is required',
+					errCode: 11
+				};
+			}
+			else if(schema.min && schema.min > value.length) {
+				failed = {
+					property: key,
+					msg: 'String length is too short',
+					errCode: 12
+				};
+			}
+			else if(schema.max && schema.max < value.length) {
+				failed = {
+					property: key,
+					msg: 'String length is too long',
+					errCode: 13
+				};
+			}
+			else if(schema.match && !schema.match.test(value)) {
+				failed = {
+					property: key,
+					msg: 'String doesn\'t match regexp',
+					errCode: 14
+				};
+			}
+
+		}
+		else if(schema.type === 'number') {
+			if (schema.convert && typeof(value) === 'string') {
+				value = parseInt(value, 10);
+			}
+
+			if (schema.type !== typeof(value)) {
+				failed = {
+					property: key,
+					msg: 'Property type is a ' + typeof(value) + ', but a number is required',
+					errCode: 21
+				};
+			}
+			else if(schema.min && schema.min > value) {
+				failed = {
+					property: key,
+					msg: 'Number is too low',
+					errCode: 22
+				};
+			}
+			else if(schema.max && schema.max < value) {
+				failed = {
+					property: key,
+					msg: 'Number is too high',
+					errCode: 23
+				};
+			}
+		}
+		else if(schema.type === 'date') {
+			if (value) {
+				var date = Date.parse(value);
+				if (isNaN(date)) {
+					failed = {
+						property: key,
+						msg: 'Property isn\'t a valid date',
+						errCode: 31
+					};
+				}
+			}
+		}
+		else if(schema.type === 'array') {
+			if (!Array.isArray(value)) {
+				failed = {
+					property: key,
+					msg: 'Property type is a ' + typeof(value) + ', but an array is required',
+					errCode: 41
+				};
+			}
+			else if(schema.min && schema.min > value.length) {
+				failed = {
+					property: key,
+					msg: 'Array length is ' + value.length + ' but must be greater than ' + schema.min,
+					errCode: 42
+				};
+			}
+			else if(schema.max && schema.max < value.length) {
+				failed = {
+					property: key,
+					msg: 'Array length is ' + value.length + ' but must be lesser than ' + schema.max,
+					errCode: 43
+				};
+			}
+		}
+		else if(schema.type === 'object') {
+			if (typeof(value) !== 'object') {
+				failed = {
+					property: key,
+					msg: 'Property isn\'t a valid object',
+					errCode: 51
+				};
+			}
+		}
+		else if(schema.type === 'boolean') {
+			if (typeof(value) !== 'object') {
+				failed = {
+					property: key,
+					msg: 'Property isn\'t a valid boolean',
+					errCode: 61
+				};
+			}
+		}
+		else {
+
+		}
+
+		if (failed !== null) {
+			this.warn('Validation error on property', key, failed, 'Data:', value);
+		}
+
+		return failed;
+	};
+
+	getset.prototype.isValid = function() {
+		return this._isValid;
 	};
 
 
@@ -948,39 +1280,29 @@ XQCore.Model = (function(window, document, $, undefined) {
 		}
 
 		this.customInit = conf.init;
-		this.conf = conf;
 		delete conf.init;
 
+		this.customValidate = conf.validate;
+		delete conf.validate;
+
+		this.conf = conf;
+
 		$.extend(this, conf, new XQCore.Logger());
+		$.extend(this, new XQCore.Event());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
-		this._isValid = false;
+		// this._isValid = false;
 		this.properties = {};
 
-		if (conf.validate) {
-			this.validate = function(formData) {
-				var result;
-
-				this._isValid = false;
-				result = conf.validate.call(this, formData);
-				if (!result || (typeof result === 'object' && Object.keys(result).length === 0)) {
-					this._isValid = true;
-				}
-
-				return result;
-			}.bind(this);
-		}
-
-
 		//Add default values
-		if (this.defaults) {
+		if (this.defaults && !$.isEmptyObject(this.defaults)) {
 			this.set(this.defaults);
 		}
 
 		this.init();
 	};
 
-	$.extend(model.prototype, XQCore.GetSet.prototype);
+	$.extend(model.prototype, new XQCore.GetSet());
 
 	model.prototype.init = function() {
 
@@ -992,14 +1314,6 @@ XQCore.Model = (function(window, document, $, undefined) {
 		if (typeof this.customInit === 'function') {
 			this.customInit.call(this);
 		}
-	};
-
-	model.prototype.validate = function(method, url, data) {
-		return true;
-	};
-
-	model.prototype.isValid = function() {
-		return this._isValid;
 	};
 
 	/**
@@ -1022,26 +1336,18 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * @param {Object} data The data to sent to the server
 	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
 	 */
-	model.prototype.send = function(method, url, data, callback) {
+	model.prototype.send = function(method, data, callback) {
 
-		if (data === undefined) {
+		if (typeof data === 'function') {
+			callback = data;
+			data = this.get();
+		}
+		else if (data === undefined) {
 			data = this.get();
 		}
 
 		if (method === undefined) {
 			method = 'POST';
-		}
-
-		//Run validation
-		var validationStatus = this.validate(method, url, data);
-		if (validationStatus !== true) {
-			callback({
-				error: 'Validation error',
-				msg: validationStatus
-			});
-
-			this.warn('Validation error in ' + method + ' request to ' + url, validationStatus, data);
-			return;
 		}
 
 		//Handle onSend
@@ -1052,7 +1358,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
 
 		$.ajax({
-			url: url,
+			url: this.server,
 			type: method,
 			data: data,
 			success: function(data, status, jqXHR) {
@@ -1080,8 +1386,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendPOST = function(url, data, callback) {
-		this.send('POST', url, data, callback);
+	model.prototype.sendPOST = function(data, callback) {
+		this.send('POST', data, callback);
 	};
 
 	/**
@@ -1093,8 +1399,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendGET = function(url, data, callback) {
-		this.send('GET', url, data, callback);
+	model.prototype.sendGET = function(data, callback) {
+		this.send('GET', data, callback);
 	};
 
 	/**
@@ -1106,8 +1412,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendPUT = function(url, data, callback) {
-		this.send('PUT', url, data, callback);
+	model.prototype.sendPUT = function(data, callback) {
+		this.send('PUT', data, callback);
 	};
 
 	/**
@@ -1119,8 +1425,8 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendDELETE = function(url, data, callback) {
-		this.send('DELETE', url, data, callback);
+	model.prototype.sendDELETE = function(data, callback) {
+		this.send('DELETE', data, callback);
 	};
 
 	return model;
@@ -1220,7 +1526,7 @@ XQCore.View = (function(undefined) {
 						}
 
 						if (eventFunc && eventName) {
-							
+
 							if (typeof eventFunc === 'function') {
 								//Register event listener
 								this.container.delegate(selector, eventName, function(e) {
@@ -1250,8 +1556,6 @@ XQCore.View = (function(undefined) {
 							this.warn('Incorect event configuration', key);
 						}
 					}, this);
-				} else {
-					this.warn('No view events defined');
 				}
 
 				// custom init
@@ -1269,11 +1573,11 @@ XQCore.View = (function(undefined) {
 	};
 
 	view.prototype.show = function() {
-		
+
 	};
 
 	view.prototype.hide = function() {
-		
+
 	};
 
 	/**
@@ -1300,7 +1604,7 @@ XQCore.View = (function(undefined) {
 	};
 
 	view.prototype.resize = function() {
-		
+
 	};
 
 	/**
@@ -1491,146 +1795,6 @@ XQCore.View = (function(undefined) {
 	return view;
 })();
 
-/**
- * XQCore Logger
- *
- * Based on EventEmitter.js
- * 
- * 
- */
-XQCore.Logger = (function(conf) {
-
-	//var timerStore = {};
-
-	function getHumanTime(time) {
-		if (time < 1000) {
-			return time + ' ms';
-		}
-		else if (time < 60000) {
-			return (Math.round(time / 100) / 10) + ' sec';
-		}
-		else {
-			return (Math.round(time / 60000)) + ' min ' + Math.round(time % 60000 / 1000) + ' sec';
-		}
-	}
-
-	function onScreenConsole() {
-		var conf,
-			html;
-
-		conf = localStorage.get('xqcore-onscreen-console') || {
-			pos: 'bottom'
-		};
-
-		html = '<div id="XQCoreLogger-OnScreenConsole">\
-			</div>';
-	}
-
-	/**
-	 * XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console
-	 *
-	 * @package XQCore.Logger
-	 * @class XQCore Logger class
-	 *
-	 * @return {[type]} [description]
-	 */
-	var logger = function() {
-		
-	};
-
-	/**
-	 * Loggs a message to the console
-	 *
-	 * @method log
-	 *
-	 * @param {Any} msg logs all arguments to the console
-	 */
-	logger.prototype.log = function() {
-		var args;
-
-		if (this.debug) {
-			args = Array.prototype.slice.call(arguments);
-			args.unshift('[' + this.name + ']');
-			console.log.apply(console, args);
-		}
-	};
-
-	/**
-	 * Loggs a warning to the console
-	 *
-	 * @param {Any} msg logs all arguments to the console
-	 */
-	logger.prototype.warn = function() {
-		var args;
-
-		if (this.debug) {
-			args = Array.prototype.slice.call(arguments);
-			args.unshift('[' + this.name + ']');
-			console.warn.apply(console, args);
-		}
-	};
-
-	/**
-	 * Loggs a error message to the console
-	 *
-	 * @param {Any} msg logs all arguments to the console
-	 */
-	logger.prototype.error = function() {
-		var args;
-
-		if (this.debug) {
-			args = Array.prototype.slice.call(arguments);
-			args.unshift('[' + this.name + ']');
-			console.error.apply(console, args);
-		}
-	};
-
-	/**
-	 * Start a timeTracer
-	 *
-	 * @param {String} timerName Set the name for your (Optional)
-	 * @return {Object} Returns a TimerObject
-	 */
-	logger.prototype.timer = function(name) {
-		var timer = {
-			start: null,
-			stop: null,
-			name: name,
-			logger: this,
-			end: function() {
-				this.stop = Date.now();
-				this.logger.log('Timer ' + this.name + ' runs: ', getHumanTime(this.stop - this.start));
-			}
-		};
-
-		/*if (name) {
-			this.timerStore[name] = timer;
-		}*/
-
-		this.log('Start Timer', name);
-
-		//Set timer start time
-		timer.start = Date.now();
-		return timer;
-	};
-
-	/**
-	 * Stops a timer
-	 *
-	 * @param {String or Object} timerName Stops the given timer
-	 */
-	logger.prototype.timerEnd = function(timer) {
-		//Set stop timer
-		
-	};
-
-	logger.prototype.__scope = {
-		getHumanTime: getHumanTime
-	};
-	
-
-	return logger;
-})();
 /**
  * A bunch of helpfull functions
  *

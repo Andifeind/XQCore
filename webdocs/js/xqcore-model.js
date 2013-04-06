@@ -33,7 +33,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		this.properties = {};
 
 		//Add default values
-		if (this.defaults) {
+		if (this.defaults && !$.isEmptyObject(this.defaults)) {
 			this.set(this.defaults);
 		}
 
@@ -76,7 +76,11 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.send = function(method, data, callback) {
 
-		if (data === undefined) {
+		if (typeof data === 'function') {
+			callback = data;
+			data = this.get();
+		}
+		else if (data === undefined) {
 			data = this.get();
 		}
 
@@ -161,6 +165,13 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.sendDELETE = function(data, callback) {
 		this.send('DELETE', data, callback);
+	};
+
+	/**
+	 * Check if model is ready and call func or wait for ready state
+	 */
+	model.prototype.ready = function(func) {
+
 	};
 
 	return model;

@@ -60,7 +60,7 @@ describe('XQCore View', function() {
 
 		expect(view).to.be.an('object');
 		expect(presenter).to.be.an('object');
-		
+
 		viewContainer.find('#test').trigger('mousedown');
 		viewContainer.find('#test').trigger('mouseup');
 		expect(testSpy1).was.called();
@@ -79,6 +79,8 @@ describe('XQCore View', function() {
 		view = new XQCore.View(presenter, {
 			container: viewContainer
 		});
+
+		presenter.init(view);
 
 		expect(view).to.be.an('object');
 		expect(initFunc).was.called();
@@ -113,6 +115,8 @@ describe('XQCore View', function() {
 				{{/each}}\
 				</ul>'
 		});
+
+		testPresenter.init(testView);
 
 		expect(testView).to.be.an('object');
 		$expect(viewContainer).to.have('ul > li');

@@ -18,10 +18,15 @@ XQCore.Model = (function(window, document, $, undefined) {
 		}
 
 		this.customInit = conf.init;
-		this.conf = conf;
 		delete conf.init;
 
+		this.customValidate = conf.validate;
+		delete conf.validate;
+
+		this.conf = conf;
+
 		$.extend(this, conf, new XQCore.Logger());
+		$.extend(this, new XQCore.Event());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
 		// this._isValid = false;
@@ -47,14 +52,6 @@ XQCore.Model = (function(window, document, $, undefined) {
 		if (typeof this.customInit === 'function') {
 			this.customInit.call(this);
 		}
-	};
-
-	model.prototype.validate = function() {
-
-	};
-
-	model.prototype.isValid = function() {
-		return this._isValid;
 	};
 
 	/**

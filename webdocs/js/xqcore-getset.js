@@ -10,6 +10,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 		this.name = 'GetSet';
 		$.extend(this, new XQCore.Logger());
+		$.extend(this, new XQCore.Event());
 	};
 
 	var undotify = function(path, obj) {
@@ -23,7 +24,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		return obj;
 	};
 
-	$.extend(getset.prototype, new XQCore.Event());
+	// $.extend(getset.prototype, new XQCore.Event());
 
 	/**
 	 * Set getset data
@@ -56,10 +57,20 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 		if (this.schema) {
 			validateResult = this.validate(newData);
-			if (validateResult !== true) {
+			if (validateResult !== null) {
 				this.warn('Validate error in getset.set', validateResult);
 				this.emit('validation.error', validateResult);
-				return validateResult;
+				return false;
+			}
+		}
+
+		if (this.customValidate) {
+			console.log('Use custom validation', this.customValidate);
+			validateResult = this.customValidate(newData);
+			if (validateResult !== null) {
+				this.warn('Validate error in getset.set', validateResult);
+				this.emit('validation.error', validateResult);
+				return false;
 			}
 		}
 
@@ -225,7 +236,14 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			}.bind(this));
 		}
 
-		return failed === [] ? null : failed;
+		if (failed.length === 0) {
+			this._isValid = true;
+			return null;
+		}
+		else {
+			this._isValid = false;
+			return failed;
+		}
 	};
 
 	getset.prototype.validateOne = function(key, value) {

@@ -1,6 +1,4 @@
 describe('XQCore Model', function() {
-	var testModel,
-		testModel2;
 
 	beforeEach(function() {
 
@@ -12,7 +10,7 @@ describe('XQCore Model', function() {
 
 	it('Should create and initialize a XQCore Model', function() {
 		var initFunc = sinon.spy();
-		testModel = new XQCore.Model();
+		var testModel = new XQCore.Model();
 		testModel = new XQCore.Model({
 			init: initFunc
 		});
@@ -21,7 +19,7 @@ describe('XQCore Model', function() {
 	});
 
 	it('Should set and get properties to the model', function() {
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 
 		});
 
@@ -50,7 +48,7 @@ describe('XQCore Model', function() {
 	});
 
 	it('Should check whether an attribute exists in model', function() {
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 
 		});
 
@@ -64,16 +62,16 @@ describe('XQCore Model', function() {
 		expect(testModel.has('z')).to.be(false);
 	});
 
-	xit('Should validate properties and shouldn\'t be added to the model if the validation fails', function() {
-		testModel = new XQCore.Model({
+	it('Should validate properties and shouldn\'t be added to the model if the validation fails', function() {
+		var testModel = new XQCore.Model({
 			validate: function() {
 				return null; //Validation is successfull
 			}
 		});
 
-		testModel2 = new XQCore.Model({
+		var testModel2 = new XQCore.Model({
 			validate: function() {
-				return 'fail'; //Validation fails
+				return ['fail']; //Validation fails
 			}
 		});
 
@@ -95,17 +93,18 @@ describe('XQCore Model', function() {
 			c: 'ccc'
 		});
 
+		console.log('TM2', testModel2.properties);
 		expect(testModel2.properties).to.eql({});
 	});
 
 	xit('Should gets the validating state of the model', function() {
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 			validate: function() {
 				return null; //Validation is successfull
 			}
 		});
 
-		testModel2 = new XQCore.Model({
+		var testModel2 = new XQCore.Model({
 			validate: function() {
 				return 'fail'; //Validation fails
 			}
@@ -128,7 +127,7 @@ describe('XQCore Model', function() {
 	});
 
 	xit('Should reset the model properties', function() {
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 			validate: function() {
 				return null; //Validation is successfull
 			}
@@ -154,7 +153,7 @@ describe('XQCore Model', function() {
 	it('Should make a POST request', function() {
 		//Stub jQuery.ajax
 		sinon.stub(jQuery, 'ajax');
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 			debug: true,
 			server: 'http://test.com'
 		});
@@ -184,7 +183,7 @@ describe('XQCore Model', function() {
 	it('Should make a GET request', function() {
 		//Stub jQuery.ajax
 		sinon.stub(jQuery, 'ajax');
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 			server: 'http://test.com'
 		});
 
@@ -213,7 +212,7 @@ describe('XQCore Model', function() {
 	it('Should make a PUT request', function() {
 		//Stub jQuery.ajax
 		sinon.stub(jQuery, 'ajax');
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 			server: 'http://test.com'
 		});
 
@@ -242,7 +241,7 @@ describe('XQCore Model', function() {
 	it('Should make a DELETE request', function() {
 		//Stub jQuery.ajax
 		sinon.stub(jQuery, 'ajax');
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 			server: 'http://test.com'
 		});
 
@@ -272,7 +271,7 @@ describe('XQCore Model', function() {
 
 		this.timeout(5000);
 		//Stub jQuery.ajax
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 			server: 'http://xqcore.lc/test/post-success.php'
 		});
 
@@ -294,7 +293,7 @@ describe('XQCore Model', function() {
 
 		this.timeout(5000);
 		//Stub jQuery.ajax
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 			server: 'http://xqcore.lc/test/post-404.php'
 		});
 
@@ -316,7 +315,7 @@ describe('XQCore Model', function() {
 
 		this.timeout(5000);
 		//Stub jQuery.ajax
-		testModel = new XQCore.Model({
+		var testModel = new XQCore.Model({
 			server: 'http://xqcore.lc/test/post-500.php'
 		});
 
@@ -335,8 +334,8 @@ describe('XQCore Model', function() {
 	});
 
 	it('Should search a property, searching in the first level', function() {
-		testModel = new XQCore.Model({
-			
+		var testModel = new XQCore.Model({
+
 		});
 
 		testModel.set({
@@ -359,8 +358,8 @@ describe('XQCore Model', function() {
 	});
 
 	it('Should search a property, searching in the third level', function() {
-		testModel = new XQCore.Model({
-			
+		var testModel = new XQCore.Model({
+
 		});
 
 		testModel.set({
@@ -385,21 +384,21 @@ describe('XQCore Model', function() {
 	});
 
 	it('Should validate data on set', function() {
-		testModel = new XQCore.Model({
+		var model = new XQCore.Model({
 			schema: {
 				title: { type: String, required: true },
 				description: { type: String },
 				status: { type: Number, 'default': 1 }
 			}
 		});
-		console.log('testModel', testModel);
+		console.log('testModel', model);
 
-		testModel.set({
+		model.set({
 			title: 'Title',
 			description: 'A very long text... yeah!',
 			status: 2
 		});
 
-		expect(testModel.isValid).to.be(true);
+		expect(model.isValid()).to.be(true);
 	});
 });

@@ -171,7 +171,42 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * Check if model is ready and call func or wait for ready state
 	 */
 	model.prototype.ready = function(func) {
+		if (func === true) {
+			//Call ready funcs
+			if (Array.isArray(this.__callbacksOnReady)) {
+				this.log('Trigger ready state');
+				this.__callbacksOnReady.forEach(function(func) {
+					func();
+				});
 
+				this.__isReady = true;
+				delete this.__callbacksOnReady;
+			}
+		}
+		else if (typeof func === 'function') {
+			if (this.__isReady === true) {
+				func();
+			}
+			else {
+				if (!this.__callbacksOnReady) {
+					this.__callbacksOnReady = [];
+				}
+				this.__callbacksOnReady.push(func);
+			}
+		}
+		else {
+			this.warn('arg0 isn\'t a callback in model.ready()!');
+		}
+	};
+
+	/**
+	 * Fetch data from server
+	 *
+	 * @param {Object} query MongoDB query 
+	 * @param {Function} callback Callback function
+	 */
+	model.prototype.fetch = function(query, callback) {
+		this.sendGET(query, callback);
 	};
 
 	return model;

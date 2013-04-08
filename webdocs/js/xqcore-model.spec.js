@@ -401,4 +401,78 @@ describe('XQCore Model', function() {
 
 		expect(model.isValid()).to.be(true);
 	});
+
+	it('Should wait till model is ready', function(done) {
+		var counter = 0;
+		var model = new XQCore.Model({
+
+		});
+
+		model.ready(function() {
+			++counter;
+			expect(counter).to.be(1);
+		});
+
+		model.ready(function() {
+			++counter;
+			expect(counter).to.be(2);
+		});
+
+		model.ready(true);
+
+		model.ready(function() {
+			++counter;
+			expect(counter).to.be(3);
+		});
+
+		model.ready(function() {
+			++counter;
+			expect(counter).to.be(4);
+			done();
+		});
+	});
+
+	it('Should fetch data from server', function() {
+		var ajaxStub = sinon.stub(jQuery, 'ajax');
+
+		var model = new XQCore.Model({
+
+		});
+
+		model.fetch({
+			a: 'aa',
+			b: 'bb'
+		}, function(err, data) {
+			expect(data).to.be.an('object');
+		});
+
+		expect(ajaxStub).was.called();
+		expect(ajaxStub).was.calledWithMatch({
+			data: {
+				a: 'aa',
+				b: 'bb'
+			}
+		});
+	});
+
+	it('Should fetch data from cache', function() {
+		var ajaxStub = sinon.stub(jQuery, 'ajax');
+
+		var model = new XQCore.Model({
+
+		});
+
+		model.isOffline = function() {
+			return true;
+		};
+
+		model.fetch({
+			a: 'aa',
+			b: 'bb'
+		}, function(err, data) {
+			expect(data).to.be.an('object');
+		});
+
+		expect(ajaxStub).was.neverCalled();
+	});
 });

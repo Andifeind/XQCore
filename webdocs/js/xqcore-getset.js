@@ -38,10 +38,13 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			validateResult,
 			key;
 
-		if (typeof arguments[0] === 'object') {
+		if (Array.isArray(arguments[0])) {
+			newData = Array.prototype.slice.call(arguments[0]);
+		}
+		else if (typeof arguments[0] === 'object') {
 			//Add a dataset
-			$.extend(newData, arguments[0]);
-			this.log('Set data', arguments[0]);
+			newData = $.extend(oldData, arguments[0]);
+			this.log('Set data', arguments[0], newData);
 		}
 		else if (typeof arguments[0] === 'string') {
 			newData = this.get();

@@ -1,5 +1,5 @@
 {
-  "name": "XQCore",
+  "name": "xqcore",
   "version": "0.1.0",
   "description": "MVP Javascript Framework",
   "dependencies": {},
@@ -25,5 +25,23 @@
     "mvc"
   ],
   "author": "Andi Heinkelein",
-  "license": "MIT"
+  "maintainers": [
+    {
+      "name": "Andi Heinkelein",
+      "email": "andi@noname-media.com",
+      "web": "http://www.noname-media.com" 
+    } 
+  ],
+  "license": "MIT",
+  "jam": {
+    "dependencies": {
+      "jquery": ">1.9.0",
+      "handlebars": "1.0.0-beta.6.jam.2"
+    },
+    "main": "webdocs/js/xqcore.js",
+    "shim": {
+      "deps": ["jquery", "handlebars"],
+      "exports": "XQCore"
+    }
+  }
 }

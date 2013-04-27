@@ -1,4 +1,28 @@
+/*!
+ * XQCore - 0.3.5
+ * 
+ * Model View Presenter Javascript Framework
+ *
+ * XQCore is licenced under MIT Licence
+ * http://opensource.org/licenses/MIT
+ *
+ * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
+ * Author Andi Heinkelein
+ *
+ * Creation Date: 2013-04-24
+ */
+
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define('xqcore', ['jquery', 'handlebars'], factory);
+    } else {
+        root.XQCore = factory(root.jQuery, root.Handlebars);
+    }
+}(this, function (jQuery, Handlebars) {
+
+
 /*jshint evil:true */
+/*global define:false */
 
 /**
  * XQCore main object
@@ -7,12 +31,23 @@
  * @type {Object}
  */
 var XQCore = {
-	version: 0.2,
+	version: '0.3.5',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
 	callerEvent: 'callerEvent'
 };
+
+if (typeof define === "function" && define.amd) {
+	console.log('XQCore: using AMD style');
+	define( "xqcore", ['handlebars'], function (Handlebars) {
+		XQCore.TemplateEngine = Handlebars;
+		return XQCore;
+	});
+} else {
+	XQCore.TemplateEngine = window.Handlebars;
+	window.XQCore = XQCore;
+}
 
 /**
  * Implement include support
@@ -2295,3 +2330,7 @@ XQCore.Util = (function($) {
 	};
 
 })(XQCore.View.prototype);
+
+ return XQCore;
+}));
+

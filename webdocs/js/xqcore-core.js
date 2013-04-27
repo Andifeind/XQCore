@@ -1,4 +1,5 @@
 /*jshint evil:true */
+/*global define:false */
 
 /**
  * XQCore main object
@@ -7,12 +8,23 @@
  * @type {Object}
  */
 var XQCore = {
-	version: 0.2,
+	version: '<%= pkg.version %>',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
 	callerEvent: 'callerEvent'
 };
+
+if (typeof define === "function" && define.amd) {
+	console.log('XQCore: using AMD style');
+	define( "xqcore", ['handlebars'], function (Handlebars) {
+		XQCore.TemplateEngine = Handlebars;
+		return XQCore;
+	});
+} else {
+	XQCore.TemplateEngine = window.Handlebars;
+	window.XQCore = XQCore;
+}
 
 /**
  * Implement include support

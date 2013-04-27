@@ -1,0 +1,45 @@
+#regform {
+	margin: 20px auto;
+	border: 2px solid #ccc;
+	border-radius: 5px;
+	background-color: #eee;
+	box-shadow:2px 2px 5px rgba(0, 0, 0, .4);
+	padding: 20px;
+	font-size: 14px;
+	font-family: sans-serif;
+	color: #333;
+	width: 500px;
+}
+
+dl dt {
+    padding:0;
+}
+
+dl dd {
+    margin: 0;
+}
+
+input[type=text],
+input[type=password] {
+    border: 1px solid #c0c0c0;
+    border-radius: 5px;
+    width: 450px;
+    height: 26px;
+}
+
+.formButtons {
+	text-align: center;
+}
+
+button {
+	border-radius: 5px;
+	border: 2px solid #125678;
+	background-color: #ddd;
+	font-weight: bolder;
+	font-size: 16px;
+	padding: 5px;
+}
+
+button:focus {
+	outline: none;
+}

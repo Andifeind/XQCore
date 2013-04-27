@@ -612,8 +612,8 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 		if (typeof arguments[0] === 'object') {
 			//Add a dataset
-			$.extend(newData, arguments[0]);
-			this.log('Set data', arguments[0]);
+			newData = arguments[0];
+			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'string') {
 			newData = this.get();
@@ -621,7 +621,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			var val = arguments[1];
 
 			newData[key] = val;
-			this.log('Set data', arguments[0], arguments[1], newData);
+			this.log('Set data', newData, oldData);
 		}
 		else {
 			this.warn('Data are incorrect in getset.set()', arguments);
@@ -1427,6 +1427,65 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.sendDELETE = function(data, callback) {
 		this.send('DELETE', data, callback);
+	};
+
+	/**
+	 * Check if model is ready and call func or wait for ready state
+	 */
+	model.prototype.ready = function(func) {
+		if (func === true) {
+			//Call ready funcs
+			if (Array.isArray(this.__callbacksOnReady)) {
+				this.log('Trigger ready state');
+				this.__callbacksOnReady.forEach(function(func) {
+					func.call(this);
+				}.bind(this));
+			}
+
+			this.__isReady = true;
+			delete this.__callbacksOnReady;
+		}
+		else if (typeof func === 'function') {
+			if (this.__isReady === true) {
+				func();
+			}
+			else {
+				if (!this.__callbacksOnReady) {
+					this.__callbacksOnReady = [];
+				}
+				this.__callbacksOnReady.push(func);
+			}
+		}
+		else {
+			this.warn('arg0 isn\'t a callback in model.ready()!');
+		}
+	};
+
+	/**
+	 * Fetch data from server
+	 *
+	 * @param {Object} query MongoDB query 
+	 * @param {Function} callback Callback function
+	 */
+	model.prototype.fetch = function(query, callback) {
+		this.sendGET(query, callback);
+	};
+
+	/**
+	 * Load bugs
+	 *
+	 * @param {Object} query Datastore query parameter
+	 * @param {Function} callback Callback function
+	 */
+	model.fetch = function(query) {
+		this.sendGET(query, function(err, data) {
+			if (err) {
+				console.error(err);
+			}
+
+			data = this.prepare(data);
+			this.set(data);
+		}.bind(this));
 	};
 
 	return model;

@@ -176,12 +176,12 @@ XQCore.Model = (function(window, document, $, undefined) {
 			if (Array.isArray(this.__callbacksOnReady)) {
 				this.log('Trigger ready state');
 				this.__callbacksOnReady.forEach(function(func) {
-					func();
-				});
-
-				this.__isReady = true;
-				delete this.__callbacksOnReady;
+					func.call(this);
+				}.bind(this));
 			}
+
+			this.__isReady = true;
+			delete this.__callbacksOnReady;
 		}
 		else if (typeof func === 'function') {
 			if (this.__isReady === true) {
@@ -207,6 +207,23 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 */
 	model.prototype.fetch = function(query, callback) {
 		this.sendGET(query, callback);
+	};
+
+	/**
+	 * Load bugs
+	 *
+	 * @param {Object} query Datastore query parameter
+	 * @param {Function} callback Callback function
+	 */
+	model.fetch = function(query) {
+		this.sendGET(query, function(err, data) {
+			if (err) {
+				console.error(err);
+			}
+
+			data = this.prepare(data);
+			this.set(data);
+		}.bind(this));
 	};
 
 	return model;

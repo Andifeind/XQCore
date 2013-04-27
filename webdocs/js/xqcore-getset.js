@@ -40,8 +40,8 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 		if (typeof arguments[0] === 'object') {
 			//Add a dataset
-			$.extend(newData, arguments[0]);
-			this.log('Set data', arguments[0]);
+			newData = arguments[0];
+			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'string') {
 			newData = this.get();
@@ -49,7 +49,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			var val = arguments[1];
 
 			newData[key] = val;
-			this.log('Set data', arguments[0], arguments[1], newData);
+			this.log('Set data', newData, oldData);
 		}
 		else {
 			this.warn('Data are incorrect in getset.set()', arguments);

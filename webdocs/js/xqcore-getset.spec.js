@@ -64,7 +64,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', undefined);
+		var err = test.validateOne('test', undefined).error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -79,7 +79,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', 1);
+		var err = test.validateOne('test', 1).error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -94,7 +94,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', 'test');
+		var err = test.validateOne('test', 'test').error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -109,7 +109,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', 'testing ist so beautifull');
+		var err = test.validateOne('test', 'testing ist so beautifull').error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -124,7 +124,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', 'blabla');
+		var err = test.validateOne('test', 'blabla').error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -139,7 +139,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', '1');
+		var err = test.validateOne('test', '1').error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -154,7 +154,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', 9);
+		var err = test.validateOne('test', 9).error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -169,7 +169,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', 12);
+		var err = test.validateOne('test', 12).error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -184,7 +184,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', 'Not a date');
+		var err = test.validateOne('test', 'Not a date').error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -202,7 +202,7 @@ describe('XQCore GetSet', function() {
 		var err = test.validateOne('test', {
 			a: 'aa',
 			b: 'bb'
-		});
+		}).error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -219,7 +219,7 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', [
 			'aa', 'bb', 'cc'
-		]);
+		]).error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -236,7 +236,7 @@ describe('XQCore GetSet', function() {
 
 		var err = test.validateOne('test', [
 			'aa', 'bb', 'cc'
-		]);
+		]).error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -251,7 +251,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', 'Not an object');
+		var err = test.validateOne('test', 'Not an object').error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -266,7 +266,7 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', 'Not a boolean');
+		var err = test.validateOne('test', 'Not a boolean').error;
 
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
@@ -281,11 +281,22 @@ describe('XQCore GetSet', function() {
 			}
 		});
 
-		var err = test.validateOne('test', '');
+		var err = test.validateOne('test', '').error;
 		expect(err).to.be.an('object');
 		expect(err.property).to.equal('test');
 		expect(err.msg).to.equal('Property is undefined or null, but it\'s required');
 		expect(err.errCode).to.equal(10);
 	});
 
+	it('Should use the default value, noEmpty: true on a String', function() {
+		var test = new XQCore.GetSet({
+			schema: {
+				'test': { type: 'string', 'default': 'test', noEmpty: true }
+			}
+		});
+
+		var err = test.validateOne('test', '');
+		expect(err.error).to.be(null);
+		expect(err.value).to.equal('test');
+	});
 });

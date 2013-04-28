@@ -1,5 +1,5 @@
 /*!
- * XQCore - 0.3.5
+ * XQCore - 0.3.6
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-04-24
+ * Creation Date: 2013-04-28
  */
 
 (function (root, factory) {
@@ -31,7 +31,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.3.5',
+	version: '0.3.6',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -839,8 +839,11 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			Object.keys(this.schema).forEach(function(key) {
 				var validationResult = this.validateOne(key, data[key]);
 
-				if (validationResult !== null) {
-					failed.push(validationResult);
+				if (validationResult.isValid === true) {
+					data[key] = validationResult.value;
+				}
+				else {
+					failed.push(validationResult.error);
 				}
 			}.bind(this));
 		}
@@ -855,11 +858,30 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		}
 	};
 
+	/**
+	 * Validate one property
+	 *
+	 * ValidatorResultItemObject
+	 * {
+	 *   isValid: Boolean,
+	 *   value: Any,
+	 *   error: Object
+	 * }
+	 *
+	 * @param  {String} key   Property key
+	 * @param  {Any} value Property value
+	 *
+	 * @return {Object}       Returns a ValidatorResultItemObject
+	 */
 	getset.prototype.validateOne = function(key, value) {
 		var failed = null,
 			schema = this.schema[key];
 
 		console.log('Schema', schema, schema.match);
+		if (value === '' && schema.noEmpty === true) {
+			value = undefined;
+		}
+
 		if ((value === undefined || value === null) && schema.default) {
 			value = schema.default;
 		}
@@ -986,8 +1008,20 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 		}
 
-		if (failed !== null) {
+		if (failed === null) {
+			failed = {
+				isValid: true,
+				value: value,
+				error: null
+			};
+		}
+		else {
 			this.warn('Validation error on property', key, failed, 'Data:', value);
+			failed = {
+				isValid: false,
+				value: value,
+				error: failed
+			};
 		}
 
 		return failed;

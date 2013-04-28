@@ -453,9 +453,11 @@ describe('XQCore Model', function() {
 				b: 'bb'
 			}
 		});
+
+		ajaxStub.restore();
 	});
 
-	it('Should fetch data from cache', function() {
+	xit('Should fetch data from cache', function() {
 		var ajaxStub = sinon.stub(jQuery, 'ajax');
 
 		var model = new XQCore.Model({
@@ -474,5 +476,8 @@ describe('XQCore Model', function() {
 		});
 
 		expect(ajaxStub).was.neverCalled();
+
+
+		ajaxStub.restore();
 	});
 });

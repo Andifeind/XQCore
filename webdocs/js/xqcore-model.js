@@ -99,6 +99,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 			url: this.server,
 			type: method,
 			data: data,
+			dataType: 'json',
 			success: function(data, status, jqXHR) {
 				if (typeof callback === 'function') {
 					callback.call(this, null, data, status, jqXHR);

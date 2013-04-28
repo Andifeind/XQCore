@@ -125,18 +125,40 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	getset.prototype.append = function(path, data) {
-		var dataset = this.properties;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
+		if (arguments.length === 1) {
+			data = path;
+			path = null;
+		}
 
+		var dataset = this.properties,
+			oldDataset = this.get(),
+			trigger = true;
+
+		if (path) {
+			path.split('.').forEach(function(key) {
+				dataset = dataset[key];
+			});
+		}
+
+		console.log(dataset === this.properties);
 		if (dataset instanceof Array) {
 			dataset.push(data);
 		}
 		else {
-			dataset = $.extend(dataset, data);
+			if (path === null) {
+				this.properties = [data];
+				dataset = this.get();
+			}
+			else {
+				this.warn('GetSet.append requires an array. Dataset isn\'t an array', path);
+			}
 		}
 
+		if (trigger) {
+			this.emit('data.change', dataset, oldDataset);
+		}
+
+		console.log(dataset, this.properties);
 		return data;
 	};
 
@@ -147,16 +169,36 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	 * @param {Object} data data to add
 	 */
 	getset.prototype.prepend = function(path, data) {
-		var dataset = this.properties;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
+		if (arguments.length === 1) {
+			data = path;
+			path = null;
+		}
+
+		var dataset = this.properties,
+			oldDataset = this.get(),
+			trigger = true;
+
+		if (path) {
+			path.split('.').forEach(function(key) {
+				dataset = dataset[key];
+			});
+		}
 
 		if (dataset instanceof Array) {
 			dataset.unshift(data);
 		}
 		else {
-			dataset = $.extend(data, dataset);
+			if (path === null) {
+				this.properties = [data];
+				dataset = this.get();
+			}
+			else {
+				this.warn('GetSet.append requires an array. Dataset isn\'t an array', path);
+			}
+		}
+
+		if (trigger) {
+			this.emit('data.change', dataset, oldDataset);
 		}
 
 		return data;
@@ -287,6 +329,10 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			};
 		}
 		else if (schema.type === 'string') {
+			if (schema.convert && typeof(value) === 'number') {
+				value = String(value);
+			}
+
 			if (schema.type !== typeof(value)) {
 				failed = {
 					property: key,

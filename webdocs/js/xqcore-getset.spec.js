@@ -299,4 +299,104 @@ describe('XQCore GetSet', function() {
 		expect(err.error).to.be(null);
 		expect(err.value).to.equal('test');
 	});
+
+	it('Should append data to an existing data set and should trigger a data.change event', function(done) {
+		var test = new XQCore.GetSet();
+		test.set([
+			{ name: 'AAA', value: '1' },
+			{ name: 'BBB', value: '2' },
+			{ name: 'CCC', value: '3' }
+		]);
+
+		test.on('data.change', function(newdata, olddata) {
+			var data = test.get();
+			expect(data).to.have.length(4);
+			expect(data[3]).to.eql({
+				name: 'DDD',
+				value: '4'
+			});
+
+			done();
+		});
+
+		test.append({
+			name: 'DDD',
+			value: '4'
+		});
+	});
+
+	it('Should prepend data to an existing data set and should trigger a data.change event', function(done) {
+		var test = new XQCore.GetSet();
+		test.set([
+			{ name: 'AAA', value: '1' },
+			{ name: 'BBB', value: '2' },
+			{ name: 'CCC', value: '3' }
+		]);
+
+		test.on('data.change', function(newdata, olddata) {
+			var data = test.get();
+			expect(data).to.have.length(4);
+			expect(data[0]).to.eql({
+				name: 'DDD',
+				value: '4'
+			});
+
+			done();
+		});
+
+		test.prepend({
+			name: 'DDD',
+			value: '4'
+		});
+	});
+
+	it('Should append data to a not existing data set', function() {
+		var test = new XQCore.GetSet();
+		test.append({
+			name: 'AAA',
+			value: '1'
+		});
+
+		test.append({
+			name: 'BBB',
+			value: '2'
+		});
+
+		test.append({
+			name: 'CCC',
+			value: '3'
+		});
+
+		var data = test.get();
+		expect(data).to.have.length(3);
+		expect(data[2]).to.eql({
+			name: 'CCC',
+			value: '3'
+		});
+	});
+
+	it('Should prepend data to a not existing data set', function() {
+		var test = new XQCore.GetSet();
+		test.prepend({
+			name: 'AAA',
+			value: '1'
+		});
+
+		test.prepend({
+			name: 'BBB',
+			value: '2'
+		});
+
+		test.prepend({
+			name: 'CCC',
+			value: '3'
+		});
+
+		var data = test.get();
+		expect(data).to.have.length(3);
+		expect(data[0]).to.eql({
+			name: 'CCC',
+			value: '3'
+		});
+	});
 });

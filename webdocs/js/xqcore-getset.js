@@ -51,6 +51,10 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			newData[key] = val;
 			this.log('Set data', newData, oldData);
 		}
+		else if (arguments[0] === null) {
+			newData = arguments[1];
+			this.log('Set data', newData, oldData);
+		}
 		else {
 			this.warn('Data are incorrect in getset.set()', arguments);
 		}
@@ -265,6 +269,52 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		}
 
 		return null;
+	};
+
+	/**
+	 * Sort an array collection by a given attribute
+	 *
+	 * @param {String} path Path to the collection
+	 * @param {Object} sortKeys Sort by key
+	 *
+	 * sortKeys: {
+	 *   'key': 1 // Sort ascend by key,
+	 *   'second.key': -1 // Sort descand by second.key
+	 * }
+	 *
+	 * ascend, a -> z, 0 - > 9 (-1)
+	 * descend, z -> a, 9 -> 0 (1)
+	 * 
+	 */
+	getset.prototype.sortBy = function(path, sortKeys) {
+		if (arguments.length === 1) {
+			sortKeys = path;
+			path = null;
+		}
+
+		var data = undotify(path, this.properties),
+			order;
+
+		data.sort(function(a, b) {
+			order = -1;
+			//jshint forin: false
+			for (var key in sortKeys) {
+				order = String(undotify(key, a)).localeCompare(String(undotify(key, b)));
+				if (order === 0) {
+					continue;
+				}
+				else if(sortKeys[key] === -1) {
+					order = order > 0 ? -1 : 1;
+				}
+
+				break;
+			}
+
+			return order;
+		});
+
+		this.set(path, data);
+		return data;
 	};
 
 	getset.prototype.validate = function(data) {

@@ -399,4 +399,108 @@ describe('XQCore GetSet', function() {
 			value: '3'
 		});
 	});
+
+	it('Should sort an array collection (Simple ascend)', function() {
+		var test = new XQCore.GetSet();
+		test.set([
+			{name: 'Homer', surname: 'Simpson'},
+			{name: 'Marge', surname: 'Simpson'},
+			{name: 'Bart', surname: 'Simpson'},
+			{name: 'Lisa', surname: 'Simpson'},
+			{name: 'Maggie', surname: 'Simpson'},
+			{name: 'Moe', surname: 'Szyslak'},
+			{name: 'Barney', surname: 'Gumble'},
+			{name: 'Carl', surname: 'Carlson'},
+			{name: 'Lenny', surname: 'Leonard'}
+		]);
+
+		var sorted = test.sortBy({surname: 1, name: 1});
+		console.log('Sorted', sorted);
+		expect(sorted).to.be.an(Array);
+		expect(sorted).to.eql([
+			{name: 'Carl', surname: 'Carlson'},
+			{name: 'Barney', surname: 'Gumble'},
+			{name: 'Lenny', surname: 'Leonard'},
+			{name: 'Bart', surname: 'Simpson'},
+			{name: 'Homer', surname: 'Simpson'},
+			{name: 'Lisa', surname: 'Simpson'},
+			{name: 'Maggie', surname: 'Simpson'},
+			{name: 'Marge', surname: 'Simpson'},
+			{name: 'Moe', surname: 'Szyslak'}
+		]);
+	});
+
+	it('Should sort an array collection (Simple descend)', function() {
+		var test = new XQCore.GetSet();
+		test.set([
+			{name: 'Homer', surname: 'Simpson'},
+			{name: 'Marge', surname: 'Simpson'},
+			{name: 'Bart', surname: 'Simpson'},
+			{name: 'Lisa', surname: 'Simpson'},
+			{name: 'Maggie', surname: 'Simpson'},
+			{name: 'Moe', surname: 'Szyslak'},
+			{name: 'Barney', surname: 'Gumble'},
+			{name: 'Carl', surname: 'Carlson'},
+			{name: 'Lenny', surname: 'Leonard'}
+		]);
+
+		var sorted = test.sortBy({surname: -1, name: -1});
+		console.log('Sorted', sorted);
+		expect(sorted).to.be.an(Array);
+		expect(sorted).to.eql([
+			{name: 'Moe', surname: 'Szyslak'},
+			{name: 'Marge', surname: 'Simpson'},
+			{name: 'Maggie', surname: 'Simpson'},
+			{name: 'Lisa', surname: 'Simpson'},
+			{name: 'Homer', surname: 'Simpson'},
+			{name: 'Bart', surname: 'Simpson'},
+			{name: 'Lenny', surname: 'Leonard'},
+			{name: 'Barney', surname: 'Gumble'},
+			{name: 'Carl', surname: 'Carlson'}
+		]);
+	});
+
+	it('Should sort an array collection (Simple ascend - descend)', function() {
+		var test = new XQCore.GetSet();
+		test.set([
+			{name: 'Homer', surname: 'Simpson'},
+			{name: 'Marge', surname: 'Simpson'},
+			{name: 'Bart', surname: 'Simpson'},
+			{name: 'Lisa', surname: 'Simpson'},
+			{name: 'Maggie', surname: 'Simpson'},
+			{name: 'Moe', surname: 'Szyslak'},
+			{name: 'Barney', surname: 'Gumble'},
+			{name: 'Carl', surname: 'Carlson'},
+			{name: 'Lenny', surname: 'Leonard'}
+		]);
+
+		var sorted = test.sortBy({surname: 1, name: -1});
+		console.log('Sorted', sorted);
+		expect(sorted).to.be.an(Array);
+		expect(sorted).to.eql([
+			{name: 'Carl', surname: 'Carlson'},
+			{name: 'Barney', surname: 'Gumble'},
+			{name: 'Lenny', surname: 'Leonard'},
+			{name: 'Marge', surname: 'Simpson'},
+			{name: 'Maggie', surname: 'Simpson'},
+			{name: 'Lisa', surname: 'Simpson'},
+			{name: 'Homer', surname: 'Simpson'},
+			{name: 'Bart', surname: 'Simpson'},
+			{name: 'Moe', surname: 'Szyslak'}
+		]);
+	});
+
+	it('Should sort an array collection and should trigger a data.change event', function(done) {
+		var test = new XQCore.GetSet();
+		test.set([
+			{name: 'Homer', surname: 'Simpson'},
+			{name: 'Lenny', surname: 'Leonard'}
+		]);
+
+		test.once('data.change', function() {
+			done();
+		});
+
+		test.sortBy({name: 1});
+	});
 });

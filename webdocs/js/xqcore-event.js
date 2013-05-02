@@ -337,7 +337,7 @@ XQCore.Event = (function() {
 			this.ee.removeListener(eventName, listener);
 			listener.call(null, arguments);
 			return true;
-		};
+		}.bind(this);
 
 		if (this.debug) {
 			console.debug('XQCore - Add once listener', eventName, listener);

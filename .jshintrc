@@ -197,7 +197,7 @@
 	 * var str = "Hello \
 	 * World";
 	 */
-	"trailing": true,
+	"trailing": false,
 
 	/**
 	 * Relaxing Options

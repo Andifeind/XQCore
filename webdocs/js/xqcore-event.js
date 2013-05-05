@@ -335,7 +335,7 @@ XQCore.Event = (function() {
 	event.prototype.once = function(eventName, listener) {
 		var onceListener = function() {
 			this.ee.removeListener(eventName, listener);
-			listener.call(null, arguments);
+			listener.apply(null, arguments);
 			return true;
 		}.bind(this);
 

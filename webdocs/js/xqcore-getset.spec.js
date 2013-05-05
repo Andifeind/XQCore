@@ -37,6 +37,23 @@ describe('XQCore GetSet', function() {
 		// });
 	});
 
+	it('Should set data to the dataset, path is null', function() {
+		var test = new XQCore.GetSet({
+		});
+
+		test.set(null, {
+			'aaa': 'AAA',
+			'bbb': 'BBB',
+			'ccc': 'CCC'
+		});
+
+		expect(test.get()).to.eql({
+			'aaa': 'AAA',
+			'bbb': 'BBB',
+			'ccc': 'CCC'
+		});
+	});
+
 	it('Should validate an item an should get an undefined but required error', function(done) {
 		var test = new XQCore.GetSet({
 			schema: {

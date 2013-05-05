@@ -1,5 +1,5 @@
 /*!
- * XQCore - 0.3.11
+ * XQCore - 0.3.13
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-05-02
+ * Creation Date: 2013-05-05
  */
 
 (function (root, factory) {
@@ -31,7 +31,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.3.11',
+	version: '0.3.13',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -435,7 +435,7 @@ XQCore.Event = (function() {
 	event.prototype.once = function(eventName, listener) {
 		var onceListener = function() {
 			this.ee.removeListener(eventName, listener);
-			listener.call(null, arguments);
+			listener.apply(null, arguments);
 			return true;
 		}.bind(this);
 
@@ -645,7 +645,11 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			validateResult,
 			key;
 
-		if (typeof arguments[0] === 'object') {
+		if (arguments[0] === null) {
+			newData = arguments[1];
+			this.log('Set data', newData, oldData);
+		}
+		else if (typeof arguments[0] === 'object') {
 			//Add a dataset
 			newData = arguments[0];
 			this.log('Set data', newData, oldData);
@@ -656,10 +660,6 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			var val = arguments[1];
 
 			newData[key] = val;
-			this.log('Set data', newData, oldData);
-		}
-		else if (arguments[0] === null) {
-			newData = arguments[1];
 			this.log('Set data', newData, oldData);
 		}
 		else {

@@ -38,7 +38,11 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			validateResult,
 			key;
 
-		if (typeof arguments[0] === 'object') {
+		if (arguments[0] === null) {
+			newData = arguments[1];
+			this.log('Set data', newData, oldData);
+		}
+		else if (typeof arguments[0] === 'object') {
 			//Add a dataset
 			newData = arguments[0];
 			this.log('Set data', newData, oldData);
@@ -49,10 +53,6 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 			var val = arguments[1];
 
 			newData[key] = val;
-			this.log('Set data', newData, oldData);
-		}
-		else if (arguments[0] === null) {
-			newData = arguments[1];
 			this.log('Set data', newData, oldData);
 		}
 		else {

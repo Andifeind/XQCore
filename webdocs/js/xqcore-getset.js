@@ -1,3 +1,9 @@
+/**
+ * XQCore.GetSet
+ *
+ * @requires XQCore.Logger
+ * @requires XQCore.Event
+ */
 XQCore.GetSet = (function(window, document, $, undefined) {
 	var getset = function(conf) {
 		this.properties = {};

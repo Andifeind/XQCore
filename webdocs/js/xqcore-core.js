@@ -15,16 +15,16 @@ var XQCore = {
 	callerEvent: 'callerEvent'
 };
 
-if (typeof define === "function" && define.amd) {
-	console.log('XQCore: using AMD style');
-	define( "xqcore", ['handlebars'], function (Handlebars) {
-		XQCore.TemplateEngine = Handlebars;
-		return XQCore;
-	});
-} else {
-	XQCore.TemplateEngine = window.Handlebars;
-	window.XQCore = XQCore;
-}
+// if (typeof define === "function" && define.amd) {
+// 	console.log('XQCore: using AMD style');
+// 	define( "xqcore", ['handlebars'], function (Handlebars) {
+// 		XQCore.TemplateEngine = Handlebars;
+// 		return XQCore;
+// 	});
+// } else {
+// 	XQCore.TemplateEngine = window.Handlebars;
+// 	window.XQCore = XQCore;
+// }
 
 /**
  * Implement include support

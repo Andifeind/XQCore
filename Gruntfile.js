@@ -36,7 +36,8 @@ module.exports = function(grunt) {
 				'webdocs/js/xqcore-(!.spec).js'
 			],
 			afterconcat: [
-				'webdocs/js/xqcore.js'
+				'webdocs/js/xqcore.js',
+				'webdocs/js/xqcore-minimal.js'
 			],
 			options: {
 				browser: true,
@@ -53,7 +54,7 @@ module.exports = function(grunt) {
 			options: {
 				process: true
 			},
-			dist: {
+			build: {
 				src: [
 					'webdocs/js/concat-before.js',
 					'webdocs/js/xqcore-core.js',
@@ -69,16 +70,32 @@ module.exports = function(grunt) {
 					'webdocs/js/plugins/xqcore-viewslide.js',
 					'webdocs/js/concat-after.js'
 				],
-				dest: 'webdocs/js/xqcore.js'
+				dest: 'webdocs/build/xqcore.js'
+			},
+			minimal: {
+				src: [
+					'webdocs/js/concat-before-minimal.js',
+					'webdocs/js/xqcore-core.js',
+					'webdocs/js/xqcore-event.js',
+					'webdocs/js/xqcore-logger.js',
+					'webdocs/js/xqcore-getset.js',
+					'webdocs/js/concat-after.js'
+				],
+				dest: 'webdocs/build/xqcore-minimal.js'
 			}
 		},
 		uglify: {
 			options: {
 				preserveComments: 'some'
 			},
-			dist: {
+			build: {
 				files: {
-					'webdocs/js/xqcore.min.js': ['webdocs/js/xqcore.js']
+					'webdocs/build/xqcore.min.js': ['webdocs/build/xqcore.js']
+				}
+			},
+			minimal: {
+				files: {
+					'webdocs/build/xqcore-minimal.min.js': ['webdocs/build/xqcore-minimal.js']
 				}
 			}
 		},
@@ -89,10 +106,10 @@ module.exports = function(grunt) {
 			akonda: {
 				files: [
 					{
-						src: ['webdocs/js/xqcore.js'],
+						src: ['webdocs/build/xqcore.js'],
 						dest: '../akonda/akonda-files/webdocs/js/xqcore.js'
 					}, {
-						src: ['webdocs/js/xqcore.min.js'],
+						src: ['webdocs/build/xqcore.min.js'],
 						dest: '../akonda/akonda-files/webdocs/js/xqcore.min.js'
 					}
 				]
@@ -100,16 +117,26 @@ module.exports = function(grunt) {
 			'jam-libs': {
 				files: [
 					{
-						src: ['webdocs/js/xqcore.js'],
+						src: ['webdocs/build/xqcore.js'],
 						dest: '../jam-libs/xqcore/xqcore.js'
+					}
+				]
+			},
+			'xqtools': {
+				files: [
+					{
+						src: ['webdocs/build/xqcore-minimal.js'],
+						dest: '../xqtools/webdocs/ext/xqcore-minimal.js'
 					}
 				]
 			}
 		},
 		clean: {
 			build: [
-				'webdocs/js/ext/xqcore.js',
-				'webdocs/js/ext/xqcore.min.js'
+				'webdocs/build/xqcore.js',
+				'webdocs/build/xqcore.min.js',
+				'webdocs/build/xqcore-minimal.js',
+				'webdocs/build/xqcore-minimal.min.js'
 			]
 		},
 		watch: {
@@ -146,11 +173,13 @@ module.exports = function(grunt) {
 	grunt.registerTask('build', [
 		'jshint:files',
 		'clean:build',
-		'concat:dist',
+		'concat:build',
+		'concat:minimal',
 		'jshint:afterconcat',
 		'uglify',
 		'copy:akonda',
 		'copy:jam-libs',
+		'copy:xqtools',
 		'bump:patch'
 	]);
 };

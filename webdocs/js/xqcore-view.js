@@ -1,15 +1,33 @@
+/**
+ * XQCore View module
+ *
+ * @module XQCore.View
+ * @returns {object} Returns a XQCore.View prototype object
+ */
 XQCore.View = (function(undefined) {
 
 	/**
 	 * XQCore.View
 	 *
 	 * @constructor
-	 *
-	 * @param  {[type]} conf [description]
-	 *
-	 * @return {[type]}      [description]
+	 * @class XQCore.View
+	 * @param {object} conf View configuration
 	 */
 	var view = function(conf) {
+
+		/**
+		 * Determines wether the view is hidden after rendering
+		 * @property hidden
+		 * @type Boolean
+		 * @default false
+		 */
+		
+		/**
+		 * Sets the container element
+		 * @property el
+		 * @type Selector
+		 * @default "body"
+		 */
 
 		if (arguments.length === 2) {
 			this.presenter = arguments[0];
@@ -55,8 +73,23 @@ XQCore.View = (function(undefined) {
 
 		$(function() {
 			this.container = $(conf.container);
-			this.$el = this.container;
-			this.el = $(conf.container).get(0);
+			if (conf.tag) {
+				this.$el = $($.parseHTML('<' + conf.tag + '/>'));
+				this.$el.appendTo(this.container);
+			}
+			else {
+				this.$el = this.container;
+			}
+			this.el = this.$el.get(0);
+
+			if (conf.id) {
+				this.$el.attr('id', conf.id);
+			}
+
+			if (conf.className) {
+				this.$el.addClass(conf.className);
+			}
+
 			if (this.container.length > 0) {
 				window.addEventListener('resize', function(e) {
 					self.resize(e);
@@ -139,11 +172,11 @@ XQCore.View = (function(undefined) {
 	};
 
 	view.prototype.show = function() {
-
+		this.$el.show();
 	};
 
 	view.prototype.hide = function() {
-
+		this.$el.hide();
 	};
 
 	/**
@@ -158,7 +191,11 @@ XQCore.View = (function(undefined) {
 	view.prototype.render = function(data) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = typeof this.template === 'function' ? this.template : Handlebars.compile(this.template);
-		this.container.html(template(data || {}));
+		this.$el.html(template(data || {}));
+
+		if (this.conf.hidden === true) {
+			this.$el.hide();
+		}
 
 		this.emit('content.change', data);
 	};

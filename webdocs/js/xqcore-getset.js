@@ -1,10 +1,19 @@
 /**
  * XQCore.GetSet
  *
+ * @module XQCore.GetSet
  * @requires XQCore.Logger
  * @requires XQCore.Event
  */
 XQCore.GetSet = (function(window, document, $, undefined) {
+
+	/**
+	 * GetSet constructor
+	 *
+	 * @constructor
+	 * @class GetSet
+	 * @param {Object} conf COnfig object
+	 */
 	var getset = function(conf) {
 		this.properties = {};
 		this._isValid = false;
@@ -35,7 +44,21 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	/**
 	 * Set getset data
 	 *
-	 * @param {Object or String} data/key
+	 * Triggers a data.change event if data was set succesfully
+	 *
+	 * @method set
+	 * @param {Object} data
+	 */
+	
+	/**
+	 * Set getset data
+	 *
+	 * Triggers these events if data was set succesfully<br>
+	 * data.change<br>
+	 * &lt;key&gt;.change
+	 *
+	 * @method set
+	 * @param {String} key
 	 * @param {Object} value Data value
 	 */
 	getset.prototype.set = function() {
@@ -95,7 +118,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Get one or all properties from getset
+	 * Get one or all properties from a dataset
 	 *
 	 * @param  {String} key Data key
 	 *

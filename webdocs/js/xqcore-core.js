@@ -1,5 +1,5 @@
 /*jshint evil:true */
-/*global define:false */
+/*global XQCore:true */
 
 /**
  * XQCore main object

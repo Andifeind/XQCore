@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>webdocs&#x2F;js&#x2F;xqcore-event.js - XQCore</title>
-    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0pr2&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <title>webdocs&#x2F;js&#x2F;xqcore-event.js - xqcore</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
     <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
-    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0pr2&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
 </head>
 <body class="yui3-skin-sam">
 
@@ -15,11 +15,11 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="..&#x2F;assets/css/logo.png" title="XQCore"></h1>
+                <h1><img src="..&#x2F;assets/css/logo.png" title="xqcore"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
+            <em>API Docs for: 0.3.24</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -41,17 +41,27 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="..&#x2F;classes/GetSet.html">GetSet</a></li>
+            
                 <li><a href="..&#x2F;classes/Manages event registering and emitting..html">Manages event registering and emitting.</a></li>
             
-                <li><a href="..&#x2F;classes/XQCore Logger class.html">XQCore Logger class</a></li>
+                <li><a href="..&#x2F;classes/XQCore.Logger.html">XQCore.Logger</a></li>
             
                 <li><a href="..&#x2F;classes/XQCore.Presenter.html">XQCore.Presenter</a></li>
+            
+                <li><a href="..&#x2F;classes/XQCore.View.html">XQCore.View</a></li>
             
             </ul>
 
             <ul id="api-modules" class="apis modules">
             
                 <li><a href="..&#x2F;modules/XQCore Presenter.html">XQCore Presenter</a></li>
+            
+                <li><a href="..&#x2F;modules/XQCore.GetSet.html">XQCore.GetSet</a></li>
+            
+                <li><a href="..&#x2F;modules/XQCore.Logger.html">XQCore.Logger</a></li>
+            
+                <li><a href="..&#x2F;modules/XQCore.View.html">XQCore.View</a></li>
             
             </ul>
         </div>
@@ -429,9 +439,9 @@ XQCore.Event = (function() {
 	event.prototype.once = function(eventName, listener) {
 		var onceListener = function() {
 			this.ee.removeListener(eventName, listener);
-			listener.call(null, arguments);
+			listener.apply(null, arguments);
 			return true;
-		};
+		}.bind(this);
 
 		if (this.debug) {
 			console.debug(&#x27;XQCore - Add once listener&#x27;, eventName, listener);

@@ -1,5 +1,5 @@
 /*!
- * XQCore - 0.3.23
+ * XQCore - 0.3.28
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-05-25
+ * Creation Date: 2013-06-01
  */
 
 (function (root, factory) {
@@ -22,7 +22,7 @@
 
 
 /*jshint evil:true */
-/*global define:false */
+/*global XQCore:true */
 
 /**
  * XQCore main object
@@ -31,7 +31,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.3.23',
+	version: '0.3.28',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -503,10 +503,9 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console
 	 *
-	 * @package XQCore.Logger
-	 * @class XQCore Logger class
+	 * @module XQCore.Logger
+	 * @class XQCore.Logger
 	 *
-	 * @return {[type]} [description]
 	 */
 	var logger = function() {
 		
@@ -532,6 +531,7 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Loggs a warning to the console
 	 *
+	 * @method warn
 	 * @param {Any} msg logs all arguments to the console
 	 */
 	logger.prototype.warn = function() {
@@ -547,6 +547,7 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Loggs a error message to the console
 	 *
+	 * @method error
 	 * @param {Any} msg logs all arguments to the console
 	 */
 	logger.prototype.error = function() {
@@ -562,6 +563,7 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Start a timeTracer
 	 *
+	 * @method timer
 	 * @param {String} timerName Set the name for your (Optional)
 	 * @return {Object} Returns a TimerObject
 	 */
@@ -588,16 +590,6 @@ XQCore.Logger = (function(conf) {
 		return timer;
 	};
 
-	/**
-	 * Stops a timer
-	 *
-	 * @param {String or Object} timerName Stops the given timer
-	 */
-	logger.prototype.timerEnd = function(timer) {
-		//Set stop timer
-		
-	};
-
 	logger.prototype.__scope = {
 		getHumanTime: getHumanTime
 	};
@@ -608,10 +600,19 @@ XQCore.Logger = (function(conf) {
 /**
  * XQCore.GetSet
  *
+ * @module XQCore.GetSet
  * @requires XQCore.Logger
  * @requires XQCore.Event
  */
 XQCore.GetSet = (function(window, document, $, undefined) {
+
+	/**
+	 * GetSet constructor
+	 *
+	 * @constructor
+	 * @class GetSet
+	 * @param {Object} conf COnfig object
+	 */
 	var getset = function(conf) {
 		this.properties = {};
 		this._isValid = false;
@@ -642,7 +643,21 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	/**
 	 * Set getset data
 	 *
-	 * @param {Object or String} data/key
+	 * Triggers a data.change event if data was set succesfully
+	 *
+	 * @method set
+	 * @param {Object} data
+	 */
+	
+	/**
+	 * Set getset data
+	 *
+	 * Triggers these events if data was set succesfully<br>
+	 * data.change<br>
+	 * &lt;key&gt;.change
+	 *
+	 * @method set
+	 * @param {String} key
 	 * @param {Object} value Data value
 	 */
 	getset.prototype.set = function() {
@@ -702,7 +717,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Get one or all properties from getset
+	 * Get one or all properties from a dataset
 	 *
 	 * @param  {String} key Data key
 	 *
@@ -1409,8 +1424,8 @@ XQCore.Presenter = (function(undefined) {
 			return;
 		}
 
-		if (XQCore.callerEvent && data && data[XQCore.callerEvent] !== 'popstate' &&
-			XQCore.callerEvent && data[XQCore.callerEvent] !== 'pageload') {
+		if (view.url && ((XQCore.callerEvent && data && data[XQCore.callerEvent] !== 'popstate' &&
+			data[XQCore.callerEvent] !== 'pageload') || data === undefined)) {
 			this.pushState(data || null, view.url);
 		}
 
@@ -1663,18 +1678,36 @@ XQCore.Model = (function(window, document, $, undefined) {
 	return model;
 })(window, document, jQuery);
 
+/**
+ * XQCore View module
+ *
+ * @module XQCore.View
+ * @returns {object} Returns a XQCore.View prototype object
+ */
 XQCore.View = (function(undefined) {
 
 	/**
 	 * XQCore.View
 	 *
 	 * @constructor
-	 *
-	 * @param  {[type]} conf [description]
-	 *
-	 * @return {[type]}      [description]
+	 * @class XQCore.View
+	 * @param {object} conf View configuration
 	 */
 	var view = function(conf) {
+
+		/**
+		 * Determines wether the view is hidden after rendering
+		 * @property hidden
+		 * @type Boolean
+		 * @default false
+		 */
+		
+		/**
+		 * Sets the container element
+		 * @property el
+		 * @type Selector
+		 * @default "body"
+		 */
 
 		if (arguments.length === 2) {
 			this.presenter = arguments[0];
@@ -1728,6 +1761,10 @@ XQCore.View = (function(undefined) {
 				this.$el = this.container;
 			}
 			this.el = this.$el.get(0);
+
+			if (conf.hidden === true) {
+				this.$el.hide();
+			}
 
 			if (conf.id) {
 				this.$el.attr('id', conf.id);
@@ -1839,10 +1876,6 @@ XQCore.View = (function(undefined) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = typeof this.template === 'function' ? this.template : Handlebars.compile(this.template);
 		this.$el.html(template(data || {}));
-
-		if (this.conf.hidden === true) {
-			this.$el.hide();
-		}
 
 		this.emit('content.change', data);
 	};

@@ -82,6 +82,10 @@ XQCore.View = (function(undefined) {
 			}
 			this.el = this.$el.get(0);
 
+			if (conf.hidden === true) {
+				this.$el.hide();
+			}
+
 			if (conf.id) {
 				this.$el.attr('id', conf.id);
 			}
@@ -192,10 +196,6 @@ XQCore.View = (function(undefined) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = typeof this.template === 'function' ? this.template : Handlebars.compile(this.template);
 		this.$el.html(template(data || {}));
-
-		if (this.conf.hidden === true) {
-			this.$el.hide();
-		}
 
 		this.emit('content.change', data);
 	};
@@ -347,7 +347,9 @@ XQCore.View = (function(undefined) {
 	};
 
 	/**
-	 * Trigger a view event to the presenter
+	 * Triggers a view event to the presenter
+	 *
+	 * @method triggerEvent
 	 *
 	 * @param {String} eventName Event of the triggered event
 	 * @param {Object} e EventObject
@@ -356,6 +358,19 @@ XQCore.View = (function(undefined) {
 	 */
 	view.prototype.triggerEvent = function(eventName, e, tag, data) {
 		this.presenter.events[eventName].call(this.presenter, e, tag, data);
+	};
+
+	/**
+	 * Navigate to a given route
+	 *
+	 * @method navigateTo
+	 *
+	 * @param {String} route Route url
+	 * @param {Object} data Data object
+	 * @param {Boolean} replace Replace current history entry with route
+	 */
+	view.prototype.navigateTo = function(route, data, replace) {
+		this.presenter.navigateTo(route, data, replace);
 	};
 
 	/**

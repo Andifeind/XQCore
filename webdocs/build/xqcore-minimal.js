@@ -1,5 +1,5 @@
 /*!
- * XQCore Minimal - 0.3.23
+ * XQCore Minimal - 0.3.28
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-05-25
+ * Creation Date: 2013-06-01
  */
 
 (function (root, factory) {
@@ -22,7 +22,7 @@
 
 
 /*jshint evil:true */
-/*global define:false */
+/*global XQCore:true */
 
 /**
  * XQCore main object
@@ -31,7 +31,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.3.23',
+	version: '0.3.28',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -503,10 +503,9 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console
 	 *
-	 * @package XQCore.Logger
-	 * @class XQCore Logger class
+	 * @module XQCore.Logger
+	 * @class XQCore.Logger
 	 *
-	 * @return {[type]} [description]
 	 */
 	var logger = function() {
 		
@@ -532,6 +531,7 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Loggs a warning to the console
 	 *
+	 * @method warn
 	 * @param {Any} msg logs all arguments to the console
 	 */
 	logger.prototype.warn = function() {
@@ -547,6 +547,7 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Loggs a error message to the console
 	 *
+	 * @method error
 	 * @param {Any} msg logs all arguments to the console
 	 */
 	logger.prototype.error = function() {
@@ -562,6 +563,7 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Start a timeTracer
 	 *
+	 * @method timer
 	 * @param {String} timerName Set the name for your (Optional)
 	 * @return {Object} Returns a TimerObject
 	 */
@@ -588,16 +590,6 @@ XQCore.Logger = (function(conf) {
 		return timer;
 	};
 
-	/**
-	 * Stops a timer
-	 *
-	 * @param {String or Object} timerName Stops the given timer
-	 */
-	logger.prototype.timerEnd = function(timer) {
-		//Set stop timer
-		
-	};
-
 	logger.prototype.__scope = {
 		getHumanTime: getHumanTime
 	};
@@ -608,10 +600,19 @@ XQCore.Logger = (function(conf) {
 /**
  * XQCore.GetSet
  *
+ * @module XQCore.GetSet
  * @requires XQCore.Logger
  * @requires XQCore.Event
  */
 XQCore.GetSet = (function(window, document, $, undefined) {
+
+	/**
+	 * GetSet constructor
+	 *
+	 * @constructor
+	 * @class GetSet
+	 * @param {Object} conf COnfig object
+	 */
 	var getset = function(conf) {
 		this.properties = {};
 		this._isValid = false;
@@ -642,7 +643,21 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	/**
 	 * Set getset data
 	 *
-	 * @param {Object or String} data/key
+	 * Triggers a data.change event if data was set succesfully
+	 *
+	 * @method set
+	 * @param {Object} data
+	 */
+	
+	/**
+	 * Set getset data
+	 *
+	 * Triggers these events if data was set succesfully<br>
+	 * data.change<br>
+	 * &lt;key&gt;.change
+	 *
+	 * @method set
+	 * @param {String} key
 	 * @param {Object} value Data value
 	 */
 	getset.prototype.set = function() {
@@ -702,7 +717,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Get one or all properties from getset
+	 * Get one or all properties from a dataset
 	 *
 	 * @param  {String} key Data key
 	 *

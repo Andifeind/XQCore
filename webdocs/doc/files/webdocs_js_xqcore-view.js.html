@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.24</em>
+            <em>API Docs for: 0.3.30</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -186,6 +186,10 @@ XQCore.View = (function(undefined) {
 			}
 			this.el = this.$el.get(0);
 
+			if (conf.hidden === true) {
+				this.$el.hide();
+			}
+
 			if (conf.id) {
 				this.$el.attr(&#x27;id&#x27;, conf.id);
 			}
@@ -296,10 +300,6 @@ XQCore.View = (function(undefined) {
 		this.log(&#x27;Render view template&#x27;, this.template, &#x27;with data:&#x27;, data);
 		var template = typeof this.template === &#x27;function&#x27; ? this.template : Handlebars.compile(this.template);
 		this.$el.html(template(data || {}));
-
-		if (this.conf.hidden === true) {
-			this.$el.hide();
-		}
 
 		this.emit(&#x27;content.change&#x27;, data);
 	};
@@ -451,7 +451,9 @@ XQCore.View = (function(undefined) {
 	};
 
 	&#x2F;**
-	 * Trigger a view event to the presenter
+	 * Triggers a view event to the presenter
+	 *
+	 * @method triggerEvent
 	 *
 	 * @param {String} eventName Event of the triggered event
 	 * @param {Object} e EventObject
@@ -460,6 +462,19 @@ XQCore.View = (function(undefined) {
 	 *&#x2F;
 	view.prototype.triggerEvent = function(eventName, e, tag, data) {
 		this.presenter.events[eventName].call(this.presenter, e, tag, data);
+	};
+
+	&#x2F;**
+	 * Navigate to a given route
+	 *
+	 * @method navigateTo
+	 *
+	 * @param {String} route Route url
+	 * @param {Object} data Data object
+	 * @param {Boolean} replace Replace current history entry with route
+	 *&#x2F;
+	view.prototype.navigateTo = function(route, data, replace) {
+		this.presenter.navigateTo(route, data, replace);
 	};
 
 	&#x2F;**

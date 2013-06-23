@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>XQCore.Presenter - xqcore</title>
+    <title>XQCore.View - xqcore</title>
     <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.24</em>
+            <em>API Docs for: 0.3.30</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -98,25 +98,21 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>XQCore.Presenter Class</h1>
+                        <h1>XQCore.View Class</h1>
 <div class="box meta">
     
 
     
-        <div class="extends">
-            Extends XQCore.Event
-        </div>
-    
 
     
         <div class="foundat">
-            Defined in: <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l8"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:8</code></a>
+            Defined in: <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-view.js.html#l9"><code>webdocs&#x2F;js&#x2F;xqcore-view.js:9</code></a>
         </div>
     
 
     
         
-            Module: <a href="../modules/XQCore Presenter.html">XQCore Presenter</a>
+            Module: <a href="../modules/XQCore.View.html">XQCore.View</a>
         
     
 
@@ -126,14 +122,14 @@
 
 
 <div class="box intro">
-    <p>XQCore.Presenter base class</p>
+    <p>XQCore.View</p>
 </div>
 
 
     <div class="constructor">
         <h2>Constructor</h2>
-        <div id="method_XQCore.Presenter" class="method item">
-    <h3 class="name"><code>XQCore.Presenter</code></h3>
+        <div id="method_XQCore.View" class="method item">
+    <h3 class="name"><code>XQCore.View</code></h3>
 
     
         <div class="args">
@@ -174,7 +170,7 @@
             
         
         
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l8"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:8</code></a>
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-view.js.html#l9"><code>webdocs&#x2F;js&#x2F;xqcore-view.js:9</code></a>
         
         </p>
 
@@ -203,7 +199,7 @@
                     
 
                     <div class="param-description">
-                        <p>Presenter extend object</p>
+                        <p>View configuration</p>
                     </div>
 
                     
@@ -243,17 +239,31 @@
                 <div class="index-section methods">
                     <h3>Methods</h3>
 
-                    <ul class="index-list methods extends">
+                    <ul class="index-list methods">
                         
                             <li class="index-item method">
-                                <a href="#method_getView">getView</a>
+                                <a href="#method_init">init</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_showView">showView</a>
+                                <a href="#method_navigateTo">navigateTo</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_render">render</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_triggerEvent">triggerEvent</a>
 
                                 
                                 
@@ -267,10 +277,17 @@
                 <div class="index-section properties">
                     <h3>Properties</h3>
 
-                    <ul class="index-list properties extends">
+                    <ul class="index-list properties">
                         
                             <li class="index-item property">
-                                <a href="#property_lastShownView Points to the last shown view">lastShownView Points to the last shown view</a>
+                                <a href="#property_el">el</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_hidden">hidden</a>
 
                                 
                                 
@@ -290,8 +307,8 @@
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method_getView" class="method item">
-    <h3 class="name"><code>getView</code></h3>
+                    <div id="method_init" class="method item">
+    <h3 class="name"><code>init</code></h3>
 
     
         <div class="args">
@@ -299,7 +316,7 @@
             
                 <li class="arg">
                     
-                        <code>viewName</code>
+                        <code>presenter</code>
                     
                 </li>
             
@@ -307,10 +324,6 @@
         </div>
     
 
-    
-        <span class="returns-inline">
-            <span class="type">Object</span>
-        </span>
     
 
     
@@ -336,7 +349,7 @@
             
         
         
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l237"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:237</code></a>
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-view.js.html#l52"><code>webdocs&#x2F;js&#x2F;xqcore-view.js:52</code></a>
         
         </p>
 
@@ -347,7 +360,7 @@
     </div>
 
     <div class="description">
-        <p>Gets a view by it's name</p>
+        <p>Init function</p>
     </div>
 
     
@@ -358,14 +371,14 @@
             
                 <li class="param">
                     
-                        <code class="param-name">viewName</code>
-                        <span class="type">String</span>
+                        <code class="param-name">presenter</code>
+                        <span class="type">Object</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>Required view name</p>
+                        <p>Views presenter object</p>
                     </div>
 
                     
@@ -376,26 +389,13 @@
     
 
     
-        <div class="returns">
-            <h4>Returns:</h4>
-
-            <div class="returns-description">
-                
-                    
-                        <span class="type">Object</span>:
-                    
-                    Returns view object or null if no view was found
-                
-            </div>
-        </div>
-    
 
     
 </div>
 
                 
-                    <div id="method_showView" class="method item">
-    <h3 class="name"><code>showView</code></h3>
+                    <div id="method_navigateTo" class="method item">
+    <h3 class="name"><code>navigateTo</code></h3>
 
     
         <div class="args">
@@ -403,7 +403,235 @@
             
                 <li class="arg">
                     
-                        <code>viewName</code>
+                        <code>route</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>data</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>replace</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-view.js.html#l363"><code>webdocs&#x2F;js&#x2F;xqcore-view.js:363</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Navigate to a given route</p>
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">route</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Route url</p>
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">data</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Data object</p>
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">replace</code>
+                        <span class="type">Boolean</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Replace current history entry with route</p>
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_render" class="method item">
+    <h3 class="name"><code>render</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>data</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-view.js.html#l186"><code>webdocs&#x2F;js&#x2F;xqcore-view.js:186</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Render view</p>
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">data</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Render data</p>
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_triggerEvent" class="method item">
+    <h3 class="name"><code>triggerEvent</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>eventName</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>e</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>tag</code>
                     
                 </li>
             
@@ -442,7 +670,7 @@
             
         
         
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l258"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:258</code></a>
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-view.js.html#l349"><code>webdocs&#x2F;js&#x2F;xqcore-view.js:349</code></a>
         
         </p>
 
@@ -453,7 +681,7 @@
     </div>
 
     <div class="description">
-        <p>Show a view if it's not visible and update the history state</p>
+        <p>Triggers a view event to the presenter</p>
     </div>
 
     
@@ -464,14 +692,44 @@
             
                 <li class="param">
                     
-                        <code class="param-name">viewName</code>
+                        <code class="param-name">eventName</code>
                         <span class="type">String</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>The name of the view</p>
+                        <p>Event of the triggered event</p>
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">e</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>EventObject</p>
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">tag</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Tag data</p>
                     </div>
 
                     
@@ -486,7 +744,7 @@
                     
 
                     <div class="param-description">
-                        <p>Data it's neede to showing the view</p>
+                        <p>Event data</p>
                     </div>
 
                     
@@ -510,9 +768,9 @@
                 <h2 class="off-left">Properties</h2>
 
                 
-                    <div id="property_lastShownView Points to the last shown view" class="property item">
-    <h3 class="name"><code>lastShownView Points to the last shown view</code></h3>
-    <span class="type">Object</span>
+                    <div id="property_el" class="property item">
+    <h3 class="name"><code>el</code></h3>
+    <span class="type">Selector</span>
 
     
 
@@ -533,7 +791,7 @@
             
         
         
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l36"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:36</code></a>
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-view.js.html#l25"><code>webdocs&#x2F;js&#x2F;xqcore-view.js:25</code></a>
         
         </p>
 
@@ -543,9 +801,57 @@
     </div>
 
     <div class="description">
-        <p>Points to the last shown view</p>
+        <p>Sets the container element</p>
     </div>
 
+    
+        <p><strong>Default:</strong> &quot;body&quot;</p>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_hidden" class="property item">
+    <h3 class="name"><code>hidden</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-view.js.html#l18"><code>webdocs&#x2F;js&#x2F;xqcore-view.js:18</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Determines wether the view is hidden after rendering</p>
+    </div>
+
+    
+        <p><strong>Default:</strong> false</p>
     
 
     

@@ -81,6 +81,12 @@ XQCore.Presenter = (function(undefined) {
 		
 	};
 
+	/**
+	 * Listen View events
+	 * @property {Array} events Observed view events
+	 */
+	presenter.prototype.events = {};
+
 	presenter.prototype.init = function(views) {
 		var i,
 			self = this,

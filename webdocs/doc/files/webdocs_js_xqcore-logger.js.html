@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>XQCore Presenter - xqcore</title>
+    <title>webdocs&#x2F;js&#x2F;xqcore-logger.js - xqcore</title>
     <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.24</em>
+            <em>API Docs for: 0.3.30</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -98,49 +98,143 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>XQCore Presenter Module</h1>
-<div class="box clearfix meta">
-    
+                        <h1 class="file-heading">File: webdocs&#x2F;js&#x2F;xqcore-logger.js</h1>
 
-    
+<div class="file">
+    <pre class="code prettyprint linenums">
+&#x2F;**
+ * XQCore Logger
+ *
+ * Based on EventEmitter.js
+ * 
+ * 
+ *&#x2F;
+XQCore.Logger = (function(conf) {
 
-    
-        <div class="foundat">
-            Defined in: <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l8"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:8</code></a>
-        </div>
-    
+	&#x2F;&#x2F;var timerStore = {};
 
-    
-</div>
+	function getHumanTime(time) {
+		if (time &lt; 1000) {
+			return time + &#x27; ms&#x27;;
+		}
+		else if (time &lt; 60000) {
+			return (Math.round(time &#x2F; 100) &#x2F; 10) + &#x27; sec&#x27;;
+		}
+		else {
+			return (Math.round(time &#x2F; 60000)) + &#x27; min &#x27; + Math.round(time % 60000 &#x2F; 1000) + &#x27; sec&#x27;;
+		}
+	}
 
+	function onScreenConsole() {
+		var conf,
+			html;
 
+		conf = localStorage.get(&#x27;xqcore-onscreen-console&#x27;) || {
+			pos: &#x27;bottom&#x27;
+		};
 
-<div class="box intro">
-    <p>XQCore Presenter</p>
-</div>
+		html = &#x27;&lt;div id=&quot;XQCoreLogger-OnScreenConsole&quot;&gt;\
+			&lt;&#x2F;div&gt;&#x27;;
+	}
 
+	&#x2F;**
+	 * XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console
+	 *
+	 * @module XQCore.Logger
+	 * @class XQCore.Logger
+	 *
+	 *&#x2F;
+	var logger = function() {
+		
+	};
 
+	&#x2F;**
+	 * Loggs a message to the console
+	 *
+	 * @method log
+	 *
+	 * @param {Any} msg logs all arguments to the console
+	 *&#x2F;
+	logger.prototype.log = function() {
+		var args;
 
-<div class="yui3-g">
-    <div class="yui3-u-1-2">
-        
-            <p>This module provides the following classes:</p>
+		if (this.debug) {
+			args = Array.prototype.slice.call(arguments);
+			args.unshift(&#x27;[&#x27; + this.name + &#x27;]&#x27;);
+			console.log.apply(console, args);
+		}
+	};
 
-            <ul class="module-classes">
-            
-                <li class="module-class">
-                    <a href="..&#x2F;classes/XQCore.Presenter.html">
-                        XQCore.Presenter
-                    </a>
-                </li>
-            
-            </ul>
-        
-    </div>
+	&#x2F;**
+	 * Loggs a warning to the console
+	 *
+	 * @method warn
+	 * @param {Any} msg logs all arguments to the console
+	 *&#x2F;
+	logger.prototype.warn = function() {
+		var args;
 
-    <div class="yui3-u-1-2">
-        
-    </div>
+		if (this.debug) {
+			args = Array.prototype.slice.call(arguments);
+			args.unshift(&#x27;[&#x27; + this.name + &#x27;]&#x27;);
+			console.warn.apply(console, args);
+		}
+	};
+
+	&#x2F;**
+	 * Loggs a error message to the console
+	 *
+	 * @method error
+	 * @param {Any} msg logs all arguments to the console
+	 *&#x2F;
+	logger.prototype.error = function() {
+		var args;
+
+		if (this.debug) {
+			args = Array.prototype.slice.call(arguments);
+			args.unshift(&#x27;[&#x27; + this.name + &#x27;]&#x27;);
+			console.error.apply(console, args);
+		}
+	};
+
+	&#x2F;**
+	 * Start a timeTracer
+	 *
+	 * @method timer
+	 * @param {String} timerName Set the name for your (Optional)
+	 * @return {Object} Returns a TimerObject
+	 *&#x2F;
+	logger.prototype.timer = function(name) {
+		var timer = {
+			start: null,
+			stop: null,
+			name: name,
+			logger: this,
+			end: function() {
+				this.stop = Date.now();
+				this.logger.log(&#x27;Timer &#x27; + this.name + &#x27; runs: &#x27;, getHumanTime(this.stop - this.start));
+			}
+		};
+
+		&#x2F;*if (name) {
+			this.timerStore[name] = timer;
+		}*&#x2F;
+
+		this.log(&#x27;Start Timer&#x27;, name);
+
+		&#x2F;&#x2F;Set timer start time
+		timer.start = Date.now();
+		return timer;
+	};
+
+	logger.prototype.__scope = {
+		getHumanTime: getHumanTime
+	};
+	
+
+	return logger;
+})();
+    </pre>
 </div>
 
                     </div>

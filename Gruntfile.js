@@ -151,7 +151,7 @@ module.exports = function(grunt) {
 				url: '<%= pkg.homepage %>',
 				options: {
 					paths: 'webdocs/js/',
-					outdir: 'webdocs/doc/yuidoc/',
+					outdir: 'webdocs/doc/',
 					exclude: 'xqcore.js, xqcore.min.js'
 				}
 			}
@@ -180,6 +180,7 @@ module.exports = function(grunt) {
 		'copy:akonda',
 		'copy:jam-libs',
 		'copy:xqtools',
+		'doc',
 		'bump:patch'
 	]);
 };

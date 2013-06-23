@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>GetSet - xqcore</title>
+    <title>XQCore.Logger - xqcore</title>
     <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.24</em>
+            <em>API Docs for: 0.3.30</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -98,7 +98,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>GetSet Class</h1>
+                        <h1>XQCore.Logger Class</h1>
 <div class="box meta">
     
 
@@ -106,13 +106,13 @@
 
     
         <div class="foundat">
-            Defined in: <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-getset.js.html#l10"><code>webdocs&#x2F;js&#x2F;xqcore-getset.js:10</code></a>
+            Defined in: <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l36"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:36</code></a>
         </div>
     
 
     
         
-            Module: <a href="../modules/XQCore.GetSet.html">XQCore.GetSet</a>
+            Module: <a href="../modules/XQCore.Logger.html">XQCore.Logger</a>
         
     
 
@@ -122,99 +122,9 @@
 
 
 <div class="box intro">
-    <p>GetSet constructor</p>
+    <p>XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console</p>
 </div>
 
-
-    <div class="constructor">
-        <h2>Constructor</h2>
-        <div id="method_GetSet" class="method item">
-    <h3 class="name"><code>GetSet</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>conf</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-getset.js.html#l10"><code>webdocs&#x2F;js&#x2F;xqcore-getset.js:10</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">conf</code>
-                        <span class="type">Object</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>COnfig object</p>
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-    </div>
 
 
 <div id="classdocs" class="tabview">
@@ -240,14 +150,28 @@
                     <ul class="index-list methods">
                         
                             <li class="index-item method">
-                                <a href="#method_set">set</a>
+                                <a href="#method_error">error</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_set">set</a>
+                                <a href="#method_log">log</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_timer">timer</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_warn">warn</a>
 
                                 
                                 
@@ -269,8 +193,8 @@
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method_set" class="method item">
-    <h3 class="name"><code>set</code></h3>
+                    <div id="method_error" class="method item">
+    <h3 class="name"><code>error</code></h3>
 
     
         <div class="args">
@@ -278,7 +202,7 @@
             
                 <li class="arg">
                     
-                        <code>data</code>
+                        <code>msg</code>
                     
                 </li>
             
@@ -311,7 +235,7 @@
             
         
         
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-getset.js.html#l44"><code>webdocs&#x2F;js&#x2F;xqcore-getset.js:44</code></a>
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l80"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:80</code></a>
         
         </p>
 
@@ -322,9 +246,7 @@
     </div>
 
     <div class="description">
-        <p>Set getset data</p>
-
-<p>Triggers a data.change event if data was set succesfully</p>
+        <p>Loggs a error message to the console</p>
     </div>
 
     
@@ -335,14 +257,14 @@
             
                 <li class="param">
                     
-                        <code class="param-name">data</code>
-                        <span class="type">Object</span>
+                        <code class="param-name">msg</code>
+                        <span class="type">Any</span>
                     
 
                     
 
                     <div class="param-description">
-                         
+                        <p>logs all arguments to the console</p>
                     </div>
 
                     
@@ -358,8 +280,8 @@
 </div>
 
                 
-                    <div id="method_set" class="method item">
-    <h3 class="name"><code>set</code></h3>
+                    <div id="method_log" class="method item">
+    <h3 class="name"><code>log</code></h3>
 
     
         <div class="args">
@@ -367,13 +289,7 @@
             
                 <li class="arg">
                     
-                        <code>key</code>
-                    
-                </li>
-            
-                <li class="arg">
-                    
-                        <code>value</code>
+                        <code>msg</code>
                     
                 </li>
             
@@ -406,7 +322,7 @@
             
         
         
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-getset.js.html#l53"><code>webdocs&#x2F;js&#x2F;xqcore-getset.js:53</code></a>
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l47"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:47</code></a>
         
         </p>
 
@@ -417,11 +333,7 @@
     </div>
 
     <div class="description">
-        <p>Set getset data</p>
-
-<p>Triggers these events if data was set succesfully<br>
-<i>data.change</i><br>
-&lt;key&gt;.change</p>
+        <p>Loggs a message to the console</p>
     </div>
 
     
@@ -432,29 +344,205 @@
             
                 <li class="param">
                     
-                        <code class="param-name">key</code>
+                        <code class="param-name">msg</code>
+                        <span class="type">Any</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>logs all arguments to the console</p>
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_timer" class="method item">
+    <h3 class="name"><code>timer</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>timerName</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l96"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:96</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Start a timeTracer</p>
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">timerName</code>
                         <span class="type">String</span>
                     
 
                     
 
                     <div class="param-description">
-                         
+                        <p>Set the name for your (Optional)</p>
                     </div>
 
                     
                 </li>
             
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    Returns a TimerObject
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_warn" class="method item">
+    <h3 class="name"><code>warn</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>msg</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l64"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:64</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Loggs a warning to the console</p>
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
                 <li class="param">
                     
-                        <code class="param-name">value</code>
-                        <span class="type">Object</span>
+                        <code class="param-name">msg</code>
+                        <span class="type">Any</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>Data value</p>
+                        <p>logs all arguments to the console</p>
                     </div>
 
                     

@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.24</em>
+            <em>API Docs for: 0.3.30</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -185,6 +185,12 @@ XQCore.Presenter = (function(undefined) {
 		
 	};
 
+	&#x2F;**
+	 * Listen View events
+	 * @property {Array} events Observed view events
+	 *&#x2F;
+	presenter.prototype.events = {};
+
 	presenter.prototype.init = function(views) {
 		var i,
 			self = this,
@@ -320,22 +326,20 @@ XQCore.Presenter = (function(undefined) {
 	};
 
 	&#x2F;**
-	 * Navigates to a route
+	 * Navigates to a given route
 	 *
-	 * @param {String} url Route url
+	 * @param {String} route Route url
 	 * @param {Object} data Data object
+	 * @param {Boolean} replace Replace current history entry with route
 	 *&#x2F;
-	presenter.prototype.navigateTo = function(url, data) {
-		var route = this.Router.match(url);
-		if (route) {
-			if (XQCore.callerEvent) {
-				data = data || {};
-				data[XQCore.callerEvent] = &#x27;redirect&#x27;;
-			}
-			route.fn.call(this, data);
+	presenter.prototype.navigateTo = function(route, data, replace) {
+		this.log(&#x27;Navigate to route: &#x27;, route, data, replace);
+		if (replace) {
+			this.replaceState(data, route);
+		} else {
+			this.pushState(data, route);
 		}
 
-		this.log(&#x27;Navigate to&#x27;, url, data);
 	};
 
 	&#x2F;**
@@ -373,11 +377,6 @@ XQCore.Presenter = (function(undefined) {
 		if (!view) {
 			this.warn(&#x27;View not defined!&#x27;, viewName);
 			return;
-		}
-
-		if (XQCore.callerEvent &amp;&amp; data &amp;&amp; data[XQCore.callerEvent] !== &#x27;popstate&#x27; &amp;&amp;
-			XQCore.callerEvent &amp;&amp; data[XQCore.callerEvent] !== &#x27;pageload&#x27;) {
-			this.pushState(data || null, view.url);
 		}
 
 		this.log(&#x27;Show view:&#x27;, viewName, data);

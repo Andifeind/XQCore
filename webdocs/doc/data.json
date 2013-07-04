@@ -2,7 +2,7 @@
     "project": {
         "name": "xqcore",
         "description": "Model View Presenter Javascript Framework",
-        "version": "0.3.24",
+        "version": "0.3.30",
         "url": ""
     },
     "files": {
@@ -537,7 +537,7 @@
         {
             "file": "webdocs/js/xqcore-getset.js",
             "line": 53,
-            "description": "Set getset data\n\nTriggers these events if data was set succesfully<br>\n<i>data.change</i><br>\n&lt;key&gt;.change",
+            "description": "Set getset data\n\nTriggers these events if data was set succesfully<br>\ndata.change<br>\n&lt;key&gt;.change",
             "itemtype": "method",
             "name": "set",
             "params": [
@@ -800,25 +800,6 @@
             "module": "XQCore.Logger"
         },
         {
-            "file": "webdocs/js/xqcore-logger.js",
-            "line": 126,
-            "description": "Stops a timer",
-            "itemtype": "method",
-            "name": "timerEnd",
-            "todo": [
-                "Implement function"
-            ],
-            "params": [
-                {
-                    "name": "timerName",
-                    "description": "Stops the given timer",
-                    "type": "String or Object"
-                }
-            ],
-            "class": "XQCore.Logger",
-            "module": "XQCore.Logger"
-        },
-        {
             "file": "webdocs/js/xqcore-model.js",
             "line": 57,
             "description": "Called on before sending an ajax request\nYou can use this function to manipulate all data they be send to the server",
@@ -993,7 +974,17 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 176,
+            "line": 84,
+            "description": "Listen View events",
+            "itemtype": "property",
+            "name": "events Observed view events",
+            "type": "Array",
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 182,
             "description": "Calling on view init",
             "params": [
                 {
@@ -1007,7 +998,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 185,
+            "line": 191,
             "description": "Add a history item to the browser history",
             "params": [
                 {
@@ -1026,7 +1017,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 202,
+            "line": 208,
             "description": "Add a history item to the browser history",
             "params": [
                 {
@@ -1045,11 +1036,11 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 218,
-            "description": "Navigates to a route",
+            "line": 224,
+            "description": "Navigates to a given route",
             "params": [
                 {
-                    "name": "url",
+                    "name": "route",
                     "description": "Route url",
                     "type": "String"
                 },
@@ -1057,6 +1048,11 @@
                     "name": "data",
                     "description": "Data object",
                     "type": "Object"
+                },
+                {
+                    "name": "replace",
+                    "description": "Replace current history entry with route",
+                    "type": "Boolean"
                 }
             ],
             "class": "XQCore.Presenter",
@@ -1064,7 +1060,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 237,
+            "line": 241,
             "description": "Gets a view by it's name",
             "itemtype": "method",
             "name": "getView",
@@ -1084,7 +1080,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 258,
+            "line": 262,
             "description": "Show a view if it's not visible and update the history state",
             "itemtype": "method",
             "name": "showView",
@@ -1359,7 +1355,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 182,
+            "line": 186,
             "description": "Render view",
             "itemtype": "method",
             "name": "render",
@@ -1480,7 +1476,9 @@
         {
             "file": "webdocs/js/xqcore-view.js",
             "line": 349,
-            "description": "Trigger a view event to the presenter",
+            "description": "Triggers a view event to the presenter",
+            "itemtype": "method",
+            "name": "triggerEvent",
             "params": [
                 {
                     "name": "eventName",
@@ -1508,7 +1506,33 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 361,
+            "line": 363,
+            "description": "Navigate to a given route",
+            "itemtype": "method",
+            "name": "navigateTo",
+            "params": [
+                {
+                    "name": "route",
+                    "description": "Route url",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "Data object",
+                    "type": "Object"
+                },
+                {
+                    "name": "replace",
+                    "description": "Replace current history entry with route",
+                    "type": "Boolean"
+                }
+            ],
+            "class": "XQCore.View",
+            "module": "XQCore.View"
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 376,
             "description": "Gets the index of a subSelector item\nThis function must binded to the view",
             "params": [
                 {
@@ -1584,7 +1608,7 @@
         },
         {
             "message": "unknown tag: emits",
-            "line": " webdocs/js/xqcore-view.js:182"
+            "line": " webdocs/js/xqcore-view.js:186"
         },
         {
             "message": "Missing item type\nCalculate expiry",
@@ -1724,19 +1748,19 @@
         },
         {
             "message": "Missing item type\nCalling on view init",
-            "line": " webdocs/js/xqcore-presenter.js:176"
+            "line": " webdocs/js/xqcore-presenter.js:182"
         },
         {
             "message": "Missing item type\nAdd a history item to the browser history",
-            "line": " webdocs/js/xqcore-presenter.js:185"
+            "line": " webdocs/js/xqcore-presenter.js:191"
         },
         {
             "message": "Missing item type\nAdd a history item to the browser history",
-            "line": " webdocs/js/xqcore-presenter.js:202"
+            "line": " webdocs/js/xqcore-presenter.js:208"
         },
         {
-            "message": "Missing item type\nNavigates to a route",
-            "line": " webdocs/js/xqcore-presenter.js:218"
+            "message": "Missing item type\nNavigates to a given route",
+            "line": " webdocs/js/xqcore-presenter.js:224"
         },
         {
             "message": "Missing item type\nXQCore Router API",
@@ -1807,12 +1831,8 @@
             "line": " webdocs/js/xqcore-view.js:290"
         },
         {
-            "message": "Missing item type\nTrigger a view event to the presenter",
-            "line": " webdocs/js/xqcore-view.js:349"
-        },
-        {
             "message": "Missing item type\nGets the index of a subSelector item\nThis function must binded to the view",
-            "line": " webdocs/js/xqcore-view.js:361"
+            "line": " webdocs/js/xqcore-view.js:376"
         }
     ]
 }

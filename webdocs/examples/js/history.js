@@ -16,7 +16,7 @@ $(function() {
 				console.log(id, num, e.target.id, this, e.target,e);
 				this.pushState({
 					page: id
-				}, 'Test ' + num,'test' + num + '.html');
+				}, 'test' + num + '.html');
 				this['link' + num]();
 			}
 		},

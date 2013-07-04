@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>XQCore.Logger - xqcore</title>
+    <title>XQCore.Presenter - xqcore</title>
     <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.24</em>
+            <em>API Docs for: 0.3.30</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -98,21 +98,25 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>XQCore.Logger Class</h1>
+                        <h1>XQCore.Presenter Class</h1>
 <div class="box meta">
     
 
     
+        <div class="extends">
+            Extends XQCore.Event
+        </div>
+    
 
     
         <div class="foundat">
-            Defined in: <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l36"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:36</code></a>
+            Defined in: <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l8"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:8</code></a>
         </div>
     
 
     
         
-            Module: <a href="../modules/XQCore.Logger.html">XQCore.Logger</a>
+            Module: <a href="../modules/XQCore Presenter.html">XQCore Presenter</a>
         
     
 
@@ -122,9 +126,99 @@
 
 
 <div class="box intro">
-    <p>XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console</p>
+    <p>XQCore.Presenter base class</p>
 </div>
 
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+        <div id="method_XQCore.Presenter" class="method item">
+    <h3 class="name"><code>XQCore.Presenter</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>conf</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l8"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:8</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">conf</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Presenter extend object</p>
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+    </div>
 
 
 <div id="classdocs" class="tabview">
@@ -134,6 +228,8 @@
         
             <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
         
+        
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
         
         
         
@@ -147,38 +243,41 @@
                 <div class="index-section methods">
                     <h3>Methods</h3>
 
-                    <ul class="index-list methods">
+                    <ul class="index-list methods extends">
                         
                             <li class="index-item method">
-                                <a href="#method_error">error</a>
+                                <a href="#method_getView">getView</a>
 
                                 
                                 
                             </li>
                         
                             <li class="index-item method">
-                                <a href="#method_log">log</a>
+                                <a href="#method_showView">showView</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
-                                <a href="#method_timer">timer</a>
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties extends">
+                        
+                            <li class="index-item property">
+                                <a href="#property_events Observed view events">events Observed view events</a>
 
                                 
                                 
                             </li>
                         
-                            <li class="index-item method">
-                                <a href="#method_timerEnd">timerEnd</a>
-
-                                
-                                
-                            </li>
-                        
-                            <li class="index-item method">
-                                <a href="#method_warn">warn</a>
+                            <li class="index-item property">
+                                <a href="#property_lastShownView Points to the last shown view">lastShownView Points to the last shown view</a>
 
                                 
                                 
@@ -191,8 +290,6 @@
             
 
             
-
-            
         </div>
 
         
@@ -200,8 +297,8 @@
                 <h2 class="off-left">Methods</h2>
 
                 
-                    <div id="method_error" class="method item">
-    <h3 class="name"><code>error</code></h3>
+                    <div id="method_getView" class="method item">
+    <h3 class="name"><code>getView</code></h3>
 
     
         <div class="args">
@@ -209,181 +306,7 @@
             
                 <li class="arg">
                     
-                        <code>msg</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l80"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:80</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Loggs a error message to the console</p>
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">msg</code>
-                        <span class="type">Any</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>logs all arguments to the console</p>
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_log" class="method item">
-    <h3 class="name"><code>log</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>msg</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <div class="meta">
-        
-            
-                
-                <p>
-                
-                Defined in
-                
-            
-        
-        
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l47"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:47</code></a>
-        
-        </p>
-
-
-        
-
-        
-    </div>
-
-    <div class="description">
-        <p>Loggs a message to the console</p>
-    </div>
-
-    
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-            
-                <li class="param">
-                    
-                        <code class="param-name">msg</code>
-                        <span class="type">Any</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>logs all arguments to the console</p>
-                    </div>
-
-                    
-                </li>
-            
-            </ul>
-        </div>
-    
-
-    
-
-    
-</div>
-
-                
-                    <div id="method_timer" class="method item">
-    <h3 class="name"><code>timer</code></h3>
-
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>timerName</code>
+                        <code>viewName</code>
                     
                 </li>
             
@@ -420,7 +343,7 @@
             
         
         
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l96"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:96</code></a>
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l241"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:241</code></a>
         
         </p>
 
@@ -431,7 +354,7 @@
     </div>
 
     <div class="description">
-        <p>Start a timeTracer</p>
+        <p>Gets a view by it's name</p>
     </div>
 
     
@@ -442,14 +365,14 @@
             
                 <li class="param">
                     
-                        <code class="param-name">timerName</code>
+                        <code class="param-name">viewName</code>
                         <span class="type">String</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>Set the name for your (Optional)</p>
+                        <p>Required view name</p>
                     </div>
 
                     
@@ -468,7 +391,7 @@
                     
                         <span class="type">Object</span>:
                     
-                    Returns a TimerObject
+                    Returns view object or null if no view was found
                 
             </div>
         </div>
@@ -478,8 +401,8 @@
 </div>
 
                 
-                    <div id="method_timerEnd" class="method item">
-    <h3 class="name"><code>timerEnd</code></h3>
+                    <div id="method_showView" class="method item">
+    <h3 class="name"><code>showView</code></h3>
 
     
         <div class="args">
@@ -487,7 +410,13 @@
             
                 <li class="arg">
                     
-                        <code>timerName</code>
+                        <code>viewName</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>data</code>
                     
                 </li>
             
@@ -520,7 +449,7 @@
             
         
         
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l126"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:126</code></a>
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l262"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:262</code></a>
         
         </p>
 
@@ -531,7 +460,7 @@
     </div>
 
     <div class="description">
-        <p>Stops a timer</p>
+        <p>Show a view if it's not visible and update the history state</p>
     </div>
 
     
@@ -542,14 +471,29 @@
             
                 <li class="param">
                     
-                        <code class="param-name">timerName</code>
-                        <span class="type">String or Object</span>
+                        <code class="param-name">viewName</code>
+                        <span class="type">String</span>
                     
 
                     
 
                     <div class="param-description">
-                        <p>Stops the given timer</p>
+                        <p>The name of the view</p>
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">data</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>Data it's neede to showing the view</p>
                     </div>
 
                     
@@ -565,28 +509,17 @@
 </div>
 
                 
-                    <div id="method_warn" class="method item">
-    <h3 class="name"><code>warn</code></h3>
+            </div>
+        
 
-    
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-            
-                <li class="arg">
-                    
-                        <code>msg</code>
-                    
-                </li>
-            
-            </ul><span class="paren">)</span>
-        </div>
-    
+        
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
 
-    
-
-    
-
-    
+                
+                    <div id="property_events Observed view events" class="property item">
+    <h3 class="name"><code>events Observed view events</code></h3>
+    <span class="type">Array</span>
 
     
 
@@ -607,10 +540,9 @@
             
         
         
-        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-logger.js.html#l64"><code>webdocs&#x2F;js&#x2F;xqcore-logger.js:64</code></a>
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l84"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:84</code></a>
         
         </p>
-
 
         
 
@@ -618,32 +550,53 @@
     </div>
 
     <div class="description">
-        <p>Loggs a warning to the console</p>
+        <p>Listen View events</p>
     </div>
 
     
-        <div class="params">
-            <h4>Parameters:</h4>
 
-            <ul class="params-list">
+    
+
+    
+</div>
+
+                
+                    <div id="property_lastShownView Points to the last shown view" class="property item">
+    <h3 class="name"><code>lastShownView Points to the last shown view</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
             
-                <li class="param">
-                    
-                        <code class="param-name">msg</code>
-                        <span class="type">Any</span>
-                    
-
-                    
-
-                    <div class="param-description">
-                        <p>logs all arguments to the console</p>
-                    </div>
-
-                    
-                </li>
+                
+                <p>
+                
+                Defined in
+                
             
-            </ul>
-        </div>
+        
+        
+        <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l36"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:36</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Points to the last shown view</p>
+    </div>
+
     
 
     
@@ -653,8 +606,6 @@
 
                 
             </div>
-        
-
         
 
         

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Manages event registering and emitting. - xqcore</title>
+    <title>webdocs&#x2F;js&#x2F;xqcore-core.js - xqcore</title>
     <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.24</em>
+            <em>API Docs for: 0.3.30</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -98,67 +98,88 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>Manages event registering and emitting. Class</h1>
-<div class="box meta">
-    
+                        <h1 class="file-heading">File: webdocs&#x2F;js&#x2F;xqcore-core.js</h1>
 
-    
+<div class="file">
+    <pre class="code prettyprint linenums">
+&#x2F;*jshint evil:true *&#x2F;
+&#x2F;*global XQCore:true *&#x2F;
 
-    
-        <div class="foundat">
-            Defined in: <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-event.js.html#l25"><code>webdocs&#x2F;js&#x2F;xqcore-event.js:25</code></a>
-        </div>
-    
+&#x2F;**
+ * XQCore main object
+ *
+ * @package XQcore
+ * @type {Object}
+ *&#x2F;
+var XQCore = {
+	version: &#x27;&lt;%= pkg.version %&gt;&#x27;,
+	defaultRoute: &#x27;default&#x27;,
+	html5Routes: false,
+	hashBang: &#x27;#!&#x27;,
+	callerEvent: &#x27;callerEvent&#x27;
+};
 
-    
-        
-            Module: <a href="../modules/XQCore.GetSet.html">XQCore.GetSet</a>
-        
-    
+&#x2F;&#x2F; if (typeof define === &quot;function&quot; &amp;&amp; define.amd) {
+&#x2F;&#x2F; 	console.log(&#x27;XQCore: using AMD style&#x27;);
+&#x2F;&#x2F; 	define( &quot;xqcore&quot;, [&#x27;handlebars&#x27;], function (Handlebars) {
+&#x2F;&#x2F; 		XQCore.TemplateEngine = Handlebars;
+&#x2F;&#x2F; 		return XQCore;
+&#x2F;&#x2F; 	});
+&#x2F;&#x2F; } else {
+&#x2F;&#x2F; 	XQCore.TemplateEngine = window.Handlebars;
+&#x2F;&#x2F; 	window.XQCore = XQCore;
+&#x2F;&#x2F; }
 
-    
-</div>
+&#x2F;**
+ * Implement include support
+ *
+ * File must be absolute to the document root
+ *
+ * @param {String} file Filename to be load
+ *&#x2F;
+if (!window.include) {
+	window.include = function(file, callback) {
+		var url = location.protocol + &#x27;&#x2F;&#x2F;&#x27; + location.host + file;
+		$.ajax({
+			url: url,
+			dataType: &quot;script&quot;,
+			success: callback,
+			async: false
+		});
+	};
+
+	window.preload = function(file) {
+		var url = location.protocol + &#x27;&#x2F;&#x2F;&#x27; + location.host + file,
+			script;
+
+		$.ajax({
+			url: url,
+			dataType: &quot;text&quot;,
+			success: function(data) {
+				script = data;
+			},
+			async: false
+		});
+
+		return {
+			execute: function(scope) {
+				eval.call(scope || window, script);
+			}
+		};
+	};
+}
 
 
+XQCore._dump = {};
+XQCore.dump = function(componentName) {
+	if (XQCore._dump[componentName]) {
+		console.log(&#x27;[XQCore dump]&#x27;, componentName, XQCore._dump[componentName]);
+		return XQCore._dump[componentName];
+	}
 
-<div class="box intro">
-    <p>Class for managing events.
-Can be extended to provide event functionality in other classes.</p>
-</div>
-
-
-
-<div id="classdocs" class="tabview">
-    <ul class="api-class-tabs">
-        <li class="api-class-tab index"><a href="#index">Index</a></li>
-
-        
-        
-        
-        
-    </ul>
-
-    <div>
-        <div id="index" class="api-class-tabpanel index">
-            <h2 class="off-left">Item Index</h2>
-
-            
-
-            
-
-            
-
-            
-        </div>
-
-        
-
-        
-
-        
-
-        
-    </div>
+	return false;
+};
+    </pre>
 </div>
 
                     </div>

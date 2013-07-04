@@ -1,5 +1,5 @@
 /*!
- * XQCore - 0.3.24
+ * XQCore - 0.3.30
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-05-28
+ * Creation Date: 2013-06-22
  */
 
 (function (root, factory) {
@@ -31,7 +31,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.3.24',
+	version: '0.3.30',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -590,18 +590,8 @@ XQCore.Logger = (function(conf) {
 		return timer;
 	};
 
-	/**
-	 * Stops a timer
-	 *
 	 * @method timerEnd
 	 * @todo Implement function
-	 * @param {String or Object} timerName Stops the given timer
-	 */
-	logger.prototype.timerEnd = function(timer) {
-		//Set stop timer
-		
-	};
-
 	logger.prototype.__scope = {
 		getHumanTime: getHumanTime
 	};
@@ -1246,6 +1236,12 @@ XQCore.Presenter = (function(undefined) {
 		
 	};
 
+	/**
+	 * Listen View events
+	 * @property {Array} events Observed view events
+	 */
+	presenter.prototype.events = {};
+
 	presenter.prototype.init = function(views) {
 		var i,
 			self = this,
@@ -1381,22 +1377,20 @@ XQCore.Presenter = (function(undefined) {
 	};
 
 	/**
-	 * Navigates to a route
+	 * Navigates to a given route
 	 *
-	 * @param {String} url Route url
+	 * @param {String} route Route url
 	 * @param {Object} data Data object
+	 * @param {Boolean} replace Replace current history entry with route
 	 */
-	presenter.prototype.navigateTo = function(url, data) {
-		var route = this.Router.match(url);
-		if (route) {
-			if (XQCore.callerEvent) {
-				data = data || {};
-				data[XQCore.callerEvent] = 'redirect';
-			}
-			route.fn.call(this, data);
+	presenter.prototype.navigateTo = function(route, data, replace) {
+		this.log('Navigate to route: ', route, data, replace);
+		if (replace) {
+			this.replaceState(data, route);
+		} else {
+			this.pushState(data, route);
 		}
 
-		this.log('Navigate to', url, data);
 	};
 
 	/**
@@ -1434,11 +1428,6 @@ XQCore.Presenter = (function(undefined) {
 		if (!view) {
 			this.warn('View not defined!', viewName);
 			return;
-		}
-
-		if (XQCore.callerEvent && data && data[XQCore.callerEvent] !== 'popstate' &&
-			XQCore.callerEvent && data[XQCore.callerEvent] !== 'pageload') {
-			this.pushState(data || null, view.url);
 		}
 
 		this.log('Show view:', viewName, data);
@@ -1721,6 +1710,20 @@ XQCore.View = (function(undefined) {
 		 * @default "body"
 		 */
 
+		/**
+		 * Determines wether the view is hidden after rendering
+		 * @property hidden
+		 * @type Boolean
+		 * @default false
+		 */
+		
+		/**
+		 * Sets the container element
+		 * @property el
+		 * @type Selector
+		 * @default "body"
+		 */
+
 		if (arguments.length === 2) {
 			this.presenter = arguments[0];
 			conf = arguments[1];
@@ -1773,6 +1776,10 @@ XQCore.View = (function(undefined) {
 				this.$el = this.container;
 			}
 			this.el = this.$el.get(0);
+
+			if (conf.hidden === true) {
+				this.$el.hide();
+			}
 
 			if (conf.id) {
 				this.$el.attr('id', conf.id);
@@ -1884,10 +1891,6 @@ XQCore.View = (function(undefined) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = typeof this.template === 'function' ? this.template : Handlebars.compile(this.template);
 		this.$el.html(template(data || {}));
-
-		if (this.conf.hidden === true) {
-			this.$el.hide();
-		}
 
 		this.emit('content.change', data);
 	};
@@ -2039,7 +2042,9 @@ XQCore.View = (function(undefined) {
 	};
 
 	/**
-	 * Trigger a view event to the presenter
+	 * Triggers a view event to the presenter
+	 *
+	 * @method triggerEvent
 	 *
 	 * @param {String} eventName Event of the triggered event
 	 * @param {Object} e EventObject
@@ -2048,6 +2053,19 @@ XQCore.View = (function(undefined) {
 	 */
 	view.prototype.triggerEvent = function(eventName, e, tag, data) {
 		this.presenter.events[eventName].call(this.presenter, e, tag, data);
+	};
+
+	/**
+	 * Navigate to a given route
+	 *
+	 * @method navigateTo
+	 *
+	 * @param {String} route Route url
+	 * @param {Object} data Data object
+	 * @param {Boolean} replace Replace current history entry with route
+	 */
+	view.prototype.navigateTo = function(route, data, replace) {
+		this.presenter.navigateTo(route, data, replace);
 	};
 
 	/**

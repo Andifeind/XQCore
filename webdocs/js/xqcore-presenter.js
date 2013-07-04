@@ -81,6 +81,12 @@ XQCore.Presenter = (function(undefined) {
 		
 	};
 
+	/**
+	 * Listen View events
+	 * @property {Array} events Observed view events
+	 */
+	presenter.prototype.events = {};
+
 	presenter.prototype.init = function(views) {
 		var i,
 			self = this,
@@ -216,22 +222,20 @@ XQCore.Presenter = (function(undefined) {
 	};
 
 	/**
-	 * Navigates to a route
+	 * Navigates to a given route
 	 *
-	 * @param {String} url Route url
+	 * @param {String} route Route url
 	 * @param {Object} data Data object
+	 * @param {Boolean} replace Replace current history entry with route
 	 */
-	presenter.prototype.navigateTo = function(url, data) {
-		var route = this.Router.match(url);
-		if (route) {
-			if (XQCore.callerEvent) {
-				data = data || {};
-				data[XQCore.callerEvent] = 'redirect';
-			}
-			route.fn.call(this, data);
+	presenter.prototype.navigateTo = function(route, data, replace) {
+		this.log('Navigate to route: ', route, data, replace);
+		if (replace) {
+			this.replaceState(data, route);
+		} else {
+			this.pushState(data, route);
 		}
 
-		this.log('Navigate to', url, data);
 	};
 
 	/**
@@ -269,11 +273,6 @@ XQCore.Presenter = (function(undefined) {
 		if (!view) {
 			this.warn('View not defined!', viewName);
 			return;
-		}
-
-		if (XQCore.callerEvent && data && data[XQCore.callerEvent] !== 'popstate' &&
-			XQCore.callerEvent && data[XQCore.callerEvent] !== 'pageload') {
-			this.pushState(data || null, view.url);
 		}
 
 		this.log('Show view:', viewName, data);

@@ -1,5 +1,5 @@
 /*!
- * XQCore Minimal - 0.3.24
+ * XQCore Minimal - 0.3.30
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-05-28
+ * Creation Date: 2013-06-22
  */
 
 (function (root, factory) {
@@ -31,7 +31,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.3.24',
+	version: '0.3.30',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -590,18 +590,8 @@ XQCore.Logger = (function(conf) {
 		return timer;
 	};
 
-	/**
-	 * Stops a timer
-	 *
 	 * @method timerEnd
 	 * @todo Implement function
-	 * @param {String or Object} timerName Stops the given timer
-	 */
-	logger.prototype.timerEnd = function(timer) {
-		//Set stop timer
-		
-	};
-
 	logger.prototype.__scope = {
 		getHumanTime: getHumanTime
 	};

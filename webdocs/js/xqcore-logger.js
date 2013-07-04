@@ -123,18 +123,6 @@ XQCore.Logger = (function(conf) {
 		return timer;
 	};
 
-	/**
-	 * Stops a timer
-	 *
-	 * @method timerEnd
-	 * @todo Implement function
-	 * @param {String or Object} timerName Stops the given timer
-	 */
-	logger.prototype.timerEnd = function(timer) {
-		//Set stop timer
-		
-	};
-
 	logger.prototype.__scope = {
 		getHumanTime: getHumanTime
 	};

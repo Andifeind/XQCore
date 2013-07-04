@@ -11,7 +11,8 @@
 		"after",
 		"afterEach",
 		"sinon",
-		"Handlebars"
+		"Handlebars",
+		"XQCore"
 	],
 
 	/**
@@ -177,7 +178,7 @@
 	 *
   	 * In addition to that, this option will warn you about unused global variables declared via /*global ... * /.
   	 */
-  	 "unused": true,
+  	 "unused": "var",
 
   	/**
   	 * This option requires all functions to run in EcmaScript 5's strict mode. Strict mode is a way to opt in to a restricted variant of

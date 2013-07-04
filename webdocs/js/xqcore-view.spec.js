@@ -32,6 +32,35 @@ describe('XQCore View', function() {
 		expect(initFunc).was.called();
 	});
 
+	it('Should render a view', function() {
+		var presenter,
+			view,
+			initFunc = sinon.spy();
+
+		presenter = new XQCore.Presenter({
+			
+		});
+
+		view = new XQCore.View({
+			debug: true,
+			name: 'test1',
+			init: initFunc,
+			container: viewContainer,
+			tag: 'div',
+			id: 'newView',
+			className: 'newViewClass'
+		});
+
+		presenter.registerView(view);
+		presenter.init();
+
+		expect(view).to.be.an('object');
+		expect(initFunc).was.called();
+		$expect('#newView').to.exist();
+		$expect('#newView').to.have.class('newViewClass');
+		$expect('#newView').to.be.a('div');
+	});
+
 	it('Should register view events at presenter', function() {
 		var view,
 			presenter,

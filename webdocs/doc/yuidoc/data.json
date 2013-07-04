@@ -1,11 +1,18 @@
 {
     "project": {
-        "name": "XQCore",
-        "description": "MVP Javascript Framework",
-        "version": "0.1.0",
+        "name": "xqcore",
+        "description": "Model View Presenter Javascript Framework",
+        "version": "0.3.24",
         "url": ""
     },
     "files": {
+        "webdocs/js/xqcore-cache.js": {
+            "name": "webdocs/js/xqcore-cache.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
         "webdocs/js/xqcore-core.js": {
             "name": "webdocs/js/xqcore-core.js",
             "modules": {},
@@ -24,16 +31,22 @@
         },
         "webdocs/js/xqcore-getset.js": {
             "name": "webdocs/js/xqcore-getset.js",
-            "modules": {},
-            "classes": {},
+            "modules": {
+                "XQCore.GetSet": 1
+            },
+            "classes": {
+                "GetSet": 1
+            },
             "fors": {},
             "namespaces": {}
         },
         "webdocs/js/xqcore-logger.js": {
             "name": "webdocs/js/xqcore-logger.js",
-            "modules": {},
+            "modules": {
+                "XQCore.Logger": 1
+            },
             "classes": {
-                "XQCore Logger class": 1
+                "XQCore.Logger": 1
             },
             "fors": {},
             "namespaces": {}
@@ -72,19 +85,52 @@
         },
         "webdocs/js/xqcore-view.js": {
             "name": "webdocs/js/xqcore-view.js",
-            "modules": {},
-            "classes": {},
+            "modules": {
+                "XQCore.View": 1
+            },
+            "classes": {
+                "XQCore.View": 1
+            },
             "fors": {},
             "namespaces": {}
         }
     },
     "modules": {
+        "XQCore.GetSet": {
+            "name": "XQCore.GetSet",
+            "submodules": {},
+            "classes": {
+                "Manages event registering and emitting.": 1,
+                "GetSet": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 10,
+            "description": "XQCore.GetSet",
+            "requires": [
+                "XQCore.Logger",
+                "XQCore.Event"
+            ]
+        },
+        "XQCore.Logger": {
+            "name": "XQCore.Logger",
+            "submodules": {},
+            "classes": {
+                "XQCore.Logger": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "webdocs/js/xqcore-logger.js",
+            "line": 36,
+            "description": "XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console"
+        },
         "XQCore Presenter": {
             "name": "XQCore Presenter",
             "submodules": {},
             "classes": {
-                "Manages event registering and emitting.": 1,
-                "XQCore Logger class": 1,
                 "XQCore.Presenter": 1
             },
             "fors": {},
@@ -93,6 +139,23 @@
             "file": "webdocs/js/xqcore-presenter.js",
             "line": 8,
             "description": "XQCore Presenter"
+        },
+        "XQCore.View": {
+            "name": "XQCore.View",
+            "submodules": {},
+            "classes": {
+                "XQCore.View": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 9,
+            "description": "XQCore View module",
+            "return": {
+                "description": "Returns a XQCore.View prototype object",
+                "type": "Object"
+            }
         }
     },
     "classes": {
@@ -104,28 +167,46 @@
             "extensions": [],
             "plugin_for": [],
             "extension_for": [],
-            "module": "XQCore Presenter",
+            "module": "XQCore.GetSet",
             "file": "webdocs/js/xqcore-event.js",
             "line": 25,
             "description": "Class for managing events.\nCan be extended to provide event functionality in other classes."
         },
-        "XQCore Logger class": {
-            "name": "XQCore Logger class",
-            "shortname": "XQCore Logger class",
+        "GetSet": {
+            "name": "GetSet",
+            "shortname": "GetSet",
             "classitems": [],
             "plugins": [],
             "extensions": [],
             "plugin_for": [],
             "extension_for": [],
-            "module": "XQCore Presenter",
+            "module": "XQCore.GetSet",
+            "namespace": "",
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 10,
+            "description": "GetSet constructor",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "conf",
+                    "description": "COnfig object",
+                    "type": "Object"
+                }
+            ]
+        },
+        "XQCore.Logger": {
+            "name": "XQCore.Logger",
+            "shortname": "XQCore.Logger",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "XQCore.Logger",
+            "namespace": "",
             "file": "webdocs/js/xqcore-logger.js",
             "line": 36,
-            "description": "XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console",
-            "package": "XQCore.Logger",
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            }
+            "description": "XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console"
         },
         "XQCore.Presenter": {
             "name": "XQCore.Presenter",
@@ -149,12 +230,58 @@
                     "type": "Object"
                 }
             ]
+        },
+        "XQCore.View": {
+            "name": "XQCore.View",
+            "shortname": "XQCore.View",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "XQCore.View",
+            "namespace": "",
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 9,
+            "description": "XQCore.View",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "conf",
+                    "description": "View configuration",
+                    "type": "Object"
+                }
+            ]
         }
     },
     "classitems": [
         {
+            "file": "webdocs/js/xqcore-cache.js",
+            "line": 14,
+            "description": "Calculate expiry",
+            "class": "Manages event registering and emitting."
+        },
+        {
+            "file": "webdocs/js/xqcore-cache.js",
+            "line": 23,
+            "description": "Add data to cache",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "Data key, if is an object, it will be serialized",
+                    "type": "String"
+                },
+                {
+                    "name": "data",
+                    "description": "Chache data",
+                    "type": "Any"
+                }
+            ],
+            "class": "Manages event registering and emitting."
+        },
+        {
             "file": "webdocs/js/xqcore-core.js",
-            "line": 3,
+            "line": 4,
             "description": "XQCore main object",
             "package": "XQcore",
             "type": "{Object}",
@@ -162,7 +289,7 @@
         },
         {
             "file": "webdocs/js/xqcore-core.js",
-            "line": 17,
+            "line": 29,
             "description": "Implement include support\n\nFile must be absolute to the document root",
             "params": [
                 {
@@ -393,13 +520,31 @@
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 19,
-            "description": "Set getset data",
+            "line": 44,
+            "description": "Set getset data\n\nTriggers a data.change event if data was set succesfully",
+            "itemtype": "method",
+            "name": "set",
             "params": [
                 {
-                    "name": "data/key",
+                    "name": "data",
                     "description": "",
-                    "type": "Object or String"
+                    "type": "Object"
+                }
+            ],
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 53,
+            "description": "Set getset data\n\nTriggers these events if data was set succesfully<br>\n<i>data.change</i><br>\n&lt;key&gt;.change",
+            "itemtype": "method",
+            "name": "set",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "",
+                    "type": "String"
                 },
                 {
                     "name": "value",
@@ -407,12 +552,13 @@
                     "type": "Object"
                 }
             ],
-            "class": "XQCore Logger class"
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 54,
-            "description": "Get one or all propertys from getset",
+            "line": 120,
+            "description": "Get one or all properties from a dataset",
             "params": [
                 {
                     "name": "key",
@@ -424,11 +570,12 @@
                 "description": "getset dataset",
                 "type": "Object"
             },
-            "class": "XQCore Logger class"
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 70,
+            "line": 136,
             "description": "Check wether getset has a dataset",
             "params": [
                 {
@@ -441,17 +588,19 @@
                 "description": "Returns true if getset has a dataset with key",
                 "type": "Boolean"
             },
-            "class": "XQCore Logger class"
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 80,
+            "line": 146,
             "description": "Remove all data from getset",
-            "class": "XQCore Logger class"
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 88,
+            "line": 154,
             "description": "Append data to a subset",
             "params": [
                 {
@@ -465,11 +614,12 @@
                     "type": "Object"
                 }
             ],
-            "class": "XQCore Logger class"
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 110,
+            "line": 198,
             "description": "Prepend data to a subset",
             "params": [
                 {
@@ -483,11 +633,12 @@
                     "type": "Object"
                 }
             ],
-            "class": "XQCore Logger class"
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 132,
+            "line": 240,
             "description": "Remove a subset",
             "params": [
                 {
@@ -505,12 +656,13 @@
                 "description": "removed subset",
                 "type": "Object"
             },
-            "class": "XQCore Logger class"
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 158,
-            "description": "Search a item in models propertys",
+            "line": 266,
+            "description": "Search a item in models properties",
             "params": [
                 {
                     "name": "path",
@@ -527,17 +679,61 @@
                 "description": "Returns the first matched item or null",
                 "type": "Object"
             },
-            "class": "XQCore Logger class"
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 303,
+            "description": "Sort an array collection by a given attribute",
+            "params": [
+                {
+                    "name": "path",
+                    "description": "Path to the collection",
+                    "type": "String"
+                },
+                {
+                    "name": "sortKeys",
+                    "description": "Sort by key\n\nsortKeys: {\n  'key': 1 // Sort ascend by key,\n  'second.key': -1 // Sort descand by second.key\n}\n\nascend, a -> z, 0 - > 9 (-1)\ndescend, z -> a, 9 -> 0 (1)",
+                    "type": "Object"
+                }
+            ],
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
+        },
+        {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 375,
+            "description": "Validate one property\n\nValidatorResultItemObject\n{\n  isValid: Boolean,\n  value: Any,\n  error: Object\n}",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "Property key",
+                    "type": "String"
+                },
+                {
+                    "name": "value",
+                    "description": "Property value",
+                    "type": "Any"
+                }
+            ],
+            "return": {
+                "description": "Returns a ValidatorResultItemObject",
+                "type": "Object"
+            },
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
         },
         {
             "file": "webdocs/js/xqcore-logger.js",
             "line": 1,
             "description": "XQCore Logger\n\nBased on EventEmitter.js",
-            "class": "XQCore Logger class"
+            "class": "XQCore.Logger",
+            "module": "XQCore.GetSet"
         },
         {
             "file": "webdocs/js/xqcore-logger.js",
-            "line": 48,
+            "line": 47,
             "description": "Loggs a message to the console",
             "itemtype": "method",
             "name": "log",
@@ -548,12 +744,15 @@
                     "type": "Any"
                 }
             ],
-            "class": "XQCore Logger class"
+            "class": "XQCore.Logger",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-logger.js",
-            "line": 65,
+            "line": 64,
             "description": "Loggs a warning to the console",
+            "itemtype": "method",
+            "name": "warn",
             "params": [
                 {
                     "name": "msg",
@@ -561,12 +760,15 @@
                     "type": "Any"
                 }
             ],
-            "class": "XQCore Logger class"
+            "class": "XQCore.Logger",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-logger.js",
             "line": 80,
             "description": "Loggs a error message to the console",
+            "itemtype": "method",
+            "name": "error",
             "params": [
                 {
                     "name": "msg",
@@ -574,12 +776,15 @@
                     "type": "Any"
                 }
             ],
-            "class": "XQCore Logger class"
+            "class": "XQCore.Logger",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-logger.js",
-            "line": 95,
+            "line": 96,
             "description": "Start a timeTracer",
+            "itemtype": "method",
+            "name": "timer",
             "params": [
                 {
                     "name": "timerName",
@@ -591,12 +796,18 @@
                 "description": "Returns a TimerObject",
                 "type": "Object"
             },
-            "class": "XQCore Logger class"
+            "class": "XQCore.Logger",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-logger.js",
-            "line": 124,
+            "line": 126,
             "description": "Stops a timer",
+            "itemtype": "method",
+            "name": "timerEnd",
+            "todo": [
+                "Implement function"
+            ],
             "params": [
                 {
                     "name": "timerName",
@@ -604,17 +815,30 @@
                     "type": "String or Object"
                 }
             ],
-            "class": "XQCore Logger class"
+            "class": "XQCore.Logger",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 75,
-            "description": "var dataset = this.properties;\nvar dataset = this.properties;\n\t * Called on before sending an ajax request\n\t * You can use this function to manipulate all data they be send to the server\n\t *\n\t * @param {Object} data The data to send to the server\n\t * @return {Object} data",
-            "class": "XQCore.Presenter"
+            "line": 57,
+            "description": "Called on before sending an ajax request\nYou can use this function to manipulate all data they be send to the server",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "The data to send to the server",
+                    "type": "Object"
+                }
+            ],
+            "return": {
+                "description": "data",
+                "type": "Object"
+            },
+            "class": "XQCore.Presenter",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 88,
+            "line": 68,
             "description": "Send an ajax request to the webserver.\n\nYou must set the server URI first with model.server = 'http://example.com/post'",
             "params": [
                 {
@@ -633,11 +857,12 @@
                     "type": "Function"
                 }
             ],
-            "class": "XQCore.Presenter"
+            "class": "XQCore.Presenter",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 139,
+            "line": 119,
             "description": "Sends a POST to the Datastore",
             "params": [
                 {
@@ -651,11 +876,12 @@
                     "type": "Function"
                 }
             ],
-            "class": "XQCore.Presenter"
+            "class": "XQCore.Presenter",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 152,
+            "line": 132,
             "description": "Sends a GET to the Datastore",
             "params": [
                 {
@@ -669,12 +895,13 @@
                     "type": "Function"
                 }
             ],
-            "class": "XQCore.Presenter"
+            "class": "XQCore.Presenter",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 165,
-            "description": "Sends a UPDATE to the Datastore",
+            "line": 145,
+            "description": "Sends a PUT to the Datastore",
             "params": [
                 {
                     "name": "data",
@@ -687,11 +914,12 @@
                     "type": "Function"
                 }
             ],
-            "class": "XQCore.Presenter"
+            "class": "XQCore.Presenter",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 178,
+            "line": 158,
             "description": "Sends a DELETE to the Datastore",
             "params": [
                 {
@@ -705,11 +933,67 @@
                     "type": "Function"
                 }
             ],
-            "class": "XQCore.Presenter"
+            "class": "XQCore.Presenter",
+            "module": "XQCore.Logger"
+        },
+        {
+            "file": "webdocs/js/xqcore-model.js",
+            "line": 171,
+            "description": "Check if model is ready and call func or wait for ready state",
+            "class": "XQCore.Presenter",
+            "module": "XQCore.Logger"
+        },
+        {
+            "file": "webdocs/js/xqcore-model.js",
+            "line": 203,
+            "description": "Fetch data from server",
+            "params": [
+                {
+                    "name": "query",
+                    "description": "MongoDB query",
+                    "type": "Object"
+                },
+                {
+                    "name": "callback",
+                    "description": "Callback function",
+                    "type": "Function"
+                }
+            ],
+            "class": "XQCore.Presenter",
+            "module": "XQCore.Logger"
+        },
+        {
+            "file": "webdocs/js/xqcore-model.js",
+            "line": 213,
+            "description": "Load bugs",
+            "params": [
+                {
+                    "name": "query",
+                    "description": "Datastore query parameter",
+                    "type": "Object"
+                },
+                {
+                    "name": "callback",
+                    "description": "Callback function",
+                    "type": "Function"
+                }
+            ],
+            "class": "XQCore.Presenter",
+            "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 169,
+            "line": 36,
+            "description": "Points to the last shown view",
+            "itemtype": "property",
+            "name": "lastShownView Points to the last shown view",
+            "type": "Object",
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 176,
             "description": "Calling on view init",
             "params": [
                 {
@@ -723,7 +1007,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 178,
+            "line": 185,
             "description": "Add a history item to the browser history",
             "params": [
                 {
@@ -742,7 +1026,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 195,
+            "line": 202,
             "description": "Add a history item to the browser history",
             "params": [
                 {
@@ -761,7 +1045,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 211,
+            "line": 218,
             "description": "Navigates to a route",
             "params": [
                 {
@@ -780,8 +1064,30 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 231,
+            "line": 237,
+            "description": "Gets a view by it's name",
+            "itemtype": "method",
+            "name": "getView",
+            "params": [
+                {
+                    "name": "viewName",
+                    "description": "Required view name",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "Returns view object or null if no view was found",
+                "type": "Object"
+            },
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 258,
             "description": "Show a view if it's not visible and update the history state",
+            "itemtype": "method",
+            "name": "showView",
             "params": [
                 {
                     "name": "viewName",
@@ -804,7 +1110,7 @@
             "author": "Andi Heinkelein - noname-media.com",
             "copyright": "Andi Heinkelein - noname-media.com",
             "package": "XQCore\n\nBased on router.js\nCopyright Aaron Blohowiak and TJ Holowaychuk 2011.\nhttps://github.com/aaronblohowiak/routes.js",
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -822,7 +1128,7 @@
                 "description": "",
                 "type": "Object"
             },
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -845,7 +1151,7 @@
                 "description": "",
                 "type": "RegExp"
             },
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -868,7 +1174,7 @@
                 "description": "",
                 "type": "Object"
             },
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -879,7 +1185,7 @@
                 "description": "",
                 "type": "Object"
             },
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -902,7 +1208,7 @@
                 "description": "Returns the matched route",
                 "type": "Boolean"
             },
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -913,7 +1219,7 @@
                 "description": "Returns a singelton object instance of XQCore.Util",
                 "type": "Object"
             },
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -931,7 +1237,7 @@
                 "description": "FormData as JSON",
                 "type": "Object"
             },
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -959,7 +1265,7 @@
                 "description": "errorMessage on invalid or void on valid",
                 "type": "String"
             },
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -982,7 +1288,7 @@
                 "description": "errorMessage on invalid or void on valid",
                 "type": "String"
             },
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -996,7 +1302,7 @@
                     "type": "String"
                 }
             ],
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
@@ -1010,31 +1316,34 @@
                     "type": "String"
                 }
             ],
-            "class": "",
+            "class": "XQCore.View",
             "module": "XQCore Presenter"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 3,
-            "description": "XQCore.View",
-            "is_constructor": 1,
-            "params": [
-                {
-                    "name": "conf",
-                    "description": "[description]",
-                    "type": "[type]"
-                }
-            ],
-            "return": {
-                "description": "[description]",
-                "type": "[type]"
-            },
-            "class": "",
-            "module": "XQCore Presenter"
+            "line": 18,
+            "description": "Determines wether the view is hidden after rendering",
+            "itemtype": "property",
+            "name": "hidden",
+            "type": "Boolean",
+            "default": "false",
+            "class": "XQCore.View",
+            "module": "XQCore.View"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 34,
+            "line": 25,
+            "description": "Sets the container element",
+            "itemtype": "property",
+            "name": "el",
+            "type": "Selector",
+            "default": "\"body\"",
+            "class": "XQCore.View",
+            "module": "XQCore.View"
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 52,
             "description": "Init function",
             "itemtype": "method",
             "name": "init",
@@ -1045,12 +1354,29 @@
                     "type": "Object"
                 }
             ],
-            "class": "",
-            "module": "XQCore Presenter"
+            "class": "XQCore.View",
+            "module": "XQCore.View"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 169,
+            "line": 182,
+            "description": "Render view",
+            "itemtype": "method",
+            "name": "render",
+            "emits": "content.change",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "Render data",
+                    "type": "Object"
+                }
+            ],
+            "class": "XQCore.View",
+            "module": "XQCore.View"
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 213,
             "description": "Appends a html fragment to a html element\nYou must set the itemTemplate and subSelector  option first",
             "params": [
                 {
@@ -1069,12 +1395,12 @@
                     "type": "Object"
                 }
             ],
-            "class": "",
-            "module": "XQCore Presenter"
+            "class": "XQCore.View",
+            "module": "XQCore.View"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 181,
+            "line": 225,
             "description": "Prepends a html fragment to a html element\nYou must set the itemTemplate and subSelector option first",
             "params": [
                 {
@@ -1088,12 +1414,12 @@
                     "type": "Object"
                 }
             ],
-            "class": "",
-            "module": "XQCore Presenter"
+            "class": "XQCore.View",
+            "module": "XQCore.View"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 192,
+            "line": 236,
             "description": "Remove a item from a dom node",
             "params": [
                 {
@@ -1102,12 +1428,12 @@
                     "type": "Number"
                 }
             ],
-            "class": "",
-            "module": "XQCore Presenter"
+            "class": "XQCore.View",
+            "module": "XQCore.View"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 201,
+            "line": 245,
             "description": "Manipulates a dom node",
             "params": [
                 {
@@ -1130,12 +1456,12 @@
                 "description": "[description]",
                 "type": "[type]"
             },
-            "class": "",
-            "module": "XQCore Presenter"
+            "class": "XQCore.View",
+            "module": "XQCore.View"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 246,
+            "line": 290,
             "description": "Gets the data of an element",
             "params": [
                 {
@@ -1148,12 +1474,41 @@
                 "description": "Returns the data of an element or null",
                 "type": "Object"
             },
-            "class": "",
-            "module": "XQCore Presenter"
+            "class": "XQCore.View",
+            "module": "XQCore.View"
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 305,
+            "line": 349,
+            "description": "Trigger a view event to the presenter",
+            "params": [
+                {
+                    "name": "eventName",
+                    "description": "Event of the triggered event",
+                    "type": "String"
+                },
+                {
+                    "name": "e",
+                    "description": "EventObject",
+                    "type": "Object"
+                },
+                {
+                    "name": "tag",
+                    "description": "Tag data",
+                    "type": "Object"
+                },
+                {
+                    "name": "data",
+                    "description": "Event data",
+                    "type": "Object"
+                }
+            ],
+            "class": "XQCore.View",
+            "module": "XQCore.View"
+        },
+        {
+            "file": "webdocs/js/xqcore-view.js",
+            "line": 361,
             "description": "Gets the index of a subSelector item\nThis function must binded to the view",
             "params": [
                 {
@@ -1166,14 +1521,14 @@
                 "description": "index of the element or null",
                 "type": "Number"
             },
-            "class": "",
-            "module": "XQCore Presenter"
+            "class": "XQCore.View",
+            "module": "XQCore.View"
         }
     ],
     "warnings": [
         {
             "message": "unknown tag: package",
-            "line": " webdocs/js/xqcore-core.js:3"
+            "line": " webdocs/js/xqcore-core.js:4"
         },
         {
             "message": "unknown tag: doc",
@@ -1208,10 +1563,6 @@
             "line": " webdocs/js/xqcore-event.js:239"
         },
         {
-            "message": "unknown tag: package",
-            "line": " webdocs/js/xqcore-logger.js:36"
-        },
-        {
             "message": "unknown tag: copyright",
             "line": " webdocs/js/xqcore-router.js:1"
         },
@@ -1228,12 +1579,28 @@
             "line": " webdocs/js/xqcore-util.js:70"
         },
         {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " webdocs/js/xqcore-view.js:1"
+        },
+        {
+            "message": "unknown tag: emits",
+            "line": " webdocs/js/xqcore-view.js:182"
+        },
+        {
+            "message": "Missing item type\nCalculate expiry",
+            "line": " webdocs/js/xqcore-cache.js:14"
+        },
+        {
+            "message": "Missing item type\nAdd data to cache",
+            "line": " webdocs/js/xqcore-cache.js:23"
+        },
+        {
             "message": "Missing item type\nXQCore main object",
-            "line": " webdocs/js/xqcore-core.js:3"
+            "line": " webdocs/js/xqcore-core.js:4"
         },
         {
             "message": "Missing item type\nImplement include support\n\nFile must be absolute to the document root",
-            "line": " webdocs/js/xqcore-core.js:17"
+            "line": " webdocs/js/xqcore-core.js:29"
         },
         {
             "message": "Missing item type\nXQCore EventEmitter\n\nBased on EventEmitter v4.0.2 by Oliver Caldwell\nhttp://git.io/ee",
@@ -1280,100 +1647,96 @@
             "line": " webdocs/js/xqcore-event.js:239"
         },
         {
-            "message": "Missing item type\nSet getset data",
-            "line": " webdocs/js/xqcore-getset.js:19"
-        },
-        {
-            "message": "Missing item type\nGet one or all propertys from getset",
-            "line": " webdocs/js/xqcore-getset.js:54"
+            "message": "Missing item type\nGet one or all properties from a dataset",
+            "line": " webdocs/js/xqcore-getset.js:120"
         },
         {
             "message": "Missing item type\nCheck wether getset has a dataset",
-            "line": " webdocs/js/xqcore-getset.js:70"
+            "line": " webdocs/js/xqcore-getset.js:136"
         },
         {
             "message": "Missing item type\nRemove all data from getset",
-            "line": " webdocs/js/xqcore-getset.js:80"
+            "line": " webdocs/js/xqcore-getset.js:146"
         },
         {
             "message": "Missing item type\nAppend data to a subset",
-            "line": " webdocs/js/xqcore-getset.js:88"
+            "line": " webdocs/js/xqcore-getset.js:154"
         },
         {
             "message": "Missing item type\nPrepend data to a subset",
-            "line": " webdocs/js/xqcore-getset.js:110"
+            "line": " webdocs/js/xqcore-getset.js:198"
         },
         {
             "message": "Missing item type\nRemove a subset",
-            "line": " webdocs/js/xqcore-getset.js:132"
+            "line": " webdocs/js/xqcore-getset.js:240"
         },
         {
-            "message": "Missing item type\nSearch a item in models propertys",
-            "line": " webdocs/js/xqcore-getset.js:158"
+            "message": "Missing item type\nSearch a item in models properties",
+            "line": " webdocs/js/xqcore-getset.js:266"
+        },
+        {
+            "message": "Missing item type\nSort an array collection by a given attribute",
+            "line": " webdocs/js/xqcore-getset.js:303"
+        },
+        {
+            "message": "Missing item type\nValidate one property\n\nValidatorResultItemObject\n{\n  isValid: Boolean,\n  value: Any,\n  error: Object\n}",
+            "line": " webdocs/js/xqcore-getset.js:375"
         },
         {
             "message": "Missing item type\nXQCore Logger\n\nBased on EventEmitter.js",
             "line": " webdocs/js/xqcore-logger.js:1"
         },
         {
-            "message": "Missing item type\nLoggs a warning to the console",
-            "line": " webdocs/js/xqcore-logger.js:65"
-        },
-        {
-            "message": "Missing item type\nLoggs a error message to the console",
-            "line": " webdocs/js/xqcore-logger.js:80"
-        },
-        {
-            "message": "Missing item type\nStart a timeTracer",
-            "line": " webdocs/js/xqcore-logger.js:95"
-        },
-        {
-            "message": "Missing item type\nStops a timer",
-            "line": " webdocs/js/xqcore-logger.js:124"
-        },
-        {
-            "message": "Missing item type\nvar dataset = this.properties;\nvar dataset = this.properties;\n\t * Called on before sending an ajax request\n\t * You can use this function to manipulate all data they be send to the server\n\t *\n\t * @param {Object} data The data to send to the server\n\t * @return {Object} data",
-            "line": " webdocs/js/xqcore-model.js:75"
+            "message": "Missing item type\nCalled on before sending an ajax request\nYou can use this function to manipulate all data they be send to the server",
+            "line": " webdocs/js/xqcore-model.js:57"
         },
         {
             "message": "Missing item type\nSend an ajax request to the webserver.\n\nYou must set the server URI first with model.server = 'http://example.com/post'",
-            "line": " webdocs/js/xqcore-model.js:88"
+            "line": " webdocs/js/xqcore-model.js:68"
         },
         {
             "message": "Missing item type\nSends a POST to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:139"
+            "line": " webdocs/js/xqcore-model.js:119"
         },
         {
             "message": "Missing item type\nSends a GET to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:152"
+            "line": " webdocs/js/xqcore-model.js:132"
         },
         {
-            "message": "Missing item type\nSends a UPDATE to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:165"
+            "message": "Missing item type\nSends a PUT to the Datastore",
+            "line": " webdocs/js/xqcore-model.js:145"
         },
         {
             "message": "Missing item type\nSends a DELETE to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:178"
+            "line": " webdocs/js/xqcore-model.js:158"
+        },
+        {
+            "message": "Missing item type\nCheck if model is ready and call func or wait for ready state",
+            "line": " webdocs/js/xqcore-model.js:171"
+        },
+        {
+            "message": "Missing item type\nFetch data from server",
+            "line": " webdocs/js/xqcore-model.js:203"
+        },
+        {
+            "message": "Missing item type\nLoad bugs",
+            "line": " webdocs/js/xqcore-model.js:213"
         },
         {
             "message": "Missing item type\nCalling on view init",
-            "line": " webdocs/js/xqcore-presenter.js:169"
+            "line": " webdocs/js/xqcore-presenter.js:176"
         },
         {
             "message": "Missing item type\nAdd a history item to the browser history",
-            "line": " webdocs/js/xqcore-presenter.js:178"
+            "line": " webdocs/js/xqcore-presenter.js:185"
         },
         {
             "message": "Missing item type\nAdd a history item to the browser history",
-            "line": " webdocs/js/xqcore-presenter.js:195"
+            "line": " webdocs/js/xqcore-presenter.js:202"
         },
         {
             "message": "Missing item type\nNavigates to a route",
-            "line": " webdocs/js/xqcore-presenter.js:211"
-        },
-        {
-            "message": "Missing item type\nShow a view if it's not visible and update the history state",
-            "line": " webdocs/js/xqcore-presenter.js:231"
+            "line": " webdocs/js/xqcore-presenter.js:218"
         },
         {
             "message": "Missing item type\nXQCore Router API",
@@ -1424,32 +1787,32 @@
             "line": " webdocs/js/xqcore-util.js:95"
         },
         {
-            "message": "Missing item type\nXQCore.View",
-            "line": " webdocs/js/xqcore-view.js:3"
-        },
-        {
             "message": "Missing item type\nAppends a html fragment to a html element\nYou must set the itemTemplate and subSelector  option first",
-            "line": " webdocs/js/xqcore-view.js:169"
+            "line": " webdocs/js/xqcore-view.js:213"
         },
         {
             "message": "Missing item type\nPrepends a html fragment to a html element\nYou must set the itemTemplate and subSelector option first",
-            "line": " webdocs/js/xqcore-view.js:181"
+            "line": " webdocs/js/xqcore-view.js:225"
         },
         {
             "message": "Missing item type\nRemove a item from a dom node",
-            "line": " webdocs/js/xqcore-view.js:192"
+            "line": " webdocs/js/xqcore-view.js:236"
         },
         {
             "message": "Missing item type\nManipulates a dom node",
-            "line": " webdocs/js/xqcore-view.js:201"
+            "line": " webdocs/js/xqcore-view.js:245"
         },
         {
             "message": "Missing item type\nGets the data of an element",
-            "line": " webdocs/js/xqcore-view.js:246"
+            "line": " webdocs/js/xqcore-view.js:290"
+        },
+        {
+            "message": "Missing item type\nTrigger a view event to the presenter",
+            "line": " webdocs/js/xqcore-view.js:349"
         },
         {
             "message": "Missing item type\nGets the index of a subSelector item\nThis function must binded to the view",
-            "line": " webdocs/js/xqcore-view.js:305"
+            "line": " webdocs/js/xqcore-view.js:361"
         }
     ]
 }

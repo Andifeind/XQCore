@@ -36,10 +36,9 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console
 	 *
-	 * @package XQCore.Logger
-	 * @class XQCore Logger class
+	 * @module XQCore.Logger
+	 * @class XQCore.Logger
 	 *
-	 * @return {[type]} [description]
 	 */
 	var logger = function() {
 		
@@ -65,6 +64,7 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Loggs a warning to the console
 	 *
+	 * @method warn
 	 * @param {Any} msg logs all arguments to the console
 	 */
 	logger.prototype.warn = function() {
@@ -80,6 +80,7 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Loggs a error message to the console
 	 *
+	 * @method error
 	 * @param {Any} msg logs all arguments to the console
 	 */
 	logger.prototype.error = function() {
@@ -95,6 +96,7 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Start a timeTracer
 	 *
+	 * @method timer
 	 * @param {String} timerName Set the name for your (Optional)
 	 * @return {Object} Returns a TimerObject
 	 */
@@ -124,6 +126,8 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Stops a timer
 	 *
+	 * @method timerEnd
+	 * @todo Implement function
 	 * @param {String or Object} timerName Stops the given timer
 	 */
 	logger.prototype.timerEnd = function(timer) {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>XQCore Presenter - xqcore</title>
+    <title>webdocs&#x2F;js&#x2F;xqcore-cache.js - xqcore</title>
     <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
@@ -98,49 +98,58 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1>XQCore Presenter Module</h1>
-<div class="box clearfix meta">
-    
+                        <h1 class="file-heading">File: webdocs&#x2F;js&#x2F;xqcore-cache.js</h1>
 
-    
+<div class="file">
+    <pre class="code prettyprint linenums">
+XQCore.Cache = (function(undefined) {
 
-    
-        <div class="foundat">
-            Defined in: <a href="..&#x2F;files&#x2F;webdocs_js_xqcore-presenter.js.html#l8"><code>webdocs&#x2F;js&#x2F;xqcore-presenter.js:8</code></a>
-        </div>
-    
+	var Cache = function(conf) {
+		this.name = &#x27;&#x27;;
 
-    
-</div>
+		if (conf.useSessionStorage === true) {
+			this.__cache = sessionStorage;
+		}
+		else {
+			this.__cache = localStorage;
+		}
+	};
 
+	&#x2F;**
+	 * Calculate expiry
+	 *&#x2F;
+	Cache.prototype.getExpiry = function(expiry) {
+		if (expiry === undefined) {
+			return null;
+		}
+	};
 
+	&#x2F;**
+	 * Add data to cache
+	 *
+	 * @param {String} key  Data key, if is an object, it will be serialized
+	 * @param {Any} data Chache data
+	 *&#x2F;
+	Cache.prototype.set = function(key, data) {
+		if (typeof key === &#x27;object&#x27;) {
+			key = $.serialize(key);
+		}
 
-<div class="box intro">
-    <p>XQCore Presenter</p>
-</div>
+		var expiry = this.getExpiry(options.expiry);
 
+		data = {
+			key: key,
+			data: data,
+			expiry: expiry
+		};
+		this.log(&#x27;Add data to cache&#x27;, key, data);
+		this.__cache.setItem(key, data);
+	};
 
+	return Cache;
 
-<div class="yui3-g">
-    <div class="yui3-u-1-2">
-        
-            <p>This module provides the following classes:</p>
-
-            <ul class="module-classes">
-            
-                <li class="module-class">
-                    <a href="..&#x2F;classes/XQCore.Presenter.html">
-                        XQCore.Presenter
-                    </a>
-                </li>
-            
-            </ul>
-        
-    </div>
-
-    <div class="yui3-u-1-2">
-        
-    </div>
+})();
+    </pre>
 </div>
 
                     </div>

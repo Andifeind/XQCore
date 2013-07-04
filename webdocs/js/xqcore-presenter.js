@@ -271,7 +271,7 @@ XQCore.Presenter = (function(undefined) {
 			return;
 		}
 
-		if (XQCore.callerEvent && data[XQCore.callerEvent] !== 'popstate' &&
+		if (XQCore.callerEvent && data && data[XQCore.callerEvent] !== 'popstate' &&
 			XQCore.callerEvent && data[XQCore.callerEvent] !== 'pageload') {
 			this.pushState(data || null, view.url);
 		}

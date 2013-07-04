@@ -1,5 +1,9 @@
 /*!
- * XQCore - 0.3.24
+<<<<<<< HEAD
+ * XQCore - 0.3.16
+=======
+ * XQCore - 0.3.23
+>>>>>>> 08e3ea9c2b131b73011f8a5f70dbcd5c45a55f3f
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +13,11 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-05-28
+<<<<<<< HEAD
+ * Creation Date: 2013-05-22
+=======
+ * Creation Date: 2013-05-25
+>>>>>>> 08e3ea9c2b131b73011f8a5f70dbcd5c45a55f3f
  */
 
 (function (root, factory) {
@@ -22,7 +30,7 @@
 
 
 /*jshint evil:true */
-/*global XQCore:true */
+/*global define:false */
 
 /**
  * XQCore main object
@@ -31,7 +39,11 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.3.24',
+<<<<<<< HEAD
+	version: '0.3.16',
+=======
+	version: '0.3.23',
+>>>>>>> 08e3ea9c2b131b73011f8a5f70dbcd5c45a55f3f
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -503,9 +515,10 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * XQCore Logger is a logging tool to log messages, warnings, errors to the browser or onscreen console
 	 *
-	 * @module XQCore.Logger
-	 * @class XQCore.Logger
+	 * @package XQCore.Logger
+	 * @class XQCore Logger class
 	 *
+	 * @return {[type]} [description]
 	 */
 	var logger = function() {
 		
@@ -531,7 +544,6 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Loggs a warning to the console
 	 *
-	 * @method warn
 	 * @param {Any} msg logs all arguments to the console
 	 */
 	logger.prototype.warn = function() {
@@ -547,7 +559,6 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Loggs a error message to the console
 	 *
-	 * @method error
 	 * @param {Any} msg logs all arguments to the console
 	 */
 	logger.prototype.error = function() {
@@ -563,7 +574,6 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Start a timeTracer
 	 *
-	 * @method timer
 	 * @param {String} timerName Set the name for your (Optional)
 	 * @return {Object} Returns a TimerObject
 	 */
@@ -593,8 +603,6 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Stops a timer
 	 *
-	 * @method timerEnd
-	 * @todo Implement function
 	 * @param {String or Object} timerName Stops the given timer
 	 */
 	logger.prototype.timerEnd = function(timer) {
@@ -612,19 +620,10 @@ XQCore.Logger = (function(conf) {
 /**
  * XQCore.GetSet
  *
- * @module XQCore.GetSet
  * @requires XQCore.Logger
  * @requires XQCore.Event
  */
 XQCore.GetSet = (function(window, document, $, undefined) {
-
-	/**
-	 * GetSet constructor
-	 *
-	 * @constructor
-	 * @class GetSet
-	 * @param {Object} conf COnfig object
-	 */
 	var getset = function(conf) {
 		this.properties = {};
 		this._isValid = false;
@@ -655,21 +654,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	/**
 	 * Set getset data
 	 *
-	 * Triggers a data.change event if data was set succesfully
-	 *
-	 * @method set
-	 * @param {Object} data
-	 */
-	
-	/**
-	 * Set getset data
-	 *
-	 * Triggers these events if data was set succesfully<br>
-	 * data.change<br>
-	 * &lt;key&gt;.change
-	 *
-	 * @method set
-	 * @param {String} key
+	 * @param {Object or String} data/key
 	 * @param {Object} value Data value
 	 */
 	getset.prototype.set = function() {
@@ -729,7 +714,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	};
 
 	/**
-	 * Get one or all properties from a dataset
+	 * Get one or all properties from getset
 	 *
 	 * @param  {String} key Data key
 	 *
@@ -1436,7 +1421,11 @@ XQCore.Presenter = (function(undefined) {
 			return;
 		}
 
+<<<<<<< HEAD
+		if (XQCore.callerEvent && data[XQCore.callerEvent] !== 'popstate' &&
+=======
 		if (XQCore.callerEvent && data && data[XQCore.callerEvent] !== 'popstate' &&
+>>>>>>> 08e3ea9c2b131b73011f8a5f70dbcd5c45a55f3f
 			XQCore.callerEvent && data[XQCore.callerEvent] !== 'pageload') {
 			this.pushState(data || null, view.url);
 		}
@@ -1690,36 +1679,18 @@ XQCore.Model = (function(window, document, $, undefined) {
 	return model;
 })(window, document, jQuery);
 
-/**
- * XQCore View module
- *
- * @module XQCore.View
- * @returns {object} Returns a XQCore.View prototype object
- */
 XQCore.View = (function(undefined) {
 
 	/**
 	 * XQCore.View
 	 *
 	 * @constructor
-	 * @class XQCore.View
-	 * @param {object} conf View configuration
+	 *
+	 * @param  {[type]} conf [description]
+	 *
+	 * @return {[type]}      [description]
 	 */
 	var view = function(conf) {
-
-		/**
-		 * Determines wether the view is hidden after rendering
-		 * @property hidden
-		 * @type Boolean
-		 * @default false
-		 */
-		
-		/**
-		 * Sets the container element
-		 * @property el
-		 * @type Selector
-		 * @default "body"
-		 */
 
 		if (arguments.length === 2) {
 			this.presenter = arguments[0];
@@ -1765,6 +1736,10 @@ XQCore.View = (function(undefined) {
 
 		$(function() {
 			this.container = $(conf.container);
+<<<<<<< HEAD
+			this.$el = this.container;
+			this.el = $(conf.container).get(0);
+=======
 			if (conf.tag) {
 				this.$el = $($.parseHTML('<' + conf.tag + '/>'));
 				this.$el.appendTo(this.container);
@@ -1782,6 +1757,7 @@ XQCore.View = (function(undefined) {
 				this.$el.addClass(conf.className);
 			}
 
+>>>>>>> 08e3ea9c2b131b73011f8a5f70dbcd5c45a55f3f
 			if (this.container.length > 0) {
 				window.addEventListener('resize', function(e) {
 					self.resize(e);
@@ -1864,11 +1840,19 @@ XQCore.View = (function(undefined) {
 	};
 
 	view.prototype.show = function() {
+<<<<<<< HEAD
+
+	};
+
+	view.prototype.hide = function() {
+
+=======
 		this.$el.show();
 	};
 
 	view.prototype.hide = function() {
 		this.$el.hide();
+>>>>>>> 08e3ea9c2b131b73011f8a5f70dbcd5c45a55f3f
 	};
 
 	/**
@@ -1883,11 +1867,15 @@ XQCore.View = (function(undefined) {
 	view.prototype.render = function(data) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = typeof this.template === 'function' ? this.template : Handlebars.compile(this.template);
+<<<<<<< HEAD
+		this.container.html(template(data || {}));
+=======
 		this.$el.html(template(data || {}));
 
 		if (this.conf.hidden === true) {
 			this.$el.hide();
 		}
+>>>>>>> 08e3ea9c2b131b73011f8a5f70dbcd5c45a55f3f
 
 		this.emit('content.change', data);
 	};

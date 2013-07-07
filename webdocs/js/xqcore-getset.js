@@ -149,6 +149,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	getset.prototype.reset = function() {
 		this.log('Reset getset');
 		this.properties = {};
+		this.removeAllListener();
 	};
 
 	/**

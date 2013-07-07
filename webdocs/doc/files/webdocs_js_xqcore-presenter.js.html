@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.30</em>
+            <em>API Docs for: 0.4.2</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -216,30 +216,7 @@ XQCore.Presenter = (function(undefined) {
 			}.bind(this));
 
 			window.addEventListener(&#x27;popstate&#x27;, function(e) {
-				self.log(&#x27;popstate event recived&#x27;, e);
-
-				var route = XQCore.defaultRoute;
-				if (XQCore.html5Routes) {
-					var pattern = new RegExp(&#x27;^&#x27; + self.root);
-					route = location.pathname.replace(pattern, &#x27;&#x27;);
-				}
-				else {
-					if (&#x2F;^#![a-zA-Z0-9]+&#x2F;.test(location.hash)) {
-						route = location.hash.substr(2);
-					}
-				}
-
-				route = self.Router.match(route);
-				if (route) {
-					var data = e.state || route.params;
-					if (XQCore.callerEvent) {
-						data[XQCore.callerEvent] = &#x27;popstate&#x27;;
-					}
-
-					self.log(&#x27;Trigger route&#x27;, route, data);
-
-					route.fn.call(self, data);
-				}
+				__onPopstate(self, e.state);
 			}, false);
 
 			this.on(&#x27;views.ready&#x27;,function() {
@@ -340,6 +317,7 @@ XQCore.Presenter = (function(undefined) {
 			this.pushState(data, route);
 		}
 
+		__onPopstate(this, data);
 	};
 
 	&#x2F;**
@@ -390,6 +368,41 @@ XQCore.Presenter = (function(undefined) {
 			else {
 				view.show(true);
 			}
+		}
+	};
+
+	&#x2F;**
+	 * PopstateEvent
+	 *
+	 * @method __onPopstate
+	 * @private
+	 *&#x2F;
+	var __onPopstate = function(self, data) {
+		&quot;use strict&quot;;
+
+		self.log(&#x27;popstate event recived&#x27;, data);
+
+		var route = XQCore.defaultRoute;
+		if (XQCore.html5Routes) {
+			var pattern = new RegExp(&#x27;^&#x27; + self.root);
+			route = location.pathname.replace(pattern, &#x27;&#x27;);
+		}
+		else {
+			if (&#x2F;^#![a-zA-Z0-9]+&#x2F;.test(location.hash)) {
+				route = location.hash.substr(2);
+			}
+		}
+
+		route = self.Router.match(route);
+		if (route) {
+			data = data || route.params;
+			if (XQCore.callerEvent) {
+				data[XQCore.callerEvent] = &#x27;popstate&#x27;;
+			}
+
+			self.log(&#x27;Trigger route&#x27;, route, data);
+
+			route.fn.call(self, data);
 		}
 	};
 

@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.30</em>
+            <em>API Docs for: 0.4.2</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -253,6 +253,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	getset.prototype.reset = function() {
 		this.log(&#x27;Reset getset&#x27;);
 		this.properties = {};
+		this.removeAllListener();
 	};
 
 	&#x2F;**

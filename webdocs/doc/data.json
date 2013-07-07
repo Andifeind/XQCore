@@ -2,7 +2,7 @@
     "project": {
         "name": "xqcore",
         "description": "Model View Presenter Javascript Framework",
-        "version": "0.3.30",
+        "version": "0.4.2",
         "url": ""
     },
     "files": {
@@ -600,7 +600,7 @@
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 154,
+            "line": 155,
             "description": "Append data to a subset",
             "params": [
                 {
@@ -619,7 +619,7 @@
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 198,
+            "line": 199,
             "description": "Prepend data to a subset",
             "params": [
                 {
@@ -638,7 +638,7 @@
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 240,
+            "line": 241,
             "description": "Remove a subset",
             "params": [
                 {
@@ -661,7 +661,7 @@
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 266,
+            "line": 267,
             "description": "Search a item in models properties",
             "params": [
                 {
@@ -684,7 +684,7 @@
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 303,
+            "line": 304,
             "description": "Sort an array collection by a given attribute",
             "params": [
                 {
@@ -703,7 +703,7 @@
         },
         {
             "file": "webdocs/js/xqcore-getset.js",
-            "line": 375,
+            "line": 376,
             "description": "Validate one property\n\nValidatorResultItemObject\n{\n  isValid: Boolean,\n  value: Any,\n  error: Object\n}",
             "params": [
                 {
@@ -984,7 +984,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 182,
+            "line": 159,
             "description": "Calling on view init",
             "params": [
                 {
@@ -998,7 +998,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 191,
+            "line": 168,
             "description": "Add a history item to the browser history",
             "params": [
                 {
@@ -1017,7 +1017,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 208,
+            "line": 185,
             "description": "Add a history item to the browser history",
             "params": [
                 {
@@ -1036,7 +1036,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 224,
+            "line": 201,
             "description": "Navigates to a given route",
             "params": [
                 {
@@ -1060,7 +1060,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 241,
+            "line": 219,
             "description": "Gets a view by it's name",
             "itemtype": "method",
             "name": "getView",
@@ -1080,7 +1080,7 @@
         },
         {
             "file": "webdocs/js/xqcore-presenter.js",
-            "line": 262,
+            "line": 240,
             "description": "Show a view if it's not visible and update the history state",
             "itemtype": "method",
             "name": "showView",
@@ -1096,6 +1096,17 @@
                     "type": "Object"
                 }
             ],
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 270,
+            "description": "PopstateEvent",
+            "itemtype": "method",
+            "name": "__onPopstate",
+            "access": "private",
+            "tagname": "",
             "class": "XQCore.Presenter",
             "module": "XQCore Presenter"
         },
@@ -1684,27 +1695,27 @@
         },
         {
             "message": "Missing item type\nAppend data to a subset",
-            "line": " webdocs/js/xqcore-getset.js:154"
+            "line": " webdocs/js/xqcore-getset.js:155"
         },
         {
             "message": "Missing item type\nPrepend data to a subset",
-            "line": " webdocs/js/xqcore-getset.js:198"
+            "line": " webdocs/js/xqcore-getset.js:199"
         },
         {
             "message": "Missing item type\nRemove a subset",
-            "line": " webdocs/js/xqcore-getset.js:240"
+            "line": " webdocs/js/xqcore-getset.js:241"
         },
         {
             "message": "Missing item type\nSearch a item in models properties",
-            "line": " webdocs/js/xqcore-getset.js:266"
+            "line": " webdocs/js/xqcore-getset.js:267"
         },
         {
             "message": "Missing item type\nSort an array collection by a given attribute",
-            "line": " webdocs/js/xqcore-getset.js:303"
+            "line": " webdocs/js/xqcore-getset.js:304"
         },
         {
             "message": "Missing item type\nValidate one property\n\nValidatorResultItemObject\n{\n  isValid: Boolean,\n  value: Any,\n  error: Object\n}",
-            "line": " webdocs/js/xqcore-getset.js:375"
+            "line": " webdocs/js/xqcore-getset.js:376"
         },
         {
             "message": "Missing item type\nXQCore Logger\n\nBased on EventEmitter.js",
@@ -1748,19 +1759,19 @@
         },
         {
             "message": "Missing item type\nCalling on view init",
-            "line": " webdocs/js/xqcore-presenter.js:182"
+            "line": " webdocs/js/xqcore-presenter.js:159"
         },
         {
             "message": "Missing item type\nAdd a history item to the browser history",
-            "line": " webdocs/js/xqcore-presenter.js:191"
+            "line": " webdocs/js/xqcore-presenter.js:168"
         },
         {
             "message": "Missing item type\nAdd a history item to the browser history",
-            "line": " webdocs/js/xqcore-presenter.js:208"
+            "line": " webdocs/js/xqcore-presenter.js:185"
         },
         {
             "message": "Missing item type\nNavigates to a given route",
-            "line": " webdocs/js/xqcore-presenter.js:224"
+            "line": " webdocs/js/xqcore-presenter.js:201"
         },
         {
             "message": "Missing item type\nXQCore Router API",

@@ -99,7 +99,7 @@ XQCore.Event = (function() {
 
 	        // Push the listener into the array if it is not already there
 	        if(indexOfListener(listener, listeners) === -1) {
-	            listeners.push(listener);
+	            listeners.unshift(listener);
 	        }
 
 	        // Return the instance of EventEmitter to allow chaining
@@ -356,6 +356,14 @@ XQCore.Event = (function() {
 		else {
 			return this.ee.removeListener(eventName, listener);
 		}
+	};
+
+	event.prototype.removeAllListener = function() {
+		if (this.debug) {
+			console.debug('XQCore - Clear all listener');
+		}
+
+		return this.ee.removeEvent();
 	};
 
 	event.prototype.getListeners = function(eventName) {

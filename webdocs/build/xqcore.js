@@ -1,5 +1,5 @@
 /*!
- * XQCore - 0.3.30
+ * XQCore - 0.4.2
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-06-22
+ * Creation Date: 2013-07-06
  */
 
 (function (root, factory) {
@@ -31,7 +31,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.3.30',
+	version: '0.4.2',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -199,7 +199,7 @@ XQCore.Event = (function() {
 
 	        // Push the listener into the array if it is not already there
 	        if(indexOfListener(listener, listeners) === -1) {
-	            listeners.push(listener);
+	            listeners.unshift(listener);
 	        }
 
 	        // Return the instance of EventEmitter to allow chaining
@@ -456,6 +456,14 @@ XQCore.Event = (function() {
 		else {
 			return this.ee.removeListener(eventName, listener);
 		}
+	};
+
+	event.prototype.removeAllListener = function() {
+		if (this.debug) {
+			console.debug('XQCore - Clear all listener');
+		}
+
+		return this.ee.removeEvent();
 	};
 
 	event.prototype.getListeners = function(eventName) {
@@ -748,6 +756,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	getset.prototype.reset = function() {
 		this.log('Reset getset');
 		this.properties = {};
+		this.removeAllListener();
 	};
 
 	/**
@@ -1265,30 +1274,7 @@ XQCore.Presenter = (function(undefined) {
 			}.bind(this));
 
 			window.addEventListener('popstate', function(e) {
-				self.log('popstate event recived', e);
-
-				var route = XQCore.defaultRoute;
-				if (XQCore.html5Routes) {
-					var pattern = new RegExp('^' + self.root);
-					route = location.pathname.replace(pattern, '');
-				}
-				else {
-					if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-						route = location.hash.substr(2);
-					}
-				}
-
-				route = self.Router.match(route);
-				if (route) {
-					var data = e.state || route.params;
-					if (XQCore.callerEvent) {
-						data[XQCore.callerEvent] = 'popstate';
-					}
-
-					self.log('Trigger route', route, data);
-
-					route.fn.call(self, data);
-				}
+				__onPopstate(self, e.state);
 			}, false);
 
 			this.on('views.ready',function() {
@@ -1389,6 +1375,7 @@ XQCore.Presenter = (function(undefined) {
 			this.pushState(data, route);
 		}
 
+		__onPopstate(this, data);
 	};
 
 	/**
@@ -1439,6 +1426,41 @@ XQCore.Presenter = (function(undefined) {
 			else {
 				view.show(true);
 			}
+		}
+	};
+
+	/**
+	 * PopstateEvent
+	 *
+	 * @method __onPopstate
+	 * @private
+	 */
+	var __onPopstate = function(self, data) {
+		"use strict";
+
+		self.log('popstate event recived', data);
+
+		var route = XQCore.defaultRoute;
+		if (XQCore.html5Routes) {
+			var pattern = new RegExp('^' + self.root);
+			route = location.pathname.replace(pattern, '');
+		}
+		else {
+			if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
+				route = location.hash.substr(2);
+			}
+		}
+
+		route = self.Router.match(route);
+		if (route) {
+			data = data || route.params;
+			if (XQCore.callerEvent) {
+				data[XQCore.callerEvent] = 'popstate';
+			}
+
+			self.log('Trigger route', route, data);
+
+			route.fn.call(self, data);
 		}
 	};
 

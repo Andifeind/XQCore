@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.3.30</em>
+            <em>API Docs for: 0.4.2</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -203,7 +203,7 @@ XQCore.Event = (function() {
 
 	        &#x2F;&#x2F; Push the listener into the array if it is not already there
 	        if(indexOfListener(listener, listeners) === -1) {
-	            listeners.push(listener);
+	            listeners.unshift(listener);
 	        }
 
 	        &#x2F;&#x2F; Return the instance of EventEmitter to allow chaining
@@ -460,6 +460,14 @@ XQCore.Event = (function() {
 		else {
 			return this.ee.removeListener(eventName, listener);
 		}
+	};
+
+	event.prototype.removeAllListener = function() {
+		if (this.debug) {
+			console.debug(&#x27;XQCore - Clear all listener&#x27;);
+		}
+
+		return this.ee.removeEvent();
 	};
 
 	event.prototype.getListeners = function(eventName) {

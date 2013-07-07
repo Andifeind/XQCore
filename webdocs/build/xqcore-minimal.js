@@ -1,5 +1,5 @@
 /*!
- * XQCore Minimal - 0.3.30
+ * XQCore Minimal - 0.4.2
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-06-22
+ * Creation Date: 2013-07-06
  */
 
 (function (root, factory) {
@@ -31,7 +31,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.3.30',
+	version: '0.4.2',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -199,7 +199,7 @@ XQCore.Event = (function() {
 
 	        // Push the listener into the array if it is not already there
 	        if(indexOfListener(listener, listeners) === -1) {
-	            listeners.push(listener);
+	            listeners.unshift(listener);
 	        }
 
 	        // Return the instance of EventEmitter to allow chaining
@@ -456,6 +456,14 @@ XQCore.Event = (function() {
 		else {
 			return this.ee.removeListener(eventName, listener);
 		}
+	};
+
+	event.prototype.removeAllListener = function() {
+		if (this.debug) {
+			console.debug('XQCore - Clear all listener');
+		}
+
+		return this.ee.removeEvent();
 	};
 
 	event.prototype.getListeners = function(eventName) {
@@ -748,6 +756,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	getset.prototype.reset = function() {
 		this.log('Reset getset');
 		this.properties = {};
+		this.removeAllListener();
 	};
 
 	/**

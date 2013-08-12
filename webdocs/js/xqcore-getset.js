@@ -551,5 +551,23 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	};
 
 
+	//From passboxItemModel
+
+	/**
+	 * Returns the last validation result
+	 *
+	 * @method  getLastValidationError
+	 * @returns {Object} Returns the validation error or null
+	 */
+	/*model.getLastValidationError = function() {
+		this.__lastValidationError = null;
+		this.on('validation.error', function(validationError) {
+			this.__lastValidationError = validationError;
+		}.bind(this));
+
+		return this.__lastValidationError;	
+	};*/
+
+
 	return getset;
 })(window, document, jQuery);

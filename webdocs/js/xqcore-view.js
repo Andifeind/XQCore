@@ -137,14 +137,14 @@ XQCore.View = (function(undefined) {
 										tagData = null;
 
 									if (e.type === 'submit') {
-										formData = XQCore.Util.serializeForm(e.target);
+										formData = XQCore.Util.serializeForm(e.currentTarget);
 									}
 									else if (e.type === 'keydown' || e.type === 'keyup' || e.type === 'keypress') {
-										formData = $(e.target).val();
+										formData = $(e.currentTarget).val();
 									}
 
-									tagData = $.extend($(e.target).data(), {
-										itemIndex: getItemIndex.call(self, e.target)
+									tagData = $.extend($(e.currentTarget).data(), {
+										itemIndex: getItemIndex.call(self, e.currentTarget)
 									});
 
 									eventFunc.call(eventDest, e, tagData, formData);

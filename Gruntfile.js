@@ -99,9 +99,9 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		xqcoretest: {
-			ignore_files: ['init.js', '*.min.js']
-		},
+		// xqcoretest: {
+		// 	ignore_files: ['init.js', '*.min.js']
+		// },
 		copy: {
 			akonda: {
 				files: [
@@ -158,7 +158,7 @@ module.exports = function(grunt) {
 		}
 	});
 
-	grunt.loadTasks('./modules/grunt-xqcoretest');
+	// grunt.loadTasks('./modules/grunt-xqcoretest');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-copy');
@@ -167,7 +167,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-bump');
 
-	grunt.registerTask('default', 'lint');
+	grunt.registerTask('default', 'jshint');
 	grunt.registerTask('doc', 'yuidoc');
 	grunt.registerTask('test', 'xqcoretest');
 	grunt.registerTask('build', [

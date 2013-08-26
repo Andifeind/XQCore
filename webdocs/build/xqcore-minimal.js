@@ -1,5 +1,5 @@
 /*!
- * XQCore Minimal - 0.4.2
+ * XQCore Minimal - 0.4.3
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-07-06
+ * Creation Date: 2013-08-17
  */
 
 (function (root, factory) {
@@ -31,7 +31,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.4.2',
+	version: '0.4.3',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -1156,6 +1156,24 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	getset.prototype.isValid = function() {
 		return this._isValid;
 	};
+
+
+	//From passboxItemModel
+
+	/**
+	 * Returns the last validation result
+	 *
+	 * @method  getLastValidationError
+	 * @returns {Object} Returns the validation error or null
+	 */
+	/*model.getLastValidationError = function() {
+		this.__lastValidationError = null;
+		this.on('validation.error', function(validationError) {
+			this.__lastValidationError = validationError;
+		}.bind(this));
+
+		return this.__lastValidationError;	
+	};*/
 
 
 	return getset;

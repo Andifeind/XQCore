@@ -14,9 +14,11 @@
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define('xqcore', ['jquery'], factory);
+        define('xqcore', ['jquery', 'handlebars'], factory);
+    } else if (typeof module !== 'undefined' && module.exports) {
+        module.exports = factory(require('jquery'), root.Handlebars);
     } else {
-        root.XQCore = factory(root.jQuery);
+        root.XQCore = factory(root.jQuery, root.Handlebars);
     }
 }(this, function (jQuery) {
 

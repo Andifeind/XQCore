@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-08-17
+ * Creation Date: 2013-07-24
  */
 
 (function (root, factory) {
@@ -890,7 +890,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 				for (var p in searchfor) {
 					if (searchfor.hasOwnProperty(p)) {
-						if (prop[p] && prop[p] === searchfor[p]) {
+						if (typeof prop[p] !== undefined && prop[p] === searchfor[p]) {
 							matching = true;
 						}
 						else {

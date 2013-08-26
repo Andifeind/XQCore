@@ -1,6 +1,6 @@
 {
   "name": "xqcore",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Model View Presenter Javascript Framework",
   "dependencies": {
     "grunt-contrib-jshint": "~0.6.3"

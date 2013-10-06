@@ -2,7 +2,7 @@
     "project": {
         "name": "xqcore",
         "description": "Model View Presenter Javascript Framework",
-        "version": "0.4.3",
+        "version": "0.4.9",
         "url": ""
     },
     "files": {
@@ -725,6 +725,19 @@
             "module": "XQCore.GetSet"
         },
         {
+            "file": "webdocs/js/xqcore-getset.js",
+            "line": 556,
+            "description": "Returns the last validation result",
+            "itemtype": "method",
+            "name": "getLastValidationError",
+            "return": {
+                "description": "Returns the validation error or null",
+                "type": "Object"
+            },
+            "class": "GetSet",
+            "module": "XQCore.GetSet"
+        },
+        {
             "file": "webdocs/js/xqcore-logger.js",
             "line": 1,
             "description": "XQCore Logger\n\nBased on EventEmitter.js",
@@ -828,6 +841,11 @@
                     "type": "String"
                 },
                 {
+                    "name": "url",
+                    "description": "Server URL (optional, then model.server must be set)",
+                    "type": "String"
+                },
+                {
                     "name": "data",
                     "description": "The data to sent to the server",
                     "type": "Object"
@@ -843,10 +861,15 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 119,
+            "line": 126,
             "description": "Sends a POST to the Datastore",
             "params": [
                 {
+                    "name": "url",
+                    "description": "Server URL (optional, then model.server must be set)",
+                    "type": "String"
+                },
+                {
                     "name": "data",
                     "description": "Dato to sending",
                     "type": "Object"
@@ -862,10 +885,15 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 132,
+            "line": 140,
             "description": "Sends a GET to the Datastore",
             "params": [
                 {
+                    "name": "url",
+                    "description": "Server URL (optional, then model.server must be set)",
+                    "type": "String"
+                },
+                {
                     "name": "data",
                     "description": "Dato to sending",
                     "type": "Object"
@@ -881,10 +909,15 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 145,
+            "line": 154,
             "description": "Sends a PUT to the Datastore",
             "params": [
                 {
+                    "name": "url",
+                    "description": "Server URL (optional, then model.server must be set)",
+                    "type": "String"
+                },
+                {
                     "name": "data",
                     "description": "Dato to sending",
                     "type": "Object"
@@ -900,10 +933,15 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 158,
+            "line": 168,
             "description": "Sends a DELETE to the Datastore",
             "params": [
                 {
+                    "name": "url",
+                    "description": "Server URL (optional, then model.server must be set)",
+                    "type": "String"
+                },
+                {
                     "name": "data",
                     "description": "Dato to sending",
                     "type": "Object"
@@ -919,14 +957,14 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 171,
+            "line": 182,
             "description": "Check if model is ready and call func or wait for ready state",
             "class": "XQCore.Presenter",
             "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 203,
+            "line": 214,
             "description": "Fetch data from server",
             "params": [
                 {
@@ -945,7 +983,7 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 213,
+            "line": 224,
             "description": "Load bugs",
             "params": [
                 {
@@ -1102,9 +1140,42 @@
         {
             "file": "webdocs/js/xqcore-presenter.js",
             "line": 270,
+            "description": "Returns the current hash",
+            "itemtype": "method",
+            "name": "getHash",
+            "return": {
+                "description": "Returns the current value from location.hash",
+                "type": "String"
+            },
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 280,
+            "description": "Returns the current pathname",
+            "itemtype": "method",
+            "name": "getPathname",
+            "return": {
+                "description": "Returns the current value from location.pathname",
+                "type": "String"
+            },
+            "class": "XQCore.Presenter",
+            "module": "XQCore Presenter"
+        },
+        {
+            "file": "webdocs/js/xqcore-presenter.js",
+            "line": 290,
             "description": "PopstateEvent",
             "itemtype": "method",
             "name": "__onPopstate",
+            "params": [
+                {
+                    "name": "data",
+                    "description": "Event data",
+                    "type": "Object"
+                }
+            ],
             "access": "private",
             "tagname": "",
             "class": "XQCore.Presenter",
@@ -1366,7 +1437,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 186,
+            "line": 184,
             "description": "Render view",
             "itemtype": "method",
             "name": "render",
@@ -1383,7 +1454,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 213,
+            "line": 211,
             "description": "Appends a html fragment to a html element\nYou must set the itemTemplate and subSelector  option first",
             "params": [
                 {
@@ -1407,7 +1478,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 225,
+            "line": 223,
             "description": "Prepends a html fragment to a html element\nYou must set the itemTemplate and subSelector option first",
             "params": [
                 {
@@ -1426,7 +1497,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 236,
+            "line": 234,
             "description": "Remove a item from a dom node",
             "params": [
                 {
@@ -1440,7 +1511,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 245,
+            "line": 243,
             "description": "Manipulates a dom node",
             "params": [
                 {
@@ -1468,7 +1539,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 290,
+            "line": 288,
             "description": "Gets the data of an element",
             "params": [
                 {
@@ -1486,7 +1557,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 349,
+            "line": 344,
             "description": "Triggers a view event to the presenter",
             "itemtype": "method",
             "name": "triggerEvent",
@@ -1517,7 +1588,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 363,
+            "line": 358,
             "description": "Navigate to a given route",
             "itemtype": "method",
             "name": "navigateTo",
@@ -1543,7 +1614,7 @@
         },
         {
             "file": "webdocs/js/xqcore-view.js",
-            "line": 376,
+            "line": 371,
             "description": "Gets the index of a subSelector item\nThis function must binded to the view",
             "params": [
                 {
@@ -1598,6 +1669,18 @@
             "line": " webdocs/js/xqcore-event.js:239"
         },
         {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " webdocs/js/xqcore-getset.js:556"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " webdocs/js/xqcore-presenter.js:270"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " webdocs/js/xqcore-presenter.js:280"
+        },
+        {
             "message": "unknown tag: copyright",
             "line": " webdocs/js/xqcore-router.js:1"
         },
@@ -1619,7 +1702,7 @@
         },
         {
             "message": "unknown tag: emits",
-            "line": " webdocs/js/xqcore-view.js:186"
+            "line": " webdocs/js/xqcore-view.js:184"
         },
         {
             "message": "Missing item type\nCalculate expiry",
@@ -1731,31 +1814,31 @@
         },
         {
             "message": "Missing item type\nSends a POST to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:119"
+            "line": " webdocs/js/xqcore-model.js:126"
         },
         {
             "message": "Missing item type\nSends a GET to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:132"
+            "line": " webdocs/js/xqcore-model.js:140"
         },
         {
             "message": "Missing item type\nSends a PUT to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:145"
+            "line": " webdocs/js/xqcore-model.js:154"
         },
         {
             "message": "Missing item type\nSends a DELETE to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:158"
+            "line": " webdocs/js/xqcore-model.js:168"
         },
         {
             "message": "Missing item type\nCheck if model is ready and call func or wait for ready state",
-            "line": " webdocs/js/xqcore-model.js:171"
+            "line": " webdocs/js/xqcore-model.js:182"
         },
         {
             "message": "Missing item type\nFetch data from server",
-            "line": " webdocs/js/xqcore-model.js:203"
+            "line": " webdocs/js/xqcore-model.js:214"
         },
         {
             "message": "Missing item type\nLoad bugs",
-            "line": " webdocs/js/xqcore-model.js:213"
+            "line": " webdocs/js/xqcore-model.js:224"
         },
         {
             "message": "Missing item type\nCalling on view init",
@@ -1823,27 +1906,27 @@
         },
         {
             "message": "Missing item type\nAppends a html fragment to a html element\nYou must set the itemTemplate and subSelector  option first",
-            "line": " webdocs/js/xqcore-view.js:213"
+            "line": " webdocs/js/xqcore-view.js:211"
         },
         {
             "message": "Missing item type\nPrepends a html fragment to a html element\nYou must set the itemTemplate and subSelector option first",
-            "line": " webdocs/js/xqcore-view.js:225"
+            "line": " webdocs/js/xqcore-view.js:223"
         },
         {
             "message": "Missing item type\nRemove a item from a dom node",
-            "line": " webdocs/js/xqcore-view.js:236"
+            "line": " webdocs/js/xqcore-view.js:234"
         },
         {
             "message": "Missing item type\nManipulates a dom node",
-            "line": " webdocs/js/xqcore-view.js:245"
+            "line": " webdocs/js/xqcore-view.js:243"
         },
         {
             "message": "Missing item type\nGets the data of an element",
-            "line": " webdocs/js/xqcore-view.js:290"
+            "line": " webdocs/js/xqcore-view.js:288"
         },
         {
             "message": "Missing item type\nGets the index of a subSelector item\nThis function must binded to the view",
-            "line": " webdocs/js/xqcore-view.js:376"
+            "line": " webdocs/js/xqcore-view.js:371"
         }
     ]
 }

@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.4.3</em>
+            <em>API Docs for: 0.4.9</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -653,6 +653,24 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	getset.prototype.isValid = function() {
 		return this._isValid;
 	};
+
+
+	&#x2F;&#x2F;From passboxItemModel
+
+	&#x2F;**
+	 * Returns the last validation result
+	 *
+	 * @method  getLastValidationError
+	 * @returns {Object} Returns the validation error or null
+	 *&#x2F;
+	&#x2F;*model.getLastValidationError = function() {
+		this.__lastValidationError = null;
+		this.on(&#x27;validation.error&#x27;, function(validationError) {
+			this.__lastValidationError = validationError;
+		}.bind(this));
+
+		return this.__lastValidationError;	
+	};*&#x2F;
 
 
 	return getset;

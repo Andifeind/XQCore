@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.4.3</em>
+            <em>API Docs for: 0.4.9</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -216,13 +216,13 @@ XQCore.Presenter = (function(undefined) {
 			}.bind(this));
 
 			window.addEventListener(&#x27;popstate&#x27;, function(e) {
-				__onPopstate(self, e.state);
+				self.__onPopstate(e.state);
 			}, false);
 
 			this.on(&#x27;views.ready&#x27;,function() {
 				var route = XQCore.defaultRoute;
-				if (&#x2F;^#![a-zA-Z0-9]+&#x2F;.test(location.hash)) {
-					route = location.hash.substr(2);
+				if (&#x2F;^#![a-zA-Z0-9]+&#x2F;.test(self.getHash())) {
+					route = self.getHash().substr(2);
 				}
 
 				route = self.Router.match(route);
@@ -317,7 +317,7 @@ XQCore.Presenter = (function(undefined) {
 			this.pushState(data, route);
 		}
 
-		__onPopstate(this, data);
+		this.__onPopstate(data);
 	};
 
 	&#x2F;**
@@ -372,24 +372,45 @@ XQCore.Presenter = (function(undefined) {
 	};
 
 	&#x2F;**
+	 * Returns the current hash
+	 *
+	 * @method getHash
+	 * @returns {String} Returns the current value from location.hash
+	 *&#x2F;
+	presenter.prototype.getHash = function() {
+		return location.hash;	
+	};
+
+	&#x2F;**
+	 * Returns the current pathname
+	 *
+	 * @method getPathname
+	 * @returns {String} Returns the current value from location.pathname
+	 *&#x2F;
+	presenter.prototype.getPathname = function() {
+		return location.pathname;
+	};
+
+	&#x2F;**
 	 * PopstateEvent
 	 *
 	 * @method __onPopstate
+	 * @param {Object} data Event data
 	 * @private
 	 *&#x2F;
-	var __onPopstate = function(self, data) {
-		&quot;use strict&quot;;
+	presenter.prototype.__onPopstate = function(data) {
+		var self = this;
 
 		self.log(&#x27;popstate event recived&#x27;, data);
 
 		var route = XQCore.defaultRoute;
 		if (XQCore.html5Routes) {
 			var pattern = new RegExp(&#x27;^&#x27; + self.root);
-			route = location.pathname.replace(pattern, &#x27;&#x27;);
+			route = self.getPathname().replace(pattern, &#x27;&#x27;);
 		}
 		else {
-			if (&#x2F;^#![a-zA-Z0-9]+&#x2F;.test(location.hash)) {
-				route = location.hash.substr(2);
+			if (&#x2F;^#![a-zA-Z0-9]+&#x2F;.test(this.getHash())) {
+				route = self.getHash().substr(2);
 			}
 		}
 

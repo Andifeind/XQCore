@@ -1,5 +1,5 @@
 /*!
- * XQCore Minimal - 0.4.3
+ * XQCore Minimal - 0.4.9
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,14 +9,16 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-07-24
+ * Creation Date: 2013-10-06
  */
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define('xqcore', ['jquery'], factory);
+        define('xqcore', ['jquery', 'handlebars'], factory);
+    } else if (typeof module !== 'undefined' && module.exports) {
+        module.exports = factory(require('jquery'), root.Handlebars);
     } else {
-        root.XQCore = factory(root.jQuery);
+        root.XQCore = factory(root.jQuery, root.Handlebars);
     }
 }(this, function (jQuery) {
 
@@ -31,7 +33,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.4.3',
+	version: '0.4.9',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',

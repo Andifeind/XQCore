@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.4.3</em>
+            <em>API Docs for: 0.4.9</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -175,12 +175,19 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * You must set the server URI first with model.server = &#x27;http:&#x2F;&#x2F;example.com&#x2F;post&#x27;
 	 *
 	 * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param {Object} data The data to sent to the server
 	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
 	 *&#x2F;
-	model.prototype.send = function(method, data, callback) {
+	model.prototype.send = function(method, url, data, callback) {
 
-		if (typeof data === &#x27;function&#x27;) {
+		if (typeof url === &#x27;object&#x27;) {
+			callback = data;
+			data = url;
+			url = this.server;
+			method = method;
+		}
+		else if (typeof data === &#x27;function&#x27;) {
 			callback = data;
 			data = this.get();
 		}
@@ -223,53 +230,57 @@ XQCore.Model = (function(window, document, $, undefined) {
 	&#x2F;**
 	 * Sends a POST to the Datastore
 	 *
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param  {Object}   data     Dato to sending
 	 * @param  {Function} callback Calling on response
 	 *
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 *&#x2F;
-	model.prototype.sendPOST = function(data, callback) {
-		this.send(&#x27;POST&#x27;, data, callback);
+	model.prototype.sendPOST = function(url, data, callback) {
+		this.send(&#x27;POST&#x27;, url, data, callback);
 	};
 
 	&#x2F;**
 	 * Sends a GET to the Datastore
 	 *
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param  {Object}   data     Dato to sending
 	 * @param  {Function} callback Calling on response
 	 *
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 *&#x2F;
-	model.prototype.sendGET = function(data, callback) {
-		this.send(&#x27;GET&#x27;, data, callback);
+	model.prototype.sendGET = function(url, data, callback) {
+		this.send(&#x27;GET&#x27;, url, data, callback);
 	};
 
 	&#x2F;**
 	 * Sends a PUT to the Datastore
 	 *
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param  {Object}   data     Dato to sending
 	 * @param  {Function} callback Calling on response
 	 *
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 *&#x2F;
-	model.prototype.sendPUT = function(data, callback) {
-		this.send(&#x27;PUT&#x27;, data, callback);
+	model.prototype.sendPUT = function(url, data, callback) {
+		this.send(&#x27;PUT&#x27;, url, data, callback);
 	};
 
 	&#x2F;**
 	 * Sends a DELETE to the Datastore
 	 *
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param  {Object}   data     Dato to sending
 	 * @param  {Function} callback Calling on response
 	 *
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 *&#x2F;
-	model.prototype.sendDELETE = function(data, callback) {
-		this.send(&#x27;DELETE&#x27;, data, callback);
+	model.prototype.sendDELETE = function(url, data, callback) {
+		this.send(&#x27;DELETE&#x27;, url, data, callback);
 	};
 
 	&#x2F;**

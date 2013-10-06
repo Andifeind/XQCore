@@ -1,5 +1,5 @@
 /*!
- * XQCore - 0.4.3
+ * XQCore - 0.4.9
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,14 +9,14 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-07-24
+ * Creation Date: 2013-10-06
  */
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define('xqcore', ['jquery', 'handlebars'], factory);
     } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = factory(require('jquery'), root.Handlebars);
+        module.exports = factory(require('jquery'), require('handlebars'));
     } else {
         root.XQCore = factory(root.jQuery, root.Handlebars);
     }
@@ -33,7 +33,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.4.3',
+	version: '0.4.9',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -890,7 +890,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 				for (var p in searchfor) {
 					if (searchfor.hasOwnProperty(p)) {
-						if (typeof prop[p] !== undefined && prop[p] === searchfor[p]) {
+						if (prop[p] && prop[p] === searchfor[p]) {
 							matching = true;
 						}
 						else {
@@ -1294,13 +1294,13 @@ XQCore.Presenter = (function(undefined) {
 			}.bind(this));
 
 			window.addEventListener('popstate', function(e) {
-				__onPopstate(self, e.state);
+				self.__onPopstate(e.state);
 			}, false);
 
 			this.on('views.ready',function() {
 				var route = XQCore.defaultRoute;
-				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-					route = location.hash.substr(2);
+				if (/^#![a-zA-Z0-9]+/.test(self.getHash())) {
+					route = self.getHash().substr(2);
 				}
 
 				route = self.Router.match(route);
@@ -1395,7 +1395,7 @@ XQCore.Presenter = (function(undefined) {
 			this.pushState(data, route);
 		}
 
-		__onPopstate(this, data);
+		this.__onPopstate(data);
 	};
 
 	/**
@@ -1450,24 +1450,45 @@ XQCore.Presenter = (function(undefined) {
 	};
 
 	/**
+	 * Returns the current hash
+	 *
+	 * @method getHash
+	 * @returns {String} Returns the current value from location.hash
+	 */
+	presenter.prototype.getHash = function() {
+		return location.hash;	
+	};
+
+	/**
+	 * Returns the current pathname
+	 *
+	 * @method getPathname
+	 * @returns {String} Returns the current value from location.pathname
+	 */
+	presenter.prototype.getPathname = function() {
+		return location.pathname;
+	};
+
+	/**
 	 * PopstateEvent
 	 *
 	 * @method __onPopstate
+	 * @param {Object} data Event data
 	 * @private
 	 */
-	var __onPopstate = function(self, data) {
-		"use strict";
+	presenter.prototype.__onPopstate = function(data) {
+		var self = this;
 
 		self.log('popstate event recived', data);
 
 		var route = XQCore.defaultRoute;
 		if (XQCore.html5Routes) {
 			var pattern = new RegExp('^' + self.root);
-			route = location.pathname.replace(pattern, '');
+			route = self.getPathname().replace(pattern, '');
 		}
 		else {
-			if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-				route = location.hash.substr(2);
+			if (/^#![a-zA-Z0-9]+/.test(this.getHash())) {
+				route = self.getHash().substr(2);
 			}
 		}
 
@@ -1764,7 +1785,7 @@ XQCore.View = (function(undefined) {
 		if (arguments.length === 2) {
 			this.presenter = arguments[0];
 			conf = arguments[1];
-			console.info('Defining View with presenter is deprecated.');
+			console.warn('Defining View with presenter is deprecated.');
 		}
 
 		conf = conf || {
@@ -1797,8 +1818,6 @@ XQCore.View = (function(undefined) {
 			presenter = this.presenter;
 			presenter.registerView(this);
 		}
-
-		console.log('View Init2', this);
 
 		//Register view at presenter
 		this.presenter = presenter;
@@ -2057,7 +2076,6 @@ XQCore.View = (function(undefined) {
 							}
 							else {
 								value = JSON.parse(value);
-								console.log(value);
 							}
 						}
 						catch(err) {
@@ -2068,8 +2086,6 @@ XQCore.View = (function(undefined) {
 					data[name] = value;
 				}
 			}
-
-			console.log('Get data', data);
 
 			return data;
 		}
@@ -2130,7 +2146,6 @@ XQCore.View = (function(undefined) {
 				nextEl = curEl.parent();
 
 				if (++d > 100) {
-					console.log(curEl, nextEl);
 					console.error('Break loop!');
 					break;
 				}

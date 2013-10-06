@@ -107,18 +107,7 @@ module.exports = function(grunt) {
 				files: [
 					{
 						src: ['webdocs/build/xqcore.js'],
-						dest: '../akonda/akonda-files/webdocs/js/xqcore.js'
-					}, {
-						src: ['webdocs/build/xqcore.min.js'],
-						dest: '../akonda/akonda-files/webdocs/js/xqcore.min.js'
-					}
-				]
-			},
-			'jam-libs': {
-				files: [
-					{
-						src: ['webdocs/build/xqcore.js'],
-						dest: '../jam-libs/xqcore/xqcore.js'
+						dest: '../akonda/components/xqcore/xqcore.js'
 					}
 				]
 			},
@@ -178,7 +167,6 @@ module.exports = function(grunt) {
 		'jshint:afterconcat',
 		'uglify',
 		'copy:akonda',
-		'copy:jam-libs',
 		'copy:xqtools',
 		'doc',
 		'bump:patch'

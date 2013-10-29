@@ -2,7 +2,7 @@
     "project": {
         "name": "xqcore",
         "description": "Model View Presenter Javascript Framework",
-        "version": "0.4.9",
+        "version": "0.4.10",
         "url": ""
     },
     "files": {
@@ -861,7 +861,7 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 126,
+            "line": 130,
             "description": "Sends a POST to the Datastore",
             "params": [
                 {
@@ -885,7 +885,7 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 140,
+            "line": 144,
             "description": "Sends a GET to the Datastore",
             "params": [
                 {
@@ -909,7 +909,7 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 154,
+            "line": 158,
             "description": "Sends a PUT to the Datastore",
             "params": [
                 {
@@ -933,7 +933,7 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 168,
+            "line": 172,
             "description": "Sends a DELETE to the Datastore",
             "params": [
                 {
@@ -957,14 +957,14 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 182,
+            "line": 186,
             "description": "Check if model is ready and call func or wait for ready state",
             "class": "XQCore.Presenter",
             "module": "XQCore.Logger"
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 214,
+            "line": 218,
             "description": "Fetch data from server",
             "params": [
                 {
@@ -983,7 +983,7 @@
         },
         {
             "file": "webdocs/js/xqcore-model.js",
-            "line": 224,
+            "line": 228,
             "description": "Load bugs",
             "params": [
                 {
@@ -1814,31 +1814,31 @@
         },
         {
             "message": "Missing item type\nSends a POST to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:126"
+            "line": " webdocs/js/xqcore-model.js:130"
         },
         {
             "message": "Missing item type\nSends a GET to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:140"
+            "line": " webdocs/js/xqcore-model.js:144"
         },
         {
             "message": "Missing item type\nSends a PUT to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:154"
+            "line": " webdocs/js/xqcore-model.js:158"
         },
         {
             "message": "Missing item type\nSends a DELETE to the Datastore",
-            "line": " webdocs/js/xqcore-model.js:168"
+            "line": " webdocs/js/xqcore-model.js:172"
         },
         {
             "message": "Missing item type\nCheck if model is ready and call func or wait for ready state",
-            "line": " webdocs/js/xqcore-model.js:182"
+            "line": " webdocs/js/xqcore-model.js:186"
         },
         {
             "message": "Missing item type\nFetch data from server",
-            "line": " webdocs/js/xqcore-model.js:214"
+            "line": " webdocs/js/xqcore-model.js:218"
         },
         {
             "message": "Missing item type\nLoad bugs",
-            "line": " webdocs/js/xqcore-model.js:224"
+            "line": " webdocs/js/xqcore-model.js:228"
         },
         {
             "message": "Missing item type\nCalling on view init",

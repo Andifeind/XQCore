@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.4.9</em>
+            <em>API Docs for: 0.4.10</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -199,6 +199,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 			method = &#x27;POST&#x27;;
 		}
 
+		if (!url) {
+			url = this.server;
+		}
+
 		&#x2F;&#x2F;Handle onSend
 		if (typeof this.onSend === &#x27;function&#x27;) {
 			data = this.onSend.call(this, data);
@@ -207,7 +211,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		this.log(&#x27;Sending an ajax call to &#x27;, this.server, &#x27;with data: &#x27;, data);
 
 		$.ajax({
-			url: this.server,
+			url: url,
 			type: method,
 			data: data,
 			dataType: &#x27;json&#x27;,

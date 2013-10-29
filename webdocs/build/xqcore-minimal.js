@@ -1,5 +1,5 @@
 /*!
- * XQCore Minimal - 0.4.9
+ * XQCore Minimal - 0.4.10
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-10-06
+ * Creation Date: 2013-10-09
  */
 
 (function (root, factory) {
@@ -33,7 +33,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.4.9',
+	version: '0.4.10',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',

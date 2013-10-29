@@ -95,6 +95,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 			method = 'POST';
 		}
 
+		if (!url) {
+			url = this.server;
+		}
+
 		//Handle onSend
 		if (typeof this.onSend === 'function') {
 			data = this.onSend.call(this, data);
@@ -103,7 +107,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
 
 		$.ajax({
-			url: this.server,
+			url: url,
 			type: method,
 			data: data,
 			dataType: 'json',

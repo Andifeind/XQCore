@@ -1,5 +1,5 @@
 /*!
- * XQCore - 0.4.9
+ * XQCore - 0.4.10
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-10-06
+ * Creation Date: 2013-10-09
  */
 
 (function (root, factory) {
@@ -33,7 +33,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.4.9',
+	version: '0.4.10',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -1605,6 +1605,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 			method = 'POST';
 		}
 
+		if (!url) {
+			url = this.server;
+		}
+
 		//Handle onSend
 		if (typeof this.onSend === 'function') {
 			data = this.onSend.call(this, data);
@@ -1613,7 +1617,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
 
 		$.ajax({
-			url: this.server,
+			url: url,
 			type: method,
 			data: data,
 			dataType: 'json',
@@ -2514,7 +2518,6 @@ XQCore.Util = (function($) {
 
 })();
 (function(proto, undefined) {
-	console.log('View slide', proto);
 	var cssTransition;
 
 	var setTransitionFunction = function() {
@@ -2539,12 +2542,12 @@ XQCore.Util = (function($) {
 
 		if (conf.parent && this.el) {
 			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
-			console.log({
-				el: conf.parent,
-				cw: conf.parent.clientWidth,
-				ow: conf.parent.offsetWidth,
-				w: conf.parent.style.width
-			});
+			// console.log({
+			// 	el: conf.parent,
+			// 	cw: conf.parent.clientWidth,
+			// 	ow: conf.parent.offsetWidth,
+			// 	w: conf.parent.style.width
+			// });
 			var posX = conf.parent.offsetWidth;
 			this.el.style.display = 'block';
 			this.el.style[cssTransition] = 'none';
@@ -2572,12 +2575,12 @@ XQCore.Util = (function($) {
 
 		if (conf.parent && this.el) {
 			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
-			console.log({
-				el: conf.parent,
-				cw: conf.parent.clientWidth,
-				ow: conf.parent.offsetWidth,
-				w: conf.parent.style.width
-			});
+			// console.log({
+			// 	el: conf.parent,
+			// 	cw: conf.parent.clientWidth,
+			// 	ow: conf.parent.offsetWidth,
+			// 	w: conf.parent.style.width
+			// });
 			var posX = conf.parent.offsetWidth;
 				this.el.style[cssTransition] = conf.transition;
 				this.el.style.left = posX + 'px';
@@ -2586,9 +2589,6 @@ XQCore.Util = (function($) {
 				if (+this.el.style.left.replace('px', '') >= posX) {
 					this.el.style.display = 'none';
 					this.el.style[cssTransition] = 'none';
-				}
-				else {
-					console.warn('Old transitionEndFunc???', this.el, +this.el.style.left.replace('px', ''), this.el.style[cssTransition]);
 				}
 				this.el.removeEventListener('transitionend', transitionEndFunc);
 			}.bind(this);

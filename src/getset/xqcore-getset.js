@@ -5,7 +5,7 @@
  * @requires XQCore.Logger
  * @requires XQCore.Event
  */
-XQCore.GetSet = (function(window, document, $, undefined) {
+XQCore.GetSet = (function(undefined) {
 
 	/**
 	 * GetSet constructor
@@ -24,8 +24,6 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		}
 
 		this.name = 'GetSet';
-		$.extend(this, new XQCore.Logger());
-		$.extend(this, new XQCore.Event());
 	};
 
 	var undotify = function(path, obj) {
@@ -39,7 +37,8 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 		return obj;
 	};
 
-	// $.extend(getset.prototype, new XQCore.Event());
+	XQCore.extend(getset.prototype, new XQCore.Logger());
+	XQCore.extend(getset.prototype, new XQCore.Event());
 
 	/**
 	 * Set getset data
@@ -570,4 +569,4 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 
 	return getset;
-})(window, document, jQuery);
+})();

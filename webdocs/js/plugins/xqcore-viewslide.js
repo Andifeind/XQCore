@@ -1,5 +1,4 @@
 (function(proto, undefined) {
-	console.log('View slide', proto);
 	var cssTransition;
 
 	var setTransitionFunction = function() {
@@ -24,12 +23,12 @@
 
 		if (conf.parent && this.el) {
 			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
-			console.log({
-				el: conf.parent,
-				cw: conf.parent.clientWidth,
-				ow: conf.parent.offsetWidth,
-				w: conf.parent.style.width
-			});
+			// console.log({
+			// 	el: conf.parent,
+			// 	cw: conf.parent.clientWidth,
+			// 	ow: conf.parent.offsetWidth,
+			// 	w: conf.parent.style.width
+			// });
 			var posX = conf.parent.offsetWidth;
 			this.el.style.display = 'block';
 			this.el.style[cssTransition] = 'none';
@@ -57,12 +56,12 @@
 
 		if (conf.parent && this.el) {
 			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
-			console.log({
-				el: conf.parent,
-				cw: conf.parent.clientWidth,
-				ow: conf.parent.offsetWidth,
-				w: conf.parent.style.width
-			});
+			// console.log({
+			// 	el: conf.parent,
+			// 	cw: conf.parent.clientWidth,
+			// 	ow: conf.parent.offsetWidth,
+			// 	w: conf.parent.style.width
+			// });
 			var posX = conf.parent.offsetWidth;
 				this.el.style[cssTransition] = conf.transition;
 				this.el.style.left = posX + 'px';
@@ -71,9 +70,6 @@
 				if (+this.el.style.left.replace('px', '') >= posX) {
 					this.el.style.display = 'none';
 					this.el.style[cssTransition] = 'none';
-				}
-				else {
-					console.warn('Old transitionEndFunc???', this.el, +this.el.style.left.replace('px', ''), this.el.style[cssTransition]);
 				}
 				this.el.removeEventListener('transitionend', transitionEndFunc);
 			}.bind(this);

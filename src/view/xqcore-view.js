@@ -32,7 +32,7 @@ XQCore.View = (function(undefined) {
 		if (arguments.length === 2) {
 			this.presenter = arguments[0];
 			conf = arguments[1];
-			console.info('Defining View with presenter is deprecated.');
+			console.warn('Defining View with presenter is deprecated.');
 		}
 
 		conf = conf || {
@@ -65,8 +65,6 @@ XQCore.View = (function(undefined) {
 			presenter = this.presenter;
 			presenter.registerView(this);
 		}
-
-		console.log('View Init2', this);
 
 		//Register view at presenter
 		this.presenter = presenter;
@@ -137,14 +135,14 @@ XQCore.View = (function(undefined) {
 										tagData = null;
 
 									if (e.type === 'submit') {
-										formData = XQCore.Util.serializeForm(e.target);
+										formData = XQCore.Util.serializeForm(e.currentTarget);
 									}
 									else if (e.type === 'keydown' || e.type === 'keyup' || e.type === 'keypress') {
-										formData = $(e.target).val();
+										formData = $(e.currentTarget).val();
 									}
 
-									tagData = $.extend($(e.target).data(), {
-										itemIndex: getItemIndex.call(self, e.target)
+									tagData = $.extend($(e.currentTarget).data(), {
+										itemIndex: getItemIndex.call(self, e.currentTarget)
 									});
 
 									eventFunc.call(eventDest, e, tagData, formData);
@@ -325,7 +323,6 @@ XQCore.View = (function(undefined) {
 							}
 							else {
 								value = JSON.parse(value);
-								console.log(value);
 							}
 						}
 						catch(err) {
@@ -336,8 +333,6 @@ XQCore.View = (function(undefined) {
 					data[name] = value;
 				}
 			}
-
-			console.log('Get data', data);
 
 			return data;
 		}
@@ -398,7 +393,6 @@ XQCore.View = (function(undefined) {
 				nextEl = curEl.parent();
 
 				if (++d > 100) {
-					console.log(curEl, nextEl);
 					console.error('Break loop!');
 					break;
 				}

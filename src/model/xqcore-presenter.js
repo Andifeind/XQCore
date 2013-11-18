@@ -112,13 +112,13 @@ XQCore.Presenter = (function(undefined) {
 			}.bind(this));
 
 			window.addEventListener('popstate', function(e) {
-				__onPopstate(self, e.state);
+				self.__onPopstate(e.state);
 			}, false);
 
 			this.on('views.ready',function() {
 				var route = XQCore.defaultRoute;
-				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-					route = location.hash.substr(2);
+				if (/^#![a-zA-Z0-9]+/.test(self.getHash())) {
+					route = self.getHash().substr(2);
 				}
 
 				route = self.Router.match(route);
@@ -213,7 +213,7 @@ XQCore.Presenter = (function(undefined) {
 			this.pushState(data, route);
 		}
 
-		__onPopstate(this, data);
+		this.__onPopstate(data);
 	};
 
 	/**
@@ -268,24 +268,45 @@ XQCore.Presenter = (function(undefined) {
 	};
 
 	/**
+	 * Returns the current hash
+	 *
+	 * @method getHash
+	 * @returns {String} Returns the current value from location.hash
+	 */
+	presenter.prototype.getHash = function() {
+		return location.hash;	
+	};
+
+	/**
+	 * Returns the current pathname
+	 *
+	 * @method getPathname
+	 * @returns {String} Returns the current value from location.pathname
+	 */
+	presenter.prototype.getPathname = function() {
+		return location.pathname;
+	};
+
+	/**
 	 * PopstateEvent
 	 *
 	 * @method __onPopstate
+	 * @param {Object} data Event data
 	 * @private
 	 */
-	var __onPopstate = function(self, data) {
-		"use strict";
+	presenter.prototype.__onPopstate = function(data) {
+		var self = this;
 
 		self.log('popstate event recived', data);
 
 		var route = XQCore.defaultRoute;
 		if (XQCore.html5Routes) {
 			var pattern = new RegExp('^' + self.root);
-			route = location.pathname.replace(pattern, '');
+			route = self.getPathname().replace(pattern, '');
 		}
 		else {
-			if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-				route = location.hash.substr(2);
+			if (/^#![a-zA-Z0-9]+/.test(this.getHash())) {
+				route = self.getHash().substr(2);
 			}
 		}
 

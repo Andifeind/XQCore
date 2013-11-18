@@ -1,5 +1,5 @@
 /*!
- * XQCore Minimal - 0.4.3
+ * XQCore Minimal - 0.4.10
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,14 +9,16 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-07-24
+ * Creation Date: 2013-10-09
  */
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define('xqcore', ['jquery'], factory);
+        define('xqcore', ['jquery', 'handlebars'], factory);
+    } else if (typeof module !== 'undefined' && module.exports) {
+        module.exports = factory(require('jquery'), root.Handlebars);
     } else {
-        root.XQCore = factory(root.jQuery);
+        root.XQCore = factory(root.jQuery, root.Handlebars);
     }
 }(this, function (jQuery) {
 
@@ -31,7 +33,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.4.3',
+	version: '0.4.10',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -1156,6 +1158,24 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	getset.prototype.isValid = function() {
 		return this._isValid;
 	};
+
+
+	//From passboxItemModel
+
+	/**
+	 * Returns the last validation result
+	 *
+	 * @method  getLastValidationError
+	 * @returns {Object} Returns the validation error or null
+	 */
+	/*model.getLastValidationError = function() {
+		this.__lastValidationError = null;
+		this.on('validation.error', function(validationError) {
+			this.__lastValidationError = validationError;
+		}.bind(this));
+
+		return this.__lastValidationError;	
+	};*/
 
 
 	return getset;

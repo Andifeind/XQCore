@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.4.3</em>
+            <em>API Docs for: 0.4.10</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -136,7 +136,7 @@ XQCore.View = (function(undefined) {
 		if (arguments.length === 2) {
 			this.presenter = arguments[0];
 			conf = arguments[1];
-			console.info(&#x27;Defining View with presenter is deprecated.&#x27;);
+			console.warn(&#x27;Defining View with presenter is deprecated.&#x27;);
 		}
 
 		conf = conf || {
@@ -169,8 +169,6 @@ XQCore.View = (function(undefined) {
 			presenter = this.presenter;
 			presenter.registerView(this);
 		}
-
-		console.log(&#x27;View Init2&#x27;, this);
 
 		&#x2F;&#x2F;Register view at presenter
 		this.presenter = presenter;
@@ -241,14 +239,14 @@ XQCore.View = (function(undefined) {
 										tagData = null;
 
 									if (e.type === &#x27;submit&#x27;) {
-										formData = XQCore.Util.serializeForm(e.target);
+										formData = XQCore.Util.serializeForm(e.currentTarget);
 									}
 									else if (e.type === &#x27;keydown&#x27; || e.type === &#x27;keyup&#x27; || e.type === &#x27;keypress&#x27;) {
-										formData = $(e.target).val();
+										formData = $(e.currentTarget).val();
 									}
 
-									tagData = $.extend($(e.target).data(), {
-										itemIndex: getItemIndex.call(self, e.target)
+									tagData = $.extend($(e.currentTarget).data(), {
+										itemIndex: getItemIndex.call(self, e.currentTarget)
 									});
 
 									eventFunc.call(eventDest, e, tagData, formData);
@@ -429,7 +427,6 @@ XQCore.View = (function(undefined) {
 							}
 							else {
 								value = JSON.parse(value);
-								console.log(value);
 							}
 						}
 						catch(err) {
@@ -440,8 +437,6 @@ XQCore.View = (function(undefined) {
 					data[name] = value;
 				}
 			}
-
-			console.log(&#x27;Get data&#x27;, data);
 
 			return data;
 		}
@@ -502,7 +497,6 @@ XQCore.View = (function(undefined) {
 				nextEl = curEl.parent();
 
 				if (++d &gt; 100) {
-					console.log(curEl, nextEl);
 					console.error(&#x27;Break loop!&#x27;);
 					break;
 				}

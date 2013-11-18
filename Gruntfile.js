@@ -99,26 +99,15 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		xqcoretest: {
-			ignore_files: ['init.js', '*.min.js']
-		},
+		// xqcoretest: {
+		// 	ignore_files: ['init.js', '*.min.js']
+		// },
 		copy: {
 			akonda: {
 				files: [
 					{
 						src: ['webdocs/build/xqcore.js'],
-						dest: '../akonda/akonda-files/webdocs/js/xqcore.js'
-					}, {
-						src: ['webdocs/build/xqcore.min.js'],
-						dest: '../akonda/akonda-files/webdocs/js/xqcore.min.js'
-					}
-				]
-			},
-			'jam-libs': {
-				files: [
-					{
-						src: ['webdocs/build/xqcore.js'],
-						dest: '../jam-libs/xqcore/xqcore.js'
+						dest: '../akonda/components/xqcore/xqcore.js'
 					}
 				]
 			},
@@ -158,7 +147,7 @@ module.exports = function(grunt) {
 		}
 	});
 
-	grunt.loadTasks('./modules/grunt-xqcoretest');
+	// grunt.loadTasks('./modules/grunt-xqcoretest');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-copy');
@@ -167,7 +156,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-bump');
 
-	grunt.registerTask('default', 'lint');
+	grunt.registerTask('default', 'jshint');
 	grunt.registerTask('doc', 'yuidoc');
 	grunt.registerTask('test', 'xqcoretest');
 	grunt.registerTask('build', [
@@ -178,7 +167,6 @@ module.exports = function(grunt) {
 		'jshint:afterconcat',
 		'uglify',
 		'copy:akonda',
-		'copy:jam-libs',
 		'copy:xqtools',
 		'doc',
 		'bump:patch'

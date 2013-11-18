@@ -1,5 +1,5 @@
 /*!
- * XQCore - 0.4.3
+ * XQCore - 0.4.10
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,12 +9,14 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-07-24
+ * Creation Date: 2013-10-09
  */
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define('xqcore', ['jquery', 'handlebars'], factory);
+    } else if (typeof module !== 'undefined' && module.exports) {
+        module.exports = factory(require('jquery'), require('handlebars'));
     } else {
         root.XQCore = factory(root.jQuery, root.Handlebars);
     }
@@ -31,7 +33,7 @@
  * @type {Object}
  */
 var XQCore = {
-	version: '0.4.3',
+	version: '0.4.10',
 	defaultRoute: 'default',
 	html5Routes: false,
 	hashBang: '#!',
@@ -888,7 +890,7 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 
 				for (var p in searchfor) {
 					if (searchfor.hasOwnProperty(p)) {
-						if (typeof prop[p] !== undefined && prop[p] === searchfor[p]) {
+						if (prop[p] && prop[p] === searchfor[p]) {
 							matching = true;
 						}
 						else {
@@ -1158,6 +1160,24 @@ XQCore.GetSet = (function(window, document, $, undefined) {
 	};
 
 
+	//From passboxItemModel
+
+	/**
+	 * Returns the last validation result
+	 *
+	 * @method  getLastValidationError
+	 * @returns {Object} Returns the validation error or null
+	 */
+	/*model.getLastValidationError = function() {
+		this.__lastValidationError = null;
+		this.on('validation.error', function(validationError) {
+			this.__lastValidationError = validationError;
+		}.bind(this));
+
+		return this.__lastValidationError;	
+	};*/
+
+
 	return getset;
 })(window, document, jQuery);
 /**
@@ -1274,13 +1294,13 @@ XQCore.Presenter = (function(undefined) {
 			}.bind(this));
 
 			window.addEventListener('popstate', function(e) {
-				__onPopstate(self, e.state);
+				self.__onPopstate(e.state);
 			}, false);
 
 			this.on('views.ready',function() {
 				var route = XQCore.defaultRoute;
-				if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-					route = location.hash.substr(2);
+				if (/^#![a-zA-Z0-9]+/.test(self.getHash())) {
+					route = self.getHash().substr(2);
 				}
 
 				route = self.Router.match(route);
@@ -1375,7 +1395,7 @@ XQCore.Presenter = (function(undefined) {
 			this.pushState(data, route);
 		}
 
-		__onPopstate(this, data);
+		this.__onPopstate(data);
 	};
 
 	/**
@@ -1430,24 +1450,45 @@ XQCore.Presenter = (function(undefined) {
 	};
 
 	/**
+	 * Returns the current hash
+	 *
+	 * @method getHash
+	 * @returns {String} Returns the current value from location.hash
+	 */
+	presenter.prototype.getHash = function() {
+		return location.hash;	
+	};
+
+	/**
+	 * Returns the current pathname
+	 *
+	 * @method getPathname
+	 * @returns {String} Returns the current value from location.pathname
+	 */
+	presenter.prototype.getPathname = function() {
+		return location.pathname;
+	};
+
+	/**
 	 * PopstateEvent
 	 *
 	 * @method __onPopstate
+	 * @param {Object} data Event data
 	 * @private
 	 */
-	var __onPopstate = function(self, data) {
-		"use strict";
+	presenter.prototype.__onPopstate = function(data) {
+		var self = this;
 
 		self.log('popstate event recived', data);
 
 		var route = XQCore.defaultRoute;
 		if (XQCore.html5Routes) {
 			var pattern = new RegExp('^' + self.root);
-			route = location.pathname.replace(pattern, '');
+			route = self.getPathname().replace(pattern, '');
 		}
 		else {
-			if (/^#![a-zA-Z0-9]+/.test(location.hash)) {
-				route = location.hash.substr(2);
+			if (/^#![a-zA-Z0-9]+/.test(this.getHash())) {
+				route = self.getHash().substr(2);
 			}
 		}
 
@@ -1540,12 +1581,19 @@ XQCore.Model = (function(window, document, $, undefined) {
 	 * You must set the server URI first with model.server = 'http://example.com/post'
 	 *
 	 * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param {Object} data The data to sent to the server
 	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
 	 */
-	model.prototype.send = function(method, data, callback) {
+	model.prototype.send = function(method, url, data, callback) {
 
-		if (typeof data === 'function') {
+		if (typeof url === 'object') {
+			callback = data;
+			data = url;
+			url = this.server;
+			method = method;
+		}
+		else if (typeof data === 'function') {
 			callback = data;
 			data = this.get();
 		}
@@ -1557,6 +1605,10 @@ XQCore.Model = (function(window, document, $, undefined) {
 			method = 'POST';
 		}
 
+		if (!url) {
+			url = this.server;
+		}
+
 		//Handle onSend
 		if (typeof this.onSend === 'function') {
 			data = this.onSend.call(this, data);
@@ -1565,7 +1617,7 @@ XQCore.Model = (function(window, document, $, undefined) {
 		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
 
 		$.ajax({
-			url: this.server,
+			url: url,
 			type: method,
 			data: data,
 			dataType: 'json',
@@ -1588,53 +1640,57 @@ XQCore.Model = (function(window, document, $, undefined) {
 	/**
 	 * Sends a POST to the Datastore
 	 *
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param  {Object}   data     Dato to sending
 	 * @param  {Function} callback Calling on response
 	 *
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendPOST = function(data, callback) {
-		this.send('POST', data, callback);
+	model.prototype.sendPOST = function(url, data, callback) {
+		this.send('POST', url, data, callback);
 	};
 
 	/**
 	 * Sends a GET to the Datastore
 	 *
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param  {Object}   data     Dato to sending
 	 * @param  {Function} callback Calling on response
 	 *
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendGET = function(data, callback) {
-		this.send('GET', data, callback);
+	model.prototype.sendGET = function(url, data, callback) {
+		this.send('GET', url, data, callback);
 	};
 
 	/**
 	 * Sends a PUT to the Datastore
 	 *
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param  {Object}   data     Dato to sending
 	 * @param  {Function} callback Calling on response
 	 *
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendPUT = function(data, callback) {
-		this.send('PUT', data, callback);
+	model.prototype.sendPUT = function(url, data, callback) {
+		this.send('PUT', url, data, callback);
 	};
 
 	/**
 	 * Sends a DELETE to the Datastore
 	 *
+	 * @param {String} url Server URL (optional, then model.server must be set)
 	 * @param  {Object}   data     Dato to sending
 	 * @param  {Function} callback Calling on response
 	 *
 	 * callback: void function(err, data, status, jqXHR)
 	 *
 	 */
-	model.prototype.sendDELETE = function(data, callback) {
-		this.send('DELETE', data, callback);
+	model.prototype.sendDELETE = function(url, data, callback) {
+		this.send('DELETE', url, data, callback);
 	};
 
 	/**
@@ -1733,7 +1789,7 @@ XQCore.View = (function(undefined) {
 		if (arguments.length === 2) {
 			this.presenter = arguments[0];
 			conf = arguments[1];
-			console.info('Defining View with presenter is deprecated.');
+			console.warn('Defining View with presenter is deprecated.');
 		}
 
 		conf = conf || {
@@ -1766,8 +1822,6 @@ XQCore.View = (function(undefined) {
 			presenter = this.presenter;
 			presenter.registerView(this);
 		}
-
-		console.log('View Init2', this);
 
 		//Register view at presenter
 		this.presenter = presenter;
@@ -1838,14 +1892,14 @@ XQCore.View = (function(undefined) {
 										tagData = null;
 
 									if (e.type === 'submit') {
-										formData = XQCore.Util.serializeForm(e.target);
+										formData = XQCore.Util.serializeForm(e.currentTarget);
 									}
 									else if (e.type === 'keydown' || e.type === 'keyup' || e.type === 'keypress') {
-										formData = $(e.target).val();
+										formData = $(e.currentTarget).val();
 									}
 
-									tagData = $.extend($(e.target).data(), {
-										itemIndex: getItemIndex.call(self, e.target)
+									tagData = $.extend($(e.currentTarget).data(), {
+										itemIndex: getItemIndex.call(self, e.currentTarget)
 									});
 
 									eventFunc.call(eventDest, e, tagData, formData);
@@ -2026,7 +2080,6 @@ XQCore.View = (function(undefined) {
 							}
 							else {
 								value = JSON.parse(value);
-								console.log(value);
 							}
 						}
 						catch(err) {
@@ -2037,8 +2090,6 @@ XQCore.View = (function(undefined) {
 					data[name] = value;
 				}
 			}
-
-			console.log('Get data', data);
 
 			return data;
 		}
@@ -2099,7 +2150,6 @@ XQCore.View = (function(undefined) {
 				nextEl = curEl.parent();
 
 				if (++d > 100) {
-					console.log(curEl, nextEl);
 					console.error('Break loop!');
 					break;
 				}
@@ -2468,7 +2518,6 @@ XQCore.Util = (function($) {
 
 })();
 (function(proto, undefined) {
-	console.log('View slide', proto);
 	var cssTransition;
 
 	var setTransitionFunction = function() {
@@ -2493,12 +2542,12 @@ XQCore.Util = (function($) {
 
 		if (conf.parent && this.el) {
 			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
-			console.log({
-				el: conf.parent,
-				cw: conf.parent.clientWidth,
-				ow: conf.parent.offsetWidth,
-				w: conf.parent.style.width
-			});
+			// console.log({
+			// 	el: conf.parent,
+			// 	cw: conf.parent.clientWidth,
+			// 	ow: conf.parent.offsetWidth,
+			// 	w: conf.parent.style.width
+			// });
 			var posX = conf.parent.offsetWidth;
 			this.el.style.display = 'block';
 			this.el.style[cssTransition] = 'none';
@@ -2526,12 +2575,12 @@ XQCore.Util = (function($) {
 
 		if (conf.parent && this.el) {
 			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
-			console.log({
-				el: conf.parent,
-				cw: conf.parent.clientWidth,
-				ow: conf.parent.offsetWidth,
-				w: conf.parent.style.width
-			});
+			// console.log({
+			// 	el: conf.parent,
+			// 	cw: conf.parent.clientWidth,
+			// 	ow: conf.parent.offsetWidth,
+			// 	w: conf.parent.style.width
+			// });
 			var posX = conf.parent.offsetWidth;
 				this.el.style[cssTransition] = conf.transition;
 				this.el.style.left = posX + 'px';
@@ -2540,9 +2589,6 @@ XQCore.Util = (function($) {
 				if (+this.el.style.left.replace('px', '') >= posX) {
 					this.el.style.display = 'none';
 					this.el.style[cssTransition] = 'none';
-				}
-				else {
-					console.warn('Old transitionEndFunc???', this.el, +this.el.style.left.replace('px', ''), this.el.style[cssTransition]);
 				}
 				this.el.removeEventListener('transitionend', transitionEndFunc);
 			}.bind(this);

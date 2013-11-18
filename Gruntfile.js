@@ -33,11 +33,11 @@ module.exports = function(grunt) {
 		// Lists of files to be linted with JSHint.
 		jshint: {
 			files: [
-				'webdocs/js/xqcore-(!.spec).js'
+				'src/**/*.js'
 			],
 			afterconcat: [
-				'webdocs/js/xqcore.js',
-				'webdocs/js/xqcore-minimal.js'
+				'build/xqcore.js',
+				'build/xqcore-minimal.js'
 			],
 			options: {
 				browser: true,
@@ -58,14 +58,14 @@ module.exports = function(grunt) {
 				src: [
 					'webdocs/js/concat-before.js',
 					'webdocs/js/xqcore-core.js',
-					'webdocs/js/xqcore-event.js',
-					'webdocs/js/xqcore-logger.js',
-					'webdocs/js/xqcore-getset.js',
-					'webdocs/js/xqcore-presenter.js',
-					'webdocs/js/xqcore-model.js',
-					'webdocs/js/xqcore-view.js',
-					'webdocs/js/xqcore-util.js',
-					'webdocs/js/xqcore-router.js',
+					'src/event/event.js',
+					'src/logger/logger.js',
+					'src/getset/getset.js',
+					'src/presenter/presenter.js',
+					'src/model/model.js',
+					'src/view/view.js',
+					'src/util/util.js',
+					'src/router/router.js',
 
 					'webdocs/js/plugins/xqcore-viewslide.js',
 					'webdocs/js/concat-after.js'

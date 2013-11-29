@@ -1,4 +1,5 @@
 describe('XQCore Presenter', function() {
+
 	beforeEach(function() {
 
 	});
@@ -40,5 +41,27 @@ describe('XQCore Presenter', function() {
 		});
 
 		location.hash = 'test';
+	});
+
+	it('Should combine a model with a view', function(done) {
+		var presenter = new XQCore.Presenter();
+		var model = new XQCore.Model();
+		var view = new XQCore.View();
+
+		presenter.combine({
+			view: view,
+			model: model
+		});
+
+		var renderStub = sinon.stub(view, 'render');
+		model.set({
+			data: 'changed'
+		});
+
+		expect(renderStub).was.calledWith({
+			data: 'changed'
+		});
+
+		renderStub.restore();
 	});
 });

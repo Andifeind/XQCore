@@ -1,0 +1,6 @@
+{
+	"project": "XQCore",
+	"browser": true,
+	"files": "build/xqcore.js",
+	"tests": "src/**/*.spec.js"
+}

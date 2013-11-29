@@ -70,7 +70,7 @@ module.exports = function(grunt) {
 					'webdocs/js/plugins/xqcore-viewslide.js',
 					'webdocs/js/concat-after.js'
 				],
-				dest: 'webdocs/build/xqcore.js'
+				dest: 'build/xqcore.js'
 			},
 			minimal: {
 				src: [

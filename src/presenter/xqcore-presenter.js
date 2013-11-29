@@ -288,6 +288,41 @@ XQCore.Presenter = (function(undefined) {
 	};
 
 	/**
+	 * Couple a model with a view
+	 *
+	 * @method couple
+	 * @chainable
+	 * @param {Object} conf Configuration object
+	 *
+	 * conf: {
+	 *   model: String modelname
+	 *   view: String viewname
+	 *   route String routename
+	 * }
+	 */
+	presenter.prototype.couple = function(conf) {
+		var view = conf.view,
+			model = conf.model;
+
+		if (!view instanceof XQCore.View) {
+			this.error('Can\'t couple view with model! View isn\'t a XQCore.View');
+			return;
+		}
+
+		if (!model instanceof XQCore.Model) {
+			this.error('Can\'t couple model with model! Model isn\'t a XQCore.Model');
+			return;
+		}
+
+		model.on('data.change', function(data) {
+			view.render(data);
+		});
+
+		return this;
+	};
+
+
+	/**
 	 * PopstateEvent
 	 *
 	 * @method __onPopstate

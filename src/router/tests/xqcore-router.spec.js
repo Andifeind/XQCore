@@ -1,10 +1,12 @@
 describe('XQCore Router', function() {
+	'use strict';
+
 	var router, func;
 
 	beforeEach(function() {
-		func = sinon.spy(),
+		func = sinon.spy();
 		router = new XQCore.Router();
-		console.log('Router', router);
+		// console.log('Router', router);
 		router.addRoute('/test/xx/*', func);
 		router.addRoute('/test/gg/:id?', func);
 		router.addRoute('/test/aaa/:id', func);

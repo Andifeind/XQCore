@@ -1,4 +1,6 @@
-describe('XQCore Cache', function() {
+xdescribe('XQCore Cache', function() {
+	'use strict';
+	
 	beforeEach(function() {
 
 	});

@@ -6,6 +6,7 @@
  * @requires XQCore.Event
  */
 XQCore.GetSet = (function(undefined) {
+	'use strict';
 
 	/**
 	 * GetSet constructor
@@ -24,6 +25,8 @@ XQCore.GetSet = (function(undefined) {
 		}
 
 		this.name = 'GetSet';
+
+		XQCore.extend(this, new XQCore.Event());
 	};
 
 	var undotify = function(path, obj) {
@@ -38,7 +41,6 @@ XQCore.GetSet = (function(undefined) {
 	};
 
 	XQCore.extend(getset.prototype, new XQCore.Logger());
-	XQCore.extend(getset.prototype, new XQCore.Event());
 
 	/**
 	 * Set getset data
@@ -97,7 +99,6 @@ XQCore.GetSet = (function(undefined) {
 		}
 
 		if (this.customValidate) {
-			console.log('Use custom validation', this.customValidate);
 			validateResult = this.customValidate(newData);
 			if (validateResult !== null) {
 				this.warn('Validate error in getset.set', validateResult);
@@ -173,7 +174,6 @@ XQCore.GetSet = (function(undefined) {
 			});
 		}
 
-		console.log(dataset === this.properties);
 		if (dataset instanceof Array) {
 			dataset.push(data);
 		}
@@ -191,7 +191,6 @@ XQCore.GetSet = (function(undefined) {
 			this.emit('data.change', dataset, oldDataset);
 		}
 
-		console.log(dataset, this.properties);
 		return data;
 	};
 
@@ -326,17 +325,18 @@ XQCore.GetSet = (function(undefined) {
 
 		data.sort(function(a, b) {
 			order = -1;
-			//jshint forin: false
 			for (var key in sortKeys) {
-				order = String(undotify(key, a)).localeCompare(String(undotify(key, b)));
-				if (order === 0) {
-					continue;
-				}
-				else if(sortKeys[key] === -1) {
-					order = order > 0 ? -1 : 1;
-				}
+				if (sortKeys.hasOwnProperty(key)) {
+					order = String(undotify(key, a)).localeCompare(String(undotify(key, b)));
+					if (order === 0) {
+						continue;
+					}
+					else if(sortKeys[key] === -1) {
+						order = order > 0 ? -1 : 1;
+					}
 
-				break;
+					break;
+				}
 			}
 
 			return order;
@@ -346,17 +346,29 @@ XQCore.GetSet = (function(undefined) {
 		return data;
 	};
 
-	getset.prototype.validate = function(data) {
+	getset.prototype.validate = function(data, schema) {
 		var failed = [];
+			
+		schema = schema || this.schema;
 
-		if (this.schema) {
-			Object.keys(this.schema).forEach(function(key) {
-				var validationResult = this.validateOne(key, data[key]);
+		if (schema) {
+			Object.keys(schema).forEach(function(key) {
+				console.log('KEY:', key, typeof data[key], typeof schema[key].type);
+				if (typeof data[key] === 'object' && typeof schema[key].type === 'undefined') {
+					var subFailed = this.validate(XQCore.extend({}, data[key]), XQCore.extend({}, schema[key]));
+					if (Array.isArray(subFailed) && subFailed.length > 0) {
+						failed = failed.concat(subFailed);
+					}
+					return;
+				}
+				
+				var validationResult = this.validateOne(schema[key], data[key]);
 
 				if (validationResult.isValid === true) {
 					data[key] = validationResult.value;
 				}
 				else {
+					validationResult.error.property = key;
 					failed.push(validationResult.error);
 				}
 			}.bind(this));
@@ -382,16 +394,16 @@ XQCore.GetSet = (function(undefined) {
 	 *   error: Object
 	 * }
 	 *
-	 * @param  {String} key   Property key
+	 * @param  {Any} schema Schema for the check
 	 * @param  {Any} value Property value
 	 *
 	 * @return {Object}       Returns a ValidatorResultItemObject
 	 */
-	getset.prototype.validateOne = function(key, value) {
+	getset.prototype.validateOne = function(schema, value) {
+		console.log('SCHEMA:', schema);
 		var failed = null,
-			schema = this.schema[key];
+			schemaType = typeof schema.type === 'function' ? typeof schema.type() : schema.type.toLowerCase();
 
-		console.log('Schema', schema, schema.match);
 		if (value === '' && schema.noEmpty === true) {
 			value = undefined;
 		}
@@ -400,130 +412,123 @@ XQCore.GetSet = (function(undefined) {
 			value = schema.default;
 		}
 
-		if ((value === undefined || value === null || value === '') && schema.required === true) {
-			failed = {
-				property: key,
-				msg: 'Property is undefined or null, but it\'s required',
-				errCode: 10
-			};
+		if ((value === undefined || value === null || value === '')) {
+			if (schema.required === true) {
+				failed = {
+					msg: 'Property is undefined or null, but it\'s required',
+					errCode: 10
+				};
+			}
 		}
-		else if (schema.type === 'string') {
+		else if (schemaType === 'string') {
 			if (schema.convert && typeof(value) === 'number') {
 				value = String(value);
 			}
 
-			if (schema.type !== typeof(value)) {
+			if (schemaType !== typeof(value)) {
 				failed = {
-					property: key,
 					msg: 'Property type is a ' + typeof(value) + ', but a string is required',
 					errCode: 11
 				};
 			}
 			else if(schema.min && schema.min > value.length) {
 				failed = {
-					property: key,
 					msg: 'String length is too short',
 					errCode: 12
 				};
 			}
 			else if(schema.max && schema.max < value.length) {
 				failed = {
-					property: key,
 					msg: 'String length is too long',
 					errCode: 13
 				};
 			}
 			else if(schema.match && !schema.match.test(value)) {
 				failed = {
-					property: key,
 					msg: 'String doesn\'t match regexp',
 					errCode: 14
 				};
 			}
 
 		}
-		else if(schema.type === 'number') {
+		else if(schemaType === 'number') {
 			if (schema.convert && typeof(value) === 'string') {
 				value = parseInt(value, 10);
 			}
 
-			if (schema.type !== typeof(value)) {
+			if (schemaType !== typeof(value)) {
 				failed = {
-					property: key,
 					msg: 'Property type is a ' + typeof(value) + ', but a number is required',
 					errCode: 21
 				};
 			}
 			else if(schema.min && schema.min > value) {
 				failed = {
-					property: key,
 					msg: 'Number is too low',
 					errCode: 22
 				};
 			}
 			else if(schema.max && schema.max < value) {
 				failed = {
-					property: key,
 					msg: 'Number is too high',
 					errCode: 23
 				};
 			}
 		}
-		else if(schema.type === 'date') {
+		else if(schemaType === 'date') {
 			if (value) {
 				var date = Date.parse(value);
 				if (isNaN(date)) {
 					failed = {
-						property: key,
 						msg: 'Property isn\'t a valid date',
 						errCode: 31
 					};
 				}
 			}
 		}
-		else if(schema.type === 'array') {
+		else if(schemaType === 'array') {
 			if (!Array.isArray(value)) {
 				failed = {
-					property: key,
 					msg: 'Property type is a ' + typeof(value) + ', but an array is required',
 					errCode: 41
 				};
 			}
 			else if(schema.min && schema.min > value.length) {
 				failed = {
-					property: key,
 					msg: 'Array length is ' + value.length + ' but must be greater than ' + schema.min,
 					errCode: 42
 				};
 			}
 			else if(schema.max && schema.max < value.length) {
 				failed = {
-					property: key,
 					msg: 'Array length is ' + value.length + ' but must be lesser than ' + schema.max,
 					errCode: 43
 				};
 			}
 		}
-		else if(schema.type === 'object') {
+		else if(schemaType === 'object') {
 			if (typeof(value) !== 'object') {
 				failed = {
-					property: key,
 					msg: 'Property isn\'t a valid object',
 					errCode: 51
 				};
 			}
 		}
-		else if(schema.type === 'boolean') {
-			if (typeof(value) !== 'object') {
+		else if(schemaType === 'objectid') {
+			if (!/^[a-zA-Z0-9]{24}$/.test(value)) {
 				failed = {
-					property: key,
+					msg: 'Property isn\'t a valid objectId',
+					errCode: 52
+				};
+			}
+		}
+		else if(schemaType === 'boolean') {
+			if (typeof(value) !== 'boolean') {
+				failed = {
 					msg: 'Property isn\'t a valid boolean',
 					errCode: 61
 				};
 			}
-		}
-		else {
-
 		}
 
 		if (failed === null) {
@@ -534,7 +539,7 @@ XQCore.GetSet = (function(undefined) {
 			};
 		}
 		else {
-			this.warn('Validation error on property', key, failed, 'Data:', value);
+			this.warn('Validation error on property', failed, 'Data:', value);
 			failed = {
 				isValid: false,
 				value: value,

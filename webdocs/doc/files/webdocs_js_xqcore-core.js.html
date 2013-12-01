@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.4.10</em>
+            <em>API Docs for: 0.4.17</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -41,27 +41,9 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
-                <li><a href="..&#x2F;classes/GetSet.html">GetSet</a></li>
-            
-                <li><a href="..&#x2F;classes/Manages event registering and emitting..html">Manages event registering and emitting.</a></li>
-            
-                <li><a href="..&#x2F;classes/XQCore.Logger.html">XQCore.Logger</a></li>
-            
-                <li><a href="..&#x2F;classes/XQCore.Presenter.html">XQCore.Presenter</a></li>
-            
-                <li><a href="..&#x2F;classes/XQCore.View.html">XQCore.View</a></li>
-            
             </ul>
 
             <ul id="api-modules" class="apis modules">
-            
-                <li><a href="..&#x2F;modules/XQCore Presenter.html">XQCore Presenter</a></li>
-            
-                <li><a href="..&#x2F;modules/XQCore.GetSet.html">XQCore.GetSet</a></li>
-            
-                <li><a href="..&#x2F;modules/XQCore.Logger.html">XQCore.Logger</a></li>
-            
-                <li><a href="..&#x2F;modules/XQCore.View.html">XQCore.View</a></li>
             
             </ul>
         </div>
@@ -119,56 +101,9 @@ var XQCore = {
 	callerEvent: &#x27;callerEvent&#x27;
 };
 
-&#x2F;&#x2F; if (typeof define === &quot;function&quot; &amp;&amp; define.amd) {
-&#x2F;&#x2F; 	console.log(&#x27;XQCore: using AMD style&#x27;);
-&#x2F;&#x2F; 	define( &quot;xqcore&quot;, [&#x27;handlebars&#x27;], function (Handlebars) {
-&#x2F;&#x2F; 		XQCore.TemplateEngine = Handlebars;
-&#x2F;&#x2F; 		return XQCore;
-&#x2F;&#x2F; 	});
-&#x2F;&#x2F; } else {
-&#x2F;&#x2F; 	XQCore.TemplateEngine = window.Handlebars;
-&#x2F;&#x2F; 	window.XQCore = XQCore;
-&#x2F;&#x2F; }
 
-&#x2F;**
- * Implement include support
- *
- * File must be absolute to the document root
- *
- * @param {String} file Filename to be load
- *&#x2F;
-if (!window.include) {
-	window.include = function(file, callback) {
-		var url = location.protocol + &#x27;&#x2F;&#x2F;&#x27; + location.host + file;
-		$.ajax({
-			url: url,
-			dataType: &quot;script&quot;,
-			success: callback,
-			async: false
-		});
-	};
-
-	window.preload = function(file) {
-		var url = location.protocol + &#x27;&#x2F;&#x2F;&#x27; + location.host + file,
-			script;
-
-		$.ajax({
-			url: url,
-			dataType: &quot;text&quot;,
-			success: function(data) {
-				script = data;
-			},
-			async: false
-		});
-
-		return {
-			execute: function(scope) {
-				eval.call(scope || window, script);
-			}
-		};
-	};
-}
-
+&#x2F;&#x2F;XQCore helper functions
+XQCore.extend = jQuery.extend;
 
 XQCore._dump = {};
 XQCore.dump = function(componentName) {

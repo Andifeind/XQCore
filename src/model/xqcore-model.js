@@ -36,8 +36,6 @@ XQCore.Model = (function(window, document, $, undefined) {
 		if (this.defaults && !$.isEmptyObject(this.defaults)) {
 			this.set(this.defaults);
 		}
-
-		this.init();
 	};
 
 	$.extend(model.prototype, new XQCore.GetSet());

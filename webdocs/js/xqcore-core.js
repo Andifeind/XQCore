@@ -17,7 +17,7 @@ var XQCore = {
 
 
 //XQCore helper functions
-XQCore.extend = $.extend;
+XQCore.extend = jQuery.extend;
 
 XQCore._dump = {};
 XQCore.dump = function(componentName) {

@@ -35,20 +35,7 @@ module.exports = function(grunt) {
 			files: [
 				'src/**/*.js'
 			],
-			afterconcat: [
-				'build/xqcore.js',
-				'build/xqcore-minimal.js'
-			],
-			options: {
-				browser: true,
-				smarttabs: true,
-				multistr: true,
-				laxbreak: true,
-				es5: true
-			},
-			globals: {
-
-			}
+			jshintrc: true
 		},
 		concat: {
 			options: {
@@ -58,14 +45,14 @@ module.exports = function(grunt) {
 				src: [
 					'webdocs/js/concat-before.js',
 					'webdocs/js/xqcore-core.js',
-					'src/event/event.js',
-					'src/logger/logger.js',
-					'src/getset/getset.js',
-					'src/presenter/presenter.js',
-					'src/model/model.js',
-					'src/view/view.js',
-					'src/util/util.js',
-					'src/router/router.js',
+					'src/event/xqcore-event.js',
+					'src/logger/xqcore-logger.js',
+					'src/getset/xqcore-getset.js',
+					'src/presenter/xqcore-presenter.js',
+					'src/model/xqcore-model.js',
+					'src/view/xqcore-view.js',
+					'src/util/xqcore-util.js',
+					'src/router/xqcore-router.js',
 
 					'webdocs/js/plugins/xqcore-viewslide.js',
 					'webdocs/js/concat-after.js'
@@ -76,12 +63,12 @@ module.exports = function(grunt) {
 				src: [
 					'webdocs/js/concat-before-minimal.js',
 					'webdocs/js/xqcore-core.js',
-					'webdocs/js/xqcore-event.js',
-					'webdocs/js/xqcore-logger.js',
-					'webdocs/js/xqcore-getset.js',
+					'src/event/xqcore-event.js',
+					'src/logger/xqcore-logger.js',
+					'src/getset/xqcore-getset.js',
 					'webdocs/js/concat-after.js'
 				],
-				dest: 'webdocs/build/xqcore-minimal.js'
+				dest: 'build/xqcore-minimal.js'
 			}
 		},
 		uglify: {
@@ -90,12 +77,12 @@ module.exports = function(grunt) {
 			},
 			build: {
 				files: {
-					'webdocs/build/xqcore.min.js': ['webdocs/build/xqcore.js']
+					'build/xqcore.min.js': ['build/xqcore.js']
 				}
 			},
 			minimal: {
 				files: {
-					'webdocs/build/xqcore-minimal.min.js': ['webdocs/build/xqcore-minimal.js']
+					'build/xqcore-minimal.min.js': ['build/xqcore-minimal.js']
 				}
 			}
 		},
@@ -106,7 +93,7 @@ module.exports = function(grunt) {
 			akonda: {
 				files: [
 					{
-						src: ['webdocs/build/xqcore.js'],
+						src: ['build/xqcore.js'],
 						dest: '../akonda/components/xqcore/xqcore.js'
 					}
 				]
@@ -114,7 +101,7 @@ module.exports = function(grunt) {
 			'xqtools': {
 				files: [
 					{
-						src: ['webdocs/build/xqcore-minimal.js'],
+						src: ['build/xqcore-minimal.js'],
 						dest: '../xqtools/webdocs/ext/xqcore-minimal.js'
 					}
 				]
@@ -164,7 +151,6 @@ module.exports = function(grunt) {
 		'clean:build',
 		'concat:build',
 		'concat:minimal',
-		'jshint:afterconcat',
 		'uglify',
 		'copy:akonda',
 		'copy:xqtools',

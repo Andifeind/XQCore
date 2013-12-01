@@ -1,3 +1,4 @@
+/*global $:false */
 /**
  * XQCore View module
  *
@@ -5,6 +6,7 @@
  * @returns {object} Returns a XQCore.View prototype object
  */
 XQCore.View = (function(undefined) {
+	'use strict';
 
 	/**
 	 * XQCore.View
@@ -43,7 +45,7 @@ XQCore.View = (function(undefined) {
 		this.conf = conf;
 		delete conf.init;
 
-		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
+		XQCore.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'View';
 
 		this.debug = Boolean(conf.debug);
@@ -262,10 +264,6 @@ XQCore.View = (function(undefined) {
 
 		var selector = $(this.subSelector, this.container),
 			html;
-
-		if (options) {
-			//TODO handle transition options
-		}
 
 		switch (action) {
 			case 'append':

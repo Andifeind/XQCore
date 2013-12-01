@@ -1,4 +1,7 @@
+/*global $:false */
 describe('XQCore View', function() {
+	'use strict';
+
 	var viewContainer;
 
 	beforeEach(function() {
@@ -136,6 +139,7 @@ describe('XQCore View', function() {
 		});
 
 		testView = new XQCore.View(testPresenter, {
+			//jshint multistr:true
 			name: 'test',
 			container: viewContainer,
 			template: '<ul>\
@@ -279,6 +283,7 @@ describe('XQCore View', function() {
 	});
 
 	it('Should gets the data of an element', function() {
+		//jshint multistr:true
 		$('#test').html('<ul>\
 			<li data-id="123" data-bla="blub">Example</li>\
 			<li data-id="124" data-bla="blub blub">Example II</li>\

@@ -2,5 +2,9 @@
 	"project": "XQCore",
 	"browser": true,
 	"files": "build/xqcore.js",
-	"tests": "src/**/*.spec.js"
+	"watch": "src/**/*.js",
+	"tests": "src/**/*.spec.js",
+	"grunt": {
+		"task": "concat:build"
+	}
 }

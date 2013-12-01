@@ -4,6 +4,7 @@
  * @module XQCore Presenter
  */
 XQCore.Presenter = (function(undefined) {
+	'use strict';
 
 	/**
 	 * XQCore.Presenter base class
@@ -17,8 +18,6 @@ XQCore.Presenter = (function(undefined) {
 	 * @param  {Object} conf Presenter extend object
 	 */
 	var presenter = function(conf) {
-		var self = this;
-		
 		this.root = '/';
 		this.debug = false;
 		this.routes = [];
@@ -29,7 +28,7 @@ XQCore.Presenter = (function(undefined) {
 		this.conf = conf;
 		delete conf.init;
 
-		$.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
+		XQCore.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
 		this.name = (conf.name || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
 
@@ -41,6 +40,7 @@ XQCore.Presenter = (function(undefined) {
 		this.lastShownView = null;
 
 		this.registeredViews = [];
+		this.registeredModels = [];
 		this.fireViewInit = function(view) {
 			var allReady = true;
 			this.registeredViews.forEach(function(item) {
@@ -73,6 +73,24 @@ XQCore.Presenter = (function(undefined) {
 			else {
 				this.registeredViews.push({
 					view: view,
+					isReady: false
+				});
+			}
+		};
+
+		this.registerModel = function(model) {
+			var i;
+			if (model instanceof Array) {
+				for (i = 0; i < model.length; i++) {
+					this.registeredModels.push({
+						model: model[i],
+						isReady: false
+					});
+				}
+			}
+			else {
+				this.registeredModels.push({
+					model: model,
 					isReady: false
 				});
 			}
@@ -154,6 +172,10 @@ XQCore.Presenter = (function(undefined) {
 		this.registeredViews.forEach(function(view) {
 			view.view.init(self);
 		});
+
+		this.registeredModels.forEach(function(model) {
+			model.model.init(self);
+		});
 	};
 
 	/**
@@ -172,10 +194,10 @@ XQCore.Presenter = (function(undefined) {
 	 * @param {String} url Page URL (Optional) defaults to the curent URL
 	 */
 	presenter.prototype.pushState = function(data, url) {
-		// this.log('Check State', data, history.state, XQCore.compare(data, history.state));
-		// if (XQCore.compare(data, history.state)) {
-		// 	this.warn('Abborting history.pushState because data are equale to current history state');
-		// }
+		/*this.log('Check State', data, history.state, XQCore.compare(data, history.state));
+		if (XQCore.compare(data, history.state)) {
+			this.warn('Abborting history.pushState because data are equale to current history state');
+		}*/
 		var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
 		url = hash + url;
 		history.pushState(data, '', url || null);
@@ -189,9 +211,9 @@ XQCore.Presenter = (function(undefined) {
 	 * @param {String} url Page URL (Optional) defaults to the current URL
 	 */
 	presenter.prototype.replaceState = function(data, url) {
-		// if (data === history.state) {
-		// 	this.warn('Abborting history.replaceState because data are equale to current history state');
-		// }
+		/*if (data === history.state) {
+			this.warn('Abborting history.replaceState because data are equale to current history state');
+		}*/
 		var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
 		url = hash + url;
 		history.replaceState(data, '', url || null);
@@ -274,7 +296,7 @@ XQCore.Presenter = (function(undefined) {
 	 * @returns {String} Returns the current value from location.hash
 	 */
 	presenter.prototype.getHash = function() {
-		return location.hash;	
+		return location.hash;
 	};
 
 	/**

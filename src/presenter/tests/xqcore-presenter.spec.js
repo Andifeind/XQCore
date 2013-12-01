@@ -1,4 +1,5 @@
 describe('XQCore Presenter', function() {
+	'use strict';
 
 	beforeEach(function() {
 
@@ -23,32 +24,12 @@ describe('XQCore Presenter', function() {
 		expect(initFunc).was.called();
 	});
 
-	xit('Should define routes', function(done) {
-		var presenter,
-			testRoute = sinon.spy();
-
-		presenter = new XQCore.Presenter({
-			debug: true,
-			name: 'test2',
-			routes: {
-				'test': 'test'
-			},
-			test: function() {
-				location.hash = '';
-				expect(this).to.be(presenter);
-				done();
-			}
-		});
-
-		location.hash = 'test';
-	});
-
-	it('Should combine a model with a view', function(done) {
+	it('Should couple a model with a view', function() {
 		var presenter = new XQCore.Presenter();
 		var model = new XQCore.Model();
 		var view = new XQCore.View();
 
-		presenter.combine({
+		presenter.couple({
 			view: view,
 			model: model
 		});

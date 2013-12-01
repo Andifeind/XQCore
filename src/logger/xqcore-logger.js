@@ -6,6 +6,7 @@
  * 
  */
 XQCore.Logger = (function(conf) {
+	'use strict';
 
 	//var timerStore = {};
 
@@ -19,18 +20,6 @@ XQCore.Logger = (function(conf) {
 		else {
 			return (Math.round(time / 60000)) + ' min ' + Math.round(time % 60000 / 1000) + ' sec';
 		}
-	}
-
-	function onScreenConsole() {
-		var conf,
-			html;
-
-		conf = localStorage.get('xqcore-onscreen-console') || {
-			pos: 'bottom'
-		};
-
-		html = '<div id="XQCoreLogger-OnScreenConsole">\
-			</div>';
 	}
 
 	/**

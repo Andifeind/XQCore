@@ -1,3 +1,4 @@
+/*jshint -W014 */
 /**
  * XQCore Router API
  *
@@ -9,7 +10,8 @@
  * Copyright Aaron Blohowiak and TJ Holowaychuk 2011.
  * https://github.com/aaronblohowiak/routes.js
  */
- XQCore.Router = (function(undefined) {
+XQCore.Router = (function(undefined) {
+	'use strict';
 
 	/**
 	 * Convert path to route object
@@ -86,11 +88,11 @@
 
 		for (var len = routes.length; i < len; ++i) {
 			var route = routes[i],
-			    re = route.re,
-			    keys = route.keys,
-			    splats = [],
-			    params = {},
-			    j;
+				re = route.re,
+				keys = route.keys,
+				splats = [],
+				params = {},
+				j;
 
 			captures = re.exec(uri);
 			if (captures) {
@@ -155,14 +157,14 @@
 	// };
 
 	var router = function(conf) {
-		conf = $.extend({
+		conf = XQCore.extend({
 			debug: false
 		}, conf);
 
 		this.debug = Boolean(conf.debug);
 
 		this.routes = [];
-	    this.routeMap = {};
+		this.routeMap = {};
 	};
 
 	router.prototype.addRoute = function(path, fn) {

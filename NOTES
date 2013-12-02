@@ -1,0 +1,22 @@
+* Model state
+model.state(<String state>)
+Setzt einen model state. Gekoppelte views können den State verarbeiten.
+Jedes model.state feuert ein state.mystate event
+
+Gekoppelt:
+presenter lauscht auf state.mystate und ruft dann in der view onStateChange auf
+
+
+
+* Leite events an die view
+Gekoppelt:
+in der view wird auf ein event gelauscht.
+events: {
+	'submit #myform': 'createItem'
+}
+
+sofern createItem im presenter nicht existiert leite an model weiter und rufe dort createItem als funktion auf. Übergeben wird nur data.
+
+model.createItem = function(data) {
+	
+}

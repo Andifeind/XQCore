@@ -2,19 +2,12 @@
     "project": {
         "name": "xqcore",
         "description": "Model View Presenter Javascript Framework",
-        "version": "0.4.17",
+        "version": "0.4.18",
         "url": ""
     },
     "files": {
         "webdocs/js/xqcore-core.js": {
             "name": "webdocs/js/xqcore-core.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        },
-        "webdocs/js/xqcore-util.js": {
-            "name": "webdocs/js/xqcore-util.js",
             "modules": {},
             "classes": {},
             "fors": {},
@@ -31,108 +24,6 @@
             "package": "XQcore",
             "type": "{Object}",
             "class": ""
-        },
-        {
-            "file": "webdocs/js/xqcore-util.js",
-            "line": 1,
-            "description": "A bunch of helpfull functions",
-            "return": {
-                "description": "Returns a singelton object instance of XQCore.Util",
-                "type": "Object"
-            },
-            "class": ""
-        },
-        {
-            "file": "webdocs/js/xqcore-util.js",
-            "line": 13,
-            "description": "Serialize a form and return its values as JSON",
-            "params": [
-                {
-                    "name": "Form",
-                    "description": "selector",
-                    "type": "Object"
-                }
-            ],
-            "return": {
-                "description": "FormData as JSON",
-                "type": "Object"
-            },
-            "class": ""
-        },
-        {
-            "file": "webdocs/js/xqcore-util.js",
-            "line": 41,
-            "description": "Check length of a string or number",
-            "params": [
-                {
-                    "name": "input",
-                    "description": "this will be checked",
-                    "type": "String or Number"
-                },
-                {
-                    "name": "min",
-                    "description": "String can't be shorter than n, Number can't be lower than n",
-                    "type": "Number"
-                },
-                {
-                    "name": "max",
-                    "description": "String can't be longer than n, Number can't be greater than n",
-                    "type": "Number"
-                }
-            ],
-            "return": {
-                "description": "errorMessage on invalid or void on valid",
-                "type": "String"
-            },
-            "class": ""
-        },
-        {
-            "file": "webdocs/js/xqcore-util.js",
-            "line": 70,
-            "description": "Checks the equality of two strings",
-            "params": [
-                {
-                    "name": "str1",
-                    "description": "First string",
-                    "type": "String"
-                },
-                {
-                    "name": "str2",
-                    "description": "Second string",
-                    "type": "String"
-                }
-            ],
-            "return": {
-                "description": "errorMessage on invalid or void on valid",
-                "type": "String"
-            },
-            "class": ""
-        },
-        {
-            "file": "webdocs/js/xqcore-util.js",
-            "line": 84,
-            "description": "Checks the validity of an email address",
-            "params": [
-                {
-                    "name": "email",
-                    "description": "e-Mail address",
-                    "type": "String"
-                }
-            ],
-            "class": ""
-        },
-        {
-            "file": "webdocs/js/xqcore-util.js",
-            "line": 95,
-            "description": "Checks the validity of an url",
-            "params": [
-                {
-                    "name": "url",
-                    "description": "URL",
-                    "type": "String"
-                }
-            ],
-            "class": ""
         }
     ],
     "warnings": [
@@ -141,40 +32,8 @@
             "line": " webdocs/js/xqcore-core.js:4"
         },
         {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " webdocs/js/xqcore-util.js:41"
-        },
-        {
-            "message": "replacing incorrect tag: returns with return",
-            "line": " webdocs/js/xqcore-util.js:70"
-        },
-        {
             "message": "Missing item type\nXQCore main object",
             "line": " webdocs/js/xqcore-core.js:4"
-        },
-        {
-            "message": "Missing item type\nA bunch of helpfull functions",
-            "line": " webdocs/js/xqcore-util.js:1"
-        },
-        {
-            "message": "Missing item type\nSerialize a form and return its values as JSON",
-            "line": " webdocs/js/xqcore-util.js:13"
-        },
-        {
-            "message": "Missing item type\nCheck length of a string or number",
-            "line": " webdocs/js/xqcore-util.js:41"
-        },
-        {
-            "message": "Missing item type\nChecks the equality of two strings",
-            "line": " webdocs/js/xqcore-util.js:70"
-        },
-        {
-            "message": "Missing item type\nChecks the validity of an email address",
-            "line": " webdocs/js/xqcore-util.js:84"
-        },
-        {
-            "message": "Missing item type\nChecks the validity of an url",
-            "line": " webdocs/js/xqcore-util.js:95"
         }
     ]
 }

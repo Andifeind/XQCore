@@ -1,9 +1,11 @@
+/*global jQuery:false */
 /**
  * A bunch of helpfull functions
  *
  * @return {Object} Returns a singelton object instance of XQCore.Util
  */
 XQCore.Util = (function($) {
+	'use strict';
 
 	var util = {
 		name: 'XQCore.Util',
@@ -20,10 +22,7 @@ XQCore.Util = (function($) {
 		var formData = {},
 			formSelector = $(selector);
 
-		if (formSelector.get(0).tagName === 'INPUT') {
-
-		}
-		else {
+		if (formSelector.get(0).tagName !== 'INPUT') {
 			formSelector = formSelector.find(':input');
 		}
 
@@ -103,41 +102,6 @@ XQCore.Util = (function($) {
 			return 'invalid-url';
 		}
 	};
-
-	// /**
-	//  * Compares to objects
-	//  *
-	//  * @param  {Object} a          object a
-	//  * @param  {Object} b          object b
-	//  *
-	//  * @return {Boolean}           Returns true if object a equals to object b
-	//  */
-	// util.compare = function (a, b) {
-	        
-	// 	/*
-	// 	    Original script title: "Object.identical.js"; version 1.12
-	// 	    Copyright (c) 2011, Chris O'Brien, prettycode.org
-	// 	    http://github.com/prettycode/Object.identical.js
-	// 	*/
-	
-	//     function sort(object) {
-	//         if (Array.isArray(object)) {
-	//             return object.sort();
-	//         }
-	//         else if (typeof object !== "object" || object === null) {
-	//             return object;
-	//         }
-
-	//         return Object.keys(object).sort().map(function(key) {
-	//             return {
-	//                 key: key,
-	//                 value: sort(object[key])
-	//             };
-	//         });
-	//     }
-	    
-	//     return JSON.stringify(sort(a)) === JSON.stringify(sort(b));
-	// };
 
 	return util;
 

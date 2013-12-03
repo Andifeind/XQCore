@@ -371,4 +371,32 @@ describe('XQCore View', function() {
 
 	});
 
+	it('Should call a validationVailed function in a coupled view', function() {
+		var validationCb = sinon.spy();
+		
+		var presenter = new XQCore.Presenter();
+		var model = new XQCore.Model({
+			name: { type: 'Object' }
+		});
+		var view = new XQCore.View({
+			validationVailed: validationCb
+		});
+
+		presenter.couple({
+			model: model,
+			view: view
+		});
+
+		model.set({
+			name: 'DrTest'
+		});
+
+		expect(validationCb).was.called();
+		expect(validationCb).was.calledWith({
+			errCode: 110,
+			msg:''
+		});
+
+	});
+
 });

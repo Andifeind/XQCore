@@ -62,12 +62,6 @@ XQCore.View = (function(undefined) {
 		var self = this,
 			conf = this.conf;
 
-		//If old style
-		if (!presenter) {
-			presenter = this.presenter;
-			presenter.registerView(this);
-		}
-
 		//Register view at presenter
 		this.presenter = presenter;
 
@@ -350,7 +344,22 @@ XQCore.View = (function(undefined) {
 	 * @param {Object} data Event data
 	 */
 	view.prototype.triggerEvent = function(eventName, e, tag, data) {
-		this.presenter.events[eventName].call(this.presenter, e, tag, data);
+		if (this.presenter.events[eventName]) {
+			this.presenter.events[eventName].call(this.presenter, e, tag, data);
+		}
+		else {
+			if (this.__coupledWith) {
+				this.__coupledWith.forEach(function(m) {
+					if (typeof m[eventName] === 'function') {
+						this.log('Autotrigger to model:', eventName, data);
+						m[eventName](data);
+					}
+					else {
+						this.warn('Autotrigger to model failed! Function doesn\'t exists:', eventName, data);
+					}
+				});
+			}
+		}
 	};
 
 	/**
@@ -364,6 +373,16 @@ XQCore.View = (function(undefined) {
 	 */
 	view.prototype.navigateTo = function(route, data, replace) {
 		this.presenter.navigateTo(route, data, replace);
+	};
+
+	/**
+	 * If a validation failed (Automaticly called in a coupled view)
+	 *
+	 * @method validationFailed
+	 * @param {Object} err Validation error object
+	 */
+	view.prototype.validationFailed = function(err) {
+		
 	};
 
 	/**

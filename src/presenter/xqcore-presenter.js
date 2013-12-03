@@ -336,11 +336,62 @@ XQCore.Presenter = (function(undefined) {
 			return;
 		}
 
+		this.log('Couple view ', view.name, 'with model', model.name);
+
+		if (!view.__coupledWith) {
+			view.__coupledWith = [];
+		}
+
+		if (!model.__coupledWith) {
+			model.__coupledWith = [];
+		}
+
+		if (!view.__coupledWith.some(function(m) { return (m === model) })) {
+			view.__coupledWith.push(model);
+		}
+		
+		if (!model.__coupledWith.some(function(v) { return (v === view) })) {
+			model.__coupledWith.push(view);
+		}
+
+		model.on('validation.error', function(err) {
+			model.__coupledWith.forEach(function(v) {
+				v.validationFailed(err);
+			});
+		});
+
 		model.on('data.change', function(data) {
-			view.render(data);
+			model.__coupledWith.forEach(function(v) {
+				v.render(data);
+			});
 		});
 
 		return this;
+	};
+
+	/**
+	 * Triggers a view event to the presenter
+	 *
+	 * @method triggerEvent
+	 *
+	 * @param {String} eventName Event of the triggered event
+	 * @param {Object} e EventObject
+	 * @param {Object} tag Tag data
+	 * @param {Object} data Event data
+	 */
+	presenter.prototype.triggerEvent = function(v, eventName, e, tag, data) {
+		if (this.events[eventName]) {
+			this.events[eventName].call(this.presenter, e, tag, data);
+		}
+		else {
+			if (typeof model[eventName] === 'function') {
+				this.log('Autotrigger to model:', eventName, data);
+				model[eventName](data);
+			}
+			else {
+				this.warn('Autotrigger to model failed! Function doesn\'t exists:', eventName, data);
+			}
+		}
 	};
 
 

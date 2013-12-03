@@ -346,11 +346,11 @@ XQCore.Presenter = (function(undefined) {
 			model.__coupledWith = [];
 		}
 
-		if (!view.__coupledWith.some(function(m) { return (m === model) })) {
+		if (!view.__coupledWith.some(function(m) { return (m === model); })) {
 			view.__coupledWith.push(model);
 		}
 		
-		if (!model.__coupledWith.some(function(v) { return (v === view) })) {
+		if (!model.__coupledWith.some(function(v) { return (v === view); })) {
 			model.__coupledWith.push(view);
 		}
 
@@ -381,16 +381,20 @@ XQCore.Presenter = (function(undefined) {
 	 */
 	presenter.prototype.triggerEvent = function(v, eventName, e, tag, data) {
 		if (this.events[eventName]) {
-			this.events[eventName].call(this.presenter, e, tag, data);
+			this.events[eventName].call(this, e, tag, data);
 		}
 		else {
-			if (typeof model[eventName] === 'function') {
-				this.log('Autotrigger to model:', eventName, data);
-				model[eventName](data);
-			}
-			else {
-				this.warn('Autotrigger to model failed! Function doesn\'t exists:', eventName, data);
-			}
+			e.preventDefault();
+			e.stopPropagation();
+			v.__coupledWith.forEach(function(m) {
+				if (typeof m[eventName] === 'function') {
+					this.log('Autotrigger to model ', m.name, ' - ', eventName, data);
+					m[eventName](data);
+				}
+				else {
+					this.warn('Autotrigger to model failed! Function doesn\'t exists:', eventName, data);
+				}
+			});
 		}
 	};
 

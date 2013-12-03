@@ -114,12 +114,16 @@ XQCore.View = (function(undefined) {
 							eventFunc = this[eventFunc.substr(5)];
 							eventDest = this;
 						}
-						else {
+						else if (typeof this.presenter.events[this.events[key]] === 'function') {
 							eventFunc = this.presenter.events[this.events[key]];
-							if (typeof eventFunc === 'string') {
-								eventFunc = this.presenter[this.events[key]];
-							}
 							eventDest = this.presenter;
+						}
+						else {
+							var eventFuncStr = eventFunc;
+							eventFunc = function(e, tag, data) {
+								this.triggerEvent(eventFuncStr, e, tag, data);
+							}.bind(this);
+							eventDest = this;
 						}
 
 						if (eventFunc && eventName) {
@@ -142,7 +146,7 @@ XQCore.View = (function(undefined) {
 									});
 
 									eventFunc.call(eventDest, e, tagData, formData);
-								});
+								}.bind(this));
 								this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
 							}
 							else {
@@ -348,6 +352,8 @@ XQCore.View = (function(undefined) {
 			this.presenter.events[eventName].call(this.presenter, e, tag, data);
 		}
 		else {
+			e.preventDefault();
+			e.stopPropagation();
 			if (this.__coupledWith) {
 				this.__coupledWith.forEach(function(m) {
 					if (typeof m[eventName] === 'function') {
@@ -357,7 +363,7 @@ XQCore.View = (function(undefined) {
 					else {
 						this.warn('Autotrigger to model failed! Function doesn\'t exists:', eventName, data);
 					}
-				});
+				}.bind(this));
 			}
 		}
 	};

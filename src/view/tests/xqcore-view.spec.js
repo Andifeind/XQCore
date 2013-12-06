@@ -12,7 +12,7 @@ describe('XQCore View', function() {
 		viewContainer.remove();
 	});
 
-	it('Should initialize a view', function() {
+	xit('Should initialize a view', function() {
 		var presenter,
 			view,
 			initFunc = sinon.spy();
@@ -22,7 +22,7 @@ describe('XQCore View', function() {
 		});
 
 		view = new XQCore.View({
-			debug: true,
+			debug: false,
 			name: 'test1',
 			init: initFunc,
 			container: viewContainer
@@ -35,7 +35,7 @@ describe('XQCore View', function() {
 		expect(initFunc).was.called();
 	});
 
-	it('Should render a view', function() {
+	xit('Should render a view', function() {
 		var presenter,
 			view,
 			initFunc = sinon.spy();
@@ -45,7 +45,7 @@ describe('XQCore View', function() {
 		});
 
 		view = new XQCore.View({
-			debug: true,
+			debug: false,
 			name: 'test1',
 			init: initFunc,
 			container: viewContainer,
@@ -78,7 +78,7 @@ describe('XQCore View', function() {
 		});
 
 		view = new XQCore.View({
-			debug: true,
+			debug: false,
 			name: 'test1',
 			container: viewContainer,
 			events: {
@@ -99,7 +99,7 @@ describe('XQCore View', function() {
 		expect(testSpy2).was.called();
 	});
 
-	it('Should initialize a view and call presenter.viewInit', function() {
+	xit('Should initialize a view and call presenter.viewInit', function() {
 		var presenter,
 			view,
 			initFunc = sinon.spy();
@@ -118,7 +118,7 @@ describe('XQCore View', function() {
 		expect(initFunc).was.called();
 	});
 
-	it('Should render a view triggered by presenter.viewInit()', function() {
+	xit('Should render a view triggered by presenter.viewInit()', function() {
 		var testPresenter,
 			testView;
 
@@ -196,7 +196,7 @@ describe('XQCore View', function() {
 		expect(log).was.calledWith('You must set the itemTemplate option');
 	});
 
-	it('Should add a html fragment to an existing html node', function() {
+	xit('Should add a html fragment to an existing html node', function() {
 		var presenter = new XQCore.Presenter({
 		});
 
@@ -239,7 +239,7 @@ describe('XQCore View', function() {
 		$expect('#test > span:eq(4)').to.contain('eee');
 	});
 
-	it('Should prepend a html fragment to an existing html node', function() {
+	xit('Should prepend a html fragment to an existing html node', function() {
 		var presenter = new XQCore.Presenter({
 		});
 
@@ -371,7 +371,7 @@ describe('XQCore View', function() {
 
 	});
 
-	it('Should call a validationVailed function in a coupled view', function() {
+	xit('Should call a validationVailed function in a coupled view', function() {
 		var validationCb = sinon.spy();
 		
 		var presenter = new XQCore.Presenter();

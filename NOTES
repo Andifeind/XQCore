@@ -3,6 +3,16 @@ model.state(<String state>)
 Setzt einen model state. Gekoppelte views können den State verarbeiten.
 Jedes model.state feuert ein state.mystate event
 
+States:
+ - starting		Default state
+ - ready		State after init was done
+ - syncing		On sending a request
+ - progress		On doing a long job
+ - success		On server result or long job was success
+ - invalid		On validation failed
+ - failed		On request to server or long job failed
+
+
 Gekoppelt:
 presenter lauscht auf state.mystate und ruft dann in der view onStateChange auf
 

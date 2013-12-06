@@ -1,4 +1,5 @@
-XQCore.Cache = (function(undefined) {
+(function(XQCore, undefined) {
+	'use strict';
 
 	var Cache = function(conf) {
 		this.name = '';
@@ -23,14 +24,12 @@ XQCore.Cache = (function(undefined) {
 	/**
 	 * Add data to cache
 	 *
-	 * @param {String} key  Data key, if is an object, it will be serialized
+	 * @param {String} key  Data key
 	 * @param {Any} data Chache data
 	 */
-	Cache.prototype.set = function(key, data) {
-		if (typeof key === 'object') {
-			key = $.serialize(key);
-		}
-
+	Cache.prototype.set = function(key, data, options) {
+		options = options || {};
+		
 		var expiry = this.getExpiry(options.expiry);
 
 		data = {
@@ -42,6 +41,6 @@ XQCore.Cache = (function(undefined) {
 		this.__cache.setItem(key, data);
 	};
 
-	return Cache;
+	XQCore.Cache = Cache;
 
-})();
+})(this.XQCore);

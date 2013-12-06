@@ -8,14 +8,17 @@ describe('XQCore Model', function() {
 
 	});
 
-	it('Should create and initialize a XQCore Model', function() {
+	xit('Should create and initialize a XQCore Model', function() {
 		var initFunc = sinon.spy();
-		var testModel = new XQCore.Model();
+		var testModel;
 		testModel = new XQCore.Model({
 			init: initFunc
 		});
 
-		expect(initFunc.called).to.be(true);
+		var presenter = new XQCore.Presenter();
+		presenter.registerModel(testModel);
+
+		expect(initFunc).was.called();
 	});
 
 	it('Should set and get properties to the model', function() {

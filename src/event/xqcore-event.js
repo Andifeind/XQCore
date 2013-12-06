@@ -5,7 +5,7 @@
  * http://git.io/ee
  *
  */
-XQCore.Event = (function() {
+(function(XQCore, undefined) {
 	'use strict';
 
 	//EventEmitter.js
@@ -457,4 +457,4 @@ XQCore.Event = (function() {
 
 	return EventEmitter;
 
-})();
+})(this.XQCore);

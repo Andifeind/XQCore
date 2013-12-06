@@ -5,8 +5,10 @@
  * @module XQCore.View
  * @returns {object} Returns a XQCore.View prototype object
  */
-XQCore.View = (function(undefined) {
+(function(XQCore, undefined) {
 	'use strict';
+
+	var Handlebars = XQCore.require('handlebars');
 
 	/**
 	 * XQCore.View
@@ -15,7 +17,7 @@ XQCore.View = (function(undefined) {
 	 * @class XQCore.View
 	 * @param {object} conf View configuration
 	 */
-	var view = function(conf) {
+	var View = function(conf) {
 
 		/**
 		 * Determines wether the view is hidden after rendering
@@ -58,7 +60,7 @@ XQCore.View = (function(undefined) {
 	 *
 	 * @param  {Object} presenter Views presenter object
 	 */
-	view.prototype.init = function(presenter) {
+	View.prototype.init = function(presenter) {
 		var self = this,
 			conf = this.conf;
 
@@ -173,11 +175,11 @@ XQCore.View = (function(undefined) {
 		}.bind(this));
 	};
 
-	view.prototype.show = function() {
+	View.prototype.show = function() {
 		this.$el.show();
 	};
 
-	view.prototype.hide = function() {
+	View.prototype.hide = function() {
 		this.$el.hide();
 	};
 
@@ -190,7 +192,7 @@ XQCore.View = (function(undefined) {
 	 * @param  {Object} data Render data
 	 *
 	 */
-	view.prototype.render = function(data) {
+	View.prototype.render = function(data) {
 		this.log('Render view template', this.template, 'with data:', data);
 		var template = typeof this.template === 'function' ? this.template : Handlebars.compile(this.template);
 		this.$el.html(template(data || {}));
@@ -198,13 +200,13 @@ XQCore.View = (function(undefined) {
 		this.emit('content.change', data);
 	};
 
-	view.prototype.renderHTML = function(template, data) {
+	View.prototype.renderHTML = function(template, data) {
 		this.log('Render view html snipet', template, 'with data:', data);
 		template = typeof template === 'function' ? template : Handlebars.compile(template);
 		return template(data);
 	};
 
-	view.prototype.resize = function() {
+	View.prototype.resize = function() {
 
 	};
 
@@ -216,7 +218,7 @@ XQCore.View = (function(undefined) {
 	 * @param {Object} data item data
 	 * @param {Object} options Appending options (not implemented yet)
 	 */
-	view.prototype.append = function(data, options) {
+	View.prototype.append = function(data, options) {
 		this.manipulate('append', data, options);
 	};
 
@@ -227,7 +229,7 @@ XQCore.View = (function(undefined) {
 	 * @param {Object} data item data
 	 * @param {Object} options Prepending options (not implemented yet)
 	 */
-	view.prototype.prepend = function(data, options) {
+	View.prototype.prepend = function(data, options) {
 		this.manipulate('prepend', data, options);
 	};
 
@@ -236,7 +238,7 @@ XQCore.View = (function(undefined) {
 	 *
 	 * @param {Number} index Remove item <index> from a node list
 	 */
-	view.prototype.remove = function(index) {
+	View.prototype.remove = function(index) {
 		this.manipulate('remove', index);
 	};
 
@@ -249,7 +251,7 @@ XQCore.View = (function(undefined) {
 	 *
 	 * @return {[type]}         [description]
 	 */
-	view.prototype.manipulate = function(action, data, options) {
+	View.prototype.manipulate = function(action, data, options) {
 		if (this.subSelector === undefined) {
 			this.warn('You must set the subSelector option');
 			return false;
@@ -288,7 +290,7 @@ XQCore.View = (function(undefined) {
 	 *
 	 * @return {Object} Returns the data of an element or null
 	 */
-	view.prototype.getElementData = function(selector) {
+	View.prototype.getElementData = function(selector) {
 		var el = $(selector, this.container);
 		if (el.length) {
 			var data = {},
@@ -347,7 +349,7 @@ XQCore.View = (function(undefined) {
 	 * @param {Object} tag Tag data
 	 * @param {Object} data Event data
 	 */
-	view.prototype.triggerEvent = function(eventName, e, tag, data) {
+	View.prototype.triggerEvent = function(eventName, e, tag, data) {
 		if (this.presenter.events[eventName]) {
 			this.presenter.events[eventName].call(this.presenter, e, tag, data);
 		}
@@ -377,7 +379,7 @@ XQCore.View = (function(undefined) {
 	 * @param {Object} data Data object
 	 * @param {Boolean} replace Replace current history entry with route
 	 */
-	view.prototype.navigateTo = function(route, data, replace) {
+	View.prototype.navigateTo = function(route, data, replace) {
 		this.presenter.navigateTo(route, data, replace);
 	};
 
@@ -387,7 +389,7 @@ XQCore.View = (function(undefined) {
 	 * @method validationFailed
 	 * @param {Object} err Validation error object
 	 */
-	view.prototype.validationFailed = function(err) {
+	View.prototype.validationFailed = function(err) {
 		
 	};
 
@@ -427,5 +429,6 @@ XQCore.View = (function(undefined) {
 
 
 
-	return view;
-})();
+	XQCore.View = View;
+
+})(this.XQCore);

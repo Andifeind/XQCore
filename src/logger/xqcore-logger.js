@@ -5,7 +5,7 @@
  * 
  * 
  */
-XQCore.Logger = (function(conf) {
+(function(XQCore, undefined) {
 	'use strict';
 
 	//var timerStore = {};
@@ -118,4 +118,5 @@ XQCore.Logger = (function(conf) {
 	
 
 	return logger;
-})();
+
+})(this.XQCore);

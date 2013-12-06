@@ -1,5 +1,6 @@
-XQCore.Model = (function(window, document, $, undefined) {
-	var model;
+(function(XQCore, undefined) {
+	'use strict';
+	var Model;
 
 	var undotify = function(path, obj) {
 		if(path) {
@@ -12,11 +13,12 @@ XQCore.Model = (function(window, document, $, undefined) {
 		return obj;
 	};
 
-	model = function(conf) {
+	Model = function(conf) {
 		if (conf === undefined) {
 			conf = {};
 		}
 
+		this.__state = 'starting';
 		this.customInit = conf.init;
 		delete conf.init;
 
@@ -25,22 +27,25 @@ XQCore.Model = (function(window, document, $, undefined) {
 
 		this.conf = conf;
 
-		$.extend(this, conf, new XQCore.Logger());
-		$.extend(this, new XQCore.Event());
+		XQCore.extend(this, conf, new XQCore.Logger());
+		XQCore.extend(this, new XQCore.Event());
 		this.name = (conf.name || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
-		// this._isValid = false;
+		this._isValid = false;
 		this.properties = {};
+		this.schema = conf.schema;
 
 		//Add default values
-		if (this.defaults && !$.isEmptyObject(this.defaults)) {
+		if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
 			this.set(this.defaults);
 		}
 	};
 
-	$.extend(model.prototype, new XQCore.GetSet());
+	if (XQCore.Sync) {
+		XQCore.extend(Model.prototype, XQCore.Sync.prototype);
+	}
 
-	model.prototype.init = function() {
+	Model.prototype.init = function() {
 
 		if (this.debug) {
 			XQCore._dump[this.name] = this;
@@ -50,195 +55,539 @@ XQCore.Model = (function(window, document, $, undefined) {
 		if (typeof this.customInit === 'function') {
 			this.customInit.call(this);
 		}
+
+		this.state('ready');
 	};
 
 	/**
-	 * Called on before sending an ajax request
-	 * You can use this function to manipulate all data they be send to the server
+	 * Change the model state
 	 *
-	 * @param {Object} data The data to send to the server
-	 * @return {Object} data
+	 * @method state
+	 * @param {String} state New state
 	 */
-	model.prototype.onSend = function(data) {
+	Model.prototype.state = function(state) {
+		this.__state = state;
+		this.emit('state.' + state);
+	};
+
+	/**
+	 * Get the current model state
+	 *
+	 * @method getState
+	 */
+	Model.prototype.getState = function() {
+		return this.__state;
+	};
+
+	/**
+	 * Set model data
+	 *
+	 * Triggers a data.change event if data was set succesfully
+	 *
+	 * @method set
+	 * @param {Object} data
+	 */
+	
+	/**
+	 * Set model data
+	 *
+	 * Triggers these events if data was set succesfully<br>
+	 * data.change<br>
+	 * &lt;key&gt;.change
+	 *
+	 * @method set
+	 * @param {String} key
+	 * @param {Object} value Data value
+	 */
+	Model.prototype.set = function() {
+		var newData = {},
+			oldData = this.get(),
+			validateResult,
+			key;
+
+		if (arguments[0] === null) {
+			newData = arguments[1];
+			this.log('Set data', newData, oldData);
+		}
+		else if (typeof arguments[0] === 'object') {
+			//Add a dataset
+			newData = arguments[0];
+			this.log('Set data', newData, oldData);
+		}
+		else if (typeof arguments[0] === 'string') {
+			newData = this.get();
+			key = arguments[0];
+			var val = arguments[1];
+
+			newData[key] = val;
+			this.log('Set data', newData, oldData);
+		}
+		else {
+			this.warn('Data are incorrect in model.set()', arguments);
+		}
+
+		if (this.schema) {
+			validateResult = this.validate(newData);
+			if (validateResult !== null) {
+				this.warn('Validate error in model.set', validateResult);
+				this.emit('validation.error', validateResult);
+				return false;
+			}
+		}
+
+		if (this.customValidate) {
+			validateResult = this.customValidate(newData);
+			if (validateResult !== null) {
+				this.warn('Validate error in model.set', validateResult);
+				this.emit('validation.error', validateResult);
+				return false;
+			}
+		}
+
+		this.properties = newData;
+		this.emit('data.change', newData, oldData);
+
+		if (key) {
+			this.emit('change.' + key, newData[key]);
+		}
+
+		return true;
+	};
+
+	/**
+	 * Get one or all properties from a dataset
+	 *
+	 * @param  {String} key Data key
+	 *
+	 * @return {Object}     model dataset
+	 */
+	Model.prototype.get = function(key) {
+		if (key === undefined) {
+			return this.properties;
+		}
+		else {
+			return this.properties[key];
+		}
+	};
+
+	/**
+	 * Check wether model has a dataset
+	 *
+	 * @param {String} key Dataset key
+	 * @return {Boolean} Returns true if model has a dataset with key
+	 */
+	Model.prototype.has = function(key) {
+		return !!this.properties[key];
+	};
+
+	/**
+	 * Remove all data from model
+	 */
+	Model.prototype.reset = function() {
+		this.log('Reset model');
+		this.properties = {};
+		this.removeAllListener();
+	};
+
+	/**
+	 * Append data to a subset
+	 *
+	 * @param {String} path path to subset
+	 * @param {Object} data data to add
+	 */
+	Model.prototype.append = function(path, data) {
+		if (arguments.length === 1) {
+			data = path;
+			path = null;
+		}
+
+		var dataset = this.properties,
+			oldDataset = this.get(),
+			trigger = true;
+
+		if (path) {
+			path.split('.').forEach(function(key) {
+				dataset = dataset[key];
+			});
+		}
+
+		if (dataset instanceof Array) {
+			dataset.push(data);
+		}
+		else {
+			if (path === null) {
+				this.properties = [data];
+				dataset = this.get();
+			}
+			else {
+				this.warn('Model.append requires an array. Dataset isn\'t an array', path);
+			}
+		}
+
+		if (trigger) {
+			this.emit('data.change', dataset, oldDataset);
+		}
+
 		return data;
 	};
 
 	/**
-	 * Send an ajax request to the webserver.
+	 * Prepend data to a subset
 	 *
-	 * You must set the server URI first with model.server = 'http://example.com/post'
-	 *
-	 * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
-	 * @param {String} url Server URL (optional, then model.server must be set)
-	 * @param {Object} data The data to sent to the server
-	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
+	 * @param {String} path path to subset
+	 * @param {Object} data data to add
 	 */
-	model.prototype.send = function(method, url, data, callback) {
-
-		if (typeof url === 'object') {
-			callback = data;
-			data = url;
-			url = this.server;
-			method = method;
-		}
-		else if (typeof data === 'function') {
-			callback = data;
-			data = this.get();
-		}
-		else if (data === undefined) {
-			data = this.get();
+	Model.prototype.prepend = function(path, data) {
+		if (arguments.length === 1) {
+			data = path;
+			path = null;
 		}
 
-		if (method === undefined) {
-			method = 'POST';
+		var dataset = this.properties,
+			oldDataset = this.get(),
+			trigger = true;
+
+		if (path) {
+			path.split('.').forEach(function(key) {
+				dataset = dataset[key];
+			});
 		}
 
-		if (!url) {
-			url = this.server;
-		}
-
-		//Handle onSend
-		if (typeof this.onSend === 'function') {
-			data = this.onSend.call(this, data);
-		}
-
-		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
-
-		$.ajax({
-			url: url,
-			type: method,
-			data: data,
-			dataType: 'json',
-			success: function(data, status, jqXHR) {
-				if (typeof callback === 'function') {
-					callback.call(this, null, data, status, jqXHR);
-				}
-			}.bind(this),
-			error: function(jqXHR, status, error) {
-				if (typeof callback === 'function') {
-					callback.call(this, {
-						type: status,
-						http: error
-					}, null, status, jqXHR);
-				}
-			}.bind(this)
-		});
-	};
-
-	/**
-	 * Sends a POST to the Datastore
-	 *
-	 * @param {String} url Server URL (optional, then model.server must be set)
-	 * @param  {Object}   data     Dato to sending
-	 * @param  {Function} callback Calling on response
-	 *
-	 * callback: void function(err, data, status, jqXHR)
-	 *
-	 */
-	model.prototype.sendPOST = function(url, data, callback) {
-		this.send('POST', url, data, callback);
-	};
-
-	/**
-	 * Sends a GET to the Datastore
-	 *
-	 * @param {String} url Server URL (optional, then model.server must be set)
-	 * @param  {Object}   data     Dato to sending
-	 * @param  {Function} callback Calling on response
-	 *
-	 * callback: void function(err, data, status, jqXHR)
-	 *
-	 */
-	model.prototype.sendGET = function(url, data, callback) {
-		this.send('GET', url, data, callback);
-	};
-
-	/**
-	 * Sends a PUT to the Datastore
-	 *
-	 * @param {String} url Server URL (optional, then model.server must be set)
-	 * @param  {Object}   data     Dato to sending
-	 * @param  {Function} callback Calling on response
-	 *
-	 * callback: void function(err, data, status, jqXHR)
-	 *
-	 */
-	model.prototype.sendPUT = function(url, data, callback) {
-		this.send('PUT', url, data, callback);
-	};
-
-	/**
-	 * Sends a DELETE to the Datastore
-	 *
-	 * @param {String} url Server URL (optional, then model.server must be set)
-	 * @param  {Object}   data     Dato to sending
-	 * @param  {Function} callback Calling on response
-	 *
-	 * callback: void function(err, data, status, jqXHR)
-	 *
-	 */
-	model.prototype.sendDELETE = function(url, data, callback) {
-		this.send('DELETE', url, data, callback);
-	};
-
-	/**
-	 * Check if model is ready and call func or wait for ready state
-	 */
-	model.prototype.ready = function(func) {
-		if (func === true) {
-			//Call ready funcs
-			if (Array.isArray(this.__callbacksOnReady)) {
-				this.log('Trigger ready state');
-				this.__callbacksOnReady.forEach(function(func) {
-					func.call(this);
-				}.bind(this));
-			}
-
-			this.__isReady = true;
-			delete this.__callbacksOnReady;
-		}
-		else if (typeof func === 'function') {
-			if (this.__isReady === true) {
-				func();
-			}
-			else {
-				if (!this.__callbacksOnReady) {
-					this.__callbacksOnReady = [];
-				}
-				this.__callbacksOnReady.push(func);
-			}
+		if (dataset instanceof Array) {
+			dataset.unshift(data);
 		}
 		else {
-			this.warn('arg0 isn\'t a callback in model.ready()!');
+			if (path === null) {
+				this.properties = [data];
+				dataset = this.get();
+			}
+			else {
+				this.warn('Model.append requires an array. Dataset isn\'t an array', path);
+			}
+		}
+
+		if (trigger) {
+			this.emit('data.change', dataset, oldDataset);
+		}
+
+		return data;
+	};
+
+	/**
+	 * Remove a subset
+	 *
+	 * @param {String} path path to subset
+	 * @param {Number} index Index of the subsut to remove
+	 *
+	 * @return {Object} removed subset
+	 */
+	Model.prototype.remove = function(path, index) {
+		var dataset = this.properties,
+			data = null;
+		path.split('.').forEach(function(key) {
+			dataset = dataset[key];
+		});
+
+		if (dataset instanceof Array) {
+			data = dataset.splice(index, 1);
+			data = data[0] || null;
+		}
+		else {
+			this.warn('Model.remove() doesn\'t work with Objects in model', this.name);
+		}
+
+		return data;
+	};
+
+	/**
+	 * Search a item in models properties
+	 *
+	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
+	 * @param {Object} searchfor Searching for object
+	 * @return {Object} Returns the first matched item or null
+	 */
+	Model.prototype.search = function(path, searchfor) {
+		var parent = undotify(path, this.properties);
+
+		if (parent) {
+			for (var i = 0; i < parent.length; i++) {
+				var prop = parent[i],
+					matching;
+
+				for (var p in searchfor) {
+					if (searchfor.hasOwnProperty(p)) {
+						if (prop[p] && prop[p] === searchfor[p]) {
+							matching = true;
+						}
+						else {
+							matching = false;
+							break;
+						}
+					}
+				}
+
+				if (matching === true) {
+					return prop;
+				}
+
+			}
+		}
+
+		return null;
+	};
+
+	/**
+	 * Sort an array collection by a given attribute
+	 *
+	 * @param {String} path Path to the collection
+	 * @param {Object} sortKeys Sort by key
+	 *
+	 * sortKeys: {
+	 *   'key': 1 // Sort ascend by key,
+	 *   'second.key': -1 // Sort descand by second.key
+	 * }
+	 *
+	 * ascend, a -> z, 0 - > 9 (-1)
+	 * descend, z -> a, 9 -> 0 (1)
+	 * 
+	 */
+	Model.prototype.sortBy = function(path, sortKeys) {
+		if (arguments.length === 1) {
+			sortKeys = path;
+			path = null;
+		}
+
+		var data = undotify(path, this.properties),
+			order;
+
+		data.sort(function(a, b) {
+			order = -1;
+			for (var key in sortKeys) {
+				if (sortKeys.hasOwnProperty(key)) {
+					order = String(undotify(key, a)).localeCompare(String(undotify(key, b)));
+					if (order === 0) {
+						continue;
+					}
+					else if(sortKeys[key] === -1) {
+						order = order > 0 ? -1 : 1;
+					}
+
+					break;
+				}
+			}
+
+			return order;
+		});
+
+		this.set(path, data);
+		return data;
+	};
+
+	Model.prototype.validate = function(data, schema) {
+		var failed = [];
+			
+		schema = schema || this.schema;
+
+		if (schema) {
+			Object.keys(schema).forEach(function(key) {
+				if (typeof data[key] === 'object' && typeof schema[key].type === 'undefined') {
+					var subFailed = this.validate(XQCore.extend({}, data[key]), XQCore.extend({}, schema[key]));
+					if (Array.isArray(subFailed) && subFailed.length > 0) {
+						failed = failed.concat(subFailed);
+					}
+					return;
+				}
+				
+				var validationResult = this.validateOne(schema[key], data[key]);
+
+				if (validationResult.isValid === true) {
+					data[key] = validationResult.value;
+				}
+				else {
+					validationResult.error.property = key;
+					failed.push(validationResult.error);
+				}
+			}.bind(this));
+		}
+
+		if (failed.length === 0) {
+			this._isValid = true;
+			return null;
+		}
+		else {
+			this._isValid = false;
+			return failed;
 		}
 	};
 
 	/**
-	 * Fetch data from server
+	 * Validate one property
 	 *
-	 * @param {Object} query MongoDB query 
-	 * @param {Function} callback Callback function
+	 * ValidatorResultItemObject
+	 * {
+	 *   isValid: Boolean,
+	 *   value: Any,
+	 *   error: Object
+	 * }
+	 *
+	 * @param  {Any} schema Schema for the check
+	 * @param  {Any} value Property value
+	 *
+	 * @return {Object}       Returns a ValidatorResultItemObject
 	 */
-	model.prototype.fetch = function(query, callback) {
-		this.sendGET(query, callback);
-	};
+	Model.prototype.validateOne = function(schema, value) {
+		var failed = null,
+			schemaType = typeof schema.type === 'function' ? typeof schema.type() : schema.type.toLowerCase();
 
-	/**
-	 * Load bugs
-	 *
-	 * @param {Object} query Datastore query parameter
-	 * @param {Function} callback Callback function
-	 */
-	model.fetch = function(query) {
-		this.sendGET(query, function(err, data) {
-			if (err) {
-				console.error(err);
+		if (value === '' && schema.noEmpty === true) {
+			value = undefined;
+		}
+
+		if ((value === undefined || value === null) && schema.default) {
+			value = schema.default;
+		}
+
+		if ((value === undefined || value === null || value === '')) {
+			if (schema.required === true) {
+				failed = {
+					msg: 'Property is undefined or null, but it\'s required',
+					errCode: 10
+				};
+			}
+		}
+		else if (schemaType === 'string') {
+			if (schema.convert && typeof(value) === 'number') {
+				value = String(value);
 			}
 
-			data = this.prepare(data);
-			this.set(data);
-		}.bind(this));
+			if (schemaType !== typeof(value)) {
+				failed = {
+					msg: 'Property type is a ' + typeof(value) + ', but a string is required',
+					errCode: 11
+				};
+			}
+			else if(schema.min && schema.min > value.length) {
+				failed = {
+					msg: 'String length is too short',
+					errCode: 12
+				};
+			}
+			else if(schema.max && schema.max < value.length) {
+				failed = {
+					msg: 'String length is too long',
+					errCode: 13
+				};
+			}
+			else if(schema.match && !schema.match.test(value)) {
+				failed = {
+					msg: 'String doesn\'t match regexp',
+					errCode: 14
+				};
+			}
+
+		}
+		else if(schemaType === 'number') {
+			if (schema.convert && typeof(value) === 'string') {
+				value = parseInt(value, 10);
+			}
+
+			if (schemaType !== typeof(value)) {
+				failed = {
+					msg: 'Property type is a ' + typeof(value) + ', but a number is required',
+					errCode: 21
+				};
+			}
+			else if(schema.min && schema.min > value) {
+				failed = {
+					msg: 'Number is too low',
+					errCode: 22
+				};
+			}
+			else if(schema.max && schema.max < value) {
+				failed = {
+					msg: 'Number is too high',
+					errCode: 23
+				};
+			}
+		}
+		else if(schemaType === 'date') {
+			if (value) {
+				var date = Date.parse(value);
+				if (isNaN(date)) {
+					failed = {
+						msg: 'Property isn\'t a valid date',
+						errCode: 31
+					};
+				}
+			}
+		}
+		else if(schemaType === 'array') {
+			if (!Array.isArray(value)) {
+				failed = {
+					msg: 'Property type is a ' + typeof(value) + ', but an array is required',
+					errCode: 41
+				};
+			}
+			else if(schema.min && schema.min > value.length) {
+				failed = {
+					msg: 'Array length is ' + value.length + ' but must be greater than ' + schema.min,
+					errCode: 42
+				};
+			}
+			else if(schema.max && schema.max < value.length) {
+				failed = {
+					msg: 'Array length is ' + value.length + ' but must be lesser than ' + schema.max,
+					errCode: 43
+				};
+			}
+		}
+		else if(schemaType === 'object') {
+			if (typeof(value) !== 'object') {
+				failed = {
+					msg: 'Property isn\'t a valid object',
+					errCode: 51
+				};
+			}
+		}
+		else if(schemaType === 'objectid') {
+			if (!/^[a-zA-Z0-9]{24}$/.test(value)) {
+				failed = {
+					msg: 'Property isn\'t a valid objectId',
+					errCode: 52
+				};
+			}
+		}
+		else if(schemaType === 'boolean') {
+			if (typeof(value) !== 'boolean') {
+				failed = {
+					msg: 'Property isn\'t a valid boolean',
+					errCode: 61
+				};
+			}
+		}
+
+		if (failed === null) {
+			failed = {
+				isValid: true,
+				value: value,
+				error: null
+			};
+		}
+		else {
+			this.warn('Validation error on property', failed, 'Data:', value);
+			failed = {
+				isValid: false,
+				value: value,
+				error: failed
+			};
+		}
+
+		return failed;
 	};
 
-	return model;
-})(window, document, jQuery);
+	Model.prototype.isValid = function() {
+		return this._isValid;
+	};
+
+	XQCore.Model = Model;
+})(this.XQCore);

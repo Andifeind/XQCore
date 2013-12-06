@@ -2,38 +2,12 @@
     "project": {
         "name": "xqcore",
         "description": "Model View Presenter Javascript Framework",
-        "version": "0.4.28",
+        "version": "0.5.1",
         "url": ""
     },
-    "files": {
-        "webdocs/js/xqcore-core.js": {
-            "name": "webdocs/js/xqcore-core.js",
-            "modules": {},
-            "classes": {},
-            "fors": {},
-            "namespaces": {}
-        }
-    },
+    "files": {},
     "modules": {},
     "classes": {},
-    "classitems": [
-        {
-            "file": "webdocs/js/xqcore-core.js",
-            "line": 4,
-            "description": "XQCore main object",
-            "package": "XQcore",
-            "type": "{Object}",
-            "class": ""
-        }
-    ],
-    "warnings": [
-        {
-            "message": "unknown tag: package",
-            "line": " webdocs/js/xqcore-core.js:4"
-        },
-        {
-            "message": "Missing item type\nXQCore main object",
-            "line": " webdocs/js/xqcore-core.js:4"
-        }
-    ]
+    "classitems": [],
+    "warnings": []
 }

@@ -1,5 +1,6 @@
 describe('XQCore GetSet', function() {
 	'use strict';
+	XQCore.GetSet = XQCore.Model;
 	beforeEach(function() {
 
 	});

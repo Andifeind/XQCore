@@ -1,5 +1,5 @@
 /*!
- * XQCore Minimal - 0.4.28
+ * XQCore - 0.5.1
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,50 +9,66 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-12-03
+ * Creation Date: 2013-12-06
  */
 
+var XQCore;
+
 (function (root, factory) {
+	/*global define:false */
+	'use strict';
+
     if (typeof define === 'function' && define.amd) {
         define('xqcore', ['jquery', 'handlebars'], factory);
     } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = factory(require('jquery'), root.Handlebars);
+        module.exports = factory(require('jquery'), require('handlebars'));
     } else {
         root.XQCore = factory(root.jQuery, root.Handlebars);
     }
-}(this, function (jQuery) {
+}(this, function (jQuery, Handlebars) {
+	'use strict';
+
+	/**
+	 * XQCore main object
+	 *
+	 * @package XQcore
+	 * @type {Object}
+	 */
+	XQCore = {
+		version: '0.5.1',
+		defaultRoute: 'default',
+		html5Routes: false,
+		hashBang: '#!',
+		callerEvent: 'callerEvent'
+	};
+
+	//XQCore helper functions
+	XQCore.extend = jQuery.extend;
+	XQCore.isEmptyObject = jQuery.isEmptyObject;
+
+	XQCore._dump = {};
+	XQCore.dump = function(componentName) {
+		if (XQCore._dump[componentName]) {
+			console.log('[XQCore dump]', componentName, XQCore._dump[componentName]);
+			return XQCore._dump[componentName];
+		}
+
+		return false;
+	};
+
+	XQCore.require = function(moduleName) {
+		if (moduleName === 'jquery') {
+			return jQuery;
+		}
+		else if(moduleName === 'handlebars') {
+			return Handlebars;
+		}
+	};
+
+	return XQCore;
+}));
 
 
-/*jshint evil:true */
-/*global XQCore:true */
-
-/**
- * XQCore main object
- *
- * @package XQcore
- * @type {Object}
- */
-var XQCore = {
-	version: '0.4.28',
-	defaultRoute: 'default',
-	html5Routes: false,
-	hashBang: '#!',
-	callerEvent: 'callerEvent'
-};
-
-
-//XQCore helper functions
-XQCore.extend = jQuery.extend;
-
-XQCore._dump = {};
-XQCore.dump = function(componentName) {
-	if (XQCore._dump[componentName]) {
-		console.log('[XQCore dump]', componentName, XQCore._dump[componentName]);
-		return XQCore._dump[componentName];
-	}
-
-	return false;
-};
 /**
  * XQCore EventEmitter
  *
@@ -635,36 +651,9 @@ XQCore.Logger = (function(conf) {
 
 	return logger;
 })();
-/**
- * XQCore.GetSet
- *
- * @module XQCore.GetSet
- * @requires XQCore.Logger
- * @requires XQCore.Event
- */
-XQCore.GetSet = (function(undefined) {
+(function(XQCore, undefined) {
 	'use strict';
-
-	/**
-	 * GetSet constructor
-	 *
-	 * @constructor
-	 * @class GetSet
-	 * @param {Object} conf COnfig object
-	 */
-	var getset = function(conf) {
-		this.properties = {};
-		this._isValid = false;
-
-		if (conf) {
-			this.schema = conf.schema;
-			this.debug = Boolean(conf.debug);
-		}
-
-		this.name = 'GetSet';
-
-		XQCore.extend(this, new XQCore.Event());
-	};
+	var Model;
 
 	var undotify = function(path, obj) {
 		if(path) {
@@ -677,10 +666,74 @@ XQCore.GetSet = (function(undefined) {
 		return obj;
 	};
 
-	XQCore.extend(getset.prototype, new XQCore.Logger());
+	Model = function(conf) {
+		if (conf === undefined) {
+			conf = {};
+		}
+
+		this.__state = 'starting';
+		this.customInit = conf.init;
+		delete conf.init;
+
+		this.customValidate = conf.validate;
+		delete conf.validate;
+
+		this.conf = conf;
+
+		XQCore.extend(this, conf, new XQCore.Logger());
+		XQCore.extend(this, new XQCore.Event());
+		this.name = (conf.name || 'Nameless') + 'Model';
+		this.debug = Boolean(conf.debug);
+		this._isValid = false;
+		this.properties = {};
+		this.schema = conf.schema;
+
+		//Add default values
+		if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
+			this.set(this.defaults);
+		}
+	};
+
+	if (XQCore.Sync) {
+		XQCore.extend(Model.prototype, XQCore.Sync.prototype);
+	}
+
+	Model.prototype.init = function() {
+
+		if (this.debug) {
+			XQCore._dump[this.name] = this;
+		}
+
+		// custom init
+		if (typeof this.customInit === 'function') {
+			this.customInit.call(this);
+		}
+
+		this.state('ready');
+	};
 
 	/**
-	 * Set getset data
+	 * Change the model state
+	 *
+	 * @method state
+	 * @param {String} state New state
+	 */
+	Model.prototype.state = function(state) {
+		this.__state = state;
+		this.emit('state.' + state);
+	};
+
+	/**
+	 * Get the current model state
+	 *
+	 * @method getState
+	 */
+	Model.prototype.getState = function() {
+		return this.__state;
+	};
+
+	/**
+	 * Set model data
 	 *
 	 * Triggers a data.change event if data was set succesfully
 	 *
@@ -689,7 +742,7 @@ XQCore.GetSet = (function(undefined) {
 	 */
 	
 	/**
-	 * Set getset data
+	 * Set model data
 	 *
 	 * Triggers these events if data was set succesfully<br>
 	 * data.change<br>
@@ -699,7 +752,7 @@ XQCore.GetSet = (function(undefined) {
 	 * @param {String} key
 	 * @param {Object} value Data value
 	 */
-	getset.prototype.set = function() {
+	Model.prototype.set = function() {
 		var newData = {},
 			oldData = this.get(),
 			validateResult,
@@ -723,13 +776,13 @@ XQCore.GetSet = (function(undefined) {
 			this.log('Set data', newData, oldData);
 		}
 		else {
-			this.warn('Data are incorrect in getset.set()', arguments);
+			this.warn('Data are incorrect in model.set()', arguments);
 		}
 
 		if (this.schema) {
 			validateResult = this.validate(newData);
 			if (validateResult !== null) {
-				this.warn('Validate error in getset.set', validateResult);
+				this.warn('Validate error in model.set', validateResult);
 				this.emit('validation.error', validateResult);
 				return false;
 			}
@@ -738,7 +791,7 @@ XQCore.GetSet = (function(undefined) {
 		if (this.customValidate) {
 			validateResult = this.customValidate(newData);
 			if (validateResult !== null) {
-				this.warn('Validate error in getset.set', validateResult);
+				this.warn('Validate error in model.set', validateResult);
 				this.emit('validation.error', validateResult);
 				return false;
 			}
@@ -759,9 +812,9 @@ XQCore.GetSet = (function(undefined) {
 	 *
 	 * @param  {String} key Data key
 	 *
-	 * @return {Object}     getset dataset
+	 * @return {Object}     model dataset
 	 */
-	getset.prototype.get = function(key) {
+	Model.prototype.get = function(key) {
 		if (key === undefined) {
 			return this.properties;
 		}
@@ -771,20 +824,20 @@ XQCore.GetSet = (function(undefined) {
 	};
 
 	/**
-	 * Check wether getset has a dataset
+	 * Check wether model has a dataset
 	 *
 	 * @param {String} key Dataset key
-	 * @return {Boolean} Returns true if getset has a dataset with key
+	 * @return {Boolean} Returns true if model has a dataset with key
 	 */
-	getset.prototype.has = function(key) {
+	Model.prototype.has = function(key) {
 		return !!this.properties[key];
 	};
 
 	/**
-	 * Remove all data from getset
+	 * Remove all data from model
 	 */
-	getset.prototype.reset = function() {
-		this.log('Reset getset');
+	Model.prototype.reset = function() {
+		this.log('Reset model');
 		this.properties = {};
 		this.removeAllListener();
 	};
@@ -795,7 +848,7 @@ XQCore.GetSet = (function(undefined) {
 	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
-	getset.prototype.append = function(path, data) {
+	Model.prototype.append = function(path, data) {
 		if (arguments.length === 1) {
 			data = path;
 			path = null;
@@ -820,7 +873,7 @@ XQCore.GetSet = (function(undefined) {
 				dataset = this.get();
 			}
 			else {
-				this.warn('GetSet.append requires an array. Dataset isn\'t an array', path);
+				this.warn('Model.append requires an array. Dataset isn\'t an array', path);
 			}
 		}
 
@@ -837,7 +890,7 @@ XQCore.GetSet = (function(undefined) {
 	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
-	getset.prototype.prepend = function(path, data) {
+	Model.prototype.prepend = function(path, data) {
 		if (arguments.length === 1) {
 			data = path;
 			path = null;
@@ -862,7 +915,7 @@ XQCore.GetSet = (function(undefined) {
 				dataset = this.get();
 			}
 			else {
-				this.warn('GetSet.append requires an array. Dataset isn\'t an array', path);
+				this.warn('Model.append requires an array. Dataset isn\'t an array', path);
 			}
 		}
 
@@ -881,7 +934,7 @@ XQCore.GetSet = (function(undefined) {
 	 *
 	 * @return {Object} removed subset
 	 */
-	getset.prototype.remove = function(path, index) {
+	Model.prototype.remove = function(path, index) {
 		var dataset = this.properties,
 			data = null;
 		path.split('.').forEach(function(key) {
@@ -893,7 +946,7 @@ XQCore.GetSet = (function(undefined) {
 			data = data[0] || null;
 		}
 		else {
-			this.warn('getset.remove() doesn\'t work with Objects in getset', this.name);
+			this.warn('Model.remove() doesn\'t work with Objects in model', this.name);
 		}
 
 		return data;
@@ -906,7 +959,7 @@ XQCore.GetSet = (function(undefined) {
 	 * @param {Object} searchfor Searching for object
 	 * @return {Object} Returns the first matched item or null
 	 */
-	getset.prototype.search = function(path, searchfor) {
+	Model.prototype.search = function(path, searchfor) {
 		var parent = undotify(path, this.properties);
 
 		if (parent) {
@@ -951,7 +1004,7 @@ XQCore.GetSet = (function(undefined) {
 	 * descend, z -> a, 9 -> 0 (1)
 	 * 
 	 */
-	getset.prototype.sortBy = function(path, sortKeys) {
+	Model.prototype.sortBy = function(path, sortKeys) {
 		if (arguments.length === 1) {
 			sortKeys = path;
 			path = null;
@@ -983,14 +1036,13 @@ XQCore.GetSet = (function(undefined) {
 		return data;
 	};
 
-	getset.prototype.validate = function(data, schema) {
+	Model.prototype.validate = function(data, schema) {
 		var failed = [];
 			
 		schema = schema || this.schema;
 
 		if (schema) {
 			Object.keys(schema).forEach(function(key) {
-				console.log('KEY:', key, typeof data[key], typeof schema[key].type);
 				if (typeof data[key] === 'object' && typeof schema[key].type === 'undefined') {
 					var subFailed = this.validate(XQCore.extend({}, data[key]), XQCore.extend({}, schema[key]));
 					if (Array.isArray(subFailed) && subFailed.length > 0) {
@@ -1036,8 +1088,7 @@ XQCore.GetSet = (function(undefined) {
 	 *
 	 * @return {Object}       Returns a ValidatorResultItemObject
 	 */
-	getset.prototype.validateOne = function(schema, value) {
-		console.log('SCHEMA:', schema);
+	Model.prototype.validateOne = function(schema, value) {
 		var failed = null,
 			schemaType = typeof schema.type === 'function' ? typeof schema.type() : schema.type.toLowerCase();
 
@@ -1187,32 +1238,9 @@ XQCore.GetSet = (function(undefined) {
 		return failed;
 	};
 
-	getset.prototype.isValid = function() {
+	Model.prototype.isValid = function() {
 		return this._isValid;
 	};
 
-
-	//From passboxItemModel
-
-	/**
-	 * Returns the last validation result
-	 *
-	 * @method  getLastValidationError
-	 * @returns {Object} Returns the validation error or null
-	 */
-	/*model.getLastValidationError = function() {
-		this.__lastValidationError = null;
-		this.on('validation.error', function(validationError) {
-			this.__lastValidationError = validationError;
-		}.bind(this));
-
-		return this.__lastValidationError;	
-	};*/
-
-
-	return getset;
-})();
-
- return XQCore;
-}));
-
+	XQCore.Model = Model;
+})(this.XQCore);

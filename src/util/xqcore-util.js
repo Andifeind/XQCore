@@ -1,11 +1,12 @@
-/*global jQuery:false */
 /**
  * A bunch of helpfull functions
  *
  * @return {Object} Returns a singelton object instance of XQCore.Util
  */
-XQCore.Util = (function($) {
+(function(XQCore, undefined) {
 	'use strict';
+
+	var $ = XQCore.require('jquery');
 
 	var util = {
 		name: 'XQCore.Util',
@@ -103,6 +104,6 @@ XQCore.Util = (function($) {
 		}
 	};
 
-	return util;
+	XQCore.Util = util;
 
-})(jQuery);
+})(this.XQCore);

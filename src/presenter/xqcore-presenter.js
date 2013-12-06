@@ -3,7 +3,7 @@
  *
  * @module XQCore Presenter
  */
-XQCore.Presenter = (function(undefined) {
+(function(XQCore, undefined) {
 	'use strict';
 
 	/**
@@ -436,4 +436,5 @@ XQCore.Presenter = (function(undefined) {
 	};
 
 	return presenter;
-})();
+
+})(this.XQCore);

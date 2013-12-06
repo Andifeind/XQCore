@@ -30,12 +30,16 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 
+		bumpup: {
+			file: 'package.json'
+		},
+
 		// Lists of files to be linted with JSHint.
 		jshint: {
 			files: [
 				'src/**/*.js'
 			],
-			jshintrc: true
+			jshintrc: '.jshintrc'
 		},
 		concat: {
 			options: {
@@ -43,30 +47,26 @@ module.exports = function(grunt) {
 			},
 			build: {
 				src: [
-					'webdocs/js/concat-before.js',
-					'webdocs/js/xqcore-core.js',
+					'src/core/xqcore-core.js',
 					'src/event/xqcore-event.js',
 					'src/logger/xqcore-logger.js',
-					'src/getset/xqcore-getset.js',
 					'src/presenter/xqcore-presenter.js',
+					'src/sync/xqcore-sync.js',
 					'src/model/xqcore-model.js',
 					'src/view/xqcore-view.js',
 					'src/util/xqcore-util.js',
 					'src/router/xqcore-router.js',
 
 					'webdocs/js/plugins/xqcore-viewslide.js',
-					'webdocs/js/concat-after.js'
 				],
 				dest: 'build/xqcore.js'
 			},
 			minimal: {
 				src: [
-					'webdocs/js/concat-before-minimal.js',
-					'webdocs/js/xqcore-core.js',
+					'src/core/xqcore-core.js',
 					'src/event/xqcore-event.js',
 					'src/logger/xqcore-logger.js',
-					'src/getset/xqcore-getset.js',
-					'webdocs/js/concat-after.js'
+					'src/model/xqcore-model.js'
 				],
 				dest: 'build/xqcore-minimal.js'
 			}
@@ -141,7 +141,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-yuidoc');
 	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.loadNpmTasks('grunt-bump');
+	grunt.loadNpmTasks('grunt-bumpup');
+	// grunt.loadNpmTasks('grunt-contrib-bump');
 
 	grunt.registerTask('default', 'jshint');
 	grunt.registerTask('doc', 'yuidoc');
@@ -155,6 +156,6 @@ module.exports = function(grunt) {
 		'copy:akonda',
 		'copy:xqtools',
 		'doc',
-		'bump:patch'
+		'bumpup:prerelease'
 	]);
 };

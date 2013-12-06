@@ -6,11 +6,11 @@
  * @copyright Andi Heinkelein - noname-media.com
  * @package XQCore
  *
- * Based on router.js
+ * Based on router.js v0.2.0
  * Copyright Aaron Blohowiak and TJ Holowaychuk 2011.
  * https://github.com/aaronblohowiak/routes.js
  */
-XQCore.Router = (function(undefined) {
+(function(XQCore, undefined) {
 	'use strict';
 
 	/**
@@ -22,7 +22,7 @@ XQCore.Router = (function(undefined) {
 	 * @param  {String / RegExp} path
 	 * @return {Object}
 	 */
-	var Route = function(path){
+	var Route = function(path) {
 		//using 'new' is optional
 		
 		var src, re, keys = [];
@@ -156,7 +156,7 @@ XQCore.Router = (function(undefined) {
 	//   };
 	// };
 
-	var router = function(conf) {
+	var Router = function(conf) {
 		conf = XQCore.extend({
 			debug: false
 		}, conf);
@@ -167,7 +167,7 @@ XQCore.Router = (function(undefined) {
 		this.routeMap = {};
 	};
 
-	router.prototype.addRoute = function(path, fn) {
+	Router.prototype.addRoute = function(path, fn) {
 		if (!path) {
 			throw new Error(' route requires a path');
 		}
@@ -183,7 +183,7 @@ XQCore.Router = (function(undefined) {
 		this.routeMap[path] = fn;
 	};
 
-	router.prototype.match = function(pathname) {
+	Router.prototype.match = function(pathname) {
 		var route = match(this.routes, pathname);
 		if(route){
 			route.fn = this.routeMap[route.route];
@@ -199,13 +199,13 @@ XQCore.Router = (function(undefined) {
 	 *
 	 * @return {Boolean}       Returns the matched route
 	 */
-	router.prototype.fire = function(route, data) {
+	Router.prototype.fire = function(route, data) {
 		route = this.match(route);
 		if (route) {
 			route.fn(data);
 		}
 	};
 
-	return router;
+	XQCore.Router = Router;
 
-})();
+})(this.XQCore);

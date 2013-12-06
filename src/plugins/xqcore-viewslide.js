@@ -1,4 +1,5 @@
 (function(proto, undefined) {
+	'use strict';
 	var cssTransition;
 
 	var setTransitionFunction = function() {
@@ -11,7 +12,7 @@
 	};
 
 	proto.slideIn = function(conf) {
-		conf = $.extend({
+		conf = XQCore.extend({
 			parent: this.el.parentNode,
 			transition: 'left .75s',
 			direction: 'auto'
@@ -23,12 +24,12 @@
 
 		if (conf.parent && this.el) {
 			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
-			// console.log({
-			// 	el: conf.parent,
-			// 	cw: conf.parent.clientWidth,
-			// 	ow: conf.parent.offsetWidth,
-			// 	w: conf.parent.style.width
-			// });
+			/*console.log({
+				el: conf.parent,
+				cw: conf.parent.clientWidth,
+				ow: conf.parent.offsetWidth,
+				w: conf.parent.style.width
+			});*/
 			var posX = conf.parent.offsetWidth;
 			this.el.style.display = 'block';
 			this.el.style[cssTransition] = 'none';
@@ -44,7 +45,7 @@
 	};
 
 	proto.slideOut = function(conf) {
-		conf = $.extend({
+		conf = XQCore.extend({
 			parent: this.el.parentNode,
 			transition: 'left .75s',
 			direction: 'auto'
@@ -56,12 +57,12 @@
 
 		if (conf.parent && this.el) {
 			this.log('> slide plugin > Slide view', this.el, 'in container', conf.parent);
-			// console.log({
-			// 	el: conf.parent,
-			// 	cw: conf.parent.clientWidth,
-			// 	ow: conf.parent.offsetWidth,
-			// 	w: conf.parent.style.width
-			// });
+			/*console.log({
+				el: conf.parent,
+				cw: conf.parent.clientWidth,
+				ow: conf.parent.offsetWidth,
+				w: conf.parent.style.width
+			});*/
 			var posX = conf.parent.offsetWidth;
 				this.el.style[cssTransition] = conf.transition;
 				this.el.style.left = posX + 'px';

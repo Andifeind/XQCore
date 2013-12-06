@@ -1,4 +1,5 @@
 XQCore.LoggerUI = (function() {
+	'use strict';
 
 	var tmpl = '<div class="XQCoreLogger"></div>';
 
@@ -21,7 +22,7 @@ XQCore.LoggerUI = (function() {
 	};
 
 	var LoggerUI = function(conf) {
-		this.conf = $.extend({
+		this.conf = XQCore.extend({
 			'container': 'body'
 		},conf);
 
@@ -57,7 +58,7 @@ XQCore.LoggerUI = (function() {
 			}
 			html += '</li>';
 
-		var item = $(html).appendTo(this.ui;
+		var item = $(html).appendTo(this.ui);
 	};
 
 	return LoggerUI;

@@ -68,6 +68,7 @@
 	Model.prototype.state = function(state) {
 		this.__state = state;
 		this.emit('state.' + state);
+		this.emit('state.change', state);
 	};
 
 	/**
@@ -95,15 +96,23 @@
 	 * data.change<br>
 	 * &lt;key&gt;.change
 	 *
+	 * options: {
+	 *   silent: <Boolean> Don't trigger any events
+	 *   noValidation: <Boolean> Don't validate
+	 *   validateOne: <Boolean> Only if setting one item, validate the item only
+	 * }
+	 *
 	 * @method set
 	 * @param {String} key
 	 * @param {Object} value Data value
+	 * @param {Object} options Options
 	 */
-	Model.prototype.set = function() {
+	Model.prototype.set = function(key, value, options) {
 		var newData = {},
 			oldData = this.get(),
-			validateResult,
-			key;
+			validateResult;
+
+		options = options || {};
 
 		if (arguments[0] === null) {
 			newData = arguments[1];
@@ -121,21 +130,35 @@
 
 			newData[key] = val;
 			this.log('Set data', newData, oldData);
+
+			if (options.validateOne) {
+				options.noValidation = true;
+				validateResult = this.validateOne(this.schema[key], val);
+				if (validateResult.isValid === false) {
+					this.warn('Validate error in model.set', validateResult);
+					if (options.silent !== true) {
+						this.emit('validation.error', validateResult);
+					}
+					return false;
+				}
+			}
 		}
 		else {
 			this.warn('Data are incorrect in model.set()', arguments);
 		}
 
-		if (this.schema) {
+		if (this.schema && options.noValidation !== true) {
 			validateResult = this.validate(newData);
 			if (validateResult !== null) {
 				this.warn('Validate error in model.set', validateResult);
-				this.emit('validation.error', validateResult);
+				if (options.silent !== true) {
+					this.emit('validation.error', validateResult);
+				}
 				return false;
 			}
 		}
 
-		if (this.customValidate) {
+		if (this.customValidate && options.noValidation !== true) {
 			validateResult = this.customValidate(newData);
 			if (validateResult !== null) {
 				this.warn('Validate error in model.set', validateResult);
@@ -145,9 +168,11 @@
 		}
 
 		this.properties = newData;
-		this.emit('data.change', newData, oldData);
+		if (options.silent !== true) {
+			this.emit('data.change', newData, oldData);
+		}
 
-		if (key) {
+		if (key && options.silent !== true) {
 			this.emit('change.' + key, newData[key]);
 		}
 
@@ -186,7 +211,7 @@
 	Model.prototype.reset = function() {
 		this.log('Reset model');
 		this.properties = {};
-		this.removeAllListener();
+		// this.removeAllListeners();
 	};
 
 	/**
@@ -302,12 +327,21 @@
 	/**
 	 * Search a item in models properties
 	 *
-	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
+	 * @param {String} path Path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub) (Optional)
 	 * @param {Object} searchfor Searching for object
 	 * @return {Object} Returns the first matched item or null
 	 */
 	Model.prototype.search = function(path, searchfor) {
-		var parent = undotify(path, this.properties);
+		var parent;
+
+		if (arguments.length === 1) {
+			searchfor = path;
+			path = '';
+			parent = this.properties;
+		}
+		else {
+			parent = undotify(path, this.properties);
+		}
 
 		if (parent) {
 			for (var i = 0; i < parent.length; i++) {
@@ -590,4 +624,4 @@
 	};
 
 	XQCore.Model = Model;
-})(this.XQCore);
+})(XQCore);

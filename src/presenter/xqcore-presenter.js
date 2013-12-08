@@ -17,7 +17,7 @@
 	 *
 	 * @param  {Object} conf Presenter extend object
 	 */
-	var presenter = function(conf) {
+	var Presenter = function(conf) {
 		this.root = '/';
 		this.debug = false;
 		this.routes = [];
@@ -103,9 +103,9 @@
 	 * Listen View events
 	 * @property {Array} events Observed view events
 	 */
-	presenter.prototype.events = {};
+	Presenter.prototype.events = {};
 
-	presenter.prototype.init = function(views) {
+	Presenter.prototype.init = function(views) {
 		var i,
 			self = this,
 			conf = this.conf;
@@ -183,7 +183,7 @@
 	 *
 	 * @param {object} view The initializing view
 	 */
-	presenter.prototype.viewInit = function(view) {
+	Presenter.prototype.viewInit = function(view) {
 
 	};
 
@@ -193,7 +193,7 @@
 	 * @param {Object} data Data object
 	 * @param {String} url Page URL (Optional) defaults to the curent URL
 	 */
-	presenter.prototype.pushState = function(data, url) {
+	Presenter.prototype.pushState = function(data, url) {
 		/*this.log('Check State', data, history.state, XQCore.compare(data, history.state));
 		if (XQCore.compare(data, history.state)) {
 			this.warn('Abborting history.pushState because data are equale to current history state');
@@ -210,7 +210,7 @@
 	 * @param {Object} data Data object
 	 * @param {String} url Page URL (Optional) defaults to the current URL
 	 */
-	presenter.prototype.replaceState = function(data, url) {
+	Presenter.prototype.replaceState = function(data, url) {
 		/*if (data === history.state) {
 			this.warn('Abborting history.replaceState because data are equale to current history state');
 		}*/
@@ -227,7 +227,7 @@
 	 * @param {Object} data Data object
 	 * @param {Boolean} replace Replace current history entry with route
 	 */
-	presenter.prototype.navigateTo = function(route, data, replace) {
+	Presenter.prototype.navigateTo = function(route, data, replace) {
 		this.log('Navigate to route: ', route, data, replace);
 		if (replace) {
 			this.replaceState(data, route);
@@ -245,7 +245,7 @@
 	 * @param {String} viewName Required view name
 	 * @return {Object} Returns view object or null if no view was found
 	 */
-	presenter.prototype.getView = function(viewName) {
+	Presenter.prototype.getView = function(viewName) {
 		var i, view;
 
 		for (i = 0; i < this.registeredViews.length; i++) {
@@ -268,7 +268,7 @@
 	 * @param  {Object} data Data it's neede to showing the view
 	 *
 	 */
-	presenter.prototype.showView = function(viewName, data) {
+	Presenter.prototype.showView = function(viewName, data) {
 		var view = this.getView(viewName + 'View');
 		if (!view) {
 			this.warn('View not defined!', viewName);
@@ -295,7 +295,7 @@
 	 * @method getHash
 	 * @returns {String} Returns the current value from location.hash
 	 */
-	presenter.prototype.getHash = function() {
+	Presenter.prototype.getHash = function() {
 		return location.hash;
 	};
 
@@ -305,7 +305,7 @@
 	 * @method getPathname
 	 * @returns {String} Returns the current value from location.pathname
 	 */
-	presenter.prototype.getPathname = function() {
+	Presenter.prototype.getPathname = function() {
 		return location.pathname;
 	};
 
@@ -322,9 +322,15 @@
 	 *   route String routename
 	 * }
 	 */
-	presenter.prototype.couple = function(conf) {
+	Presenter.prototype.couple = function(conf) {
 		var view = conf.view,
 			model = conf.model;
+
+		var eventConf = XQCore.extend({
+			'data.change': 'render',
+			'validation.error': 'validationFailed',
+			'state.change': 'stateChanged'
+		}, conf.events);
 
 		if (!view instanceof XQCore.View) {
 			this.error('Can\'t couple view with model! View isn\'t a XQCore.View');
@@ -354,17 +360,17 @@
 			model.__coupledWith.push(view);
 		}
 
-		model.on('validation.error', function(err) {
-			model.__coupledWith.forEach(function(v) {
-				v.validationFailed(err);
+		var registerListener = function(listener, func) {
+			model.on(listener, function(arg) {
+				view[func](arg, model.name);
 			});
-		});
+		};
 
-		model.on('data.change', function(data) {
-			model.__coupledWith.forEach(function(v) {
-				v.render(data);
-			});
-		});
+		for (var key in eventConf) {
+			if (eventConf.hasOwnProperty(key)) {
+				registerListener(key, eventConf[key]);
+			}
+		}
 
 		return this;
 	};
@@ -379,7 +385,7 @@
 	 * @param {Object} tag Tag data
 	 * @param {Object} data Event data
 	 */
-	presenter.prototype.triggerEvent = function(v, eventName, e, tag, data) {
+	Presenter.prototype.triggerEvent = function(v, eventName, e, tag, data) {
 		if (this.events[eventName]) {
 			this.events[eventName].call(this, e, tag, data);
 		}
@@ -406,7 +412,7 @@
 	 * @param {Object} data Event data
 	 * @private
 	 */
-	presenter.prototype.__onPopstate = function(data) {
+	Presenter.prototype.__onPopstate = function(data) {
 		var self = this;
 
 		self.log('popstate event recived', data);
@@ -435,6 +441,6 @@
 		}
 	};
 
-	return presenter;
+	XQCore.Presenter = Presenter;
 
-})(this.XQCore);
+})(XQCore);

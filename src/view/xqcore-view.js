@@ -69,13 +69,18 @@
 
 		$(function() {
 			this.container = $(conf.container);
-			if (conf.tag) {
+			if (conf.tag === false) {
+				this.$el = this.container;
+			}
+			else {
+				if (!conf.tag) {
+					conf.tag = 'section';
+				}
+
 				this.$el = $($.parseHTML('<' + conf.tag + '/>'));
 				this.$el.appendTo(this.container);
 			}
-			else {
-				this.$el = this.container;
-			}
+
 			this.el = this.$el.get(0);
 
 			if (conf.hidden === true) {
@@ -354,8 +359,11 @@
 			this.presenter.events[eventName].call(this.presenter, e, tag, data);
 		}
 		else {
-			e.preventDefault();
-			e.stopPropagation();
+			if (e) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
+			
 			if (this.__coupledWith) {
 				this.__coupledWith.forEach(function(m) {
 					if (typeof m[eventName] === 'function') {
@@ -391,6 +399,15 @@
 	 */
 	View.prototype.validationFailed = function(err) {
 		
+	};
+
+	/**
+	 * Recive a state.change event from a coupled model
+	 *
+	 * @param {String} state Model state
+	 */
+	View.prototype.stateChanged = function(state) {
+
 	};
 
 	/**
@@ -431,4 +448,4 @@
 
 	XQCore.View = View;
 
-})(this.XQCore);
+})(XQCore);

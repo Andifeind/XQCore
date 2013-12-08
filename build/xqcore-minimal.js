@@ -1,5 +1,5 @@
 /*!
- * XQCore - 0.5.1
+ * XQCore - 0.5.1-18
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,9 +9,10 @@
  * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-12-06
+ * Creation Date: 2013-12-08
  */
 
+/*global XQCore:true */
 var XQCore;
 
 (function (root, factory) {
@@ -35,16 +36,28 @@ var XQCore;
 	 * @type {Object}
 	 */
 	XQCore = {
-		version: '0.5.1',
+		version: '0.5.1-18',
 		defaultRoute: 'default',
 		html5Routes: false,
 		hashBang: '#!',
-		callerEvent: 'callerEvent'
+		callerEvent: 'callerEvent',
+		objectIdPattern: /^[a-zA-Z0-9]{24}$/
 	};
 
 	//XQCore helper functions
 	XQCore.extend = jQuery.extend;
 	XQCore.isEmptyObject = jQuery.isEmptyObject;
+	
+	/**
+	 * Checks for a valid ObjectId
+	 * 
+	 * The pattern of an objectId can be overwritten by setting the XQCore.objectIdPattern property
+	 *
+	 * @return {Boolean} Returns true if value is an valid objectId
+	 */
+	XQCore.isObjectId = function(value) {
+		return this.objectIdPattern.test(value);
+	};
 
 	XQCore._dump = {};
 	XQCore.dump = function(componentName) {
@@ -76,7 +89,7 @@ var XQCore;
  * http://git.io/ee
  *
  */
-XQCore.Event = (function() {
+(function(XQCore, undefined) {
 	'use strict';
 
 	//EventEmitter.js
@@ -526,9 +539,9 @@ XQCore.Event = (function() {
 		return this._events || (this._events = {});
 	};
 
-	return EventEmitter;
+	XQCore.Event = EventEmitter;
 
-})();
+})(XQCore);
 
 /**
  * XQCore Logger
@@ -537,7 +550,7 @@ XQCore.Event = (function() {
  * 
  * 
  */
-XQCore.Logger = (function(conf) {
+(function(XQCore, undefined) {
 	'use strict';
 
 	//var timerStore = {};
@@ -561,7 +574,7 @@ XQCore.Logger = (function(conf) {
 	 * @class XQCore.Logger
 	 *
 	 */
-	var logger = function() {
+	var Logger = function() {
 		
 	};
 
@@ -572,7 +585,7 @@ XQCore.Logger = (function(conf) {
 	 *
 	 * @param {Any} msg logs all arguments to the console
 	 */
-	logger.prototype.log = function() {
+	Logger.prototype.log = function() {
 		var args;
 
 		if (this.debug) {
@@ -588,7 +601,7 @@ XQCore.Logger = (function(conf) {
 	 * @method warn
 	 * @param {Any} msg logs all arguments to the console
 	 */
-	logger.prototype.warn = function() {
+	Logger.prototype.warn = function() {
 		var args;
 
 		if (this.debug) {
@@ -604,7 +617,7 @@ XQCore.Logger = (function(conf) {
 	 * @method error
 	 * @param {Any} msg logs all arguments to the console
 	 */
-	logger.prototype.error = function() {
+	Logger.prototype.error = function() {
 		var args;
 
 		if (this.debug) {
@@ -621,7 +634,7 @@ XQCore.Logger = (function(conf) {
 	 * @param {String} timerName Set the name for your (Optional)
 	 * @return {Object} Returns a TimerObject
 	 */
-	logger.prototype.timer = function(name) {
+	Logger.prototype.timer = function(name) {
 		var timer = {
 			start: null,
 			stop: null,
@@ -644,13 +657,14 @@ XQCore.Logger = (function(conf) {
 		return timer;
 	};
 
-	logger.prototype.__scope = {
+	Logger.prototype.__scope = {
 		getHumanTime: getHumanTime
 	};
 	
 
-	return logger;
-})();
+	XQCore.Logger = Logger;
+
+})(XQCore);
 (function(XQCore, undefined) {
 	'use strict';
 	var Model;
@@ -721,6 +735,7 @@ XQCore.Logger = (function(conf) {
 	Model.prototype.state = function(state) {
 		this.__state = state;
 		this.emit('state.' + state);
+		this.emit('state.change', state);
 	};
 
 	/**
@@ -748,15 +763,23 @@ XQCore.Logger = (function(conf) {
 	 * data.change<br>
 	 * &lt;key&gt;.change
 	 *
+	 * options: {
+	 *   silent: <Boolean> Don't trigger any events
+	 *   noValidation: <Boolean> Don't validate
+	 *   validateOne: <Boolean> Only if setting one item, validate the item only
+	 * }
+	 *
 	 * @method set
 	 * @param {String} key
 	 * @param {Object} value Data value
+	 * @param {Object} options Options
 	 */
-	Model.prototype.set = function() {
+	Model.prototype.set = function(key, value, options) {
 		var newData = {},
 			oldData = this.get(),
-			validateResult,
-			key;
+			validateResult;
+
+		options = options || {};
 
 		if (arguments[0] === null) {
 			newData = arguments[1];
@@ -774,21 +797,35 @@ XQCore.Logger = (function(conf) {
 
 			newData[key] = val;
 			this.log('Set data', newData, oldData);
+
+			if (options.validateOne) {
+				options.noValidation = true;
+				validateResult = this.validateOne(this.schema[key], val);
+				if (validateResult.isValid === false) {
+					this.warn('Validate error in model.set', validateResult);
+					if (options.silent !== true) {
+						this.emit('validation.error', validateResult);
+					}
+					return false;
+				}
+			}
 		}
 		else {
 			this.warn('Data are incorrect in model.set()', arguments);
 		}
 
-		if (this.schema) {
+		if (this.schema && options.noValidation !== true) {
 			validateResult = this.validate(newData);
 			if (validateResult !== null) {
 				this.warn('Validate error in model.set', validateResult);
-				this.emit('validation.error', validateResult);
+				if (options.silent !== true) {
+					this.emit('validation.error', validateResult);
+				}
 				return false;
 			}
 		}
 
-		if (this.customValidate) {
+		if (this.customValidate && options.noValidation !== true) {
 			validateResult = this.customValidate(newData);
 			if (validateResult !== null) {
 				this.warn('Validate error in model.set', validateResult);
@@ -798,9 +835,11 @@ XQCore.Logger = (function(conf) {
 		}
 
 		this.properties = newData;
-		this.emit('data.change', newData, oldData);
+		if (options.silent !== true) {
+			this.emit('data.change', newData, oldData);
+		}
 
-		if (key) {
+		if (key && options.silent !== true) {
 			this.emit('change.' + key, newData[key]);
 		}
 
@@ -839,7 +878,7 @@ XQCore.Logger = (function(conf) {
 	Model.prototype.reset = function() {
 		this.log('Reset model');
 		this.properties = {};
-		this.removeAllListener();
+		// this.removeAllListeners();
 	};
 
 	/**
@@ -955,12 +994,21 @@ XQCore.Logger = (function(conf) {
 	/**
 	 * Search a item in models properties
 	 *
-	 * @param {String} path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub)
+	 * @param {String} path Path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub) (Optional)
 	 * @param {Object} searchfor Searching for object
 	 * @return {Object} Returns the first matched item or null
 	 */
 	Model.prototype.search = function(path, searchfor) {
-		var parent = undotify(path, this.properties);
+		var parent;
+
+		if (arguments.length === 1) {
+			searchfor = path;
+			path = '';
+			parent = this.properties;
+		}
+		else {
+			parent = undotify(path, this.properties);
+		}
 
 		if (parent) {
 			for (var i = 0; i < parent.length; i++) {
@@ -1243,4 +1291,4 @@ XQCore.Logger = (function(conf) {
 	};
 
 	XQCore.Model = Model;
-})(this.XQCore);
+})(XQCore);

@@ -39,6 +39,7 @@ describe('XQCore Presenter', function() {
 			data: 'changed'
 		});
 
+		expect(renderStub).was.called();
 		expect(renderStub).was.calledWith({
 			data: 'changed'
 		});

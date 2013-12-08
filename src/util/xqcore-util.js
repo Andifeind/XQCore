@@ -106,4 +106,4 @@
 
 	XQCore.Util = util;
 
-})(this.XQCore);
+})(XQCore);

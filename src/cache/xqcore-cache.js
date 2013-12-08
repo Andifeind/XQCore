@@ -43,4 +43,4 @@
 
 	XQCore.Cache = Cache;
 
-})(this.XQCore);
+})(XQCore);

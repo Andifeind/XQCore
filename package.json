@@ -1,9 +1,8 @@
 {
   "name": "xqcore",
-  "version": "0.5.1-0",
+  "version": "0.5.1-19",
   "description": "Model View Presenter Javascript Framework",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.0",
     "grunt-contrib-yuidoc": "~0.4.0",

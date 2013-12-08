@@ -208,4 +208,4 @@
 
 	XQCore.Router = Router;
 
-})(this.XQCore);
+})(XQCore);

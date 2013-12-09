@@ -12,6 +12,7 @@
  * Creation Date: <%= grunt.template.today("yyyy-mm-dd") %>
  */
 
+/*global XQCore:true */
 var XQCore;
 
 (function (root, factory) {
@@ -39,12 +40,24 @@ var XQCore;
 		defaultRoute: 'default',
 		html5Routes: false,
 		hashBang: '#!',
-		callerEvent: 'callerEvent'
+		callerEvent: 'callerEvent',
+		objectIdPattern: /^[a-zA-Z0-9]{24}$/
 	};
 
 	//XQCore helper functions
 	XQCore.extend = jQuery.extend;
 	XQCore.isEmptyObject = jQuery.isEmptyObject;
+	
+	/**
+	 * Checks for a valid ObjectId
+	 * 
+	 * The pattern of an objectId can be overwritten by setting the XQCore.objectIdPattern property
+	 *
+	 * @return {Boolean} Returns true if value is an valid objectId
+	 */
+	XQCore.isObjectId = function(value) {
+		return this.objectIdPattern.test(value);
+	};
 
 	XQCore._dump = {};
 	XQCore.dump = function(componentName) {

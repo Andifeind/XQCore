@@ -29,7 +29,7 @@
 	 * @class XQCore.Logger
 	 *
 	 */
-	var logger = function() {
+	var Logger = function() {
 		
 	};
 
@@ -40,7 +40,7 @@
 	 *
 	 * @param {Any} msg logs all arguments to the console
 	 */
-	logger.prototype.log = function() {
+	Logger.prototype.log = function() {
 		var args;
 
 		if (this.debug) {
@@ -56,7 +56,7 @@
 	 * @method warn
 	 * @param {Any} msg logs all arguments to the console
 	 */
-	logger.prototype.warn = function() {
+	Logger.prototype.warn = function() {
 		var args;
 
 		if (this.debug) {
@@ -72,7 +72,7 @@
 	 * @method error
 	 * @param {Any} msg logs all arguments to the console
 	 */
-	logger.prototype.error = function() {
+	Logger.prototype.error = function() {
 		var args;
 
 		if (this.debug) {
@@ -89,7 +89,7 @@
 	 * @param {String} timerName Set the name for your (Optional)
 	 * @return {Object} Returns a TimerObject
 	 */
-	logger.prototype.timer = function(name) {
+	Logger.prototype.timer = function(name) {
 		var timer = {
 			start: null,
 			stop: null,
@@ -112,11 +112,11 @@
 		return timer;
 	};
 
-	logger.prototype.__scope = {
+	Logger.prototype.__scope = {
 		getHumanTime: getHumanTime
 	};
 	
 
-	return logger;
+	XQCore.Logger = Logger;
 
-})(this.XQCore);
+})(XQCore);

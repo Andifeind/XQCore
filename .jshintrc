@@ -10,7 +10,8 @@
 		"beforeEach",
 		"after",
 		"afterEach",
-		"sinon"
+		"sinon",
+		"XQCore"
 	],
 
 	"camelcase": true,

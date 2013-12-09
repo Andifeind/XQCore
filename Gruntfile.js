@@ -53,6 +53,7 @@ module.exports = function(grunt) {
 					'src/presenter/xqcore-presenter.js',
 					'src/sync/xqcore-sync.js',
 					'src/model/xqcore-model.js',
+					'src/getset/xqcore-getset.js',
 					'src/view/xqcore-view.js',
 					'src/util/xqcore-util.js',
 					'src/router/xqcore-router.js',

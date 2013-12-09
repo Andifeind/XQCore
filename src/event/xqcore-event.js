@@ -455,6 +455,6 @@
 		return this._events || (this._events = {});
 	};
 
-	return EventEmitter;
+	XQCore.Event = EventEmitter;
 
-})(this.XQCore);
+})(XQCore);

@@ -67,18 +67,18 @@
 			dataType: 'json',
 			success: function(data, status, jqXHR) {
 				if (typeof callback === 'function') {
-					this.state('success');
 					callback.call(this, null, data, status, jqXHR);
 				}
+				this.state('success');
 			}.bind(this),
 			error: function(jqXHR, status, error) {
 				if (typeof callback === 'function') {
-					this.state('failed');
 					callback.call(this, {
 						type: status,
 						http: error
 					}, null, status, jqXHR);
 				}
+				this.state('failed');
 			}.bind(this)
 		});
 	};
@@ -181,6 +181,38 @@
 		this.sendGET(query, callback);
 	};
 
+	/**
+	 * Save a model if it's valid
+	 */
+	Sync.prototype.save = function(callback) {
+		if (this.isValid()) {
+			this.sendPOST(this.get(), callback);
+		}
+		else {
+			if (typeof callback === 'function') {
+				callback({
+					msg: 'Model isn\'t valid. Cancle save'
+				});
+			}
+		}
+	};
+
+	/**
+	 * Update a model if it's valid
+	 */
+	Sync.prototype.update = function(callback) {
+		if (this.isValid()) {
+			this.sendPUT(this.get(), callback);
+		}
+		else {
+			if (typeof callback === 'function') {
+				callback({
+					msg: 'Model isn\'t valid. Cancle update'
+				});
+			}
+		}
+	};
+
 	XQCore.Sync = Sync;
 
-})(this.XQCore);
+})(XQCore);

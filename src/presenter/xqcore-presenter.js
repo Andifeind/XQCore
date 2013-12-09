@@ -17,7 +17,12 @@
 	 *
 	 * @param  {Object} conf Presenter extend object
 	 */
-	var presenter = function(conf) {
+	var presenter = function(name, conf) {
+		if (typeof arguments[0] === 'object') {
+			conf = name;
+			name = conf.name;
+		}
+
 		this.root = '/';
 		this.debug = false;
 		this.routes = [];
@@ -29,7 +34,7 @@
 		delete conf.init;
 
 		XQCore.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
-		this.name = (conf.name || 'Nameless') + 'Presenter';
+		this.name = (name.replace(/Presenter$/, '') || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
 
 		/**
@@ -159,7 +164,6 @@
 		}
 
 		//Initialize views
-		console.log('views', views);
 		if (views instanceof Array) {
 			for (i = 0; i < views.length; i++) {
 				this.registerView(views[i]);

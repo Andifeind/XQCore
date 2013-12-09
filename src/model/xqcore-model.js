@@ -13,7 +13,11 @@
 		return obj;
 	};
 
-	Model = function(conf) {
+	Model = function(name, conf) {
+		if (typeof arguments[0] === 'object') {
+			conf = name;
+			name = conf.name;
+		}
 		if (conf === undefined) {
 			conf = {};
 		}
@@ -29,7 +33,7 @@
 
 		XQCore.extend(this, conf, new XQCore.Logger());
 		XQCore.extend(this, new XQCore.Event());
-		this.name = (conf.name || 'Nameless') + 'Model';
+		this.name = (name.replace(/Model$/, '') || 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
 		this._isValid = false;
 		this.properties = {};

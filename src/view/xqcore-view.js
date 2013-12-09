@@ -17,7 +17,12 @@
 	 * @class XQCore.View
 	 * @param {object} conf View configuration
 	 */
-	var View = function(conf) {
+	var View = function(name, conf) {
+
+		if (typeof arguments[0] === 'object') {
+			conf = name;
+			name = conf.name;
+		}
 
 		/**
 		 * Determines wether the view is hidden after rendering
@@ -33,12 +38,6 @@
 		 * @default "body"
 		 */
 
-		if (arguments.length === 2) {
-			this.presenter = arguments[0];
-			conf = arguments[1];
-			console.warn('Defining View with presenter is deprecated.');
-		}
-
 		conf = conf || {
 			events: null
 		};
@@ -48,7 +47,7 @@
 		delete conf.init;
 
 		XQCore.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
-		this.name = (conf.name || 'Nameless') + 'View';
+		this.name = (name.replace(/View$/, '') || 'Nameless') + 'View';
 
 		this.debug = Boolean(conf.debug);
 	};

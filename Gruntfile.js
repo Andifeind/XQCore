@@ -1,30 +1,5 @@
 module.exports = function(grunt) {
-
-	var banner = '\
-/*!\n\
- * XQCore - <%pkg.version %>\n\
- * <%= pkg.description %>\n\
- *\n\
- * XQCore is licenced under MIT Licence\n\
- * http://opensource.org/licenses/MIT\n\
- *\n\
- * Copyright (c) 2013 Noname Media, http://noname-media.com\n\
- * Author Andi Heinkelein\n\
- */\n\
-\n\
-(function (root, factory) {\n\
-    if (typeof define === \'function\' && define.amd) {\n\
-        define(\'xqcore\', [\'jquery\'], factory);\n\
-    } else {\n\
-        root.XQCore = factory(root.jQuery);\n\
-    }\n\
-}(this, function (jQuery) {\n\n\n\
- ';
-
-	var footer = '\n\
-\n\
- return XQCore;\n\
-}));\n\n\n';
+	'use strict';
 
 	// Project configuration.
 	grunt.initConfig({
@@ -54,6 +29,7 @@ module.exports = function(grunt) {
 					'src/sync/xqcore-sync.js',
 					'src/model/xqcore-model.js',
 					'src/getset/xqcore-getset.js',
+					'src/tmpl/xqcore-tmpl.js',
 					'src/view/xqcore-view.js',
 					'src/util/xqcore-util.js',
 					'src/router/xqcore-router.js',
@@ -87,9 +63,6 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		// xqcoretest: {
-		// 	ignore_files: ['init.js', '*.min.js']
-		// },
 		copy: {
 			akonda: {
 				files: [

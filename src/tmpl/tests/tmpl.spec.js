@@ -1,4 +1,6 @@
-describe('Tmpl', function() {
+describe.only('Tmpl', function() {
+	'use strict';
+
 	beforeEach(function() {
 
 	});
@@ -7,15 +9,83 @@ describe('Tmpl', function() {
 
 	});
 
-	descibe('precompile', function() {
-		it('Should precompile a tmpl string', function() {
-			var tmpl = 'html';
-			tmpl += '	head';
-			tmpl += '	body';
-			tmpl += '		div id=myDiv';
-			tmpl += '		div id=mySecondDiv class=myClass';
+	describe('getIndention', function() {
+		it('Should get the number of indention', function() {
+			var tmpl = new XQCore.Tmpl();
+			var indention = tmpl.getIndention('\t\tBla');
+			expect(indention).to.eql(2);
+		});
 
-			var template = XQCore.Tmpl.precompile(tmpl);
+		it('Should get indention from an empty string', function() {
+			var tmpl = new XQCore.Tmpl();
+			var indention = tmpl.getIndention('');
+			expect(indention).to.eql(0);
+		});
+
+		it('Should get indention from a null object', function() {
+			var tmpl = new XQCore.Tmpl();
+			var indention = tmpl.getIndention(null);
+			expect(indention).to.eql(0);
+		});
+	});
+
+	describe('stripAttributes', function() {
+		it('Should strib all attributes from a string', function() {
+			var tmpl = new XQCore.Tmpl();
+			var attrs = tmpl.stripAttributes(' foo=bar bla=blubb');
+			expect(attrs).to.eql({
+				attrs: ['foo="bar"', 'bla="blubb"'],
+				events: []
+			});
+		});
+
+		it('Should strib all attributes from a empty string', function() {
+			var tmpl = new XQCore.Tmpl();
+			var attrs = tmpl.stripAttributes('');
+			expect(attrs).to.eql({
+				attrs: [],
+				events: []
+			});
+		});
+
+		it('Should strib all attributes from a null object', function() {
+			var tmpl = new XQCore.Tmpl();
+			var attrs = tmpl.stripAttributes(null);
+			expect(attrs).to.eql({
+				attrs: [],
+				events: []
+			});
+		});
+
+		it('Should strib all attributes and events from a string', function() {
+			var tmpl = new XQCore.Tmpl();
+			var attrs = tmpl.stripAttributes(' foo=bar bla=blubb onShow=myEvent');
+			expect(attrs).to.eql({
+				attrs: ['foo="bar"', 'bla="blubb"'],
+				events: [['onShow', 'myEvent']]
+			});
+		});
+
+		it('Should strib all events from a string', function() {
+			var tmpl = new XQCore.Tmpl();
+			var attrs = tmpl.stripAttributes(' onFoo=bar onBla=blubb onShow=myEvent');
+			expect(attrs).to.eql({
+				attrs: ['foo="bar"', 'bla="blubb"'],
+				events: [['onShow', 'myEvent']]
+			});
+		});
+	});
+
+	describe('precompile', function() {
+		it('Should precompile a tmpl string', function() {
+			var template = 'html\n';
+			template += '	head\n';
+			template += '	body\n';
+			template += '		div id=myDiv\n';
+			template += '		div id=mySecondDiv class=myClass\n';
+
+			var tmpl = new XQCore.Tmpl();
+			template = tmpl.precompile(template);
 			var html = template();
 			expect(html).to.equal(
 				'<html><head></head><body><div id="myDiv"></div>' +

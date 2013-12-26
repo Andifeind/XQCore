@@ -14,9 +14,9 @@
 	 * @return {Function} Returns a parsed tmpl source as a function.
 	 */
 	Tmpl.prototype.precompile = function(tmpl) {
-		var out = [],
+		var out = '',
 			match,
-			pattern = /^([ \t]*)?(\/\/)?(if|end|else|each|unless)?([a-z0-9]+)?(.*)?$/gm,
+			pattern = /^([ \t]*)?(\/\/)?(if|end|else|each|unless)?([a-zA-Z0-9]+=(?:(?:\"[^\"]+\")|(?:\'[^\']+\')|(?:\S+)))?([a-z0-9]+)?(.*)?$/gm,
 			closer = [],
 			attrs = '';
 
@@ -29,7 +29,7 @@
 		do {
 			match = pattern.exec(tmpl);
 			attrs = '';
-			// console.log('Match', match);
+			console.log('Match', match);
 			if (--d < 0) {
 				throw 'Never ending loop!';
 			}
@@ -40,26 +40,47 @@
 			}
 
 			var indention = this.getIndention(match[1]);
-			if (match[4]) {
+			if (match[5]) {
 				if (indention <= this.indention) {
 					do {
-						out.push(closer.pop());
+						out += (closer.pop() || '');
 						this.indention--;
 					} while(indention < this.indention);
 				}
 
-				if (match[5]) {
-					var res = this.stripAttributes(match[5]);
-					attrs = ' ' + res.attrs.join(' ');
+				if (match[6]) {
+					var res = this.stripAttributes(match[6]);
+					if (res) {
+						attrs = ' ' + res.attrs.join(' ');
 
-					if (res.events.length !== 0) {
-
+						if (res.events.length !== 0) {
+							//TODO register events
+						}
 					}
 				}
 
 				this.indention = indention;
-				out.push('<' + match[4] + attrs + '>');
-				closer.push('</' + match[4] + '>');
+				out += '<' + match[5] + attrs + '>';
+				closer.push('</' + match[5] + '>');
+			}
+			else if (match[6]) {
+				//It's a string
+				out += match[6];
+			}
+			else if (match[4]) {
+				var res = this.stripAttributes(match[4]);
+				if (res) {
+					attrs = ' ' + res.attrs.join(' ');
+
+					if (res.events.length !== 0) {
+						//TODO register events
+					}
+
+					out = out.replace(/\>$/, attrs + '>');
+				}
+				else {
+					throw 'Parse error (3)';
+				}
 			}
 
 
@@ -72,12 +93,12 @@
 					break;
 				}
 
-				out.push(el);
+				out += el;
 			}
 		}
 
 		return function(data) {
-			return out.join('');
+			return out;
 		};
 	};
 
@@ -97,7 +118,7 @@
 	};
 
 	Tmpl.prototype.stripAttributes = function(str) {
-		var pattern = /(?:(on[a-zA-Z0-9-]+)|([a-zA-Z0-9-]+))=((?:\"[^\"]+\")|(?:\'[^\']+\')|(?:\S+))/g;
+		var pattern = /(?:(on[A-Z][a-zA-Z0-9-]+)|([a-zA-Z0-9-]+))=((?:\"[^\"]+\")|(?:\'[^\']+\')|(?:\S+))/g;
 		var attrs = [],
 			events = [],
 			d = 1000,
@@ -123,10 +144,10 @@
 			}			
 		}
 
-		return {
+		return attrs.length || events.length ? {
 			attrs: attrs,
 			events: events
-		}
+		} : null;
 	};
 
 	XQCore.Tmpl = Tmpl;

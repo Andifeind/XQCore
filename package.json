@@ -1,6 +1,6 @@
 {
   "name": "xqcore",
-  "version": "0.5.1-19",
+  "version": "0.7.0-1",
   "description": "Model View Presenter Javascript Framework",
   "dependencies": {},
   "devDependencies": {

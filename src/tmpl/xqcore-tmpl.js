@@ -1,13 +1,17 @@
 (function(XQCore, undefined) {
 	'use strict';
 
-	var Tmpl = function() {
+	var Tmpl = function(url) {
 		this.indentionPattern = /\t/g;
 		this.pattern = /^([ \t]*)?(\/\/.*)?(if|end|else|each|unless)?([a-zA-Z0-9]+=(?:(?:\"[^\"]+\")|(?:\'[^\']+\')|(?:\S+)))?([a-z0-9]+)?(.*)?$/gm;
 
 		this.helpers = {};
 		this.registerCoreHelper();
 		this.nextScope = 0;
+
+		if (url) {
+			this.tmpl = XQCore.loadFile(url);
+		}
 	};
 
 	
@@ -25,6 +29,10 @@
 			statement,
 			curItem = null,
 			prevItem = null;
+
+		if (!tmpl && this.tmpl) {
+			tmpl = this.tmpl;
+		}
 
 		this.pattern.lastIndex = 0;
 		this.indention = -1;

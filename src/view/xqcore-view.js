@@ -24,6 +24,12 @@
 			name = conf.name;
 		}
 
+		if (typeof conf === 'function') {
+			var c = {};
+			conf.call(this, c);
+			conf = c;
+		}
+
 		/**
 		 * Determines wether the view is hidden after rendering
 		 * @property hidden

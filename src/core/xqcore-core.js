@@ -78,6 +78,22 @@ var XQCore;
 		}
 	};
 
+	XQCore.loadFile = function(src) {
+		var content = '';
+
+		jQuery.ajax({
+			async: false,
+			dataType:'text',
+			url: src
+		}).done(function(data, textStatus) {
+			content = data;
+		}).fail(function(jsXhr, txtStatus, err) {
+			console.error('Couldn\'t load file "' + src + '"" from server!', err);
+		});
+
+		return content;
+	};
+
 	return XQCore;
 }));
 

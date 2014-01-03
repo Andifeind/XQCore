@@ -1,4 +1,4 @@
-describe.only('Tmpl', function() {
+describe('Tmpl', function() {
 	'use strict';
 
 	beforeEach(function() {

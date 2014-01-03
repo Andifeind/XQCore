@@ -1,0 +1,19 @@
+TODO v1.0.0
+
+Presenter
+	- Events
+	- Register routings
+Model
+	- More add/update functions
+View
+	- Form validation
+Routing
+
+Tmpl
+	- Animations
+	- Drag n Drop support
+Logging
+
+Tools
+	- Precompiler
+	- HTML/Hbs to Tmpl

@@ -12,29 +12,47 @@
 	 * @class XQCore.Presenter
 	 * @constructor
 	 *
-	 * @extends XQCore.Logger
-	 * @extends XQCore.Event
+	 * @uses XQCore.Logger
+	 * @uses XQCore.Event
 	 *
-	 * @param  {Object} conf Presenter extend object
+	 * @param {Object} conf Presenter extend object
 	 */
-	var Presenter = function(conf) {
+	var Presenter = function(name, conf) {
+
 		if (typeof arguments[0] === 'object') {
 			conf = name;
 			name = conf.name;
 		}
+		
+		/**
+		 * Stores registered views
+		 * @private
+		 * @type {Array}
+		 */
+		this.__views = [];
+		
+		/**
+		 * Enable debug mode
+		 * @public
+		 * @type {Boolean}
+		 */
+		this.debug = XQCore.debug;
 
-		this.root = '/';
-		this.debug = false;
+		/**
+		 * Set presenter name
+		 * @public
+		 * @type {String}
+		 */
+		this.name = (name ? name.replace(/Presenter$/, '') : 'Nameless') + 'Presenter';
+
+		/* ++++++++++ old stuff +++++++++++++ */
+
 		this.routes = [];
 		
 		conf = conf || {};
 
-		this.customInit = conf.init;
 		this.conf = conf;
-		delete conf.init;
 
-		XQCore.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
-		this.name = (name.replace(/Presenter$/, '') || 'Nameless') + 'Presenter';
 		this.eventCallbacks = {};
 
 		/**
@@ -65,7 +83,12 @@
 			}
 		};
 
+		/**
+		 * @deprecated
+		 */
 		this.registerView = function(view) {
+			this.warn('presenter.registerView was deprecated since XQCore 0.7.0');
+
 			var i;
 			if (view instanceof Array) {
 				for (i = 0; i < view.length; i++) {
@@ -83,7 +106,12 @@
 			}
 		};
 
+		/**
+		 * @deprecated
+		 */
 		this.registerModel = function(model) {
+			this.warn('presenter.registerModel was deprecated since XQCore 0.7.0');
+
 			var i;
 			if (model instanceof Array) {
 				for (i = 0; i < model.length; i++) {
@@ -104,6 +132,9 @@
 		
 	};
 
+
+	XQCore.extend(Presenter.prototype, new XQCore.Event(), new XQCore.Logger());
+
 	/**
 	 * Listen View events
 	 * @property {Array} events Observed view events
@@ -114,6 +145,13 @@
 		var i,
 			self = this,
 			conf = this.conf;
+
+		if (typeof conf === 'function') {
+			conf.call(this, self);
+		}
+		else {
+			XQCore.extend(this, conf);
+		}
 
 		//Setup popstate listener
 		if (conf.routes) {
@@ -158,9 +196,9 @@
 			});
 		}
 
-		// custom init
-		if (typeof this.customInit === 'function') {
-			this.customInit.call(this);
+		// custom init (deprecated)
+		if (typeof conf.init === 'function') {
+			conf.init.call(this);
 		}
 
 		//Initialize views
@@ -443,6 +481,42 @@
 
 			route.fn.call(self, data);
 		}
+	};
+
+
+	/* ++++++++++++ v0.7.0 +++++++++++++++++ */
+
+
+	/**
+	 * Initialize a new view into the presenter scope
+	 * 
+	 * @method initView
+	 * @public
+	 * @param  {String} viewName  Name of the view
+	 * @param  {String} container Container selector, default is 'body'
+	 * @param  {String} mode      Insert mode, (append, prepend or replace) replace is default
+	 * @return {Object}           Returns a view object
+	 */
+	Presenter.prototype.initView = function(viewName, container, mode) {
+		if (this.__views[viewName]) {
+			this.warn('View allready registered!', viewName);
+			return;
+		}
+
+		var view = new XQCore.View();
+		this.__views[viewName] = view;
+		return view;
+	};
+
+	/**
+	 * Register an event listener
+	 *
+	 * @method onEvent
+	 * @param {String} event Event String
+	 * @param {Function} callback Callback function
+	 */
+	Presenter.prototype.onEvent = function(event, callback) {
+		
 	};
 
 	XQCore.Presenter = Presenter;

@@ -1,3 +1,17 @@
+v0.7.0
+	- new presenter mode
+	- new model mode
+	- remove view
+	- move events to presenter
+	- move routing to presenter
+	- Tmpl and Hbs
+	- Remove model init and model register (if possible)
+
+v0.8.0
+	
+
+
+
 TODO v1.0.0
 
 Presenter
@@ -9,11 +23,21 @@ View
 	- Form validation
 Routing
 
+EventEmitter
+
+Async Lib
+
 Tmpl
 	- Animations
 	- Drag n Drop support
+	- Inline functions
+	- i18n support
 Logging
+	- Global log levels
 
 Tools
 	- Precompiler
 	- HTML/Hbs to Tmpl
+
+v2.0.0
+	- data cache

@@ -46,6 +46,15 @@ module.exports = function(grunt) {
 					'src/model/xqcore-model.js'
 				],
 				dest: 'build/xqcore-minimal.js'
+			},
+			cli: {
+				src: [
+					'src/core/xqcore-cli.js',
+					'src/event/xqcore-event.js',
+					'src/logger/xqcore-logger.js',
+					'src/tmpl/xqcore-tmpl.js'
+				],
+				dest: 'build/xqcore-cli.js'
 			}
 		},
 		uglify: {

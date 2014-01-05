@@ -1,4 +1,4 @@
-describe('Tmpl', function() {
+describe.only('Tmpl', function() {
 	'use strict';
 
 	beforeEach(function() {
@@ -441,6 +441,14 @@ describe('Tmpl', function() {
 				'<span>Andi</span><span>Donnie</span>' +
 				'</body></html>'
 			);
+		});
+	});
+
+	describe('getTemplate', function() {
+		it('Should get a template from template cache', function() {
+			XQCore.templateCache.test = {
+
+			};
 		});
 	});
 });

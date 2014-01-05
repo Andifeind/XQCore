@@ -1,4 +1,4 @@
-describe.only('XQCore.Core', function() {
+describe('XQCore.Core', function() {
 	'use strict';
 
 	var $ = XQCore.require('jquery');

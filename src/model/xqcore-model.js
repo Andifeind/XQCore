@@ -33,7 +33,7 @@
 
 		XQCore.extend(this, conf, new XQCore.Logger());
 		XQCore.extend(this, new XQCore.Event());
-		this.name = (name.replace(/Model$/, '') || 'Nameless') + 'Model';
+		this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
 		this._isValid = false;
 		this.properties = {};

@@ -13,8 +13,12 @@
 	/**
 	 * XQCore.View
 	 *
-	 * @constructor
 	 * @class XQCore.View
+	 * @constructor
+	 *
+	 * @uses XQCore.Logger
+	 * @uses XQCore.Event
+	 * 
 	 * @param {object} conf View configuration
 	 */
 	var View = function(name, conf) {
@@ -23,26 +27,31 @@
 			conf = name;
 			name = conf.name;
 		}
-
-		if (typeof conf === 'function') {
-			var c = {};
-			conf.call(this, c);
-			conf = c;
-		}
-
-		/**
-		 * Determines wether the view is hidden after rendering
-		 * @property hidden
-		 * @type Boolean
-		 * @default false
-		 */
 		
 		/**
-		 * Sets the container element
-		 * @property el
-		 * @type Selector
-		 * @default "body"
+		 * Enable debug mode
+		 * @public
+		 * @type {Boolean}
 		 */
+		this.debug = XQCore.debug;
+
+		/**
+		 * Set presenter name
+		 * @public
+		 * @type {String}
+		 */
+		this.name = (name ? name.replace(/View$/, '') : 'Nameless') + 'View';
+
+		/**
+		 * Sets the container element
+		 * @property container
+		 * @type Selector
+		 * @default 'body'
+		 */
+		this.container = 'body';
+
+
+		/* ++++++++++ old stuff +++++++++++++ */
 
 		conf = conf || {
 			events: null
@@ -51,12 +60,9 @@
 		this.customInit = conf.init;
 		this.conf = conf;
 		delete conf.init;
-
-		XQCore.extend(this, conf, new XQCore.Event(), new XQCore.Logger());
-		this.name = (name.replace(/View$/, '') || 'Nameless') + 'View';
-
-		this.debug = Boolean(conf.debug);
 	};
+
+	XQCore.extend(View.prototype, new XQCore.Event(), new XQCore.Logger());
 
 	/**
 	 * Init function
@@ -69,11 +75,18 @@
 		var self = this,
 			conf = this.conf;
 
+		if (typeof conf === 'function') {
+			conf.call(this, self);
+		}
+		else {
+			XQCore.extend(this, conf);
+		}
+
 		//Register view at presenter
 		this.presenter = presenter;
 
 		$(function() {
-			this.container = $(conf.container);
+			this.container = $(this.container);
 			if (conf.tag === false) {
 				this.$el = this.container;
 			}
@@ -448,7 +461,6 @@
 
 		return index;
 	};
-
 
 
 	XQCore.View = View;

@@ -49,8 +49,14 @@
 		};
 
 		do {
+			console.log('Pat:', this.pattern, tmpl);
 			match = this.pattern.exec(tmpl);
-			console.log('Match', match);
+
+			if (!match) {
+				break;
+			}
+
+			// console.log('Match', match);
 			var isEmptyLine = /^\s*$/.test(match[0]),
 				matchIndention = match[1],
 				matchComment = match[2],
@@ -104,7 +110,7 @@
 			}
 			else if (matchContent) {
 				//It's a string
-				this.append('str', matchContent.replace(/\'/g, '\\\'').replace(/\$([a-zA-Z0-9$_]+)/g, '\' + data.$1 + \''));
+				this.append('str', matchContent.replace(/\'/g, '\\\'').replace(/\$([a-zA-Z0-9$_]+)/g, '\'+data.$1+\''));
 				this.closer.push('');
 			}
 			else if (matchAttribute) {
@@ -136,24 +142,7 @@
 			this.appendCloser();
 		}
 
-		var out = this.out,
-			helper = this.helpers;
-		return function(data) {
-			//jshint evil:true
-			console.log('Out:', data, out + '\'');
-			var s = '',
-				h;
-
-			h = helper;
-			try {
-				eval(out + '\';');
-			}
-			catch (err) {
-				console.error('Tmpl parse error', err);
-			}
-
-			return s;
-		};
+		return this.out;
 	};
 
 	/**
@@ -351,14 +340,14 @@
 	Tmpl.prototype.injectClass = function(className) {
 		var startPos = this.out.lastIndexOf('<');
 		var tag = this.out.slice(startPos);
-		console.log('Out before inject: ', this.out, tag);
+		// console.log('Out before inject: ', this.out, tag);
 		
 		if (!/^<[a-z0-9]+/.test(tag)) {
 			throw 'An each statement must be within a block element!';
 		}
 
 		tag = tag.replace(/(?:class="([^"]*)")|(>)$/, function(match, p1, p2) {
-			console.log('Inject args:', match, p1, p2);
+			// console.log('Inject args:', match, p1, p2);
 			if (p1) {
 				return 'class="' + p1 + ' ' + className + '"';
 			}
@@ -424,5 +413,28 @@
 		});
 	};
 
+	
+	Tmpl.prototype.run = function(precompiled) {
+		var out = this.out,
+			helper = this.helpers;
+			console.log('Out:', out + '\'');
+		return function(data) {
+			//jshint evil:true
+			var s = '',
+				h;
+
+			h = helper;
+			try {
+				eval(out + '\';');
+			}
+			catch (err) {
+				console.error('Tmpl parse error', err);
+			}
+
+			return s;
+		};
+	};
+
 	XQCore.Tmpl = Tmpl;
+	XQCore.templateCache = {};
 })(XQCore);

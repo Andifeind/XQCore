@@ -411,6 +411,9 @@
 		for (var key in eventConf) {
 			if (eventConf.hasOwnProperty(key)) {
 				registerListener(key, eventConf[key]);
+				if (key === 'data.change') {
+					model.emit(key, model.get());
+				}
 			}
 		}
 
@@ -503,8 +506,20 @@
 			return;
 		}
 
-		var view = new XQCore.View();
+		if (this.debug) {
+			this.log('Init view', viewName);
+		}
+
+		var view = new XQCore.View(viewName, function(self) {
+			self.template = XQCore.Tmpl.getTemplate(viewName);
+			self.mode = mode || 'replace';
+			self.container = container || 'body';
+			self.ready(function() {
+				self.render();
+			});
+		});
 		this.__views[viewName] = view;
+		view.init(this);
 		return view;
 	};
 

@@ -1,3 +1,4 @@
+/*global $:false */
 XQCore.LoggerUI = (function() {
 	'use strict';
 
@@ -58,7 +59,7 @@ XQCore.LoggerUI = (function() {
 			}
 			html += '</li>';
 
-		var item = $(html).appendTo(this.ui);
+		$(html).appendTo(this.ui);
 	};
 
 	return LoggerUI;

@@ -1,4 +1,5 @@
 describe('XQCore Logger', function() {
+	'use strict';
 	var log;
 	beforeEach(function() {
 		log = new XQCore.Logger();
@@ -22,7 +23,6 @@ describe('XQCore Logger', function() {
 
 	it('Should stop a timer and logs the resultto the console', function() {
 		var timer,
-			consoleLogSpy,
 			lastArgs;
 
 		console._log = console.log;

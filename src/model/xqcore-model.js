@@ -18,6 +18,14 @@
 			conf = name;
 			name = conf.name;
 		}
+
+		/**
+		 * Enable debug mode
+		 * @public
+		 * @type {Boolean}
+		 */
+		this.debug = XQCore.debug;
+
 		if (conf === undefined) {
 			conf = {};
 		}
@@ -31,8 +39,6 @@
 
 		this.conf = conf;
 
-		XQCore.extend(this, conf, new XQCore.Logger());
-		XQCore.extend(this, new XQCore.Event());
 		this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
 		this._isValid = false;
@@ -45,11 +51,23 @@
 		}
 	};
 
+
+	XQCore.extend(Model.prototype, new XQCore.Event(), new XQCore.Logger());
+
 	if (XQCore.Sync) {
 		XQCore.extend(Model.prototype, XQCore.Sync.prototype);
 	}
 
 	Model.prototype.init = function() {
+		var self = this,
+			conf = this.conf;
+
+		if (typeof conf === 'function') {
+			conf.call(this, self);
+		}
+		else {
+			XQCore.extend(this, conf);
+		}
 
 		if (this.debug) {
 			XQCore._dump[this.name] = this;

@@ -1,4 +1,5 @@
 describe('XQCore.Event', function() {
+	'use strict';
 	beforeEach(function() {
 
 	});

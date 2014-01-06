@@ -1,0 +1,5 @@
+ul
+	each $listing
+		li
+			span
+				$name

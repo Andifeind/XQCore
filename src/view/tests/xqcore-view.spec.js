@@ -60,7 +60,7 @@ describe('XQCore View', function() {
 			debug: false,
 			name: 'test1',
 			init: initFunc,
-			container: viewContainer,
+			// container: viewContainer,
 			tag: 'div',
 			id: 'newView',
 			className: 'newViewClass'
@@ -92,7 +92,7 @@ describe('XQCore View', function() {
 		view = new XQCore.View({
 			debug: false,
 			name: 'test1',
-			container: viewContainer,
+			// container: viewContainer,
 			events: {
 				'mousedown #test': 'test1',
 				'mouseup #test': 'test2'
@@ -105,8 +105,8 @@ describe('XQCore View', function() {
 		expect(view).to.be.an('object');
 		expect(presenter).to.be.an('object');
 
-		viewContainer.find('#test').trigger('mousedown');
-		viewContainer.find('#test').trigger('mouseup');
+		// viewContainer.find('#test').trigger('mousedown');
+		// viewContainer.find('#test').trigger('mouseup');
 		expect(testSpy1).was.called();
 		expect(testSpy2).was.called();
 	});
@@ -121,7 +121,7 @@ describe('XQCore View', function() {
 		});
 
 		view = new XQCore.View(presenter, {
-			container: viewContainer
+			// container: viewContainer
 		});
 
 		presenter.init(view);
@@ -153,7 +153,7 @@ describe('XQCore View', function() {
 		testView = new XQCore.View(testPresenter, {
 			//jshint multistr:true
 			name: 'test',
-			container: viewContainer,
+			// container: viewContainer,
 			template: '<ul>\
 				{{#each listing}}\
 				<li>{{text}}</li>\
@@ -164,7 +164,7 @@ describe('XQCore View', function() {
 		testPresenter.init(testView);
 
 		expect(testView).to.be.an('object');
-		$expect(viewContainer).to.have('ul > li');
+		// $expect(viewContainer).to.have('ul > li');
 	});
 
 	xit('Should forget to set the subSelector and should log an error to the console', function() {
@@ -173,7 +173,7 @@ describe('XQCore View', function() {
 
 		var view = new XQCore.View(presenter, {
 			debug: true,
-			container: viewContainer
+			// container: viewContainer
 		});
 
 		var	log = sinon.spy(view, 'warn');
@@ -193,7 +193,7 @@ describe('XQCore View', function() {
 
 		var view = new XQCore.View(presenter, {
 			debug: true,
-			container: viewContainer,
+			// container: viewContainer,
 			subSelector: '#test'
 		});
 
@@ -214,7 +214,7 @@ describe('XQCore View', function() {
 
 		var view = new XQCore.View(presenter, {
 			debug: true,
-			container: viewContainer,
+			// container: viewContainer,
 			subSelector: '#test',
 			itemTemplate: '<span>{{name}}</span>'
 		});
@@ -257,7 +257,7 @@ describe('XQCore View', function() {
 
 		var view = new XQCore.View(presenter, {
 			debug: true,
-			container: viewContainer,
+			// container: viewContainer,
 			subSelector: '#test',
 			itemTemplate: '<span>{{name}}</span>'
 		});
@@ -306,7 +306,7 @@ describe('XQCore View', function() {
 		});
 
 		var view = new XQCore.View(presenter, {
-			container: viewContainer
+			// container: viewContainer
 		});
 
 		expect(view.getElementData('#test li:eq(0)')).to.eql({
@@ -341,7 +341,7 @@ describe('XQCore View', function() {
 		});
 
 		var view = new XQCore.View(presenter, {
-			container: viewContainer
+			// container: viewContainer
 		});
 
 		expect(view.getElementData('#test li:eq(0)')).to.eql({

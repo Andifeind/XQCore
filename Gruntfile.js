@@ -14,7 +14,9 @@ module.exports = function(grunt) {
 			files: [
 				'src/**/*.js'
 			],
-			jshintrc: '.jshintrc'
+			options: {
+				jshintrc: '.jshintrc'
+			}
 		},
 		concat: {
 			options: {
@@ -86,6 +88,14 @@ module.exports = function(grunt) {
 					{
 						src: ['build/xqcore-minimal.js'],
 						dest: '../xqtools/webdocs/ext/xqcore-minimal.js'
+					}
+				]
+			},
+			'firetpl': {
+				files: [
+					{
+						src: ['../firetpl/firetpl.js'],
+						dest: 'examples/lib/firetpl.js'
 					}
 				]
 			}

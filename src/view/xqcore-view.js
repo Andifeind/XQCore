@@ -8,8 +8,6 @@
 (function(XQCore, undefined) {
 	'use strict';
 
-	var Handlebars = XQCore.require('handlebars');
-
 	/**
 	 * XQCore.View
 	 *
@@ -96,7 +94,12 @@
 				}
 
 				this.$el = $($.parseHTML('<' + conf.tag + '/>'));
-				this.$el.appendTo(this.container);
+				if (this.mode === 'replace') {
+					this.container.html(this.$el);
+				}
+				else {
+					this.$el.appendTo(this.container);
+				}
 			}
 
 			this.el = this.$el.get(0);
@@ -195,7 +198,16 @@
 			else {
 				this.error('Can\'t initialize View, Container not found!', this.container);
 			}
+			
+			//Set ready state
+			this.isReady = true;
+			if (this.__readyCallbacks) {
+				this.__readyCallbacks.forEach(function(fn) {
+					fn.call(this);
+				}.bind(this));
+			}
 		}.bind(this));
+
 	};
 
 	View.prototype.show = function() {
@@ -206,26 +218,9 @@
 		this.$el.hide();
 	};
 
-	/**
-	 * Render view
-	 *
-	 * @method render
-	 * @emits content.change
-	 *
-	 * @param  {Object} data Render data
-	 *
-	 */
-	View.prototype.render = function(data) {
-		this.log('Render view template', this.template, 'with data:', data);
-		var template = typeof this.template === 'function' ? this.template : Handlebars.compile(this.template);
-		this.$el.html(template(data || {}));
-
-		this.emit('content.change', data);
-	};
-
 	View.prototype.renderHTML = function(template, data) {
 		this.log('Render view html snipet', template, 'with data:', data);
-		template = typeof template === 'function' ? template : Handlebars.compile(template);
+		template = typeof template === 'function' ? template : XQCore.Tmpl.compile(template);
 		return template(data);
 	};
 
@@ -290,11 +285,11 @@
 
 		switch (action) {
 			case 'append':
-				html = Handlebars.compile(this.itemTemplate)(data);
+				html = XQCore.Tmpl.compile(this.itemTemplate)(data);
 				$(html).appendTo(selector);
 				break;
 			case 'prepend':
-				html = Handlebars.compile(this.itemTemplate)(data);
+				html = XQCore.Tmpl.compile(this.itemTemplate)(data);
 				$(html).prependTo(selector);
 				break;
 			case 'remove':
@@ -429,6 +424,25 @@
 	};
 
 	/**
+	 * Wait til view is ready
+	 *
+	 * @method ready
+	 * @param {Function} callback Callback
+	 */
+	View.prototype.ready = function(callback) {
+		if (this.isReady) {
+			callback.call(this);
+		}
+		else {
+			if (!this.__readyCallbacks) {
+				this.__readyCallbacks = [];
+			}
+
+			this.__readyCallbacks.push(callback);
+		}
+	};
+
+	/**
 	 * Gets the index of a subSelector item
 	 * This function must binded to the view
 	 *
@@ -460,6 +474,26 @@
 		}
 
 		return index;
+	};
+
+	/* +---------- new since v0.7.0 ----------+ */
+
+	/**
+	 * Render view
+	 *
+	 * @method render
+	 * @emits content.change
+	 *
+	 * @param  {Object} data Render data
+	 *
+	 */
+	View.prototype.render = function(data) {
+		this.ready(function() {
+			this.log('Render view template', this.template, 'with data:', data);
+			var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
+			this.$el.html(template(data || {}));
+			this.emit('content.change', data);
+		});
 	};
 
 

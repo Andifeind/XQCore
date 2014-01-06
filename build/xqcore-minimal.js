@@ -1,15 +1,15 @@
 /*!
- * XQCore - 0.5.1-18
+ * XQCore - +0.7.0-18
  * 
  * Model View Presenter Javascript Framework
  *
  * XQCore is licenced under MIT Licence
  * http://opensource.org/licenses/MIT
  *
- * Copyright (c) 2012 - 2013 Noname Media, http://noname-media.com
+ * Copyright (c) 2012 - 2014 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2013-12-08
+ * Creation Date: 2014-01-06
  */
 
 /*global XQCore:true */
@@ -19,14 +19,14 @@ var XQCore;
 	/*global define:false */
 	'use strict';
 
-    if (typeof define === 'function' && define.amd) {
-        define('xqcore', ['jquery', 'handlebars'], factory);
-    } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = factory(require('jquery'), require('handlebars'));
-    } else {
-        root.XQCore = factory(root.jQuery, root.Handlebars);
-    }
-}(this, function (jQuery, Handlebars) {
+	if (typeof define === 'function' && define.amd) {
+		define('xqcore', ['jquery'], factory);
+	} else if (typeof module !== 'undefined' && module.exports) {
+		module.exports = factory(require('jquery'));
+	} else {
+		root.XQCore = factory(root.jQuery);
+	}
+}(this, function (jQuery) {
 	'use strict';
 
 	/**
@@ -36,12 +36,15 @@ var XQCore;
 	 * @type {Object}
 	 */
 	XQCore = {
-		version: '0.5.1-18',
+		version: '0.7.0-18',
 		defaultRoute: 'default',
 		html5Routes: false,
 		hashBang: '#!',
 		callerEvent: 'callerEvent',
-		objectIdPattern: /^[a-zA-Z0-9]{24}$/
+		objectIdPattern: /^[a-zA-Z0-9]{24}$/,
+		templateEngine: 'firetpl',
+		viewsDir: './views/',
+		viewExt: '.fire'
 	};
 
 	//XQCore helper functions
@@ -72,9 +75,6 @@ var XQCore;
 	XQCore.require = function(moduleName) {
 		if (moduleName === 'jquery') {
 			return jQuery;
-		}
-		else if(moduleName === 'handlebars') {
-			return Handlebars;
 		}
 	};
 
@@ -680,7 +680,19 @@ var XQCore;
 		return obj;
 	};
 
-	Model = function(conf) {
+	Model = function(name, conf) {
+		if (typeof arguments[0] === 'object') {
+			conf = name;
+			name = conf.name;
+		}
+
+		/**
+		 * Enable debug mode
+		 * @public
+		 * @type {Boolean}
+		 */
+		this.debug = XQCore.debug;
+
 		if (conf === undefined) {
 			conf = {};
 		}
@@ -694,9 +706,7 @@ var XQCore;
 
 		this.conf = conf;
 
-		XQCore.extend(this, conf, new XQCore.Logger());
-		XQCore.extend(this, new XQCore.Event());
-		this.name = (conf.name || 'Nameless') + 'Model';
+		this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
 		this.debug = Boolean(conf.debug);
 		this._isValid = false;
 		this.properties = {};
@@ -708,11 +718,23 @@ var XQCore;
 		}
 	};
 
+
+	XQCore.extend(Model.prototype, new XQCore.Event(), new XQCore.Logger());
+
 	if (XQCore.Sync) {
 		XQCore.extend(Model.prototype, XQCore.Sync.prototype);
 	}
 
 	Model.prototype.init = function() {
+		var self = this,
+			conf = this.conf;
+
+		if (typeof conf === 'function') {
+			conf.call(this, self);
+		}
+		else {
+			XQCore.extend(this, conf);
+		}
 
 		if (this.debug) {
 			XQCore._dump[this.name] = this;

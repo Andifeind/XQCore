@@ -1,4 +1,6 @@
+/*global jQuery:false */
 describe('XQCore Model', function() {
+	'use strict';
 
 	beforeEach(function() {
 

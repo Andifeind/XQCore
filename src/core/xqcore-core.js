@@ -1,5 +1,5 @@
 /*!
- * XQCore - <%= pkg.version %>
+ * XQCore - +<%= pkg.version %>
  * 
  * <%= pkg.description %>
  *
@@ -19,14 +19,14 @@ var XQCore;
 	/*global define:false */
 	'use strict';
 
-    if (typeof define === 'function' && define.amd) {
-        define('xqcore', ['jquery', 'handlebars'], factory);
-    } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = factory(require('jquery'), require('handlebars'));
-    } else {
-        root.XQCore = factory(root.jQuery, root.Handlebars);
-    }
-}(this, function (jQuery, Handlebars) {
+	if (typeof define === 'function' && define.amd) {
+		define('xqcore', ['jquery'], factory);
+	} else if (typeof module !== 'undefined' && module.exports) {
+		module.exports = factory(require('jquery'));
+	} else {
+		root.XQCore = factory(root.jQuery);
+	}
+}(this, function (jQuery) {
 	'use strict';
 
 	/**
@@ -41,7 +41,10 @@ var XQCore;
 		html5Routes: false,
 		hashBang: '#!',
 		callerEvent: 'callerEvent',
-		objectIdPattern: /^[a-zA-Z0-9]{24}$/
+		objectIdPattern: /^[a-zA-Z0-9]{24}$/,
+		templateEngine: 'firetpl',
+		viewsDir: './views/',
+		viewExt: '.fire'
 	};
 
 	//XQCore helper functions
@@ -73,25 +76,6 @@ var XQCore;
 		if (moduleName === 'jquery') {
 			return jQuery;
 		}
-		else if(moduleName === 'handlebars') {
-			return Handlebars;
-		}
-	};
-
-	XQCore.loadFile = function(src) {
-		var content = '';
-
-		jQuery.ajax({
-			async: false,
-			dataType:'text',
-			url: src
-		}).done(function(data, textStatus) {
-			content = data;
-		}).fail(function(jsXhr, txtStatus, err) {
-			console.error('Couldn\'t load file "' + src + '"" from server!', err);
-		});
-
-		return content;
 	};
 
 	return XQCore;

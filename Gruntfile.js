@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 					'src/getset/xqcore-getset.js',
 					'src/tmpl/xqcore-tmpl.js',
 					'src/view/xqcore-view.js',
-					'src/util/xqcore-util.js',
+					'src/utils/xqcore-utils.js',
 					'src/router/xqcore-router.js',
 
 					'webdocs/js/plugins/xqcore-viewslide.js',
@@ -95,7 +95,7 @@ module.exports = function(grunt) {
 				files: [
 					{
 						src: ['../firetpl/firetpl.js'],
-						dest: 'examples/lib/firetpl.js'
+						dest: 'lib/firetpl.js'
 					}
 				]
 			}

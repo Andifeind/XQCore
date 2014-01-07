@@ -1,7 +1,7 @@
 {
 	"project": "XQCore",
 	"browser": true,
-	"files": "build/xqcore.js",
+	"files": ["lib/firetpl.js", "build/xqcore.js"],
 	"watch": "src/**/*.js",
 	"tests": "src/**/*.spec.js",
 	"grunt": {

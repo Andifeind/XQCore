@@ -1,17 +1,9 @@
+/**
+ *	@requires XQCore.Utils
+ */
 (function(XQCore, undefined) {
 	'use strict';
 	var Model;
-
-	var undotify = function(path, obj) {
-		if(path) {
-			path = path.split('.');
-			path.forEach(function(key) {
-				obj = obj[key];
-			});
-		}
-
-		return obj;
-	};
 
 	Model = function(name, conf) {
 		if (typeof arguments[0] === 'object') {
@@ -40,7 +32,6 @@
 		this.conf = conf;
 
 		this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
-		this.debug = Boolean(conf.debug);
 		this._isValid = false;
 		this.properties = {};
 		this.schema = conf.schema;
@@ -362,7 +353,7 @@
 			parent = this.properties;
 		}
 		else {
-			parent = undotify(path, this.properties);
+			parent = XQCore.undotify(path, this.properties);
 		}
 
 		if (parent) {
@@ -413,14 +404,14 @@
 			path = null;
 		}
 
-		var data = undotify(path, this.properties),
+		var data = XQCore.undotify(path, this.properties),
 			order;
 
 		data.sort(function(a, b) {
 			order = -1;
 			for (var key in sortKeys) {
 				if (sortKeys.hasOwnProperty(key)) {
-					order = String(undotify(key, a)).localeCompare(String(undotify(key, b)));
+					order = String(XQCore.undotify(key, a)).localeCompare(String(XQCore.undotify(key, b)));
 					if (order === 0) {
 						continue;
 					}

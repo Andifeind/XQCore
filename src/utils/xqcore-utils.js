@@ -16,6 +16,54 @@
 	};
 
 	/**
+	 * Creates a object from an dotified key and a value
+	 *
+	 * @public
+	 * @method dedotify
+	 * 
+	 * @param {Object} obj Add new value to obj. This param is optional.
+	 * @param {String} key The dotified key
+	 * @param {Any} value The value
+	 *
+	 * @returns {Object} Returns the extended object if obj was set otherwis a new object will be returned
+	 */
+	XQCore.dedotify = function(obj, key, value) {
+
+		if (typeof obj === 'string') {
+			value = key;
+			key = obj;
+			obj = {};
+		}
+
+		var newObj = obj;
+		console.log('O1:', obj);
+
+		if(key) {
+			key = key.split('.');
+			var len = key.length;
+			key.forEach(function(k, i) {
+				if (i === len - 1) {
+					obj[k] = value;
+					return;
+				}
+
+				if (!obj[k]) {
+					obj[k] = {};
+				}
+
+				obj = obj[k];
+		console.log('Ox:', newObj, i);
+			});
+		}
+
+		console.log('O2:', newObj);
+		obj = value;
+		console.log('O3:', newObj);
+
+		return newObj;
+	};
+
+	/**
 	 * Serialize a form and return its values as JSON
 	 *
 	 * @param {Object} Form selector

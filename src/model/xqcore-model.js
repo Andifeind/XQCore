@@ -125,25 +125,28 @@
 			oldData = this.get(),
 			validateResult;
 
-		options = options || {};
-
 		if (arguments[0] === null) {
 			newData = arguments[1];
 			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'object') {
 			//Add a dataset
+			key = null;
+			options = value;
 			newData = arguments[0];
 			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'string') {
-			newData = this.get();
+			console.log('P', this.properties);
+			newData = XQCore.extend({}, this.get());
 			key = arguments[0];
 			var val = arguments[1];
 
 			newData[key] = val;
+			console.log('P2', this.properties);
 			this.log('Set data', newData, oldData);
 
+			options = options || {};
 			if (options.validateOne) {
 				options.noValidation = true;
 				validateResult = this.validateOne(this.schema[key], val);
@@ -160,8 +163,11 @@
 			this.warn('Data are incorrect in model.set()', arguments);
 		}
 
+		options = options || {};
+
 		if (this.schema && options.noValidation !== true) {
 			validateResult = this.validate(newData);
+			console.log('VAL', validateResult);
 			if (validateResult !== null) {
 				this.warn('Validate error in model.set', validateResult);
 				if (options.silent !== true) {
@@ -185,10 +191,6 @@
 			this.emit('data.change', newData, oldData);
 		}
 
-		if (key && options.silent !== true) {
-			this.emit('change.' + key, newData[key]);
-		}
-
 		return true;
 	};
 
@@ -204,7 +206,7 @@
 			return this.properties;
 		}
 		else {
-			return this.properties[key];
+			return XQCore.undotify(key, this.properties);
 		}
 	};
 

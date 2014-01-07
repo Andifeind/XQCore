@@ -1,4 +1,4 @@
-describe('Utils', function() {
+describe.only('Utils', function() {
 	'use strict';
 
 	describe('undotify', function() {
@@ -37,6 +37,30 @@ describe('Utils', function() {
 		it('Should return a value from an object by using a dotnotated string as selector (Without path)', function() {
 			var value = XQCore.undotify(null, data);
 			expect(value).to.eql(data);
+		});
+	});
+
+	describe('dedotify', function() {
+		it('Should create a new object from a dotified key and a value', function() {
+			var data = XQCore.dedotify('bla.blubb', 'Super blubb');
+			expect(data).to.eql({
+				bla: {
+					blubb: 'Super blubb'
+				}
+			});
+		});
+
+		it('Should extend a existing object from a dotified key and a value', function() {
+			var data = XQCore.dedotify('needs.something', 'Coffee');
+			var existing = {
+				name: 'Andi'
+			};
+
+			expect(data).to.eql({
+				bla: {
+					blubb: 'Super blubb'
+				}
+			});
 		});
 	});
 });

@@ -46,6 +46,354 @@ describe.only('XQCore Model', function() {
 		});
 	});
 
+	describe('get', function() {
+		var model,
+			modelData;
+
+		beforeEach(function() {
+			modelData = {
+				name: 'Andi',
+				favorites: [
+					{name: 'Augustiner', voting: 'Best beer ever'},
+					{name: 'Bulmers', voting: 'Very delicious cider'}
+				],
+				sayHello: function() {
+					return 'Servus!';
+				},
+				profession: {
+					name: 'Developer'
+				}
+			};
+
+			model = new XQCore.Model('test');
+			model.properties = modelData;
+		});
+
+		it('Should get all data of a model', function() {
+			expect(model.get()).to.be.an('object');
+			expect(model.get()).to.eql(modelData);
+		});
+
+		it('Should get a item of a model (type string)', function() {
+			expect(model.get('name')).to.be.a('string');
+			expect(model.get('name')).to.eql('Andi');
+		});
+
+		it('Should get a item of a model (type object)', function() {
+			expect(model.get('favorites')).to.be.an('object');
+			expect(model.get('favorites')).to.eql(modelData.favorites);
+		});
+
+		it('Should get a item of a model (type function)', function() {
+			expect(model.get('sayHello')).to.be.a('function');
+			expect(model.get('sayHello')()).to.eql('Servus!');
+		});
+
+		it('Should get a deep item of a model (type string)', function() {
+			expect(model.get('profession.name')).to.be.a('string');
+			expect(model.get('profession.name')).to.eql('Developer');
+		});
+	});
+
+	describe('set', function() {
+		var model,
+			modelData;
+
+		beforeEach(function() {
+			modelData = {
+				name: 'Andi',
+				sayHello: function() {
+					return 'Servus!';
+				}
+			};
+			model = new XQCore.Model('test');
+		});
+
+		it('Should set model data', function() {
+			model.set(modelData);
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(modelData);
+		});
+
+		it('Should set model item', function() {
+			model.set(modelData);
+			model.set('profession', 'Developer');
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend(modelData, {
+				profession: 'Developer'
+			}));
+		});
+
+		it('Should set deep item', function() {
+			model.set(modelData);
+			model.set('profession.name', 'Developer');
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend(modelData, {
+				profession: {
+					name: 'Developer'
+				}
+			}));
+		});
+
+		it('Should set model data and should trigger an event', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			
+			model.set(modelData);
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(modelData);
+
+			expect(emitStub).was.calledOnce();
+			expect(emitStub).was.calledWith('data.change', model.properties, {});
+
+			emitStub.restore();
+		});
+
+		it('Should set model item and should trigger an event', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			
+			model.properties = modelData;
+			model.set('profession', 'Developer');
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend(modelData, {
+				profession: 'Developer'
+			}));
+
+			expect(emitStub).was.calledOnce();
+			expect(emitStub).was.calledWith('data.change', model.properties, modelData);
+
+			emitStub.restore();
+		});
+
+		it('Should set deep item and should trigger an event', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			
+			model.properties = modelData;
+			model.set('profession.name', 'Developer');
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend(modelData, {
+				profession: {
+					name: 'Developer'
+				}
+			}));
+
+			expect(emitStub).was.calledOnce();
+			expect(emitStub).was.calledWith('data.change', model.properties, modelData);
+
+			emitStub.restore();
+		});
+
+		it('Should set model data and should never trigger an event', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			
+			model.set(modelData, { silent: true });
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(modelData);
+
+			expect(emitStub).was.notCalled();
+
+			emitStub.restore();
+		});
+
+		it('Should set model item and should never trigger an event', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			
+			model.properties = modelData;
+			model.set('profession', 'Developer', { silent: true });
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend(modelData, {
+				profession: 'Developer'
+			}));
+
+			expect(emitStub).was.notCalled();
+
+			emitStub.restore();
+		});
+
+		it('Should set deep item and should never trigger an event', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			
+			model.properties = modelData;
+			model.set('profession.name', 'Developer', { silent: true });
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend(modelData, {
+				profession: {
+					name: 'Developer'
+				}
+			}));
+
+			expect(emitStub).was.notCalled();
+
+			emitStub.restore();
+		});
+
+		it('Should set model data and should validate the model. The validation fails and no data may be changed', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			validationStub.returns({});
+			model.schema = { name: 'String' };
+
+			model.set(modelData);
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql({});
+
+			expect(validationStub).was.called();
+			expect(validationStub).was.calledWith(modelData);
+
+			validationStub.restore();
+		});
+
+		it('Should set model data and should validate the model. The validation succeeds and the data may be changed', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			validationStub.returns(null);
+			model.schema = { name: 'String' };
+
+			model.set(modelData);
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(modelData);
+
+			expect(validationStub).was.called();
+			expect(validationStub).was.calledWith(modelData);
+
+			validationStub.restore();
+		});
+
+		it('Should set model item and should validate the model. The validation fails and no data may be changed', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			validationStub.returns({});
+			model.schema = { profession: { type: 'String' } };
+			
+			model.properties = modelData;
+			console.log(model.properties);
+			model.set('profession', 'Developer');
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(modelData);
+			console.log(model.properties);
+
+			expect(validationStub).was.called();
+			expect(validationStub).was.calledWith(XQCore.extend({}, modelData, {
+				profession: 'Developer'
+			}));
+
+			validationStub.restore();
+		});
+
+		xit('Should set model item and should validate the model. The validation succeeds and the data may be changed', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			validationStub.returns(null);
+			model.schema = { name: 'String' };
+			
+			model.properties = modelData;
+			model.set('profession', 'Developer', { silent: true });
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend(modelData, {
+				profession: 'Developer'
+			}));
+
+			expect(validationStub).was.called();
+			expect(validationStub).was.calledWith(XQCore.extend(modelData, {
+				profession: 'Developer'
+			}));
+
+			validationStub.restore();
+		});
+
+		xit('Should set deep item and should validate the model. The validation fails and no data may be changed', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			validationStub.returns({});
+			model.schema = { name: 'String' };
+			
+			model.properties = modelData;
+			model.set('profession.name', 'Developer', { silent: true });
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend(modelData, {
+				profession: {
+					name: 'Developer'
+				}
+			}));
+
+			expect(validationStub).was.called();
+			expect(validationStub).was.calledWith(XQCore.extend(modelData, {
+				profession: {
+					name: 'Developer'
+				}
+			}));
+
+			validationStub.restore();
+		});
+
+	});
+
+	describe('state', function() {
+		xit('Should set a state', function() {
+			
+		});
+	});
+
+	describe('getState', function() {
+		xit('Should get a state', function() {
+			
+		});
+	});
+
+	describe('has', function() {
+		xit('Should check wheter a dataset exists', function() {
+			
+		});
+	});
+
+	describe('restore', function() {
+		xit('Should reset a model', function() {
+			
+		});
+	});
+
+	describe('append', function() {
+		xit('Should append data to a subset', function() {
+			
+		});
+	});
+
+	describe('prepend', function() {
+		xit('Should prepend data to a subset', function() {
+			
+		});
+	});
+
+	describe('prepend', function() {
+		xit('Should remove data from a subset', function() {
+			
+		});
+	});
+
+	describe('search', function() {
+		xit('Should search data in a model', function() {
+			
+		});
+	});
+
+	describe('sortBy', function() {
+		xit('Should sort a subset', function() {
+			
+		});
+	});
+
+	describe('validate', function() {
+		xit('Should validate a model', function() {
+			
+		});
+	});
+
+	describe('validateOne', function() {
+		xit('Should validate on model item', function() {
+			
+		});
+	});
+
+	describe('isValid', function() {
+		xit('Should return the validation state of a model', function() {
+			
+		});
+	});
+
 	xit('Should set and get properties to the model', function() {
 		var testModel = new XQCore.Model({
 

@@ -36,7 +36,6 @@
 		}
 
 		var newObj = obj;
-		console.log('O1:', obj);
 
 		if(key) {
 			key = key.split('.');
@@ -52,13 +51,10 @@
 				}
 
 				obj = obj[k];
-		console.log('Ox:', newObj, i);
 			});
 		}
 
-		console.log('O2:', newObj);
 		obj = value;
-		console.log('O3:', newObj);
 
 		return newObj;
 	};

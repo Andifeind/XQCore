@@ -262,11 +262,9 @@ describe.only('XQCore Model', function() {
 			model.schema = { profession: { type: 'String' } };
 			
 			model.properties = modelData;
-			console.log(model.properties);
 			model.set('profession', 'Developer');
 			expect(model.properties).to.be.an('object');
 			expect(model.properties).to.eql(modelData);
-			console.log(model.properties);
 
 			expect(validationStub).was.called();
 			expect(validationStub).was.calledWith(XQCore.extend({}, modelData, {
@@ -276,48 +274,179 @@ describe.only('XQCore Model', function() {
 			validationStub.restore();
 		});
 
-		xit('Should set model item and should validate the model. The validation succeeds and the data may be changed', function() {
+		it('Should set model item and should validate the model. The validation succeeds and the data may be changed', function() {
 			var validationStub = sinon.stub(model, 'validate');
 			validationStub.returns(null);
-			model.schema = { name: 'String' };
+			model.schema = { profession: { type: 'String' } };
 			
 			model.properties = modelData;
-			model.set('profession', 'Developer', { silent: true });
+			model.set('profession', 'Developer');
 			expect(model.properties).to.be.an('object');
-			expect(model.properties).to.eql(XQCore.extend(modelData, {
+			expect(model.properties).to.eql(XQCore.extend({}, modelData, {
 				profession: 'Developer'
 			}));
 
 			expect(validationStub).was.called();
-			expect(validationStub).was.calledWith(XQCore.extend(modelData, {
+			expect(validationStub).was.calledWith(XQCore.extend({}, modelData, {
 				profession: 'Developer'
 			}));
 
 			validationStub.restore();
 		});
 
-		xit('Should set deep item and should validate the model. The validation fails and no data may be changed', function() {
+		it('Should set deep item and should validate the model. The validation fails and no data may be changed', function() {
 			var validationStub = sinon.stub(model, 'validate');
 			validationStub.returns({});
 			model.schema = { name: 'String' };
 			
 			model.properties = modelData;
-			model.set('profession.name', 'Developer', { silent: true });
+			model.set('profession.name', 'Developer');
 			expect(model.properties).to.be.an('object');
-			expect(model.properties).to.eql(XQCore.extend(modelData, {
-				profession: {
-					name: 'Developer'
-				}
-			}));
+			expect(model.properties).to.eql(modelData);
 
 			expect(validationStub).was.called();
-			expect(validationStub).was.calledWith(XQCore.extend(modelData, {
+			expect(validationStub).was.calledWith(XQCore.extend({}, modelData, {
 				profession: {
 					name: 'Developer'
 				}
 			}));
 
 			validationStub.restore();
+		});
+
+		it('Should set deep item and should validate the model. The validation succeeds and the data may be changed', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			validationStub.returns(null);
+			model.schema = { name: 'String' };
+			
+			model.properties = modelData;
+			model.set('profession.name', 'Developer');
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend({}, modelData, {
+				profession: {
+					name: 'Developer'
+				}
+			}));
+
+			expect(validationStub).was.called();
+			expect(validationStub).was.calledWith(XQCore.extend({}, modelData, {
+				profession: {
+					name: 'Developer'
+				}
+			}));
+
+			validationStub.restore();
+		});
+
+		it('Should set model item enable validateOne, the validation fails', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			var validationOneStub = sinon.stub(model, 'validateOne');
+			validationOneStub.returns({ isValid: false });
+			model.schema = { profession: { type: 'String' } };
+			
+			model.properties = modelData;
+			model.set('profession', 'Developer', { validateOne: true });
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(modelData);
+
+			expect(validationStub).was.notCalled();
+			expect(validationOneStub).was.called();
+			expect(validationOneStub).was.calledWith({ type: 'String' }, 'Developer');
+
+			validationStub.restore();
+			validationOneStub.restore();
+		});
+
+		it('Should set model item enable validateOne, the validation succeeds', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			var validationOneStub = sinon.stub(model, 'validateOne');
+			validationOneStub.returns({ isValid: true });
+			model.schema = { profession: { type: 'String' } };
+			
+			model.properties = modelData;
+			model.set('profession', 'Developer', { validateOne: true });
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend({}, modelData, {
+				profession: 'Developer'
+			}));
+
+			expect(validationStub).was.notCalled();
+			expect(validationOneStub).was.called();
+			expect(validationOneStub).was.calledWith({ type: 'String' }, 'Developer');
+
+			validationStub.restore();
+			validationOneStub.restore();
+		});
+
+	});
+
+	describe('set with custom validation', function() {
+		var model,
+			modelData;
+
+		beforeEach(function() {
+			modelData = {
+				name: 'Andi',
+				sayHello: function() {
+					return 'Servus!';
+				}
+			};
+
+			model = new XQCore.Model('test', {
+				validate: function() {}
+			});
+		});
+
+		it('Should set model item a custom validation was set and the validation fails', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			var validationOneStub = sinon.stub(model, 'validateOne');
+			var customValidationStub = sinon.stub(model, 'customValidate');
+			
+			customValidationStub.returns({});
+			model.schema = { profession: { type: 'String' } };
+			
+			model.properties = modelData;
+			model.set('profession', 'Developer');
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(modelData);
+
+			expect(validationStub).was.notCalled();
+			expect(validationOneStub).was.notCalled();
+			expect(customValidationStub).was.called();
+			expect(customValidationStub).was.calledWith(XQCore.extend({}, modelData, {
+				profession: 'Developer'
+			}));
+
+			validationStub.restore();
+			validationOneStub.restore();
+			customValidationStub.restore();
+		});
+
+		it('Should set model item a custom validation was set and the validation fails', function() {
+			var validationStub = sinon.stub(model, 'validate');
+			var validationOneStub = sinon.stub(model, 'validateOne');
+			var customValidationStub = sinon.stub(model, 'customValidate');
+			
+			customValidationStub.returns(null);
+			model.schema = { profession: { type: 'String' } };
+			
+			model.properties = modelData;
+			model.set('profession', 'Developer');
+			expect(model.properties).to.be.an('object');
+			expect(model.properties).to.eql(XQCore.extend({}, modelData, {
+				profession: 'Developer'
+			}));
+
+			expect(validationStub).was.notCalled();
+			expect(validationOneStub).was.notCalled();
+			expect(customValidationStub).was.called();
+			expect(customValidationStub).was.calledWith(XQCore.extend({}, modelData, {
+				profession: 'Developer'
+			}));
+
+			validationStub.restore();
+			validationOneStub.restore();
+			customValidationStub.restore();
 		});
 
 	});

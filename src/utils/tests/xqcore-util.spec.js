@@ -1,4 +1,4 @@
-describe.only('Utils', function() {
+describe('Utils', function() {
 	'use strict';
 
 	describe('undotify', function() {
@@ -51,14 +51,15 @@ describe.only('Utils', function() {
 		});
 
 		it('Should extend a existing object from a dotified key and a value', function() {
-			var data = XQCore.dedotify('needs.something', 'Coffee');
 			var existing = {
 				name: 'Andi'
 			};
+			var data = XQCore.dedotify(existing, 'needs.something', 'Coffee');
 
 			expect(data).to.eql({
-				bla: {
-					blubb: 'Super blubb'
+				name: 'Andi',
+				needs: {
+					something: 'Coffee'
 				}
 			});
 		});

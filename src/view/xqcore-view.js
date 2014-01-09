@@ -500,6 +500,8 @@
 	View.prototype.registerListener = function($el) {
 		var self = this;
 
+		//TODO get form data on submit event
+
 		$el.find('[on]').each(function() {
 			var $cur = $(this);
 			var events = $(this).attr('on');
@@ -509,8 +511,9 @@
 			events = events.split(';');
 			events.forEach(function(ev) {
 				ev = ev.split(':');
-				$cur.bind(ev[0], function() {
-					self.presenter.emit(ev[1], data);
+				$cur.bind(ev[0], function(e) {
+					e.preventDefault();
+					self.presenter.emit(ev[1], data, e);
 				});
 			});
 		});

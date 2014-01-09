@@ -8,6 +8,10 @@ var presenter = new XQCore.Presenter('Main', function(self) {
 		view: listingView,
 		model: listingModel
 	});
+
+	self.on('click', function(data) {
+		console.log('Click', data);
+	});
 });
 
 presenter.init();

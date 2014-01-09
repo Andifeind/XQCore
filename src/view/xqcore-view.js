@@ -501,15 +501,15 @@
 		var self = this;
 
 		$el.find('[on]').each(function() {
-			console.log($(this).attr('on'));
+			var $cur = $(this);
 			var events = $(this).attr('on');
 			var data = $(this).data();
-			$(this).removeAttr('on');
+			$cur.removeAttr('on');
 
 			events = events.split(';');
 			events.forEach(function(ev) {
 				ev = ev.split(':');
-				$(this).bind(ev[0], function() {
+				$cur.bind(ev[0], function() {
 					self.presenter.emit(ev[1], data);
 				});
 			});

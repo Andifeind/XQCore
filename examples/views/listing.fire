@@ -1,5 +1,5 @@
 ul
 	each $listing
 		li
-			span
+			span onClick=click data-id=$name
 				$name

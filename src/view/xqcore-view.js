@@ -193,7 +193,7 @@
 				}
 
 				//Call presenter.initView()
-				this.presenter.fireViewInit(this);
+				// this.presenter.fireViewInit(this);
 			}
 			else {
 				this.error('Can\'t initialize View, Container not found!', this.container);
@@ -492,7 +492,27 @@
 			this.log('Render view template', this.template, 'with data:', data);
 			var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
 			this.$el.html(template(data || {}));
+			this.registerListener(this.$el);
 			this.emit('content.change', data);
+		});
+	};
+
+	View.prototype.registerListener = function($el) {
+		var self = this;
+
+		$el.find('[on]').each(function() {
+			console.log($(this).attr('on'));
+			var events = $(this).attr('on');
+			var data = $(this).data();
+			$(this).removeAttr('on');
+
+			events = events.split(';');
+			events.forEach(function(ev) {
+				ev = ev.split(':');
+				$(this).bind(ev[0], function() {
+					self.presenter.emit(ev[1], data);
+				});
+			});
 		});
 	};
 

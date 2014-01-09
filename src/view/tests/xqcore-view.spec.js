@@ -1,5 +1,5 @@
 /*global $:false */
-describe('XQCore View', function() {
+describe.only('XQCore View', function() {
 	'use strict';
 
 	beforeEach(function() {
@@ -34,7 +34,7 @@ describe('XQCore View', function() {
 			expect(view.name).to.equal('NamelessView');
 		});
 
-		it('Should add a view to its container', function() {
+		xit('Should add a view to its container', function() {
 			var view = new XQCore.View('TestI', function(self) {
 				self.container = $.parseHTML('div');
 				self.template = '<div class="test"></div>';
@@ -43,7 +43,33 @@ describe('XQCore View', function() {
 
 			view.init({});
 			expect(view.container.html()).to.equal('<div><div class="test"></div></div>');
-			expect(view.el.html()).to.equal('<div class="test"></div>');
+			expect(view.$el.html()).to.equal('<div class="test"></div>');
+		});
+	});
+
+	describe('registerListener', function() {
+		it('Should register listener for browser events', function() {
+			var bindStub = sinon.stub($.fn, 'bind');
+			
+			var el = '<div id="myDiv" on="show:show">' +
+				'<button data-filter="asc" on="click:filter">Filter ascend</button>' +
+				'<button data-filter="desc" on="click:filter">Filter descend</button>' +
+				'</div>';
+
+			var $el = $($.parseHTML('<div>')).append($.parseHTML(el));
+
+			var view = new XQCore.View();
+			view.registerListener($el);
+
+			expect($el.html()).to.eql('<div id="myDiv">' +
+				'<button data-filter="asc">Filter ascend</button>' +
+				'<button data-filter="desc">Filter descend</button>' +
+				'</div>');
+
+			expect(bindStub).was.calledThrice();
+			expect(bindStub).was.calledWith('show');
+			expect(bindStub).was.calledWith('click');
+			bindStub.restore();
 		});
 	});
 

@@ -132,18 +132,4 @@ describe('XQCore Presenter', function() {
 			presenter.init();
 		});
 	});
-
-	describe('event', function() {
-		it('Should register a browser eevent', function() {
-			var presenter = new XQCore.Presenter('Test', function(self) {
-				self.onEvent('click .button', function(e, tag, data) {
-
-				});
-			});
-
-			presenter.init();
-
-			expect(presenter.__events[0]).to.eql({});
-		});
-	});
 });

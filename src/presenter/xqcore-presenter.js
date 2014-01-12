@@ -130,6 +130,7 @@
 		};
 
 		
+		this.__Router = new XQCore.Router();
 	};
 
 
@@ -155,7 +156,6 @@
 
 		//Setup popstate listener
 		if (conf.routes) {
-			this.Router = new XQCore.Router();
 
 			//Add routes
 			Object.keys(conf.routes).forEach(function(route) {
@@ -165,35 +165,33 @@
 				}
 
 				if (typeof callback === 'function') {
-					this.Router.addRoute(route, callback);
+					this.__Router.addRoute(route, callback);
 				}
 				else {
 					this.warn('Router callback isn\'t a function', callback, 'of route', route);
 				}
 			}.bind(this));
+		}
 
-			window.addEventListener('popstate', function(e) {
-				self.__onPopstate(e.state);
-			}, false);
+		window.addEventListener('popstate', function(e) {
+			self.__onPopstate(e.state);
+		}, false);
 
-			this.on('views.ready',function() {
-				var route = XQCore.defaultRoute;
-				if (/^#![a-zA-Z0-9]+/.test(self.getHash())) {
-					route = self.getHash().substr(2);
-				}
+		var route = XQCore.defaultRoute;
+		if (/^#![a-zA-Z0-9]+/.test(self.getHash())) {
+			route = self.getHash().substr(2);
+		}
 
-				route = self.Router.match(route);
-				if (route) {
-					var data = route.params;
-					if (XQCore.callerEvent) {
-						data[XQCore.callerEvent] = 'pageload';
-					}
+		route = self.__Router.match(route);
+		if (route) {
+			var data = route.params;
+			if (XQCore.callerEvent) {
+				data[XQCore.callerEvent] = 'pageload';
+			}
 
-					self.log('Trigger route', route, data);
+			self.log('Trigger route', route, data);
 
-					route.fn.call(self, route.params);
-				}
-			});
+			route.fn.call(self, route.params);
 		}
 
 		// custom init (deprecated)
@@ -366,13 +364,18 @@
 	 */
 	Presenter.prototype.couple = function(conf) {
 		var view = conf.view,
-			model = conf.model;
+			model = conf.model,
+			key;
 
-		var eventConf = XQCore.extend({
+		var modelEventConf = XQCore.extend({
 			'data.change': 'render',
 			'validation.error': 'validationFailed',
 			'state.change': 'stateChanged'
-		}, conf.events);
+		}, conf.modelEvents);
+
+		var viewEventConf = XQCore.extend({
+			'form.submit': 'setData'
+		}, conf.viewEvents);
 
 		if (!view instanceof XQCore.View) {
 			this.error('Can\'t couple view with model! View isn\'t a XQCore.View');
@@ -402,18 +405,30 @@
 			model.__coupledWith.push(view);
 		}
 
-		var registerListener = function(listener, func) {
+		var registerModelListener = function(listener, func) {
 			model.on(listener, function(arg) {
 				view[func](arg, model.name);
 			});
 		};
 
-		for (var key in eventConf) {
-			if (eventConf.hasOwnProperty(key)) {
-				registerListener(key, eventConf[key]);
+		var registerViewListener = function(listener, func) {
+			view.on(listener, function(arg) {
+				model[func](arg, view.name);
+			});
+		};
+
+		for (key in modelEventConf) {
+			if (modelEventConf.hasOwnProperty(key)) {
+				registerModelListener(key, modelEventConf[key]);
 				if (key === 'data.change') {
 					model.emit(key, model.get());
 				}
+			}
+		}
+
+		for (key in viewEventConf) {
+			if (viewEventConf.hasOwnProperty(key)) {
+				registerViewListener(key, viewEventConf[key]);
 			}
 		}
 
@@ -473,7 +488,7 @@
 			}
 		}
 
-		route = self.Router.match(route);
+		route = self.__Router.match(route);
 		if (route) {
 			data = data || route.params;
 			if (XQCore.callerEvent) {
@@ -524,14 +539,25 @@
 	};
 
 	/**
-	 * Register an event listener
+	 * Register a route listen
 	 *
-	 * @method onEvent
-	 * @param {String} event Event String
+	 * @public
+	 * @method route
+	 * @param {String} route Route string
 	 * @param {Function} callback Callback function
 	 */
-	Presenter.prototype.onEvent = function(event, callback) {
-		
+	Presenter.prototype.route = function(route, callback) {
+		if (typeof callback === 'string') {
+			callback = this[callback];
+		}
+
+		if (typeof callback === 'function') {
+			this.log('Register route', route, 'with callback', callback);
+			this.__Router.addRoute(route, callback);
+		}
+		else {
+			this.warn('Router callback isn\'t a function', callback, 'of route', route);
+		}
 	};
 
 	XQCore.Presenter = Presenter;

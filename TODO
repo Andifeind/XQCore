@@ -1,11 +1,5 @@
 v0.7.0
-	- new presenter mode
-	- new model mode
-	- remove view
-	- move events to presenter
-	- move routing to presenter
 	- Tmpl and Hbs
-	- Remove model init and model register (if possible)
 
 v0.8.0
 	
@@ -15,8 +9,8 @@ v0.8.0
 TODO v1.0.0
 
 Presenter
-	- Events
-	- Register routings
+	- Events - DONE
+	- Register routings - DONE
 Model
 	- More add/update functions
 View

@@ -1,4 +1,4 @@
-describe('XQCore Presenter', function() {
+describe.only('XQCore Presenter', function() {
 	'use strict';
 
 	describe('initialize', function() {
@@ -127,6 +127,25 @@ describe('XQCore Presenter', function() {
 				var view = self.initView('Test');
 				expect(view).to.be.a(XQCore.View);
 				expect(presenter.__views.TestI).to.be.ok();
+			});
+
+			presenter.init();
+		});
+	});
+
+	describe('route', function() {
+		it('Should register a routing listener', function() {
+			var indexStub = sinon.stub();
+			var addStub = sinon.stub();
+			
+			var presenter = new XQCore.Presenter('Test', function(self) {
+				self.route('index', indexStub);
+				self.route('add', addStub);
+
+				expect(self.__Router.routeMap).to.eql({
+					'index': indexStub,
+					'add': addStub
+				});
 			});
 
 			presenter.init();

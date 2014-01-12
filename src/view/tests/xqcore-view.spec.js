@@ -1,5 +1,5 @@
 /*global $:false */
-describe.only('XQCore View', function() {
+describe('XQCore View', function() {
 	'use strict';
 
 	beforeEach(function() {
@@ -47,7 +47,7 @@ describe.only('XQCore View', function() {
 		});
 	});
 
-	describe('registerListener', function() {
+	describe.only('registerListener', function() {
 		it('Should register listener for browser events', function() {
 			var bindStub = sinon.stub($.fn, 'bind');
 			
@@ -69,6 +69,26 @@ describe.only('XQCore View', function() {
 			expect(bindStub).was.calledThrice();
 			expect(bindStub).was.calledWith('show');
 			expect(bindStub).was.calledWith('click');
+			bindStub.restore();
+		});
+
+		it('Should serialize form data on a submit event', function() {
+			var bindStub = sinon.stub($.fn, 'bind');
+			var el = '<form on="submit:save"><input type="hidden" name="test" value="123">' +
+				'<input type="text" name="name" value="Andi">' +
+				'<input type="checkbox" name="isCool" checked="checked" value="1">' +
+				'<input type="radio" name="likes" value="Tea">' +
+				'<input type="radio" name="likes" value="Coffee" checked="checked">' +
+				'<textarea name="msg">Hello World</textarea>' +
+				'<select name="fruits"><option value="apple">Apple</option>' +
+				'<option value="banana">Banana</option></select></form>';
+
+			var $el = $($.parseHTML(el));
+
+			var view = new XQCore.View();
+			view.registerListener($el);
+
+			expect(bindStub).was.calledOnce();
 			bindStub.restore();
 		});
 	});

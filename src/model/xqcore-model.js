@@ -125,6 +125,8 @@
 			oldData = this.get(),
 			validateResult;
 
+		options = options || {};
+
 		if (arguments[0] === null) {
 			newData = arguments[1];
 			this.log('Set data', newData, oldData);
@@ -132,8 +134,8 @@
 		else if (typeof arguments[0] === 'object') {
 			//Add a dataset
 			key = null;
-			options = value;
-			newData = arguments[0];
+			options = value || {};
+			newData = options.extend ? XQCore.extend(newData, oldData, arguments[0]) : arguments[0];
 			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'string') {
@@ -635,6 +637,12 @@
 
 	Model.prototype.isValid = function() {
 		return this._isValid;
+	};
+
+	Model.prototype.setData = function(data, caller) {
+		return this.set(data, {
+			extend: true
+		});
 	};
 
 	XQCore.Model = Model;

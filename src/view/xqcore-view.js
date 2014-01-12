@@ -84,8 +84,10 @@
 		this.presenter = presenter;
 
 		$(function() {
+			console.log('View', this);
+
 			this.container = $(this.container);
-			if (conf.tag === false) {
+			if (this.mode === 'replace' || conf.tag === false) {
 				this.$el = this.container;
 			}
 			else {
@@ -501,22 +503,60 @@
 		var self = this;
 
 		//TODO get form data on submit event
-
-		$el.find('[on]').each(function() {
+		$el.find('[on]').addBack('[on]').each(function() {
 			var $cur = $(this);
 			var events = $(this).attr('on');
 			var data = $(this).data();
+			var listenerFunc;
 			$cur.removeAttr('on');
 
 			events = events.split(';');
 			events.forEach(function(ev) {
 				ev = ev.split(':');
-				$cur.bind(ev[0], function(e) {
-					e.preventDefault();
-					self.presenter.emit(ev[1], data, e);
-				});
+
+				if (ev[0] === 'submit') {
+					listenerFunc = function(e) {
+						e.preventDefault();
+						data = self.serializeForm(e.target);
+						self.presenter.emit(ev[1], data, e);
+						self.emit('form.submit', data);
+					}.bind(this);
+				}
+				else {
+					listenerFunc = function(e) {
+						e.preventDefault();
+						self.presenter.emit(ev[1], data, e);
+					}.bind(this);
+				}
+
+				$cur.bind(ev[0], listenerFunc);
 			});
 		});
+	};
+
+	/**
+	 * Serialize a form and return its values as JSON
+	 *
+	 * @param {Object} Form selector
+	 * @return {Object} FormData as JSON
+	 */
+	View.prototype.serializeForm = function(selector) {
+		var formData = {},
+			formSelector = $(selector);
+
+		if (formSelector.get(0).tagName !== 'INPUT') {
+			formSelector = formSelector.find(':input');
+		}
+
+		formSelector.serializeArray().forEach(function(item) {
+			XQCore.dedotify(formData, item.name, item.value);
+		});
+
+		if (this.debug) {
+			console.log('XQCore - Serialize form:', formSelector, formData);
+		}
+
+		return formData;
 	};
 
 

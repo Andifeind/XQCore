@@ -37,7 +37,7 @@ var XQCore;
 	 */
 	XQCore = {
 		version: '<%= pkg.version %>',
-		defaultRoute: 'default',
+		defaultRoute: 'index',
 		html5Routes: false,
 		hashBang: '#!',
 		callerEvent: 'callerEvent',

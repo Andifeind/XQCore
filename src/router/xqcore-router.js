@@ -27,10 +27,10 @@
 		
 		var src, re, keys = [];
 		
-		if(path instanceof RegExp){
+		if (path instanceof RegExp) {
 			re = path;
 			src = path.toString();
-		}else{
+		} else {
 			re = pathToRegExp(path, keys);
 			src = path;
 		}

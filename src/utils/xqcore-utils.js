@@ -59,30 +59,7 @@
 		return newObj;
 	};
 
-	/**
-	 * Serialize a form and return its values as JSON
-	 *
-	 * @param {Object} Form selector
-	 * @return {Object} FormData as JSON
-	 */
-	// util.serializeForm = function(selector) {
-	// 	var formData = {},
-	// 		formSelector = $(selector);
-
-	// 	if (formSelector.get(0).tagName !== 'INPUT') {
-	// 		formSelector = formSelector.find(':input');
-	// 	}
-
-	// 	formSelector.serializeArray().forEach(function(item) {
-	// 		formData[item.name] = item.value;
-	// 	});
-
-	// 	if (this.debug) {
-	// 		console.log('XQCore - Serialize form:', formSelector, formData);
-	// 	}
-
-	// 	return formData;
-	// };
+	
 
 	/**
 	 * Check length of a string or number

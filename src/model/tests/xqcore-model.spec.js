@@ -1,5 +1,5 @@
 /*global jQuery:false */
-describe.only('XQCore Model', function() {
+describe('XQCore Model', function() {
 	'use strict';
 
 	describe('initialize', function() {

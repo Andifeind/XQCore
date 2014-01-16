@@ -34,20 +34,12 @@ describe('XQCore View', function() {
 			expect(view.name).to.equal('NamelessView');
 		});
 
-		xit('Should add a view to its container', function() {
-			var view = new XQCore.View('TestI', function(self) {
-				self.container = $.parseHTML('div');
-				self.template = '<div class="test"></div>';
-				self.render();
-			});
-
-			view.init({});
-			expect(view.container.html()).to.equal('<div><div class="test"></div></div>');
-			expect(view.$el.html()).to.equal('<div class="test"></div>');
+		it('Should replace a view in it\'s container', function() {
+			
 		});
 	});
 
-	describe.only('registerListener', function() {
+	describe('registerListener', function() {
 		it('Should register listener for browser events', function() {
 			var bindStub = sinon.stub($.fn, 'bind');
 			
@@ -90,6 +82,33 @@ describe('XQCore View', function() {
 
 			expect(bindStub).was.calledOnce();
 			bindStub.restore();
+		});
+	});
+
+	describe('render', function() {
+		var view,
+			presenter,
+			renderStub;
+
+		beforeEach(function() {
+			view = new XQCore.View();
+			presenter = new XQCore.Presenter();
+
+			renderStub = sinon.stub(view, 'render');
+		});
+
+		afterEach(function() {
+			renderStub.restore();
+		});
+
+		it('Should render a view', function() {
+			var data = { a: 'AA' };
+
+			view.init(presenter);
+			view.render(data);
+
+			expect(renderStub).was.called();
+			expect(renderStub).was.calledWith(data);
 		});
 	});
 

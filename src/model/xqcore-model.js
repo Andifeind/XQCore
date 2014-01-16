@@ -23,8 +23,6 @@
 		}
 
 		this.__state = 'starting';
-		this.customInit = conf.init;
-		delete conf.init;
 
 		this.customValidate = conf.validate;
 		delete conf.validate;
@@ -62,11 +60,6 @@
 
 		if (this.debug) {
 			XQCore._dump[this.name] = this;
-		}
-
-		// custom init
-		if (typeof this.customInit === 'function') {
-			this.customInit.call(this);
 		}
 
 		this.state('ready');
@@ -153,7 +146,7 @@
 				if (validateResult.isValid === false) {
 					this.warn('Validate error in model.set', validateResult);
 					if (options.silent !== true) {
-						this.emit('validation.error', validateResult);
+						this.emit('validation.error', validateResult, newData);
 					}
 					return false;
 				}
@@ -167,11 +160,10 @@
 
 		if (!this.customValidate && this.schema && options.noValidation !== true) {
 			validateResult = this.validate(newData);
-			console.log('VAL', validateResult);
 			if (validateResult !== null) {
 				this.warn('Validate error in model.set', validateResult);
 				if (options.silent !== true) {
-					this.emit('validation.error', validateResult);
+					this.emit('validation.error', validateResult, newData);
 				}
 				return false;
 			}
@@ -182,7 +174,7 @@
 			this.log('Using a custom validation which returns:', validateResult);
 			if (validateResult !== null) {
 				this.warn('Validate error in model.set', validateResult);
-				this.emit('validation.error', validateResult);
+				this.emit('validation.error', validateResult, newData);
 				return false;
 			}
 		}

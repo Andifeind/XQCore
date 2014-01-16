@@ -1,4 +1,4 @@
-describe.only('XQCore Presenter', function() {
+describe('XQCore Presenter', function() {
 	'use strict';
 
 	describe('initialize', function() {
@@ -97,6 +97,17 @@ describe.only('XQCore Presenter', function() {
 	});
 
 	describe('initView', function() {
+		var getTemplateStub;
+
+		beforeEach(function() {
+			getTemplateStub = sinon.stub(XQCore.Tmpl, 'getTemplate');
+			getTemplateStub.returns('<div></div>');
+		});
+
+		afterEach(function() {
+			getTemplateStub.restore();
+		});
+
 		it('Should initialize a view', function() {
 			var presenter = new XQCore.Presenter('Test', function(self) {
 				var view = self.initView('TestI');
@@ -105,6 +116,37 @@ describe.only('XQCore Presenter', function() {
 			});
 
 			presenter.init();
+		});
+
+		it('Should init and render a view', function() {
+			var renderStub = sinon.stub(XQCore.View.prototype, 'render');
+			
+			var presenter = new XQCore.Presenter('Test', function(self) {
+				self.initView('TestView');
+			});
+
+			presenter.init();
+
+			expect(renderStub).was.called();
+			expect(renderStub).was.calledWith();
+
+			renderStub.restore();
+		});
+
+		it('Should init but dont\'t render a view', function() {
+			var renderStub = sinon.stub(XQCore.View.prototype, 'render');
+			
+			var presenter = new XQCore.Presenter('Test', function(self) {
+				self.initView('TestView', 'none', {
+					render: false
+				});
+			});
+
+			presenter.init();
+
+			expect(renderStub).was.notCalled();
+
+			renderStub.restore();
 		});
 
 		it('Should log a warning on registering an existing view', function() {

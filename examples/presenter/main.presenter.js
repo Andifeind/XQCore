@@ -1,9 +1,11 @@
-/*global listingModel:false */
+/*global listingModel:false, addModel:false */
 XQCore.debug = true;
 var presenter = new XQCore.Presenter('Main', function(self) {
 	var mainView = self.initView('main', 'body');
 	var listingView = self.initView('listing', '.listing');
-	var addView = self.initView('add-form', '.listing');
+	var addView = self.initView('add-form', '.listing', {
+		render: false
+	});
 
 	self.couple({
 		view: listingView,
@@ -12,7 +14,7 @@ var presenter = new XQCore.Presenter('Main', function(self) {
 
 	self.couple({
 		view: addView,
-		model: listingModel
+		model: addModel
 	});
 
 	self.on('click', function(data) {

@@ -559,6 +559,20 @@
 		return formData;
 	};
 
+	/**
+	 * Insert a subset
+	 * @param  {[type]} path  [description]
+	 * @param  {[type]} index [description]
+	 * @param  {[type]} data  [description]
+	 * @return {[type]}       [description]
+	 */
+	View.prototype.insert = function(path, index, data) {
+		var $scope = this.$el.find('.xq-scope[data-path="' + path + '"]');
+		if ($scope.length) {
+			
+		}
+	};
+
 
 	XQCore.View = View;
 

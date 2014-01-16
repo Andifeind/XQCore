@@ -47,7 +47,7 @@ describe('XQCore View', function() {
 		});
 	});
 
-	describe.only('registerListener', function() {
+	describe('registerListener', function() {
 		it('Should register listener for browser events', function() {
 			var bindStub = sinon.stub($.fn, 'bind');
 			

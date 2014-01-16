@@ -30,3 +30,14 @@ sofern createItem im presenter nicht existiert leite an model weiter und rufe do
 model.createItem = function(data) {
 	
 }
+
+
+* Events
+
+Model func                       Event                 View func        -------------------------------------------------------------------------------
+ set(data)					             data.change           render
+ set(key, data)			 	          *item.change          *update
+~append(path, data)			        *subset.append        *append
+~prepend(path, data)			      *subset.prepend       *prepend
+~remove(path, index)			      *subset.remove        *remove
+*insert(path, index, data)	    *subset.insert        *insert

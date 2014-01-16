@@ -406,8 +406,13 @@
 		}
 
 		var registerModelListener = function(listener, func) {
-			model.on(listener, function(arg) {
-				view[func](arg, model.name);
+			model.on(listener, function(arg, data) {
+				if (data === undefined) {
+					view[func](arg, data, model.name);
+				}
+				else {
+					view[func](arg, model.name);
+				}
 			});
 		};
 
@@ -507,15 +512,22 @@
 
 	/**
 	 * Initialize a new view into the presenter scope
+	 *
+	 * options: {
+	 *   mode: String       Insert mode, (append, prepend or replace) replace is default
+	 *   render: Boolean    Set to false to disable autorendering
+	 * }
 	 * 
 	 * @method initView
 	 * @public
 	 * @param  {String} viewName  Name of the view
 	 * @param  {String} container Container selector, default is 'body'
-	 * @param  {String} mode      Insert mode, (append, prepend or replace) replace is default
+	 * @param  {Object} options   View options
 	 * @return {Object}           Returns a view object
 	 */
-	Presenter.prototype.initView = function(viewName, container, mode) {
+	Presenter.prototype.initView = function(viewName, container, options) {
+		options = options || {};
+
 		if (this.__views[viewName]) {
 			this.warn('View allready registered!', viewName);
 			return;
@@ -527,11 +539,11 @@
 
 		var view = new XQCore.View(viewName, function(self) {
 			self.template = XQCore.Tmpl.getTemplate(viewName);
-			self.mode = mode || 'replace';
+			self.mode = options.mode || 'replace';
 			self.container = container || 'body';
-			self.ready(function() {
+			if (options.render !== false) {
 				self.render();
-			});
+			}
 		});
 		this.__views[viewName] = view;
 		view.init(this);

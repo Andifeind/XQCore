@@ -19,7 +19,7 @@
 	 * 
 	 * @param {object} conf View configuration
 	 */
-	var View = function(name, conf) {
+	var View = function(name, initFunc) {
 
 		if (typeof arguments[0] === 'object') {
 			conf = name;
@@ -48,6 +48,32 @@
 		 */
 		this.container = 'body';
 
+		/**
+		 * Set the view element tag
+		 *
+		 * @property tag
+		 * @type {String}
+		 * @default 'div'
+		 */
+		this.tag = 'div';
+
+		/**
+		 * Set the insert mode
+		 *
+		 * @property mode
+		 * @type {String}
+		 * @default	replace
+		 */
+		this.mode = 'replace';
+
+		/**
+		 * Set initFunc
+		 *
+		 * @method initFunc
+		 * @protected
+		 */
+		this.initFunc = initFunc;
+
 
 		/* ++++++++++ old stuff +++++++++++++ */
 
@@ -55,9 +81,7 @@
 			events: null
 		};
 
-		this.customInit = conf.init;
 		this.conf = conf;
-		delete conf.init;
 	};
 
 	XQCore.extend(View.prototype, new XQCore.Event(), new XQCore.Logger());
@@ -73,48 +97,47 @@
 		var self = this,
 			conf = this.conf;
 
-		if (typeof conf === 'function') {
-			conf.call(this, self);
+		if (typeof this.initFunc === 'function') {
+			this.initFunc.call(this, self);
 		}
-		else {
-			XQCore.extend(this, conf);
+
+		if (typeof presenter !== 'object') {
+			throw new Error('No presenter was set in view.init()');
 		}
 
 		//Register view at presenter
 		this.presenter = presenter;
 
 		$(function() {
-			console.log('View', this);
+			this.$ct = $(this.container);
+			this.$el = $($.parseHTML('<' + conf.tag + '/>'));
 
-			this.container = $(this.container);
-			if (this.mode === 'replace' || conf.tag === false) {
-				this.$el = this.container;
+			if (this.mode === 'replace') {
+				this.$ct.empty();
+				this.$ct.append(this.$el);
+			}
+			else if(this.mode === 'append') {
+				this.$ct.append(this.$el);
+			}
+			else if (this.mode === 'prepend') {
+				this.$ct.prepend(this.$el);
 			}
 			else {
-				if (!conf.tag) {
-					conf.tag = 'section';
-				}
-
-				this.$el = $($.parseHTML('<' + conf.tag + '/>'));
-				if (this.mode === 'replace') {
-					this.container.html(this.$el);
-				}
-				else {
-					this.$el.appendTo(this.container);
-				}
+				throw new Error('Unknow insert mode in view.init()');
 			}
 
 			this.el = this.$el.get(0);
+			this.$el.addClass('xq-view');
 
-			if (conf.hidden === true) {
+			if (this.hidden === true) {
 				this.$el.hide();
 			}
 
-			if (conf.id) {
+			if (this.id) {
 				this.$el.attr('id', conf.id);
 			}
 
-			if (conf.className) {
+			if (this.className) {
 				this.$el.addClass(conf.className);
 			}
 
@@ -412,8 +435,11 @@
 	 * @method validationFailed
 	 * @param {Object} err Validation error object
 	 */
-	View.prototype.validationFailed = function(err) {
-		
+	View.prototype.validationFailed = function(err, data) {
+		console.log(err, data);
+		err.forEach(function(item) {
+			this.$el.find('[name="' + item.property + '"]').addClass('xq-invalid');
+		}.bind(this));
 	};
 
 	/**

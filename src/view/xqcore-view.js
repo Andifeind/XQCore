@@ -68,6 +68,15 @@
 		this.mode = 'replace';
 
 		/**
+		 * Enable/Disable autoInjection of the view into the DOM
+		 *
+		 * @property autoInject
+		 * @type {Boolean}
+		 * @default true
+		 */
+		this.autoInject = true;
+
+		/**
 		 * Set initFunc
 		 *
 		 * @method initFunc
@@ -98,6 +107,7 @@
 		var self = this,
 			conf = this.conf;
 
+
 		if (typeof this.initFunc === 'function') {
 			this.initFunc.call(this, self);
 		}
@@ -110,37 +120,6 @@
 		this.presenter = presenter;
 
 		$(function() {
-			this.$ct = $(this.container);
-			this.$el = $($.parseHTML('<' + this.tag + '/>'));
-
-			if (this.mode === 'replace') {
-				this.$ct.empty();
-				this.$ct.append(this.$el);
-			}
-			else if(this.mode === 'append') {
-				this.$ct.append(this.$el);
-			}
-			else if (this.mode === 'prepend') {
-				this.$ct.prepend(this.$el);
-			}
-			else {
-				throw new Error('Unknow insert mode in view.init()');
-			}
-
-			this.el = this.$el.get(0);
-			this.$el.addClass('xq-view');
-
-			if (this.hidden === true) {
-				this.$el.hide();
-			}
-
-			if (this.id) {
-				this.$el.attr('id', conf.id);
-			}
-
-			if (this.className) {
-				this.$el.addClass(conf.className);
-			}
 
 			if (this.container.length > 0) {
 				window.addEventListener('resize', function(e) {
@@ -223,6 +202,15 @@
 			}
 			else {
 				this.error('Can\'t initialize View, Container not found!', this.container);
+			}
+
+			//Initial render and injection
+			if (!this.$el) {
+				this.render();
+			}
+			
+			if (this.autoInject) {
+				this.inject();
 			}
 			
 			//Set ready state
@@ -508,6 +496,49 @@
 	/* +---------- new since v0.7.0 ----------+ */
 
 	/**
+	 * Inject element into the DOM
+	 *
+	 * @public
+	 * @method inject
+	 */
+	View.prototype.inject = function() {
+		this.ready(function() {
+			this.$ct = $(this.container);
+			this.log('Inject view into container', this.$ct);
+
+			this.el = this.$el.get(0);
+			this.$el.addClass('xq-view xq-view-' + this.name.toLowerCase());
+			this.ct = this.$ct.get(0);
+
+			if (this.hidden === true) {
+				this.$el.hide();
+			}
+
+			if (this.id) {
+				this.$el.attr('id', this.id);
+			}
+
+			if (this.className) {
+				this.$el.addClass(this.className);
+			}
+			
+			if (this.mode === 'replace') {
+				this.$ct.empty();
+				this.$ct.append(this.$el);
+			}
+			else if(this.mode === 'append') {
+				this.$ct.append(this.$el);
+			}
+			else if (this.mode === 'prepend') {
+				this.$ct.prepend(this.$el);
+			}
+			else {
+				throw new Error('Unknow insert mode in view.init()');
+			}
+		});
+	};
+
+	/**
 	 * Render view
 	 *
 	 * @method render
@@ -517,14 +548,20 @@
 	 *
 	 */
 	View.prototype.render = function(data) {
-		this.ready(function() {
-			this.log('Render view template', this.template, 'with data:', data);
-			var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
-			this.scopes = {};
-			this.$el.html(template(data || {}, this.scopes));
-			this.registerListener(this.$el);
-			this.emit('content.change', data);
-		});
+		this.log('Render view template', this.template, 'with data:', data);
+
+		var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
+		this.scopes = {};
+		if (this.$el) {
+			this.$el.remove();
+		}
+
+		var html = template(data || {}, this.scopes);
+		html = $.parseHTML(html);
+		this.$el = $(html);
+
+		this.registerListener(this.$el);
+		this.emit('content.change', data);
 	};
 
 	View.prototype.registerListener = function($el) {

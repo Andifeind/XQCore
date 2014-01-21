@@ -1,4 +1,4 @@
-/*global $:false */
+/*global $:false, FireTPL:false */
 describe('XQCore View', function() {
 	'use strict';
 

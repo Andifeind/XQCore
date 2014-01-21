@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.7.0-18
+ * XQCore - +0.7.1-18
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2014 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2014-01-06
+ * Creation Date: 2014-01-21
  */
 
 /*global XQCore:true */
@@ -36,8 +36,8 @@ var XQCore;
 	 * @type {Object}
 	 */
 	XQCore = {
-		version: '0.7.0-18',
-		defaultRoute: 'default',
+		version: '0.7.1-18',
+		defaultRoute: 'index',
 		html5Routes: false,
 		hashBang: '#!',
 		callerEvent: 'callerEvent',
@@ -665,20 +665,12 @@ var XQCore;
 	XQCore.Logger = Logger;
 
 })(XQCore);
+/**
+ *	@requires XQCore.Utils
+ */
 (function(XQCore, undefined) {
 	'use strict';
 	var Model;
-
-	var undotify = function(path, obj) {
-		if(path) {
-			path = path.split('.');
-			path.forEach(function(key) {
-				obj = obj[key];
-			});
-		}
-
-		return obj;
-	};
 
 	Model = function(name, conf) {
 		if (typeof arguments[0] === 'object') {
@@ -698,8 +690,6 @@ var XQCore;
 		}
 
 		this.__state = 'starting';
-		this.customInit = conf.init;
-		delete conf.init;
 
 		this.customValidate = conf.validate;
 		delete conf.validate;
@@ -707,7 +697,6 @@ var XQCore;
 		this.conf = conf;
 
 		this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
-		this.debug = Boolean(conf.debug);
 		this._isValid = false;
 		this.properties = {};
 		this.schema = conf.schema;
@@ -738,11 +727,6 @@ var XQCore;
 
 		if (this.debug) {
 			XQCore._dump[this.name] = this;
-		}
-
-		// custom init
-		if (typeof this.customInit === 'function') {
-			this.customInit.call(this);
 		}
 
 		this.state('ready');
@@ -809,24 +793,27 @@ var XQCore;
 		}
 		else if (typeof arguments[0] === 'object') {
 			//Add a dataset
-			newData = arguments[0];
+			key = null;
+			options = value || {};
+			newData = options.extend ? XQCore.extend(newData, oldData, arguments[0]) : arguments[0];
 			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'string') {
-			newData = this.get();
+			newData = XQCore.extend({}, this.get());
 			key = arguments[0];
 			var val = arguments[1];
 
-			newData[key] = val;
+			XQCore.dedotify(newData, key, val);
 			this.log('Set data', newData, oldData);
 
-			if (options.validateOne) {
+			options = options || {};
+			if (!this.customValidate && options.validateOne) {
 				options.noValidation = true;
 				validateResult = this.validateOne(this.schema[key], val);
 				if (validateResult.isValid === false) {
 					this.warn('Validate error in model.set', validateResult);
 					if (options.silent !== true) {
-						this.emit('validation.error', validateResult);
+						this.emit('validation.error', validateResult, newData);
 					}
 					return false;
 				}
@@ -836,12 +823,14 @@ var XQCore;
 			this.warn('Data are incorrect in model.set()', arguments);
 		}
 
-		if (this.schema && options.noValidation !== true) {
+		options = options || {};
+
+		if (!this.customValidate && this.schema && options.noValidation !== true) {
 			validateResult = this.validate(newData);
 			if (validateResult !== null) {
 				this.warn('Validate error in model.set', validateResult);
 				if (options.silent !== true) {
-					this.emit('validation.error', validateResult);
+					this.emit('validation.error', validateResult, newData);
 				}
 				return false;
 			}
@@ -849,9 +838,10 @@ var XQCore;
 
 		if (this.customValidate && options.noValidation !== true) {
 			validateResult = this.customValidate(newData);
+			this.log('Using a custom validation which returns:', validateResult);
 			if (validateResult !== null) {
 				this.warn('Validate error in model.set', validateResult);
-				this.emit('validation.error', validateResult);
+				this.emit('validation.error', validateResult, newData);
 				return false;
 			}
 		}
@@ -859,10 +849,6 @@ var XQCore;
 		this.properties = newData;
 		if (options.silent !== true) {
 			this.emit('data.change', newData, oldData);
-		}
-
-		if (key && options.silent !== true) {
-			this.emit('change.' + key, newData[key]);
 		}
 
 		return true;
@@ -880,7 +866,7 @@ var XQCore;
 			return this.properties;
 		}
 		else {
-			return this.properties[key];
+			return XQCore.undotify(key, this.properties);
 		}
 	};
 
@@ -1029,7 +1015,7 @@ var XQCore;
 			parent = this.properties;
 		}
 		else {
-			parent = undotify(path, this.properties);
+			parent = XQCore.undotify(path, this.properties);
 		}
 
 		if (parent) {
@@ -1080,14 +1066,14 @@ var XQCore;
 			path = null;
 		}
 
-		var data = undotify(path, this.properties),
+		var data = XQCore.undotify(path, this.properties),
 			order;
 
 		data.sort(function(a, b) {
 			order = -1;
 			for (var key in sortKeys) {
 				if (sortKeys.hasOwnProperty(key)) {
-					order = String(undotify(key, a)).localeCompare(String(undotify(key, b)));
+					order = String(XQCore.undotify(key, a)).localeCompare(String(XQCore.undotify(key, b)));
 					if (order === 0) {
 						continue;
 					}
@@ -1310,6 +1296,12 @@ var XQCore;
 
 	Model.prototype.isValid = function() {
 		return this._isValid;
+	};
+
+	Model.prototype.setData = function(data, caller) {
+		return this.set(data, {
+			extend: true
+		});
 	};
 
 	XQCore.Model = Model;

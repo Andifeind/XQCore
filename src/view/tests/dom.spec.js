@@ -53,7 +53,7 @@ describe('DOM', function() {
 		});
 
 		it('Should parse a template scope', function() {
-			var tmpl = '<div><span class="title"></span><br><span class="description"></span></div>' + 
+			var tmpl = '<div><span class="title"></span><br><span class="description"></span></div>' +
 				'<ul class="scope001"><li><span class="item.name"></span></li></ul>';
 			var source = parseHTML(tmpl);
 

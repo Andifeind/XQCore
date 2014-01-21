@@ -515,7 +515,7 @@
 	 *
 	 * options: {
 	 *   mode: String       Insert mode, (append, prepend or replace) replace is default
-	 *   render: Boolean    Set to false to disable autorendering
+	 *   inject: Boolean    Set to false to disable injecting view into the DOM
 	 * }
 	 * 
 	 * @method initView
@@ -541,8 +541,8 @@
 			self.template = XQCore.Tmpl.getTemplate(viewName);
 			self.mode = options.mode || 'replace';
 			self.container = container || 'body';
-			if (options.render !== false) {
-				self.render();
+			if (options.inject === false) {
+				self.autoInject = false;
 			}
 		});
 		this.__views[viewName] = view;

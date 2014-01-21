@@ -70,25 +70,25 @@
 	 *
 	 * @returns {String} errorMessage on invalid or void on valid
 	 */
-	// util.checkLength = function(input, min, max) {
-	// 	if (typeof input === 'Number') {
-	// 		if (input < min) {
-	// 			return 'num-to-small';
-	// 		}
-	// 		else if (input > max) {
-	// 			return 'num-to-large';
-	// 		}
-	// 	}
-	// 	else {
-	// 		console.log(input, input.length);
-	// 		if (input.length < min) {
-	// 			return 'str-to-short';
-	// 		}
-	// 		else if (input.length > max) {
-	// 			return 'str-to-long';
-	// 		}
-	// 	}
-	// };
+/*	util.checkLength = function(input, min, max) {
+		if (typeof input === 'Number') {
+			if (input < min) {
+				return 'num-to-small';
+			}
+			else if (input > max) {
+				return 'num-to-large';
+			}
+		}
+		else {
+			console.log(input, input.length);
+			if (input.length < min) {
+				return 'str-to-short';
+			}
+			else if (input.length > max) {
+				return 'str-to-long';
+			}
+		}
+	};*/
 
 	/**
 	 * Checks the equality of two strings
@@ -98,22 +98,22 @@
 	 *
 	 * @returns {String} errorMessage on invalid or void on valid
 	 */
-	// util.checkEqual = function(str1, str2) {
-	// 	if (str1 !== str2) {
-	// 		return 'str-not-equal';
-	// 	}
-	// };
+	/*util.checkEqual = function(str1, str2) {
+		if (str1 !== str2) {
+			return 'str-not-equal';
+		}
+	};*/
 
 	/**
 	 * Checks the validity of an email address
 	 *
 	 * @param {String} email e-Mail address
 	 */
-	// util.checkEmail = function(email) {
-	// 	if (!/^\S+\@\S+\.[a-z]{2,10}$/.test(email)) {
-	// 		return 'invalid-email';
-	// 	}
-	// };
+	/*util.checkEmail = function(email) {
+		if (!/^\S+\@\S+\.[a-z]{2,10}$/.test(email)) {
+			return 'invalid-email';
+		}
+	};*/
 
 	/**
 	 * Checks the validity of an url
@@ -122,9 +122,9 @@
 	 */
 	// util.checkUrl = function(url) {
 
-	// 	if (!/^http(s)?:\/\/\S\.[a-zA-Z]{2,10}\/?$/.test(url)) {
-	// 		return 'invalid-url';
-	// 	}
-	// };
+	/*	if (!/^http(s)?:\/\/\S\.[a-zA-Z]{2,10}\/?$/.test(url)) {
+			return 'invalid-url';
+		}
+	};*/
 
 })(XQCore);

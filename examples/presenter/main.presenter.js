@@ -4,7 +4,7 @@ var presenter = new XQCore.Presenter('Main', function(self) {
 	var mainView = self.initView('main', 'body');
 	var listingView = self.initView('listing', '.listing');
 	var addView = self.initView('add-form', '.listing', {
-		render: false
+		inject: false
 	});
 
 	self.couple({

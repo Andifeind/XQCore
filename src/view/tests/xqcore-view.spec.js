@@ -112,6 +112,324 @@ describe('XQCore View', function() {
 		});
 	});
 
+	describe.only('insert', function() {
+		var view,
+			presenter;
+
+		beforeEach(function() {
+			view = new XQCore.View();
+			presenter = new XQCore.Presenter();
+
+			view.template = function(data, scopes) {
+				var h=FireTPL.helpers;
+                scopes=scopes||{};
+                scopes.scope002=function(data){
+                        var s='';
+                        var c=data;
+                        var r=h.if(c,function(data){
+                                var s='';
+                                s+='<img src="'+data.image+'">';
+                                return s;
+
+                        });
+                        s+=r;
+                        return s;
+
+                };
+                scopes.scope001=function(data){
+                        var s='';
+                        s+=h.each(data,function(data){
+                                var s='';
+                                s+='<li><span class="name">'+data.name+'</span><span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image">';
+                                s+=scopes.scope002(data.image);
+                                s+='</span></li>';
+                                return s;
+
+                        });
+                        return s;
+
+                };
+                var s='';
+                s+='<div class="example"><h1>'+data.title+'</h1><div class="description">'+data.description+'</div><ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">';
+                s+=scopes.scope001(data.listing);
+                s+='</ul></div>';
+                return s;
+			};
+		});
+
+		afterEach(function() {
+		});
+
+		it('Should insert an item', function() {
+			var data = {
+				title: 'Insert test',
+				listing: [
+					{ name: 'Andi' },
+					{ name: 'Donnie' }
+				]
+			};
+
+			view.init(presenter);
+			view.render(data);
+
+			expect(view.$el.html()).to.eql(
+				'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+
+			view.insert('listing', 1, [{name: 'Carl'}]);
+
+			expect(view.$el.html()).to.eql(
+			'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Carl</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+		});
+
+		it('Should insert an item on the begin', function() {
+			var data = {
+				title: 'Insert test',
+				listing: [
+					{ name: 'Andi' },
+					{ name: 'Donnie' }
+				]
+			};
+
+			view.init(presenter);
+			view.render(data);
+
+			expect(view.$el.html()).to.eql(
+				'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+
+			view.insert('listing', -1, [{name: 'Carl'}]);
+
+			expect(view.$el.html()).to.eql(
+			'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Carl</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+		});
+
+		it('Should insert an item after first item', function() {
+			var data = {
+				title: 'Insert test',
+				listing: [
+					{ name: 'Andi' },
+					{ name: 'Donnie' }
+				]
+			};
+
+			view.init(presenter);
+			view.render(data);
+
+			expect(view.$el.html()).to.eql(
+				'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+
+			view.insert('listing', 0, [{name: 'Carl'}]);
+
+			expect(view.$el.html()).to.eql(
+			'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Carl</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+		});
+
+		it('Should insert an item on the end', function() {
+			var data = {
+				title: 'Insert test',
+				listing: [
+					{ name: 'Andi' },
+					{ name: 'Donnie' }
+				]
+			};
+
+			view.init(presenter);
+			view.render(data);
+
+			expect(view.$el.html()).to.eql(
+				'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+
+			view.insert('listing', 99, [{name: 'Carl'}]);
+
+			expect(view.$el.html()).to.eql(
+			'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Carl</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+		});
+
+		it('Should insert an item on the begin using prepend', function() {
+			var data = {
+				title: 'Insert test',
+				listing: [
+					{ name: 'Andi' },
+					{ name: 'Donnie' }
+				]
+			};
+
+			view.init(presenter);
+			view.render(data);
+
+			expect(view.$el.html()).to.eql(
+				'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+
+			view.prepend('listing', [{name: 'Carl'}]);
+
+			expect(view.$el.html()).to.eql(
+			'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Carl</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+		});
+
+		it('Should insert an item on the end using append', function() {
+			var data = {
+				title: 'Insert test',
+				listing: [
+					{ name: 'Andi' },
+					{ name: 'Donnie' }
+				]
+			};
+
+			view.init(presenter);
+			view.render(data);
+
+			expect(view.$el.html()).to.eql(
+				'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+
+			view.append('listing', [{name: 'Carl'}]);
+
+			expect(view.$el.html()).to.eql(
+			'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Carl</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+		});
+
+		it('Should iremove an item on the given index', function() {
+			var data = {
+				title: 'Insert test',
+				listing: [
+					{ name: 'Andi' },
+					{ name: 'Donnie' },
+					{ name: 'Barney'},
+					{ name: 'Bubu'},
+					{ name: 'Stummi'}
+				]
+			};
+
+			view.init(presenter);
+			view.render(data);
+
+			expect(view.$el.html()).to.eql(
+				'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Andi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Barney</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Bubu</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Stummi</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+
+			view.remove('listing', 0);
+			view.remove('listing', 2);
+			view.remove('listing', 99);
+			view.remove('listing', -1);
+
+			expect(view.$el.html()).to.eql(
+			'<div class="example"><h1>Insert test</h1>' +
+				'<div class="description">undefined</div>' +
+				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<li><span class="name">Donnie</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Barney</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'</ul></div>');
+		});
+	});
+
 	xit('Should render a view', function() {
 		var presenter,
 			view,

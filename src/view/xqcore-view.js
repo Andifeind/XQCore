@@ -20,6 +20,7 @@
 	 * @param {object} conf View configuration
 	 */
 	var View = function(name, initFunc) {
+		var conf;
 
 		if (typeof arguments[0] === 'object') {
 			conf = name;
@@ -110,7 +111,7 @@
 
 		$(function() {
 			this.$ct = $(this.container);
-			this.$el = $($.parseHTML('<' + conf.tag + '/>'));
+			this.$el = $($.parseHTML('<' + this.tag + '/>'));
 
 			if (this.mode === 'replace') {
 				this.$ct.empty();
@@ -261,9 +262,9 @@
 	 * @param {Object} data item data
 	 * @param {Object} options Appending options (not implemented yet)
 	 */
-	View.prototype.append = function(data, options) {
+	/*View.prototype.append = function(data, options) {
 		this.manipulate('append', data, options);
-	};
+	};*/
 
 	/**
 	 * Prepends a html fragment to a html element
@@ -272,18 +273,18 @@
 	 * @param {Object} data item data
 	 * @param {Object} options Prepending options (not implemented yet)
 	 */
-	View.prototype.prepend = function(data, options) {
+	/*View.prototype.prepend = function(data, options) {
 		this.manipulate('prepend', data, options);
-	};
+	};*/
 
 	/**
 	 * Remove a item from a dom node
 	 *
 	 * @param {Number} index Remove item <index> from a node list
 	 */
-	View.prototype.remove = function(index) {
+	/*View.prototype.remove = function(index) {
 		this.manipulate('remove', index);
-	};
+	};*/
 
 	/**
 	 * Manipulates a dom node
@@ -294,7 +295,7 @@
 	 *
 	 * @return {[type]}         [description]
 	 */
-	View.prototype.manipulate = function(action, data, options) {
+	/*View.prototype.manipulate = function(action, data, options) {
 		if (this.subSelector === undefined) {
 			this.warn('You must set the subSelector option');
 			return false;
@@ -324,7 +325,7 @@
 				this.error('undefined action in view.manipulate()', action);
 		}
 
-	};
+	};*/
 
 	/**
 	 * Gets the data of an element
@@ -519,7 +520,8 @@
 		this.ready(function() {
 			this.log('Render view template', this.template, 'with data:', data);
 			var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
-			this.$el.html(template(data || {}));
+			this.scopes = {};
+			this.$el.html(template(data || {}, this.scopes));
 			this.registerListener(this.$el);
 			this.emit('content.change', data);
 		});
@@ -587,16 +589,54 @@
 
 	/**
 	 * Insert a subset
-	 * @param  {[type]} path  [description]
-	 * @param  {[type]} index [description]
-	 * @param  {[type]} data  [description]
-	 * @return {[type]}       [description]
+	 * @param  {String} path  Data path
+	 * @param  {Number} index Index after which item the insert should be happen or use -1 to prepend
+	 * @param  {Object} data  Item data
 	 */
 	View.prototype.insert = function(path, index, data) {
-		var $scope = this.$el.find('.xq-scope[data-path="' + path + '"]');
+		var self = this;
+		var $scope = this.$el.find('.xq-scope[xq-path="' + path + '"]');
 		if ($scope.length) {
-			
+			$scope.each(function() {
+				var scope = $(this).attr('xq-scope');
+				var html = self.scopes[scope](data);
+
+				if (index > -1) {
+					var $childs = $(this).children();
+					if (index > $childs.length - 1) {
+						index = $childs.length - 1;
+					}
+
+					$childs.eq(index).after(html);
+				}
+				else {
+					$(this).children(':first-child').before(html);
+				}
+			});
 		}
+	};
+
+	View.prototype.append = function(path, data) {
+		var $scope = this.$el.find('.xq-scope[xq-path="' + path + '"]'),
+			len = $scope.children().length;
+
+		this.insert(path, len, data);
+	};
+
+	View.prototype.prepend = function(path, data) {
+		this.insert(path, -1, data);
+	};
+
+	/**
+	 * Remove an item from a subset. Removes the item with the given index.
+	 * If index is negative number it will be removed from the end
+	 * 
+	 * @param  {String} path  data path
+	 * @param  {Number} index Index of the item
+	 */
+	View.prototype.remove = function(path, index) {
+		var $scope = this.$el.find('.xq-scope[xq-path="' + path + '"]');
+		$scope.children(':eq(' + index + ')').remove();
 	};
 
 

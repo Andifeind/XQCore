@@ -235,7 +235,7 @@
 		}
 
 		var dataset = this.properties,
-			oldDataset = this.get(),
+			// oldDataset = this.get(),
 			trigger = true;
 
 		if (path) {
@@ -258,7 +258,7 @@
 		}
 
 		if (trigger) {
-			this.emit('data.change', dataset, oldDataset);
+			this.emit('data.append', path, data);
 		}
 
 		return data;
@@ -277,7 +277,7 @@
 		}
 
 		var dataset = this.properties,
-			oldDataset = this.get(),
+			// oldDataset = this.get(),
 			trigger = true;
 
 		if (path) {
@@ -300,7 +300,7 @@
 		}
 
 		if (trigger) {
-			this.emit('data.change', dataset, oldDataset);
+			this.emit('data.prepend', path, data);
 		}
 
 		return data;

@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.7.1-18
+ * XQCore - +0.7.1-29
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2014 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2014-01-21
+ * Creation Date: 2014-01-22
  */
 
 /*global XQCore:true */
@@ -36,7 +36,7 @@ var XQCore;
 	 * @type {Object}
 	 */
 	XQCore = {
-		version: '0.7.1-18',
+		version: '0.7.1-29',
 		defaultRoute: 'index',
 		html5Routes: false,
 		hashBang: '#!',
@@ -902,7 +902,7 @@ var XQCore;
 		}
 
 		var dataset = this.properties,
-			oldDataset = this.get(),
+			// oldDataset = this.get(),
 			trigger = true;
 
 		if (path) {
@@ -925,7 +925,7 @@ var XQCore;
 		}
 
 		if (trigger) {
-			this.emit('data.change', dataset, oldDataset);
+			this.emit('data.append', path, data);
 		}
 
 		return data;
@@ -944,7 +944,7 @@ var XQCore;
 		}
 
 		var dataset = this.properties,
-			oldDataset = this.get(),
+			// oldDataset = this.get(),
 			trigger = true;
 
 		if (path) {
@@ -967,7 +967,7 @@ var XQCore;
 		}
 
 		if (trigger) {
-			this.emit('data.change', dataset, oldDataset);
+			this.emit('data.prepend', path, data);
 		}
 
 		return data;

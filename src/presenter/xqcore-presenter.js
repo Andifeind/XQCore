@@ -369,6 +369,8 @@
 
 		var modelEventConf = XQCore.extend({
 			'data.change': 'render',
+			'data.append': 'append',
+			'data.prepend': 'prepend',
 			'validation.error': 'validationFailed',
 			'state.change': 'stateChanged'
 		}, conf.modelEvents);
@@ -407,7 +409,7 @@
 
 		var registerModelListener = function(listener, func) {
 			model.on(listener, function(arg, data) {
-				if (data === undefined) {
+				if (data !== undefined) {
 					view[func](arg, data, model.name);
 				}
 				else {
@@ -417,8 +419,8 @@
 		};
 
 		var registerViewListener = function(listener, func) {
-			view.on(listener, function(arg) {
-				model[func](arg, view.name);
+			view.on(listener, function(arg, arg2) {
+				model[func](arg, arg2, view.name);
 			});
 		};
 

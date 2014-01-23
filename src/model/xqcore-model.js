@@ -306,6 +306,10 @@
 		return data;
 	};
 
+	Model.prototype.insert = function(path, index, data) {
+		
+	};
+
 	/**
 	 * Remove a subset
 	 *

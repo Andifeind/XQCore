@@ -228,41 +228,29 @@
 	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
-	Model.prototype.append = function(path, data) {
-		if (arguments.length === 1) {
-			data = path;
-			path = null;
-		}
+	Model.prototype.append = function(path, data, options) {
+		var dataset = XQCore.undotify(path, this.properties);
 
-		var dataset = this.properties,
-			// oldDataset = this.get(),
-			trigger = true;
-
-		if (path) {
-			path.split('.').forEach(function(key) {
-				dataset = dataset[key];
-			});
-		}
+		options = options || {};
 
 		if (dataset instanceof Array) {
 			dataset.push(data);
 		}
+		else if (typeof dataset === 'undefined') {
+			XQCore.dedotify(this.properties, path, [data]);
+		}
+		else if (typeof dataset === 'object' && !path && XQCore.isEmptyObject(this.properties)) {
+			this.properties = [data];
+		}
 		else {
-			if (path === null) {
-				this.properties = [data];
-				dataset = this.get();
-			}
-			else {
-				this.warn('Model.append requires an array. Dataset isn\'t an array', path);
-			}
+			this.error('Model.append requires an array. Dataset isn\'t an array. Path: ', path);
+			return;
 		}
 
-		if (trigger) {
+		if (options.silent !== true) {
 			this.emit('data.append', path, data);
 			this.emit('data.change', this.properties);
 		}
-
-		return data;
 	};
 
 	/**
@@ -271,45 +259,54 @@
 	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
-	Model.prototype.prepend = function(path, data) {
-		if (arguments.length === 1) {
-			data = path;
-			path = null;
-		}
+	Model.prototype.prepend = function(path, data, options) {
+		var dataset = XQCore.undotify(path, this.properties);
 
-		var dataset = this.properties,
-			// oldDataset = this.get(),
-			trigger = true;
-
-		if (path) {
-			path.split('.').forEach(function(key) {
-				dataset = dataset[key];
-			});
-		}
+		options = options || {};
 
 		if (dataset instanceof Array) {
 			dataset.unshift(data);
 		}
+		else if (typeof dataset === 'undefined') {
+			XQCore.dedotify(this.properties, path, [data]);
+		}
+		else if (typeof dataset === 'object' && !path && XQCore.isEmptyObject(this.properties)) {
+			this.properties = [data];
+		}
 		else {
-			if (path === null) {
-				this.properties = [data];
-				dataset = this.get();
-			}
-			else {
-				this.warn('Model.append requires an array. Dataset isn\'t an array', path);
-			}
+			this.error('Model.prepend requires an array. Dataset isn\'t an array. Path: ', path);
+			return;
 		}
 
-		if (trigger) {
+		if (options.silent !== true) {
 			this.emit('data.prepend', path, data);
 			this.emit('data.change', this.properties);
 		}
-
-		return data;
 	};
 
-	Model.prototype.insert = function(path, index, data) {
-		
+	Model.prototype.insert = function(path, index, data, options) {
+		var dataset = XQCore.undotify(path, this.properties);
+
+		options = options || {};
+
+		if (dataset instanceof Array) {
+			dataset.splice(index, 0, data);
+		}
+		else if (typeof dataset === 'undefined') {
+			XQCore.dedotify(this.properties, path, [data]);
+		}
+		else if (typeof dataset === 'object' && !path && XQCore.isEmptyObject(this.properties)) {
+			this.properties = [data];
+		}
+		else {
+			this.error('Model.insert requires an array. Dataset isn\'t an array. Path: ', path);
+			return;
+		}
+
+		if (options.silent !== true) {
+			this.emit('data.insert', path, data);
+			this.emit('data.change', this.properties);
+		}
 	};
 
 	/**
@@ -317,25 +314,31 @@
 	 *
 	 * @param {String} path path to subset
 	 * @param {Number} index Index of the subsut to remove
+	 * @param {Object} options Remove options
 	 *
 	 * @return {Object} removed subset
 	 */
-	Model.prototype.remove = function(path, index) {
-		var dataset = this.properties,
-			data = null;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
+	Model.prototype.remove = function(path, index, options) {
+		var dataset = XQCore.undotify(path, this.properties),
+			removed = null;
+
+
+		options = options || {};
 
 		if (dataset instanceof Array) {
-			data = dataset.splice(index, 1);
-			data = data[0] || null;
+			removed = dataset.splice(index, 1);
 		}
-		else {
-			this.warn('Model.remove() doesn\'t work with Objects in model', this.name);
+		else if (typeof dataset === 'object') {
+			this.error('Model.remove requires an array. Dataset isn\'t an array. Path: ', path);
+			return;
 		}
 
-		return data;
+		if (removed && options.silent !== true) {
+			this.emit('data.remove', path, index);
+			this.emit('data.change', this.properties);
+		}
+
+		return removed;
 	};
 
 	/**

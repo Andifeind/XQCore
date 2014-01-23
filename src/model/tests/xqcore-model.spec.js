@@ -466,18 +466,17 @@ describe.only('XQCore Model', function() {
 				]
 			};
 
-			var finalData = [
-				{ name: 'AAA', value: '1' },
-				{ name: 'BBB', value: '2' },
-				{ name: 'CCC', value: '3' },
-				{ name: 'DDD', value: '4' }
-			];
+			var finalData = {
+				listing: [
+					{ name: 'AAA', value: '1' },
+					{ name: 'BBB', value: '2' },
+					{ name: 'CCC', value: '3' },
+					{ name: 'DDD', value: '4' }
+				]
+			};
 
 			model.append('listing', {name: 'DDD', value: '4'});
 			expect(emitStub).was.calledTwice();
-			console.log(expect(emitStub));
-			console.log(expect(emitStub.getCall(0)));
-			console.log(expect(emitStub.firstCall));
 			expect(emitStub).was.calledWith('data.append', 'listing', {name: 'DDD', value: '4'});
 			expect(emitStub).was.calledWith('data.change', finalData);
 
@@ -542,6 +541,38 @@ describe.only('XQCore Model', function() {
 			expect(model.properties).to.eql(finalData);
 
 			emitStub.restore();
+		});
+
+		it('Should append data to a not existing dataset', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = {};
+
+			var finalData = [
+				{ name: 'DDD', value: '4' }
+			];
+
+			model.append(null, {name: 'DDD', value: '4'});
+
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.append', null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+
+			emitStub.restore();
+		});
+
+		it('Should append data to a existing dataset and should fail with an error', function() {
+			var emitStub = sinon.stub(model, 'emit'),
+				errorStub = sinon.stub(model, 'error');
+			
+			model.properties = { listing: {} };
+			model.append('listing', {name: 'DDD', value: '4'});
+			expect(errorStub).was.called();
+			expect(errorStub).was.calledWithMatch(/Model.append requires an array./);
+			expect(emitStub).was.notCalled();
+
+			emitStub.restore();
+			errorStub.restore();
 		});
 	});
 
@@ -638,6 +669,328 @@ describe.only('XQCore Model', function() {
 
 			emitStub.restore();
 		});
+
+		it('Should prepend data to a not existing dataset', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = {};
+
+			var finalData = [
+				{ name: 'DDD', value: '4' }
+			];
+
+			model.prepend(null, {name: 'DDD', value: '4'});
+
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.prepend', null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+
+			emitStub.restore();
+		});
+
+		it('Should prepend data to a existing dataset and should fail with an error', function() {
+			var emitStub = sinon.stub(model, 'emit'),
+				errorStub = sinon.stub(model, 'error');
+			
+			model.properties = { listing: {} };
+			model.prepend('listing', {name: 'DDD', value: '4'});
+			expect(errorStub).was.called();
+			expect(errorStub).was.calledWithMatch(/Model.prepend requires an array./);
+			expect(emitStub).was.notCalled();
+
+			emitStub.restore();
+			errorStub.restore();
+		});
+	});
+
+	describe('insert', function() {
+		var model;
+
+		beforeEach(function() {
+			model = new XQCore.Model('test');
+			model.init();
+		});
+
+		it('Should insert data to a subset', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = { listing: [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			]};
+
+			var finalData = {
+				listing: [
+					{ name: 'AAA', value: '1' },
+					{ name: 'DDD', value: '4' },
+					{ name: 'BBB', value: '2' },
+					{ name: 'CCC', value: '3' }
+				]
+			};
+
+			model.insert('listing', 1, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.insert', 'listing', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should insert data to a subset (path ist listing.data)', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = {
+				listing: {
+					data: [
+						{ name: 'AAA', value: '1' },
+						{ name: 'BBB', value: '2' },
+						{ name: 'CCC', value: '3' }
+					]
+				}
+			};
+
+			var finalData = {
+				listing: {
+					data: [
+						{ name: 'AAA', value: '1' },
+						{ name: 'DDD', value: '4' },
+						{ name: 'BBB', value: '2' },
+						{ name: 'CCC', value: '3' }
+					]
+				}
+			};
+
+			model.insert('listing.data', 1, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.insert', 'listing.data', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+			
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should insert data to a subset (path is null)', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			var finalData = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'DDD', value: '4' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			model.insert(null, 1, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.insert', null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+			
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should insert data to a subset and should never emit an event', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			var finalData = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'DDD', value: '4' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			model.insert(null, 1, {name: 'DDD', value: '4'}, {
+				silent: true
+			});
+
+			expect(emitStub).was.notCalled();
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should insert data to a not existing dataset', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = {};
+
+			var finalData = [
+				{ name: 'DDD', value: '4' }
+			];
+
+			model.insert(null, 1, {name: 'DDD', value: '4'});
+
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.insert', null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+
+			emitStub.restore();
+		});
+
+		it('Should insert data to a existing dataset and should fail with an error', function() {
+			var emitStub = sinon.stub(model, 'emit'),
+				errorStub = sinon.stub(model, 'error');
+			
+			
+			model.properties = { listing: {} };
+			model.insert('listing', 1, {name: 'DDD', value: '4'});
+			expect(errorStub).was.called();
+			expect(errorStub).was.calledWithMatch(/Model.insert requires an array./);
+			expect(emitStub).was.notCalled();
+
+			emitStub.restore();
+			errorStub.restore();
+		});
+	});
+
+	describe('remove', function() {
+		var model;
+
+		beforeEach(function() {
+			model = new XQCore.Model('test');
+			model.init();
+		});
+
+		it('Should remove data to a subset', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = { listing: [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			]};
+
+			var finalData = {
+				listing: [
+					{ name: 'AAA', value: '1' },
+					{ name: 'CCC', value: '3' }
+				]
+			};
+
+			model.remove('listing', 1);
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.remove', 'listing', 1);
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should remove data to a subset (path ist listing.data)', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = {
+				listing: {
+					data: [
+						{ name: 'AAA', value: '1' },
+						{ name: 'BBB', value: '2' },
+						{ name: 'CCC', value: '3' }
+					]
+				}
+			};
+
+			var finalData = {
+				listing: {
+					data: [
+						{ name: 'AAA', value: '1' },
+						{ name: 'CCC', value: '3' }
+					]
+				}
+			};
+
+			model.remove('listing.data', 1);
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.remove', 'listing.data', 1);
+			expect(emitStub).was.calledWith('data.change', finalData);
+			
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should remove data to a subset (path is null)', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			var finalData = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			model.remove(null, 1);
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.remove', null, 1);
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+			
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should remove data to a subset and should never emit an event', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			var finalData = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			model.remove(null, 1, {
+				silent: true
+			});
+
+			expect(emitStub).was.notCalled();
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should remove data from a not existing dataset', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = {};
+
+			model.remove('listing', 1);
+
+			expect(emitStub).was.notCalled();
+			emitStub.restore();
+		});
+
+		it('Should remove data to a existing dataset and should fail with an error', function() {
+			var emitStub = sinon.stub(model, 'emit'),
+				errorStub = sinon.stub(model, 'error');
+			
+			
+			model.properties = { listing: {} };
+			model.remove('listing', 1);
+			expect(errorStub).was.called();
+			expect(errorStub).was.calledWithMatch(/Model.remove requires an array./);
+			expect(emitStub).was.notCalled();
+
+			emitStub.restore();
+			errorStub.restore();
+		});
 	});
 
 	describe('state', function() {
@@ -660,12 +1013,6 @@ describe.only('XQCore Model', function() {
 
 	describe('restore', function() {
 		xit('Should reset a model', function() {
-			
-		});
-	});
-
-	describe('prepend', function() {
-		xit('Should prepend data to a subset', function() {
 			
 		});
 	});
@@ -697,35 +1044,6 @@ describe.only('XQCore Model', function() {
 	describe('isValid', function() {
 		xit('Should return the validation state of a model', function() {
 			
-		});
-	});
-
-	xit('Should set and get properties to the model', function() {
-		var testModel = new XQCore.Model({
-
-		});
-
-		testModel.set({
-			a: 'aaa',
-			b: 'bbb',
-			c: 'ccc'
-		});
-
-		expect(testModel.get('a')).to.equal('aaa');
-		expect(testModel.get('b')).to.equal('bbb');
-		expect(testModel.get('c')).to.equal('ccc');
-
-		testModel.set('d', 'ddd');
-		expect(testModel.get('d')).to.equal('ddd');
-
-		testModel.set('b', 'BBB');
-		expect(testModel.get('b')).to.equal('BBB');
-
-		expect(testModel.get()).to.eql({
-			a: 'aaa',
-			b: 'BBB',
-			c: 'ccc',
-			d: 'ddd'
 		});
 	});
 
@@ -832,189 +1150,6 @@ describe.only('XQCore Model', function() {
 		expect(testModel.properties).to.eql({});
 	});
 
-	xit('Should make a POST request', function() {
-		//Stub jQuery.ajax
-		sinon.stub(jQuery, 'ajax');
-		var testModel = new XQCore.Model({
-			debug: true,
-			server: 'http://test.com'
-		});
-
-		testModel.set({
-			a: 'aaa',
-			b: 'bbb',
-			c: 'ccc'
-		});
-
-		testModel.send();
-
-		expect(jQuery.ajax).was.calledWith(sinon.match({
-			url: 'http://test.com',
-			type: 'POST',
-			data: {
-				a: 'aaa',
-				b: 'bbb',
-				c: 'ccc'
-			}
-		}));
-
-		//Restore jQuery.ajax
-		jQuery.ajax.restore();
-	});
-
-	xit('Should make a GET request', function() {
-		//Stub jQuery.ajax
-		sinon.stub(jQuery, 'ajax');
-		var testModel = new XQCore.Model({
-			server: 'http://test.com'
-		});
-
-		testModel.set({
-			a: 'aaa',
-			b: 'bbb',
-			c: 'ccc'
-		});
-
-		testModel.send('GET');
-
-		expect(jQuery.ajax).was.calledWith(sinon.match({
-			url: 'http://test.com',
-			type: 'GET',
-			data: {
-				a: 'aaa',
-				b: 'bbb',
-				c: 'ccc'
-			}
-		}));
-
-		//Restore jQuery.ajax
-		jQuery.ajax.restore();
-	});
-
-	xit('Should make a PUT request', function() {
-		//Stub jQuery.ajax
-		sinon.stub(jQuery, 'ajax');
-		var testModel = new XQCore.Model({
-			server: 'http://test.com'
-		});
-
-		testModel.set({
-			a: 'aaa',
-			b: 'bbb',
-			c: 'ccc'
-		});
-
-		testModel.send('PUT');
-
-		expect(jQuery.ajax).was.calledWith(sinon.match({
-			url: 'http://test.com',
-			type: 'PUT',
-			data: {
-				a: 'aaa',
-				b: 'bbb',
-				c: 'ccc'
-			}
-		}));
-
-		//Restore jQuery.ajax
-		jQuery.ajax.restore();
-	});
-
-	xit('Should make a DELETE request', function() {
-		//Stub jQuery.ajax
-		sinon.stub(jQuery, 'ajax');
-		var testModel = new XQCore.Model({
-			server: 'http://test.com'
-		});
-
-		testModel.set({
-			a: 'aaa',
-			b: 'bbb',
-			c: 'ccc'
-		});
-
-		testModel.send('DELETE');
-
-		expect(jQuery.ajax).was.calledWith(sinon.match({
-			url: 'http://test.com',
-			type: 'DELETE',
-			data: {
-				a: 'aaa',
-				b: 'bbb',
-				c: 'ccc'
-			}
-		}));
-
-		//Restore jQuery.ajax
-		jQuery.ajax.restore();
-	});
-
-	xit('Should send a ajax request, this should point to the model in the success callback', function(done) {
-
-		this.timeout(5000);
-		//Stub jQuery.ajax
-		var testModel = new XQCore.Model({
-			server: 'http://xqcore.lc/test/post-success.php'
-		});
-
-		testModel.set({
-			a: 'aaa',
-			b: 'bbb',
-			c: 'ccc'
-		});
-
-		testModel.send('POST', null, function(err, data, status) {
-			if (status) {
-				expect(this).to.be(testModel);
-				done();
-			}
-		});
-	});
-
-	xit('Should fail a ajax request, 404 page not found', function(done) {
-
-		this.timeout(5000);
-		//Stub jQuery.ajax
-		var testModel = new XQCore.Model({
-			server: 'http://xqcore.lc/test/post-404.php'
-		});
-
-		testModel.set({
-			a: 'aaa',
-			b: 'bbb',
-			c: 'ccc'
-		});
-
-		testModel.send('POST', null, function(err) {
-			if (err) {
-				expect(this).to.be(testModel);
-				done();
-			}
-		});
-	});
-
-	xit('Should fail a ajax request, 500 server error', function(done) {
-
-		this.timeout(5000);
-		//Stub jQuery.ajax
-		var testModel = new XQCore.Model({
-			server: 'http://xqcore.lc/test/post-500.php'
-		});
-
-		testModel.set({
-			a: 'aaa',
-			b: 'bbb',
-			c: 'ccc'
-		});
-
-		testModel.send('POST', null, function(err) {
-			if (err) {
-				expect(this).to.be(testModel);
-				done();
-			}
-		});
-	});
-
 	xit('Should search a property, searching in the first level', function() {
 		var testModel = new XQCore.Model({
 
@@ -1112,31 +1247,6 @@ describe.only('XQCore Model', function() {
 			expect(counter).to.be(4);
 			done();
 		});
-	});
-
-	xit('Should fetch data from server', function() {
-		var ajaxStub = sinon.stub(jQuery, 'ajax');
-
-		var model = new XQCore.Model({
-
-		});
-
-		model.fetch({
-			a: 'aa',
-			b: 'bb'
-		}, function(err, data) {
-			expect(data).to.be.an('object');
-		});
-
-		expect(ajaxStub).was.called();
-		expect(ajaxStub).was.calledWithMatch({
-			data: {
-				a: 'aa',
-				b: 'bb'
-			}
-		});
-
-		ajaxStub.restore();
 	});
 
 	xit('Should fetch data from cache', function() {

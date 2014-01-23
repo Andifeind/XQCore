@@ -523,8 +523,9 @@
 			}
 			
 			if (this.mode === 'replace') {
-				this.$ct.empty();
+				this.$ct.contents().detach();
 				this.$ct.append(this.$el);
+				// this.$ct.children().replaceWith(this.$el);
 			}
 			else if(this.mode === 'append') {
 				this.$ct.append(this.$el);
@@ -566,6 +567,8 @@
 
 	View.prototype.registerListener = function($el) {
 		var self = this;
+
+		console.log('Register listener', $el.find('[on]').addBack('[on]').length);
 
 		//TODO get form data on submit event
 		$el.find('[on]').addBack('[on]').each(function() {
@@ -654,6 +657,7 @@
 	};
 
 	View.prototype.append = function(path, data) {
+		console.log('Got an append event', path, data);
 		var $scope = this.$el.find('.xq-scope[xq-path="' + path + '"]'),
 			len = $scope.children().length;
 

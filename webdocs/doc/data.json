@@ -2,7 +2,7 @@
     "project": {
         "name": "xqcore",
         "description": "Model View Presenter Javascript Framework",
-        "version": "0.7.1-18",
+        "version": "0.7.1-29",
         "url": ""
     },
     "files": {},

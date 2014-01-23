@@ -22,7 +22,7 @@ var presenter = new XQCore.Presenter('Main', function(self) {
 	});
 
 	self.on('show-add', function(data) {
-		
+		addView.inject();
 	});
 
 	self.route('index', function(data) {
@@ -31,6 +31,11 @@ var presenter = new XQCore.Presenter('Main', function(self) {
 
 	self.route('vegetables', function(data) {
 		listingModel.loadVegatables();
+	});
+
+	addView.on('form.submit', function() {
+		console.log('FormSubmit');
+		listingView.inject();
 	});
 });
 

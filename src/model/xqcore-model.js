@@ -33,11 +33,6 @@
 		this._isValid = false;
 		this.properties = {};
 		this.schema = conf.schema;
-
-		//Add default values
-		if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
-			this.set(this.defaults);
-		}
 	};
 
 
@@ -60,6 +55,11 @@
 
 		if (this.debug) {
 			XQCore._dump[this.name] = this;
+		}
+
+		//Add default values
+		if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
+			this.set(this.defaults);
 		}
 
 		this.state('ready');
@@ -259,6 +259,7 @@
 
 		if (trigger) {
 			this.emit('data.append', path, data);
+			this.emit('data.change', this.properties);
 		}
 
 		return data;
@@ -301,6 +302,7 @@
 
 		if (trigger) {
 			this.emit('data.prepend', path, data);
+			this.emit('data.change', this.properties);
 		}
 
 		return data;

@@ -1,4 +1,4 @@
-describe('XQCore GetSet', function() {
+describe.skip('XQCore GetSet', function() {
 	'use strict';
 	XQCore.GetSet = XQCore.Model;
 	beforeEach(function() {
@@ -7,53 +7,6 @@ describe('XQCore GetSet', function() {
 
 	afterEach(function() {
 
-	});
-
-	it('Should set data to the dataset', function() {
-		var test = new XQCore.GetSet({
-		});
-
-		test.set({
-			'aaa': 'AAA'
-		});
-
-		expect(test.get()).to.eql({
-			'aaa': 'AAA'
-		});
-
-		test.set('bbb', 'BBB');
-
-		expect(test.get()).to.eql({
-			'aaa': 'AAA',
-			'bbb': 'BBB'
-		});
-
-		// test.set('ccc.ddd', 'DDD');
-
-		/*expect(test.get()).to.eql({
-			'aaa': 'AAA',
-			'bbb': 'BBB',
-			'ccc': {
-				'ddd': 'DDD'
-			}
-		});*/
-	});
-
-	it('Should set data to the dataset, path is null', function() {
-		var test = new XQCore.GetSet({
-		});
-
-		test.set(null, {
-			'aaa': 'AAA',
-			'bbb': 'BBB',
-			'ccc': 'CCC'
-		});
-
-		expect(test.get()).to.eql({
-			'aaa': 'AAA',
-			'bbb': 'BBB',
-			'ccc': 'CCC'
-		});
 	});
 
 	it('Should validate an item an should get an undefined but required error', function(done) {

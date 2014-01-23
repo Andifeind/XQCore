@@ -88,17 +88,20 @@ describe('XQCore View', function() {
 	describe('render', function() {
 		var view,
 			presenter,
-			renderStub;
+			renderStub,
+			injectStub;
 
 		beforeEach(function() {
 			view = new XQCore.View();
 			presenter = new XQCore.Presenter();
 
 			renderStub = sinon.stub(view, 'render');
+			injectStub = sinon.stub(view, 'inject');
 		});
 
 		afterEach(function() {
 			renderStub.restore();
+			injectStub.restore();
 		});
 
 		it('Should render a view', function() {
@@ -107,12 +110,13 @@ describe('XQCore View', function() {
 			view.init(presenter);
 			view.render(data);
 
+			expect(injectStub).was.called();
 			expect(renderStub).was.called();
 			expect(renderStub).was.calledWith(data);
 		});
 	});
 
-	describe.only('insert', function() {
+	describe('insert', function() {
 		var view,
 			presenter;
 
@@ -172,7 +176,7 @@ describe('XQCore View', function() {
 			view.init(presenter);
 			view.render(data);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 				'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -184,7 +188,7 @@ describe('XQCore View', function() {
 
 			view.insert('listing', 1, [{name: 'Carl'}]);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -209,7 +213,7 @@ describe('XQCore View', function() {
 			view.init(presenter);
 			view.render(data);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 				'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -221,7 +225,7 @@ describe('XQCore View', function() {
 
 			view.insert('listing', -1, [{name: 'Carl'}]);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -246,7 +250,7 @@ describe('XQCore View', function() {
 			view.init(presenter);
 			view.render(data);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 				'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -258,7 +262,7 @@ describe('XQCore View', function() {
 
 			view.insert('listing', 0, [{name: 'Carl'}]);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -283,7 +287,7 @@ describe('XQCore View', function() {
 			view.init(presenter);
 			view.render(data);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 				'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -295,7 +299,7 @@ describe('XQCore View', function() {
 
 			view.insert('listing', 99, [{name: 'Carl'}]);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -320,7 +324,7 @@ describe('XQCore View', function() {
 			view.init(presenter);
 			view.render(data);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 				'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -332,7 +336,7 @@ describe('XQCore View', function() {
 
 			view.prepend('listing', [{name: 'Carl'}]);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -357,7 +361,7 @@ describe('XQCore View', function() {
 			view.init(presenter);
 			view.render(data);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 				'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -369,7 +373,7 @@ describe('XQCore View', function() {
 
 			view.append('listing', [{name: 'Carl'}]);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -397,7 +401,7 @@ describe('XQCore View', function() {
 			view.init(presenter);
 			view.render(data);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 				'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
@@ -418,7 +422,7 @@ describe('XQCore View', function() {
 			view.remove('listing', 99);
 			view.remove('listing', -1);
 
-			expect(view.$el.html()).to.eql(
+			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +

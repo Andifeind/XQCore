@@ -119,7 +119,8 @@ describe('XQCore Presenter', function() {
 		});
 
 		it('Should init and render a view', function() {
-			var renderStub = sinon.stub(XQCore.View.prototype, 'render');
+			var renderStub = sinon.stub(XQCore.View.prototype, 'render'),
+				injectStub = sinon.stub(XQCore.View.prototype, 'inject');
 			
 			var presenter = new XQCore.Presenter('Test', function(self) {
 				self.initView('TestView');
@@ -128,25 +129,31 @@ describe('XQCore Presenter', function() {
 			presenter.init();
 
 			expect(renderStub).was.called();
+			expect(renderStub).was.called();
+			expect(injectStub).was.calledWith();
 			expect(renderStub).was.calledWith();
 
 			renderStub.restore();
+			injectStub.restore();
 		});
 
-		it('Should init but dont\'t render a view', function() {
-			var renderStub = sinon.stub(XQCore.View.prototype, 'render');
+		it('Should init but dont\'t inject view', function() {
+			var renderStub = sinon.stub(XQCore.View.prototype, 'render'),
+				injectStub = sinon.stub(XQCore.View.prototype, 'inject');
 			
 			var presenter = new XQCore.Presenter('Test', function(self) {
 				self.initView('TestView', 'none', {
-					render: false
+					inject: false
 				});
 			});
 
 			presenter.init();
 
-			expect(renderStub).was.notCalled();
+			expect(renderStub).was.called();
+			expect(injectStub).was.notCalled();
 
 			renderStub.restore();
+			injectStub.restore();
 		});
 
 		it('Should log a warning on registering an existing view', function() {

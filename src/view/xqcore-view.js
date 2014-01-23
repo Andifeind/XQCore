@@ -553,9 +553,9 @@
 
 		var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
 		this.scopes = {};
-		if (this.$el) {
-			this.$el.remove();
-		}
+		// if (this.$el) {
+		// 	this.$el.remove();
+		// }
 
 		var html = template(data || {}, this.scopes);
 		html = $.parseHTML(html);

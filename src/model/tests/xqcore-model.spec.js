@@ -1,22 +1,9 @@
 /*global jQuery:false */
-describe('XQCore Model', function() {
+describe.only('XQCore Model', function() {
 	'use strict';
 
 	describe('initialize', function() {
 		it('Should initialize a model', function() {
-			var model,
-				initFunc = sinon.spy();
-
-			model = new XQCore.Model('Test I', {
-				init: initFunc
-			});
-
-			expect(model).to.be.a(XQCore.Model);
-			model.init();
-			expect(initFunc).was.called();
-		});
-
-		it('Should initialize a model in the scope way', function() {
 			var model,
 				initFunc = sinon.spy();
 
@@ -43,6 +30,16 @@ describe('XQCore Model', function() {
 		it('Should set a default model name', function() {
 			var model = new XQCore.Model();
 			expect(model.name).to.equal('NamelessModel');
+		});
+
+		it('Should set default data', function() {
+			var model = new XQCore.Model({
+				defaults: {name: 'Andi'}
+			});
+
+			model.init();
+
+			expect(model.properties).to.eql({name: 'Andi'});
 		});
 	});
 
@@ -451,6 +448,198 @@ describe('XQCore Model', function() {
 
 	});
 
+	describe('append', function() {
+		var model;
+
+		beforeEach(function() {
+			model = new XQCore.Model('test');
+			model.init();
+		});
+
+		it('Should append data to a subset', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = {
+				listing: [
+					{ name: 'AAA', value: '1' },
+					{ name: 'BBB', value: '2' },
+					{ name: 'CCC', value: '3' }
+				]
+			};
+
+			var finalData = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' },
+				{ name: 'DDD', value: '4' }
+			];
+
+			model.append('listing', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledTwice();
+			console.log(expect(emitStub));
+			console.log(expect(emitStub.getCall(0)));
+			console.log(expect(emitStub.firstCall));
+			expect(emitStub).was.calledWith('data.append', 'listing', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should append data to a subset (path ist listing.data)', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = {
+				listing: {
+					data: [
+						{ name: 'AAA', value: '1' },
+						{ name: 'BBB', value: '2' },
+						{ name: 'CCC', value: '3' }
+					]
+				}
+			};
+
+			var finalData = {
+				listing: {
+					data: [
+						{ name: 'AAA', value: '1' },
+						{ name: 'BBB', value: '2' },
+						{ name: 'CCC', value: '3' },
+						{ name: 'DDD', value: '4' }
+					]
+				}
+			};
+
+			model.append('listing.data', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.append', 'listing.data', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should append data to a subset (path is null)', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			var finalData = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' },
+				{ name: 'DDD', value: '4' }
+			];
+
+			model.append(null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.append', null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+	});
+
+	describe('prepend', function() {
+		var model;
+
+		beforeEach(function() {
+			model = new XQCore.Model('test');
+			model.init();
+		});
+
+		it('Should prepend data to a subset', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = { listing: [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			]};
+
+			var finalData = {
+				listing: [
+					{ name: 'DDD', value: '4' },
+					{ name: 'AAA', value: '1' },
+					{ name: 'BBB', value: '2' },
+					{ name: 'CCC', value: '3' }
+				]
+			};
+
+			model.prepend('listing', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.prepend', 'listing', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should prepend data to a subset (path ist listing.data)', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = {
+				listing: {
+					data: [
+						{ name: 'AAA', value: '1' },
+						{ name: 'BBB', value: '2' },
+						{ name: 'CCC', value: '3' }
+					]
+				}
+			};
+
+			var finalData = {
+				listing: {
+					data: [
+						{ name: 'DDD', value: '4' },
+						{ name: 'AAA', value: '1' },
+						{ name: 'BBB', value: '2' },
+						{ name: 'CCC', value: '3' }
+					]
+				}
+			};
+
+			model.prepend('listing.data', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.prepend', 'listing.data', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+			
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+
+		it('Should prepend data to a subset (path is null)', function() {
+			var emitStub = sinon.stub(model, 'emit');
+			model.properties = [
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			var finalData = [
+				{ name: 'DDD', value: '4' },
+				{ name: 'AAA', value: '1' },
+				{ name: 'BBB', value: '2' },
+				{ name: 'CCC', value: '3' }
+			];
+
+			model.prepend(null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.prepend', null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.change', finalData);
+
+			
+			expect(model.properties).to.eql(finalData);
+
+			emitStub.restore();
+		});
+	});
+
 	describe('state', function() {
 		xit('Should set a state', function() {
 			
@@ -475,20 +664,8 @@ describe('XQCore Model', function() {
 		});
 	});
 
-	describe('append', function() {
-		xit('Should append data to a subset', function() {
-			
-		});
-	});
-
 	describe('prepend', function() {
 		xit('Should prepend data to a subset', function() {
-			
-		});
-	});
-
-	describe('prepend', function() {
-		xit('Should remove data from a subset', function() {
 			
 		});
 	});

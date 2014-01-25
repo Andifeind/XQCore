@@ -10,6 +10,7 @@ States:
  - progress		On doing a long job
  - success		On server result or long job was success
  - invalid		On validation failed
+ - valid		On validation succeeds
  - failed		On request to server or long job failed
 
 

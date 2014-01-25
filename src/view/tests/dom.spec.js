@@ -12,8 +12,6 @@ var parseHTML = function(tmpl) {
 			k = $(this).attr('class');
 		pointer[k] = p;
 
-		console.log('Replace with');
-
 		$(this).replaceWith(p);
 	});
 

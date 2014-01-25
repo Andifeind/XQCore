@@ -243,79 +243,6 @@
 	};
 
 	/**
-	 * Appends a html fragment to a html element
-	 * You must set the itemTemplate and subSelector  option first
-	 *
-	 * @param {String} selector parent selector
-	 * @param {Object} data item data
-	 * @param {Object} options Appending options (not implemented yet)
-	 */
-	/*View.prototype.append = function(data, options) {
-		this.manipulate('append', data, options);
-	};*/
-
-	/**
-	 * Prepends a html fragment to a html element
-	 * You must set the itemTemplate and subSelector option first
-	 *
-	 * @param {Object} data item data
-	 * @param {Object} options Prepending options (not implemented yet)
-	 */
-	/*View.prototype.prepend = function(data, options) {
-		this.manipulate('prepend', data, options);
-	};*/
-
-	/**
-	 * Remove a item from a dom node
-	 *
-	 * @param {Number} index Remove item <index> from a node list
-	 */
-	/*View.prototype.remove = function(index) {
-		this.manipulate('remove', index);
-	};*/
-
-	/**
-	 * Manipulates a dom node
-	 *
-	 * @param  {String} action  Manipulation method
-	 * @param  {[type]} data    [description]
-	 * @param  {[type]} options (not implemented yet)
-	 *
-	 * @return {[type]}         [description]
-	 */
-	/*View.prototype.manipulate = function(action, data, options) {
-		if (this.subSelector === undefined) {
-			this.warn('You must set the subSelector option');
-			return false;
-		}
-
-		if (this.itemTemplate === undefined) {
-			this.warn('You must set the itemTemplate option');
-			return false;
-		}
-
-		var selector = $(this.subSelector, this.container),
-			html;
-
-		switch (action) {
-			case 'append':
-				html = XQCore.Tmpl.compile(this.itemTemplate)(data);
-				$(html).appendTo(selector);
-				break;
-			case 'prepend':
-				html = XQCore.Tmpl.compile(this.itemTemplate)(data);
-				$(html).prependTo(selector);
-				break;
-			case 'remove':
-				selector.children().eq(data).remove();
-				break;
-			default:
-				this.error('undefined action in view.manipulate()', action);
-		}
-
-	};*/
-
-	/**
 	 * Gets the data of an element
 	 *
 	 * @param {Object} selector DOM el or a jQuery selector of the element
@@ -437,7 +364,7 @@
 	 * @param {String} state Model state
 	 */
 	View.prototype.stateChanged = function(state) {
-
+		
 	};
 
 	/**
@@ -568,8 +495,6 @@
 	View.prototype.registerListener = function($el) {
 		var self = this;
 
-		console.log('Register listener', $el.find('[on]').addBack('[on]').length);
-
 		//TODO get form data on submit event
 		$el.find('[on]').addBack('[on]').each(function() {
 			var $cur = $(this);
@@ -639,33 +564,29 @@
 		if ($scope.length) {
 			$scope.each(function() {
 				var scope = $(this).attr('xq-scope');
-				var html = self.scopes[scope](data);
+				var html = self.scopes[scope]([data]);
 
+				var $childs = $(this).children();
 				if (index > -1) {
-					var $childs = $(this).children();
 					if (index > $childs.length - 1) {
 						index = $childs.length - 1;
 					}
 
-					$childs.eq(index).after(html);
+					$childs.eq(index).before(html);
 				}
 				else {
-					$(this).children(':first-child').before(html);
+					$childs.eq(index).after(html);
 				}
 			});
 		}
 	};
 
 	View.prototype.append = function(path, data) {
-		console.log('Got an append event', path, data);
-		var $scope = this.$el.find('.xq-scope[xq-path="' + path + '"]'),
-			len = $scope.children().length;
-
-		this.insert(path, len, data);
+		this.insert(path, -1, data);
 	};
 
 	View.prototype.prepend = function(path, data) {
-		this.insert(path, -1, data);
+		this.insert(path, 0, data);
 	};
 
 	/**

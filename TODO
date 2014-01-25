@@ -12,9 +12,9 @@ Presenter
 	- Events - DONE
 	- Register routings - DONE
 Model
-	- More add/update functions
+	- More add/update functions - DONE
 View
-	- Form validation
+	- Form validation - (We use model validation)
 Routing
 
 EventEmitter

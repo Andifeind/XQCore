@@ -116,12 +116,15 @@
 	Model.prototype.set = function(key, value, options) {
 		var newData = {},
 			oldData = this.get(),
-			validateResult;
+			validateResult,
+			setItem = false,
+			setAll = false;
 
 		options = options || {};
 
 		if (arguments[0] === null) {
 			newData = arguments[1];
+			setAll = true;
 			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'object') {
@@ -129,20 +132,19 @@
 			key = null;
 			options = value || {};
 			newData = options.extend ? XQCore.extend(newData, oldData, arguments[0]) : arguments[0];
+			setAll = true;
 			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'string') {
 			newData = XQCore.extend({}, this.get());
-			key = arguments[0];
-			var val = arguments[1];
-
-			XQCore.dedotify(newData, key, val);
+			setItem = true;
+			XQCore.dedotify(newData, key, value);
 			this.log('Set data', newData, oldData);
 
 			options = options || {};
 			if (!this.customValidate && options.validateOne) {
 				options.noValidation = true;
-				validateResult = this.validateOne(this.schema[key], val);
+				validateResult = this.validateOne(this.schema[key], value);
 				if (validateResult.isValid === false) {
 					this.warn('Validate error in model.set', validateResult);
 					if (options.silent !== true) {
@@ -181,6 +183,13 @@
 
 		this.properties = newData;
 		if (options.silent !== true) {
+			if (setAll) {
+				this.emit('data.replace', newData, oldData);
+			}
+			else if (setItem){
+				this.emit('data.item', key, value);
+			}
+
 			this.emit('data.change', newData, oldData);
 		}
 
@@ -304,7 +313,7 @@
 		}
 
 		if (options.silent !== true) {
-			this.emit('data.insert', path, data);
+			this.emit('data.insert', path, index, data);
 			this.emit('data.change', this.properties);
 		}
 	};
@@ -334,7 +343,7 @@
 		}
 
 		if (removed && options.silent !== true) {
-			this.emit('data.remove', path, index);
+			this.emit('data.remove', path, index, removed[0]);
 			this.emit('data.change', this.properties);
 		}
 

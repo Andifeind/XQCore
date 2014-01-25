@@ -77,6 +77,5 @@ describe('XQCore Router', function() {
 		expect(route).to.be.an(Object);
 		expect(route.fn).to.equal(func);
 		expect(route.splats[0]).to.equal('aa');
-		console.log('Route', route);
 	});
 });

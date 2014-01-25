@@ -186,7 +186,7 @@ describe('XQCore View', function() {
 				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
 				'</ul></div>');
 
-			view.insert('listing', 1, [{name: 'Carl'}]);
+			view.insert('listing', 1, {name: 'Carl'});
 
 			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
@@ -194,9 +194,9 @@ describe('XQCore View', function() {
 				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
 				'<li><span class="name">Andi</span>' +
 				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
-				'<li><span class="name">Donnie</span>' +
-				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
 				'<li><span class="name">Carl</span>' +
+				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<li><span class="name">Donnie</span>' +
 				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
 				'</ul></div>');
 		});
@@ -223,7 +223,7 @@ describe('XQCore View', function() {
 				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
 				'</ul></div>');
 
-			view.insert('listing', -1, [{name: 'Carl'}]);
+			view.insert('listing', 0, {name: 'Carl'});
 
 			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
@@ -260,7 +260,7 @@ describe('XQCore View', function() {
 				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
 				'</ul></div>');
 
-			view.insert('listing', 0, [{name: 'Carl'}]);
+			view.insert('listing', 1, {name: 'Carl'});
 
 			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
@@ -297,7 +297,7 @@ describe('XQCore View', function() {
 				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
 				'</ul></div>');
 
-			view.insert('listing', 99, [{name: 'Carl'}]);
+			view.insert('listing', -1, {name: 'Carl'});
 
 			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
@@ -334,7 +334,7 @@ describe('XQCore View', function() {
 				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
 				'</ul></div>');
 
-			view.prepend('listing', [{name: 'Carl'}]);
+			view.prepend('listing', {name: 'Carl'});
 
 			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
@@ -371,7 +371,7 @@ describe('XQCore View', function() {
 				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
 				'</ul></div>');
 
-			view.append('listing', [{name: 'Carl'}]);
+			view.append('listing', {name: 'Carl'});
 
 			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
@@ -386,7 +386,7 @@ describe('XQCore View', function() {
 				'</ul></div>');
 		});
 
-		it('Should iremove an item on the given index', function() {
+		it('Should remove an item on the given index', function() {
 			var data = {
 				title: 'Insert test',
 				listing: [

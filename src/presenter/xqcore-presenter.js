@@ -368,9 +368,12 @@
 			key;
 
 		var modelEventConf = XQCore.extend({
-			'data.change': 'render',
+			'data.replace': 'render',
 			'data.append': 'append',
 			'data.prepend': 'prepend',
+			'data.insert': 'insert',
+			'data.remove': 'remove',
+			'data.item': 'update',
 			'validation.error': 'validationFailed',
 			'state.change': 'stateChanged'
 		}, conf.modelEvents);
@@ -408,13 +411,10 @@
 		}
 
 		var registerModelListener = function(listener, func) {
-			model.on(listener, function(arg, data) {
-				if (data !== undefined) {
-					view[func](arg, data, model.name);
-				}
-				else {
-					view[func](arg, model.name);
-				}
+			model.on(listener, function() {
+				var args = Array.prototype.slice.call(arguments);
+				args.push(model.name);
+				view[func].apply(view, args);
 			});
 		};
 

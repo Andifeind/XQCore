@@ -1,5 +1,5 @@
 /*global jQuery:false */
-describe.only('XQCore Model', function() {
+describe('XQCore Model', function() {
 	'use strict';
 
 	describe('initialize', function() {
@@ -139,7 +139,8 @@ describe.only('XQCore Model', function() {
 			expect(model.properties).to.be.an('object');
 			expect(model.properties).to.eql(modelData);
 
-			expect(emitStub).was.calledOnce();
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.replace', model.properties, {});
 			expect(emitStub).was.calledWith('data.change', model.properties, {});
 
 			emitStub.restore();
@@ -155,7 +156,8 @@ describe.only('XQCore Model', function() {
 				profession: 'Developer'
 			}));
 
-			expect(emitStub).was.calledOnce();
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.item', 'profession', 'Developer');
 			expect(emitStub).was.calledWith('data.change', model.properties, modelData);
 
 			emitStub.restore();
@@ -173,7 +175,8 @@ describe.only('XQCore Model', function() {
 				}
 			}));
 
-			expect(emitStub).was.calledOnce();
+			expect(emitStub).was.calledTwice();
+			expect(emitStub).was.calledWith('data.item', 'profession.name', 'Developer');
 			expect(emitStub).was.calledWith('data.change', model.properties, modelData);
 
 			emitStub.restore();
@@ -730,7 +733,7 @@ describe.only('XQCore Model', function() {
 
 			model.insert('listing', 1, {name: 'DDD', value: '4'});
 			expect(emitStub).was.calledTwice();
-			expect(emitStub).was.calledWith('data.insert', 'listing', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.insert', 'listing', 1, {name: 'DDD', value: '4'});
 			expect(emitStub).was.calledWith('data.change', finalData);
 
 			expect(model.properties).to.eql(finalData);
@@ -763,7 +766,7 @@ describe.only('XQCore Model', function() {
 
 			model.insert('listing.data', 1, {name: 'DDD', value: '4'});
 			expect(emitStub).was.calledTwice();
-			expect(emitStub).was.calledWith('data.insert', 'listing.data', {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.insert', 'listing.data', 1, {name: 'DDD', value: '4'});
 			expect(emitStub).was.calledWith('data.change', finalData);
 			
 			expect(model.properties).to.eql(finalData);
@@ -788,7 +791,7 @@ describe.only('XQCore Model', function() {
 
 			model.insert(null, 1, {name: 'DDD', value: '4'});
 			expect(emitStub).was.calledTwice();
-			expect(emitStub).was.calledWith('data.insert', null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.insert', null, 1, {name: 'DDD', value: '4'});
 			expect(emitStub).was.calledWith('data.change', finalData);
 
 			
@@ -833,7 +836,7 @@ describe.only('XQCore Model', function() {
 			model.insert(null, 1, {name: 'DDD', value: '4'});
 
 			expect(emitStub).was.calledTwice();
-			expect(emitStub).was.calledWith('data.insert', null, {name: 'DDD', value: '4'});
+			expect(emitStub).was.calledWith('data.insert', null, 1, {name: 'DDD', value: '4'});
 			expect(emitStub).was.calledWith('data.change', finalData);
 
 
@@ -881,7 +884,7 @@ describe.only('XQCore Model', function() {
 
 			model.remove('listing', 1);
 			expect(emitStub).was.calledTwice();
-			expect(emitStub).was.calledWith('data.remove', 'listing', 1);
+			expect(emitStub).was.calledWith('data.remove', 'listing', 1, { name: 'BBB', value: '2' });
 			expect(emitStub).was.calledWith('data.change', finalData);
 
 			expect(model.properties).to.eql(finalData);
@@ -912,7 +915,7 @@ describe.only('XQCore Model', function() {
 
 			model.remove('listing.data', 1);
 			expect(emitStub).was.calledTwice();
-			expect(emitStub).was.calledWith('data.remove', 'listing.data', 1);
+			expect(emitStub).was.calledWith('data.remove', 'listing.data', 1, { name: 'BBB', value: '2' });
 			expect(emitStub).was.calledWith('data.change', finalData);
 			
 			expect(model.properties).to.eql(finalData);
@@ -935,7 +938,7 @@ describe.only('XQCore Model', function() {
 
 			model.remove(null, 1);
 			expect(emitStub).was.calledTwice();
-			expect(emitStub).was.calledWith('data.remove', null, 1);
+			expect(emitStub).was.calledWith('data.remove', null, 1, { name: 'BBB', value: '2' });
 			expect(emitStub).was.calledWith('data.change', finalData);
 
 			

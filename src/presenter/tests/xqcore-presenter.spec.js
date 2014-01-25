@@ -46,17 +46,43 @@ describe('XQCore Presenter', function() {
 	});
 
 	describe('couple', function() {
-		it('Should couple a model with a view', function() {
-			var presenter = new XQCore.Presenter();
-			var model = new XQCore.Model();
-			var view = new XQCore.View();
+		var renderStub,
+			appendStub,
+			prependStub,
+			insertStub,
+			removeStub,
+			presenter,
+			model,
+			view;
+
+		beforeEach(function() {
+			presenter = new XQCore.Presenter();
+			model = new XQCore.Model();
+			view = new XQCore.View();
 
 			presenter.couple({
 				view: view,
 				model: model
 			});
+			
+			renderStub = sinon.stub(view, 'render');
+			appendStub = sinon.stub(view, 'append');
+			prependStub = sinon.stub(view, 'prepend');
+			insertStub = sinon.stub(view, 'insert');
+			removeStub = sinon.stub(view, 'remove');
+				
+			presenter.init();
+		});
 
-			var renderStub = sinon.stub(view, 'render');
+		afterEach(function() {
+			renderStub.restore();
+			appendStub.restore();
+			prependStub.restore();
+			insertStub.restore();
+			removeStub.restore();
+		});
+		
+		it('Should couple a model with a view', function() {
 			model.set({
 				data: 'changed'
 			});
@@ -65,34 +91,71 @@ describe('XQCore Presenter', function() {
 			expect(renderStub).was.calledWith({
 				data: 'changed'
 			});
-
-			renderStub.restore();
 		});
 
 		it('Should couple a model with a view in scope way', function() {
-			var model = new XQCore.Model();
-			var view = new XQCore.View();
-			var presenter = new XQCore.Presenter('Test', function(self) {
+			presenter = new XQCore.Presenter('Test', function(self) {
 				self.couple({
 					view: view,
 					model: model
 				});
 			});
 
-			presenter.init();
-
-			var renderStub = sinon.stub(view, 'render');
 			model.set({
 				data: 'changed'
 			});
-
 
 			expect(renderStub).was.called();
 			expect(renderStub).was.calledWith({
 				data: 'changed'
 			});
+		});
 
-			renderStub.restore();
+		it('Should trigger an append event', function() {
+			model.append('listing', {
+				data: 'changed'
+			});
+
+			expect(renderStub).was.notCalled();
+			expect(appendStub).was.calledOnce();
+			expect(appendStub).was.calledWith('listing', {
+				data: 'changed'
+			});
+		});
+
+		it('Should trigger an prepend event', function() {
+			model.prepend('listing', {
+				data: 'changed'
+			});
+
+			expect(renderStub).was.notCalled();
+			expect(prependStub).was.calledOnce();
+			expect(prependStub).was.calledWith('listing', {
+				data: 'changed'
+			});
+		});
+
+		it('Should trigger an insert event', function() {
+			model.insert('listing', 0, {
+				data: 'changed'
+			});
+
+			expect(renderStub).was.notCalled();
+			expect(insertStub).was.calledOnce();
+			expect(insertStub).was.calledWith('listing', 0, {
+				data: 'changed'
+			});
+		});
+
+		it('Should trigger an remove event', function() {
+			model.set({ listing: [ { name: 'AAA' }]}, { silent: true });
+			model.remove('listing', 0);
+
+			expect(renderStub).was.notCalled();
+			expect(removeStub).was.calledOnce();
+			expect(removeStub).was.calledWith('listing', 0, {
+				name: 'AAA'
+			});
 		});
 	});
 

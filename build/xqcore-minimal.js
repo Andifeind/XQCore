@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.7.1-29
+ * XQCore - +0.7.2-4
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2014 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2014-01-22
+ * Creation Date: 2014-01-26
  */
 
 /*global XQCore:true */
@@ -36,7 +36,7 @@ var XQCore;
 	 * @type {Object}
 	 */
 	XQCore = {
-		version: '0.7.1-29',
+		version: '0.7.2-4',
 		defaultRoute: 'index',
 		html5Routes: false,
 		hashBang: '#!',
@@ -50,6 +50,8 @@ var XQCore;
 	//XQCore helper functions
 	XQCore.extend = jQuery.extend;
 	XQCore.isEmptyObject = jQuery.isEmptyObject;
+	XQCore.isPlainObject = jQuery.isPlainObject;
+	XQCore.isFunction = jQuery.isFunction;
 	
 	/**
 	 * Checks for a valid ObjectId
@@ -700,11 +702,6 @@ var XQCore;
 		this._isValid = false;
 		this.properties = {};
 		this.schema = conf.schema;
-
-		//Add default values
-		if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
-			this.set(this.defaults);
-		}
 	};
 
 
@@ -727,6 +724,11 @@ var XQCore;
 
 		if (this.debug) {
 			XQCore._dump[this.name] = this;
+		}
+
+		//Add default values
+		if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
+			this.set(this.defaults);
 		}
 
 		this.state('ready');
@@ -783,12 +785,15 @@ var XQCore;
 	Model.prototype.set = function(key, value, options) {
 		var newData = {},
 			oldData = this.get(),
-			validateResult;
+			validateResult,
+			setItem = false,
+			setAll = false;
 
 		options = options || {};
 
 		if (arguments[0] === null) {
 			newData = arguments[1];
+			setAll = true;
 			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'object') {
@@ -796,20 +801,19 @@ var XQCore;
 			key = null;
 			options = value || {};
 			newData = options.extend ? XQCore.extend(newData, oldData, arguments[0]) : arguments[0];
+			setAll = true;
 			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'string') {
 			newData = XQCore.extend({}, this.get());
-			key = arguments[0];
-			var val = arguments[1];
-
-			XQCore.dedotify(newData, key, val);
+			setItem = true;
+			XQCore.dedotify(newData, key, value);
 			this.log('Set data', newData, oldData);
 
 			options = options || {};
 			if (!this.customValidate && options.validateOne) {
 				options.noValidation = true;
-				validateResult = this.validateOne(this.schema[key], val);
+				validateResult = this.validateOne(this.schema[key], value);
 				if (validateResult.isValid === false) {
 					this.warn('Validate error in model.set', validateResult);
 					if (options.silent !== true) {
@@ -848,6 +852,13 @@ var XQCore;
 
 		this.properties = newData;
 		if (options.silent !== true) {
+			if (setAll) {
+				this.emit('data.replace', newData, oldData);
+			}
+			else if (setItem){
+				this.emit('data.item', key, value);
+			}
+
 			this.emit('data.change', newData, oldData);
 		}
 
@@ -895,40 +906,29 @@ var XQCore;
 	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
-	Model.prototype.append = function(path, data) {
-		if (arguments.length === 1) {
-			data = path;
-			path = null;
-		}
+	Model.prototype.append = function(path, data, options) {
+		var dataset = XQCore.undotify(path, this.properties);
 
-		var dataset = this.properties,
-			// oldDataset = this.get(),
-			trigger = true;
-
-		if (path) {
-			path.split('.').forEach(function(key) {
-				dataset = dataset[key];
-			});
-		}
+		options = options || {};
 
 		if (dataset instanceof Array) {
 			dataset.push(data);
 		}
+		else if (typeof dataset === 'undefined') {
+			XQCore.dedotify(this.properties, path, [data]);
+		}
+		else if (typeof dataset === 'object' && !path && XQCore.isEmptyObject(this.properties)) {
+			this.properties = [data];
+		}
 		else {
-			if (path === null) {
-				this.properties = [data];
-				dataset = this.get();
-			}
-			else {
-				this.warn('Model.append requires an array. Dataset isn\'t an array', path);
-			}
+			this.error('Model.append requires an array. Dataset isn\'t an array. Path: ', path);
+			return;
 		}
 
-		if (trigger) {
+		if (options.silent !== true) {
 			this.emit('data.append', path, data);
+			this.emit('data.change', this.properties);
 		}
-
-		return data;
 	};
 
 	/**
@@ -937,40 +937,54 @@ var XQCore;
 	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
-	Model.prototype.prepend = function(path, data) {
-		if (arguments.length === 1) {
-			data = path;
-			path = null;
-		}
+	Model.prototype.prepend = function(path, data, options) {
+		var dataset = XQCore.undotify(path, this.properties);
 
-		var dataset = this.properties,
-			// oldDataset = this.get(),
-			trigger = true;
-
-		if (path) {
-			path.split('.').forEach(function(key) {
-				dataset = dataset[key];
-			});
-		}
+		options = options || {};
 
 		if (dataset instanceof Array) {
 			dataset.unshift(data);
 		}
+		else if (typeof dataset === 'undefined') {
+			XQCore.dedotify(this.properties, path, [data]);
+		}
+		else if (typeof dataset === 'object' && !path && XQCore.isEmptyObject(this.properties)) {
+			this.properties = [data];
+		}
 		else {
-			if (path === null) {
-				this.properties = [data];
-				dataset = this.get();
-			}
-			else {
-				this.warn('Model.append requires an array. Dataset isn\'t an array', path);
-			}
+			this.error('Model.prepend requires an array. Dataset isn\'t an array. Path: ', path);
+			return;
 		}
 
-		if (trigger) {
+		if (options.silent !== true) {
 			this.emit('data.prepend', path, data);
+			this.emit('data.change', this.properties);
+		}
+	};
+
+	Model.prototype.insert = function(path, index, data, options) {
+		var dataset = XQCore.undotify(path, this.properties);
+
+		options = options || {};
+
+		if (dataset instanceof Array) {
+			dataset.splice(index, 0, data);
+		}
+		else if (typeof dataset === 'undefined') {
+			XQCore.dedotify(this.properties, path, [data]);
+		}
+		else if (typeof dataset === 'object' && !path && XQCore.isEmptyObject(this.properties)) {
+			this.properties = [data];
+		}
+		else {
+			this.error('Model.insert requires an array. Dataset isn\'t an array. Path: ', path);
+			return;
 		}
 
-		return data;
+		if (options.silent !== true) {
+			this.emit('data.insert', path, index, data);
+			this.emit('data.change', this.properties);
+		}
 	};
 
 	/**
@@ -978,25 +992,31 @@ var XQCore;
 	 *
 	 * @param {String} path path to subset
 	 * @param {Number} index Index of the subsut to remove
+	 * @param {Object} options Remove options
 	 *
 	 * @return {Object} removed subset
 	 */
-	Model.prototype.remove = function(path, index) {
-		var dataset = this.properties,
-			data = null;
-		path.split('.').forEach(function(key) {
-			dataset = dataset[key];
-		});
+	Model.prototype.remove = function(path, index, options) {
+		var dataset = XQCore.undotify(path, this.properties),
+			removed = null;
+
+
+		options = options || {};
 
 		if (dataset instanceof Array) {
-			data = dataset.splice(index, 1);
-			data = data[0] || null;
+			removed = dataset.splice(index, 1);
 		}
-		else {
-			this.warn('Model.remove() doesn\'t work with Objects in model', this.name);
+		else if (typeof dataset === 'object') {
+			this.error('Model.remove requires an array. Dataset isn\'t an array. Path: ', path);
+			return;
 		}
 
-		return data;
+		if (removed && options.silent !== true) {
+			this.emit('data.remove', path, index, removed[0]);
+			this.emit('data.change', this.properties);
+		}
+
+		return removed;
 	};
 
 	/**

@@ -1,4 +1,3 @@
-/*global $:false */
 /**
  * XQCore View module
  *
@@ -7,6 +6,8 @@
  */
 (function(XQCore, undefined) {
 	'use strict';
+
+	var $ = XQCore.require('jquery');
 
 	/**
 	 * XQCore.View
@@ -240,6 +241,10 @@
 
 	View.prototype.resize = function() {
 
+	};
+
+	View.prototype.update = function() {
+		console.warn('XQCore doesn`t support update event yet');
 	};
 
 	/**
@@ -476,17 +481,25 @@
 	 *
 	 */
 	View.prototype.render = function(data) {
+		var $newEl;
+
 		this.log('Render view template', this.template, 'with data:', data);
 
 		var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
 		this.scopes = {};
-		// if (this.$el) {
-		// 	this.$el.remove();
-		// }
+		/*if (this.$el) {
+			this.$el.remove();
+		}*/
 
 		var html = template(data || {}, this.scopes);
 		html = $.parseHTML(html);
-		this.$el = $(html);
+		$newEl = $(html);
+		
+		if (this.$el) {
+			this.$el.replaceWith($newEl);
+		}
+
+		this.$el = $newEl;
 
 		this.registerListener(this.$el);
 		this.emit('content.change', data);

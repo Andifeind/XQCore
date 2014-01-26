@@ -50,6 +50,8 @@ var XQCore;
 	//XQCore helper functions
 	XQCore.extend = jQuery.extend;
 	XQCore.isEmptyObject = jQuery.isEmptyObject;
+	XQCore.isPlainObject = jQuery.isPlainObject;
+	XQCore.isFunction = jQuery.isFunction;
 	
 	/**
 	 * Checks for a valid ObjectId

@@ -41,6 +41,17 @@ describe('XQCore Model', function() {
 
 			expect(model.properties).to.eql({name: 'Andi'});
 		});
+
+		it('Should overwrite a core method', function() {
+			var fetchStub = sinon.stub();
+			var model = new XQCore.Model('Test', function(self) {
+				self.fetch = fetchStub;
+			});
+			model.init();
+			model.fetch();
+
+			expect(fetchStub).was.called();
+		});
 	});
 
 	describe('get', function() {

@@ -262,5 +262,23 @@ describe('XQCore Presenter', function() {
 
 			presenter.init();
 		});
+
+		it('Should register an array of routes with the same listener', function() {
+			var indexStub = sinon.stub();
+			var addStub = sinon.stub();
+			
+			var presenter = new XQCore.Presenter('Test', function(self) {
+				self.route('index', indexStub);
+				self.route(['add', 'new'], addStub);
+
+				expect(self.__Router.routeMap).to.eql({
+					'index': indexStub,
+					'add': addStub,
+					'new': addStub
+				});
+			});
+
+			presenter.init();
+		});
 	});
 });

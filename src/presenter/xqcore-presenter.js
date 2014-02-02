@@ -557,7 +557,7 @@
 	 *
 	 * @public
 	 * @method route
-	 * @param {String} route Route string
+	 * @param {String | Array} route Route string
 	 * @param {Function} callback Callback function
 	 */
 	Presenter.prototype.route = function(route, callback) {
@@ -566,8 +566,17 @@
 		}
 
 		if (typeof callback === 'function') {
-			this.log('Register route', route, 'with callback', callback);
-			this.__Router.addRoute(route, callback);
+			if (typeof route === 'string') {
+				this.log('Register route', route, 'with callback', callback);
+				this.__Router.addRoute(route, callback);
+			}
+			else if (Array.isArray(route)) {
+				route.forEach(function(r) {
+					this.log('Register route', r, 'with callback', callback);
+					this.__Router.addRoute(r, callback);
+				}.bind(this));
+			}
+
 		}
 		else {
 			this.warn('Router callback isn\'t a function', callback, 'of route', route);

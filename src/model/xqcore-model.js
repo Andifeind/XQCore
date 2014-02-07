@@ -23,6 +23,7 @@
 		}
 
 		this.__state = 'starting';
+		this.__unfiltered = {};
 
 		this.customValidate = conf.validate;
 		delete conf.validate;
@@ -443,6 +444,57 @@
 		return data;
 	};
 
+	/**
+	 * Filter an array collection by a given filter function
+	 *
+	 * @param {String} path Path to the collection
+	 * @param {String | Function} filter Filter function
+	 *
+	 */
+	Model.prototype.filter = function(path, property, query, fn) {
+		if (arguments.length === 1) {
+			fn = path;
+			path = null;
+		}
+
+		if (typeof fn === 'string') {
+			if (this.__registeredFilter[fn]) {
+				fn = this.__registeredFilter[fn];
+			}
+			else {
+				throw new Error('Filter ' + fn + ' not registered!');
+			}
+		}
+
+		//We use a for i instead of Array.filter because it's faster!
+		var data = XQCore.undotify(path, this.__unfiltered.data || this.properties);
+		var filtered = [];
+		for (var i = 0, len = data.length; i < len; i++) {
+			if (fn(property, query, data[i])) {
+				filtered.push(data[i]);
+			}
+		}
+
+		this.__unfiltered = {
+			path: path,
+			data: data
+		};
+
+		this.set(path, filtered);
+		return filtered;
+	};
+
+	/**
+	 * Resets a filter
+	 * @method filterReset
+	 * @param {Object} options Set options
+	 */
+	Model.prototype.filterReset = function(options) {
+		if (this.__unfiltered) {
+			this.set(this.__unfiltered.path, this.__unfiltered.data, options);
+		}
+	};
+
 	Model.prototype.validate = function(data, schema) {
 		var failed = [];
 			
@@ -653,6 +705,40 @@
 		return this.set(data, {
 			extend: true
 		});
+	};
+
+	/**
+	 * Register a filter function 
+	 *
+	 * XQCore.Model.registerFilter('myfilter', fn);
+	 * Registers a filter for all models
+	 *
+	 * instance.registerFilter('myfilter', fn);
+	 * Registers a filter for the instance only.
+	 * 
+	 * @method registerFilter
+	 * @param {String} filterName [description]
+	 * @param {Function} filterFunction [description]
+	 */
+	Model.registerFilter = function(filterName, filterFunction) {
+		if (typeof filterFunction !== 'function') {
+			throw new Error('Filter function isn\'t a function');
+		}
+
+		var obj = typeof this === 'function' ? Model.prototype : this;
+		obj.__registeredFilter[filterName] = filterFunction;
+	};
+
+	Model.prototype.registerFilter = Model.registerFilter;
+
+	Model.prototype.__registeredFilter = {
+		quicksearch: function(property, query, item) {
+			// console.log('Filter item:', property, query, item);
+			var value = XQCore.undotify(property, item);
+			var pat = new RegExp(query.replace(/[a-z0-9äüöß]/g, '$&.*'), 'i');
+			// console.log('Pat:', pat.source);
+			return pat.test(value);
+		}
 	};
 
 	XQCore.Model = Model;

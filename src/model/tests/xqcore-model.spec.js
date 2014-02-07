@@ -1007,6 +1007,170 @@ describe('XQCore Model', function() {
 		});
 	});
 
+	describe('registerFilter', function() {
+		var model;
+
+		beforeEach(function() {
+			model = new XQCore.Model('filtertest');
+			model.init();
+		});
+
+		it('Should register a filter method to models prototype', function() {
+			var fn = sinon.spy();
+
+			XQCore.Model.registerFilter('testfilter', fn);
+			expect(XQCore.Model.prototype.__registeredFilter).to.be.an('object');
+			expect(XQCore.Model.prototype.__registeredFilter.testfilter).to.be.eql(fn);
+
+			//Instance got the filter from prototype
+			expect(model.__registeredFilter).to.be.an('object');
+			expect(model.__registeredFilter.testfilter).to.be.eql(fn);
+		});
+
+		it('Should register a filter method to an instance', function() {
+			var fn = sinon.spy();
+
+			model.registerFilter('testfilter', fn);
+			expect(model.__registeredFilter).to.be.an('object');
+			expect(model.__registeredFilter.testfilter).to.be.eql(fn);
+		});
+
+		it('Should fail registering a filter method', function() {
+			expect(function() {
+				model.registerFilter('testfilter', 'string');
+			}).to.throwError();
+		});
+	});
+
+	describe.only('filter', function() {
+		var model,
+			testData;
+
+		beforeEach(function() {
+			model = new XQCore.Model('filtertest');
+			model.init();
+
+			testData = [
+				{ name: 'Andi' },
+				{ name: 'Donnie' },
+				{ name: 'Bubu' },
+				{ name: 'Stummi' },
+				{ name: 'Barney' },
+				{ name: 'Tini' },
+				{ name: 'Carl' },
+				{ name: 'Rogger' },
+				{ name: 'Piglet' }
+			];
+		});
+
+		it('Should filter a dataset with query "a"', function() {
+			//Set data
+			model.set({
+				listing: testData
+			});
+
+			model.filter('listing', 'name', 'a', 'quicksearch');
+			expect(model.get('listing')).to.eql([
+				{ name: 'Andi' },
+				{ name: 'Barney' },
+				{ name: 'Carl' }
+			]);
+
+			expect(model.__unfiltered).to.eql({
+				path: 'listing',
+				data: testData
+			});
+		});
+
+		it('Should filter a dataset with query "an"', function() {
+			//Set data
+			model.set({
+				listing: testData
+			});
+
+			model.filter('listing', 'name', 'an', 'quicksearch');
+			expect(model.get('listing')).to.eql([
+				{ name: 'Andi' },
+				{ name: 'Barney' }
+			]);
+
+			expect(model.__unfiltered).to.eql({
+				path: 'listing',
+				data: testData
+			});
+		});
+
+		it('Should filter a dataset with query "andi"', function() {
+			//Set data
+			model.set({
+				listing: testData
+			});
+
+			model.filter('listing', 'name', 'andi', 'quicksearch');
+			expect(model.get('listing')).to.eql([
+				{ name: 'Andi' }
+			]);
+
+			expect(model.__unfiltered).to.eql({
+				path: 'listing',
+				data: testData
+			});
+		});
+
+		it('Should filter a dataset with query "idna"', function() {
+			//Set data
+			model.set({
+				listing: testData
+			});
+
+			model.filter('listing', 'name', 'idna', 'quicksearch');
+			expect(model.get('listing')).to.eql([]);
+
+			expect(model.__unfiltered).to.eql({
+				path: 'listing',
+				data: testData
+			});
+		});
+	});
+
+	describe('filterReset', function() {
+		var model,
+			testData;
+
+		beforeEach(function() {
+			model = new XQCore.Model('filtertest');
+			model.init();
+
+			testData = [
+				{ name: 'Andi' },
+				{ name: 'Donnie' },
+				{ name: 'Bubu' },
+				{ name: 'Stummi' },
+				{ name: 'Barney' },
+				{ name: 'Tini' },
+				{ name: 'Carl' },
+				{ name: 'Rogger' },
+				{ name: 'Piglet' }
+			];
+		});
+
+		it('Should reset a filtered dataset', function() {
+			model.__unfiltered = {
+				path: 'listing',
+				data: testData
+			};
+
+			model.properties = {
+				listing: [
+					{ name: 'andi' }
+				]
+			};
+
+			model.filterReset();
+			expect(model.get('listing')).to.eql(testData);
+		});
+	});
+
 	describe('state', function() {
 		xit('Should set a state', function() {
 			

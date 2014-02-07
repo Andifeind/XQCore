@@ -531,7 +531,8 @@
 				else {
 					listenerFunc = function(e) {
 						e.preventDefault();
-						self.presenter.emit(ev[1], data, e);
+						var value = e.currentTarget.value || '';
+						self.presenter.emit(ev[1], value, data, e);
 					}.bind(this);
 				}
 

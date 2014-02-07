@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.7.2-5
+ * XQCore - +0.7.2-9
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2014 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2014-01-30
+ * Creation Date: 2014-02-06
  */
 
 /*global XQCore:true */
@@ -36,7 +36,7 @@ var XQCore;
 	 * @type {Object}
 	 */
 	XQCore = {
-		version: '0.7.2-5',
+		version: '0.7.2-9',
 		defaultRoute: 'index',
 		html5Routes: false,
 		hashBang: '#!',
@@ -692,6 +692,7 @@ var XQCore;
 		}
 
 		this.__state = 'starting';
+		this.__unfiltered = {};
 
 		this.customValidate = conf.validate;
 		delete conf.validate;
@@ -1112,6 +1113,52 @@ var XQCore;
 		return data;
 	};
 
+	/**
+	 * Filter an array collection by a given filter function
+	 *
+	 * @param {String} path Path to the collection
+	 * @param {String | Function} filter Filter function
+	 *
+	 */
+	Model.prototype.filter = function(path, property, query, fn) {
+		if (arguments.length === 1) {
+			fn = path;
+			path = null;
+		}
+
+		if (typeof fn === 'string') {
+			if (this.__registeredFilter[fn]) {
+				fn = function(item) {
+					this.__registeredFilter[fn].call(this, property, query, item);
+				};
+			}
+			else {
+				throw new Error('Filter ' + fn + ' not registered!');
+			}
+		}
+
+		var data = XQCore.undotify(path, this.__unfiltered.data || this.properties);
+		var filtered = data.filter(fn);
+
+		this.__unfiltered = {
+			path: path,
+			data: this.properties
+		};
+
+		this.set(path, filtered);
+		return filtered;
+	};
+
+	/**
+	 * Resets a filter
+	 * @method filterReset
+	 */
+	Model.prototype.filterReset = function() {
+		if (this.__unfiltered) {
+			this.set(this.__unfiltered.path, this.__unfiltered.data);
+		}
+	};
+
 	Model.prototype.validate = function(data, schema) {
 		var failed = [];
 			
@@ -1322,6 +1369,12 @@ var XQCore;
 		return this.set(data, {
 			extend: true
 		});
+	};
+
+	Model.prototype.__registeredFilter = {
+		quicksearch: function(property, query, item) {
+			console.log('Filter item:', property, query, item);
+		}
 	};
 
 	XQCore.Model = Model;

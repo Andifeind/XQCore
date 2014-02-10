@@ -181,7 +181,7 @@ describe('XQCore Presenter', function() {
 			presenter.init();
 		});
 
-		it('Should init and render a view', function() {
+		xit('Should init and render a view', function() {
 			var renderStub = sinon.stub(XQCore.View.prototype, 'render'),
 				injectStub = sinon.stub(XQCore.View.prototype, 'inject');
 			
@@ -200,7 +200,7 @@ describe('XQCore Presenter', function() {
 			injectStub.restore();
 		});
 
-		it('Should init but dont\'t inject view', function() {
+		xit('Should init but dont\'t inject view', function() {
 			var renderStub = sinon.stub(XQCore.View.prototype, 'render'),
 				injectStub = sinon.stub(XQCore.View.prototype, 'inject');
 			

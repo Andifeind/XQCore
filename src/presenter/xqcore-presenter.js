@@ -6,6 +6,8 @@
 (function(XQCore, undefined) {
 	'use strict';
 
+	var $ = XQCore.require('jquery');
+
 	/**
 	 * XQCore.Presenter base class
 	 *
@@ -189,9 +191,10 @@
 				data[XQCore.callerEvent] = 'pageload';
 			}
 
-			self.log('Trigger route', route, data);
-
-			route.fn.call(self, route.params);
+			$(function() {
+				self.log('Trigger route', route, data);
+				route.fn.call(self, route.params);
+			});
 		}
 
 		// custom init (deprecated)
@@ -275,7 +278,14 @@
 			this.pushState(data, route);
 		}
 
-		this.__onPopstate(data);
+		// this.__onPopstate(data);
+		/*global PopStateEvent:false */
+		var evt = new PopStateEvent('popstate', {
+			bubbles: false,
+			cancelable: false,
+			state: null
+		});
+		window.dispatchEvent(evt);
 	};
 
 	/**
@@ -369,11 +379,11 @@
 
 		var modelEventConf = XQCore.extend({
 			'data.replace': 'render',
+			'data.item': 'update',
 			'data.append': 'append',
 			'data.prepend': 'prepend',
 			'data.insert': 'insert',
 			'data.remove': 'remove',
-			'data.item': 'update',
 			'validation.error': 'validationFailed',
 			'state.change': 'stateChanged'
 		}, conf.modelEvents);
@@ -427,7 +437,7 @@
 		for (key in modelEventConf) {
 			if (modelEventConf.hasOwnProperty(key)) {
 				registerModelListener(key, modelEventConf[key]);
-				if (key === 'data.change') {
+				if (key === 'data.replace') {
 					model.emit(key, model.get());
 				}
 			}
@@ -482,7 +492,7 @@
 	Presenter.prototype.__onPopstate = function(data) {
 		var self = this;
 
-		self.log('popstate event recived', data);
+		self.log('popstate event recived', data, self);
 
 		var route = XQCore.defaultRoute;
 		if (XQCore.html5Routes) {
@@ -490,7 +500,7 @@
 			route = self.getPathname().replace(pattern, '');
 		}
 		else {
-			if (/^#![a-zA-Z0-9]+/.test(this.getHash())) {
+			if (/^#!\S+/.test(this.getHash())) {
 				route = self.getHash().substr(2);
 			}
 		}

@@ -1042,7 +1042,7 @@ describe('XQCore Model', function() {
 		});
 	});
 
-	describe.only('filter', function() {
+	describe('filter', function() {
 		var model,
 			testData;
 

@@ -85,6 +85,16 @@
 		 */
 		this.initFunc = initFunc;
 
+		/**
+		 * Holds the domReady state
+		 *
+		 * @property __domReady
+		 * @type {Boolean}
+		 * @default false
+		 * @private
+		 */
+		this.__domReady = false;
+
 
 		/* ++++++++++ old stuff +++++++++++++ */
 
@@ -205,22 +215,13 @@
 				this.error('Can\'t initialize View, Container not found!', this.container);
 			}
 
-			//Initial render and injection
-			if (!this.$el) {
-				this.render();
+			//Set DOM ready state
+			this.__domReady = true;
+			if (this.__initialData) {
+				this.render(this.__initialData);
+				delete this.__initialData;
 			}
 			
-			if (this.autoInject) {
-				this.inject();
-			}
-			
-			//Set ready state
-			this.isReady = true;
-			if (this.__readyCallbacks) {
-				this.__readyCallbacks.forEach(function(fn) {
-					fn.call(this);
-				}.bind(this));
-			}
 		}.bind(this));
 
 	};
@@ -241,10 +242,6 @@
 
 	View.prototype.resize = function() {
 
-	};
-
-	View.prototype.update = function() {
-		console.warn('XQCore doesn`t support update event yet');
 	};
 
 	/**
@@ -391,6 +388,15 @@
 		}
 	};
 
+	View.prototype.__setReadyState = function() {
+		this.isReady = true;
+		if (this.__readyCallbacks) {
+			this.__readyCallbacks.forEach(function(fn) {
+				fn.call(this);
+			}.bind(this));
+		}
+	};
+
 	/**
 	 * Gets the index of a subSelector item
 	 * This function must binded to the view
@@ -434,41 +440,39 @@
 	 * @method inject
 	 */
 	View.prototype.inject = function() {
-		this.ready(function() {
-			this.$ct = $(this.container);
-			this.log('Inject view into container', this.$ct);
+		this.$ct = $(this.container);
+		this.log('Inject view into container', this.$ct);
 
-			this.el = this.$el.get(0);
-			this.$el.addClass('xq-view xq-view-' + this.name.toLowerCase());
-			this.ct = this.$ct.get(0);
+		this.el = this.$el.get(0);
+		this.$el.addClass('xq-view xq-view-' + this.name.toLowerCase());
+		this.ct = this.$ct.get(0);
 
-			if (this.hidden === true) {
-				this.$el.hide();
-			}
+		if (this.hidden === true) {
+			this.$el.hide();
+		}
 
-			if (this.id) {
-				this.$el.attr('id', this.id);
-			}
+		if (this.id) {
+			this.$el.attr('id', this.id);
+		}
 
-			if (this.className) {
-				this.$el.addClass(this.className);
-			}
-			
-			if (this.mode === 'replace') {
-				this.$ct.contents().detach();
-				this.$ct.append(this.$el);
-				// this.$ct.children().replaceWith(this.$el);
-			}
-			else if(this.mode === 'append') {
-				this.$ct.append(this.$el);
-			}
-			else if (this.mode === 'prepend') {
-				this.$ct.prepend(this.$el);
-			}
-			else {
-				throw new Error('Unknow insert mode in view.init()');
-			}
-		});
+		if (this.className) {
+			this.$el.addClass(this.className);
+		}
+		
+		if (this.mode === 'replace') {
+			this.$ct.contents().detach();
+			this.$ct.append(this.$el);
+			// this.$ct.children().replaceWith(this.$el);
+		}
+		else if(this.mode === 'append') {
+			this.$ct.append(this.$el);
+		}
+		else if (this.mode === 'prepend') {
+			this.$ct.prepend(this.$el);
+		}
+		else {
+			throw new Error('Unknow insert mode in view.init()');
+		}
 	};
 
 	/**
@@ -481,7 +485,19 @@
 	 *
 	 */
 	View.prototype.render = function(data) {
-		var $newEl;
+		if (this.__domReady === false) {
+			this.__initialData = data;
+			return;
+		}
+
+		var $newEl,
+			html,
+			isInitialRender = false;
+
+		//Initial render and injection
+		if (!this.$el) {
+			isInitialRender = true;
+		}
 
 		this.log('Render view template', this.template, 'with data:', data);
 
@@ -491,7 +507,14 @@
 			this.$el.remove();
 		}*/
 
-		var html = template(data || {}, this.scopes);
+		try {
+			html = template(data || {}, this.scopes);
+		}
+		catch(err) {
+			html = '<p class="renderError"><b>View render error!</b><br>' + err.message + '</p>';
+			this.error('View render error!', err);
+		}
+
 		html = $.parseHTML(html);
 		$newEl = $(html);
 		
@@ -500,6 +523,14 @@
 		}
 
 		this.$el = $newEl;
+
+		if (isInitialRender) {
+			if (this.autoInject) {
+				this.inject();
+			}
+			//Set ready state
+			this.__setReadyState();
+		}
 
 		this.registerListener(this.$el);
 		this.emit('content.change', data);
@@ -593,6 +624,10 @@
 				}
 			});
 		}
+	};
+
+	View.prototype.update = function(path, data) {
+		console.warn('XQCore doesn`t support update event yet');
 	};
 
 	View.prototype.append = function(path, data) {

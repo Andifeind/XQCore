@@ -75,27 +75,11 @@ module.exports = function(grunt) {
 			}
 		},
 		copy: {
-			akonda: {
+			component: {
 				files: [
 					{
 						src: ['build/xqcore.js'],
-						dest: '../akonda/components/xqcore/xqcore.js'
-					}
-				]
-			},
-			'xqtools': {
-				files: [
-					{
-						src: ['build/xqcore-minimal.js'],
-						dest: '../xqtools/webdocs/ext/xqcore-minimal.js'
-					}
-				]
-			},
-			'firetpl': {
-				files: [
-					{
-						src: ['../firetpl/firetpl.js'],
-						dest: 'lib/firetpl.js'
+						dest: '../component-builds/nonamemedia-xqcore/xqcore.js'
 					}
 				]
 			}
@@ -107,6 +91,11 @@ module.exports = function(grunt) {
 				'webdocs/build/xqcore-minimal.js',
 				'webdocs/build/xqcore-minimal.min.js'
 			]
+		},
+		version: {
+			component: {
+				src: ['../component-builds/nonamemedia-xqcore/component.json']
+			}
 		},
 		watch: {
 			files: 'webdocs/js/**/*.js',
@@ -135,6 +124,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-yuidoc');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-bumpup');
+	grunt.loadNpmTasks('grunt-version');
 	// grunt.loadNpmTasks('grunt-contrib-bump');
 
 	grunt.registerTask('default', 'jshint');
@@ -146,9 +136,13 @@ module.exports = function(grunt) {
 		'concat:build',
 		'concat:minimal',
 		'uglify',
-		'copy:akonda',
-		'copy:xqtools',
 		'doc',
+		'component-build',
 		'bumpup:prerelease'
+	]);
+
+	grunt.registerTask('component-build', [
+		'copy:component',
+		'version:component'
 	]);
 };

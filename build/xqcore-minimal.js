@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.7.2-9
+ * XQCore - +0.7.3-15
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2014 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2014-02-06
+ * Creation Date: 2014-02-09
  */
 
 /*global XQCore:true */
@@ -36,7 +36,7 @@ var XQCore;
 	 * @type {Object}
 	 */
 	XQCore = {
-		version: '0.7.2-9',
+		version: '0.7.3-15',
 		defaultRoute: 'index',
 		html5Routes: false,
 		hashBang: '#!',
@@ -1128,21 +1128,25 @@ var XQCore;
 
 		if (typeof fn === 'string') {
 			if (this.__registeredFilter[fn]) {
-				fn = function(item) {
-					this.__registeredFilter[fn].call(this, property, query, item);
-				};
+				fn = this.__registeredFilter[fn];
 			}
 			else {
 				throw new Error('Filter ' + fn + ' not registered!');
 			}
 		}
 
+		//We use a for i instead of Array.filter because it's faster!
 		var data = XQCore.undotify(path, this.__unfiltered.data || this.properties);
-		var filtered = data.filter(fn);
+		var filtered = [];
+		for (var i = 0, len = data.length; i < len; i++) {
+			if (fn(property, query, data[i])) {
+				filtered.push(data[i]);
+			}
+		}
 
 		this.__unfiltered = {
 			path: path,
-			data: this.properties
+			data: data
 		};
 
 		this.set(path, filtered);
@@ -1152,10 +1156,11 @@ var XQCore;
 	/**
 	 * Resets a filter
 	 * @method filterReset
+	 * @param {Object} options Set options
 	 */
-	Model.prototype.filterReset = function() {
+	Model.prototype.filterReset = function(options) {
 		if (this.__unfiltered) {
-			this.set(this.__unfiltered.path, this.__unfiltered.data);
+			this.set(this.__unfiltered.path, this.__unfiltered.data, options);
 		}
 	};
 
@@ -1371,9 +1376,37 @@ var XQCore;
 		});
 	};
 
+	/**
+	 * Register a filter function 
+	 *
+	 * XQCore.Model.registerFilter('myfilter', fn);
+	 * Registers a filter for all models
+	 *
+	 * instance.registerFilter('myfilter', fn);
+	 * Registers a filter for the instance only.
+	 * 
+	 * @method registerFilter
+	 * @param {String} filterName [description]
+	 * @param {Function} filterFunction [description]
+	 */
+	Model.registerFilter = function(filterName, filterFunction) {
+		if (typeof filterFunction !== 'function') {
+			throw new Error('Filter function isn\'t a function');
+		}
+
+		var obj = typeof this === 'function' ? Model.prototype : this;
+		obj.__registeredFilter[filterName] = filterFunction;
+	};
+
+	Model.prototype.registerFilter = Model.registerFilter;
+
 	Model.prototype.__registeredFilter = {
 		quicksearch: function(property, query, item) {
-			console.log('Filter item:', property, query, item);
+			// console.log('Filter item:', property, query, item);
+			var value = XQCore.undotify(property, item);
+			var pat = new RegExp(query.replace(/[a-z0-9äüöß]/g, '$&.*'), 'i');
+			// console.log('Pat:', pat.source);
+			return pat.test(value);
 		}
 	};
 

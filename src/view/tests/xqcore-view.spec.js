@@ -434,33 +434,34 @@ describe('XQCore View', function() {
 		});
 	});
 
-	xit('Should render a view', function() {
-		var presenter,
-			view,
-			initFunc = sinon.spy();
+	describe('ready', function() {
+		it('Should call functions if state is ready', function() {
+			var fn = sinon.stub();
+			var view = new XQCore.View('test');
 
-		presenter = new XQCore.Presenter({
-			
+			view.isReady = false;
+			view.ready(fn);
+			expect(fn).was.notCalled();
+
+			//Set ready state
+			view.__setReadyState();
+			expect(fn).was.calledOnce();
+			expect(view.__setReadyState).to.have.length(0);
 		});
 
-		view = new XQCore.View({
-			debug: false,
-			name: 'test1',
-			init: initFunc,
-			// container: viewContainer,
-			tag: 'div',
-			id: 'newView',
-			className: 'newViewClass'
+		it('Should call functions immediately because state is ready', function() {
+			var fn = sinon.stub();
+			var view = new XQCore.View('test');
+
+			view.isReady = false;
+			view.ready(fn);
+			expect(fn).was.notCalled();
+
+			//Set ready state
+			view.__setReadyState();
+			expect(fn).was.calledOnce();
+			expect(view.__setReadyState).to.have.length(0);
 		});
-
-		presenter.registerView(view);
-		presenter.init();
-
-		expect(view).to.be.an('object');
-		expect(initFunc).was.called();
-		$expect('#newView').to.exist();
-		$expect('#newView').to.have.class('newViewClass');
-		$expect('#newView').to.be.a('div');
 	});
 
 	xit('Should register view events at presenter', function() {

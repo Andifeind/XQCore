@@ -85,22 +85,178 @@ describe('XQCore View', function() {
 		});
 	});
 
+	describe.only('parse', function() {
+		var view,
+			$el;
+
+		before(function() {
+			view = new XQCore.View();
+			view.template = function(data,scopes) {
+
+			var h=new FireTPL.Runtime();
+
+			scopes=scopes||{};
+				var root, parent;
+				root=data;
+				parent=data;
+				
+				scopes.scope002=function(data,parent){
+						var s='';
+						var c=data;
+						var r=h.exec('if',c,parent,root,function(data){
+								var s='';
+								s+='<img data-src="'+data.image+'">';
+								return s;
+
+						});
+						s+=r;
+						return s;
+								
+				};
+				scopes.scope001=function(data,parent){
+						var s='';
+						s+=h.exec('each',data,parent,root,function(data){
+								var s='';
+								s+='<li><span data-id="'+data.name+'" on="click:click">';
+								s+=scopes.scope002(data.image,data);
+								s+='<span class="name">'+data.name+'</span><span class="type">'+root.type+'</span></span></li>';
+								return s;
+
+						});
+						return s;
+
+				};
+				var s='';
+				//s+='<div><h1>'+data.title+'</h1><ul>';
+				s+='<div><h1><scope path="title"></scope></h1><ul>';
+				//s+=scopes.scope001(data.listing,data);
+				s+='<scope id="scope001" path="listing"></scope>';
+				s+='</ul></div>';
+
+			return s;
+
+			};
+
+			view.template = function(data,scopes) {
+
+				var h=new FireTPL.Runtime();
+
+				scopes=scopes||{};
+				var root=data,parent=data;
+				scopes.scope003=function(data,parent){
+						var s='';
+						var c=data;
+						var r=h.exec('if',c,parent,root,function(data){
+								var s='';
+								s+='<img src="'+data.image+'">';
+								return s;
+
+						});
+						s+=r;
+						return s;
+
+				};
+				scopes.scope002=function(data,parent){
+						var s='';
+						s+=h.exec('each',data,parent,root,function(data){
+								var s='';
+								s+='<li><span data-id="'+data.name+'" on="click:click"><scope id="scope003" path="image"></scope>';
+								s+='<span class="name">'+data.name+'</span><span class="type"><scope path="type"></scope></span></span></li>';
+								return s;
+
+						});
+						return s;
+
+				};
+				scopes.scope001=function(data,parent){
+						var s='';
+						var c=data;
+						var r=h.exec('if',c,parent,root,function(data){
+								var s='';
+								s+='<ul><scope id="scope002" path="listing"></scope>';
+								s+='</ul>';
+								return s;
+
+						});
+						s+=r;
+						return s;
+
+				};
+				var s='';
+				s+='<div><h1><scope path="title"></scope></h1><div><scope id="scope001" path="listing"></scope>';
+				s+='</div></div>';
+
+			return s;
+
+			};
+		});
+
+		afterEach(function() {
+			
+		});
+
+		it('Should replace all scope tags with a dom fragment', function() {
+			var data = {
+				title: 'Parser Test',
+				type: 'test',
+				listing: [{
+					image: 'img3.png',
+					name: 'Take three'
+				}, {
+					image: 'img4.png',
+					name: 'Take four'
+				}, {
+					image: 'img5.png',
+					name: 'Take five'
+				}]
+			};
+
+			var html = view.parse(view.template, data);
+			expect(html.get(0).outerHTML).to.eql('<div><h1>Parser Test</h1><ul><li><span data-id=\"Take three\" on=\"click:click\"><img data-src=\"img3.png\"><span class=\"name\">Take three</span><span class=\"type\">test</span></span></li><li><span data-id=\"Take four\" on=\"click:click\"><img data-src=\"img4.png\"><span class=\"name\">Take four</span><span class=\"type\">test</span></span></li><li><span data-id=\"Take five\" on=\"click:click\"><img data-src=\"img5.png\"><span class=\"name\">Take five</span><span class=\"type\">test</span></span></li></ul></div>');
+			$el = html;
+
+			expect(view.template.scopes).to.be.an('object');
+			expect(view.template.scopes.scope001).to.be.a('function');
+			expect(view.template.scopes.scope002).to.be.a('function');
+			
+			expect(view.template.scopeStore).to.be.an('object');
+			
+			expect(view.template.scopeStore.title).to.be.an('array');
+			expect(view.template.scopeStore.title[0]).to.be.an('object');
+			expect(view.template.scopeStore.title[0].value).to.be.an('object');
+			expect(view.template.scopeStore.title[0].id).to.be.an('undefined');
+
+			expect(view.template.scopeStore.listing).to.be.an('array');
+			expect(view.template.scopeStore.listing[0]).to.be.an('object');
+			expect(view.template.scopeStore.listing[0].value).to.be.an('object');
+			expect(view.template.scopeStore.listing[0].id).to.eql('scope001');
+			
+			expect(view.template).to.be.a('function');
+		});
+
+		it('Should change the title property', function() {
+			//Change title over scopeStore
+			$($.parseHTML('Changed title!')).replaceAll(view.template.scopeStore.title[0].value);
+			expect($el.get(0).outerHTML).to.eql('<div><h1>Changed title!</h1><ul><li><span data-id=\"Take three\" on=\"click:click\"><img data-src=\"img3.png\"><span class=\"name\">Take three</span><span class=\"type\">test</span></span></li><li><span data-id=\"Take four\" on=\"click:click\"><img data-src=\"img4.png\"><span class=\"name\">Take four</span><span class=\"type\">test</span></span></li><li><span data-id=\"Take five\" on=\"click:click\"><img data-src=\"img5.png\"><span class=\"name\">Take five</span><span class=\"type\">test</span></span></li></ul></div>');
+		});
+	});
+
 	describe('render', function() {
 		var view,
 			presenter,
-			renderStub,
+			renderSpy,
 			injectStub;
 
 		beforeEach(function() {
 			view = new XQCore.View();
 			presenter = new XQCore.Presenter();
 
-			renderStub = sinon.stub(view, 'render');
+			renderSpy = sinon.spy(view, 'render');
 			injectStub = sinon.stub(view, 'inject');
 		});
 
 		afterEach(function() {
-			renderStub.restore();
+			renderSpy.restore();
 			injectStub.restore();
 		});
 
@@ -111,8 +267,8 @@ describe('XQCore View', function() {
 			view.render(data);
 
 			expect(injectStub).was.called();
-			expect(renderStub).was.called();
-			expect(renderStub).was.calledWith(data);
+			expect(renderSpy).was.called();
+			expect(renderSpy).was.calledWith(data);
 		});
 	});
 
@@ -126,38 +282,38 @@ describe('XQCore View', function() {
 
 			view.template = function(data, scopes) {
 				var h=FireTPL.helpers;
-                scopes=scopes||{};
-                scopes.scope002=function(data){
-                        var s='';
-                        var c=data;
-                        var r=h.if(c,function(data){
-                                var s='';
-                                s+='<img src="'+data.image+'">';
-                                return s;
+				scopes=scopes||{};
+				scopes.scope002=function(data){
+						var s='';
+						var c=data;
+						var r=h.if(c,function(data){
+								var s='';
+								s+='<img src="'+data.image+'">';
+								return s;
 
-                        });
-                        s+=r;
-                        return s;
+						});
+						s+=r;
+						return s;
 
-                };
-                scopes.scope001=function(data){
-                        var s='';
-                        s+=h.each(data,function(data){
-                                var s='';
-                                s+='<li><span class="name">'+data.name+'</span><span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image">';
-                                s+=scopes.scope002(data.image);
-                                s+='</span></li>';
-                                return s;
+				};
+				scopes.scope001=function(data){
+						var s='';
+						s+=h.each(data,function(data){
+								var s='';
+								s+='<li><span class="name">'+data.name+'</span><span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image">';
+								s+=scopes.scope002(data.image);
+								s+='</span></li>';
+								return s;
 
-                        });
-                        return s;
+						});
+						return s;
 
-                };
-                var s='';
-                s+='<div class="example"><h1>'+data.title+'</h1><div class="description">'+data.description+'</div><ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">';
-                s+=scopes.scope001(data.listing);
-                s+='</ul></div>';
-                return s;
+				};
+				var s='';
+				s+='<div class="example"><h1>'+data.title+'</h1><div class="description">'+data.description+'</div><ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">';
+				s+=scopes.scope001(data.listing);
+				s+='</ul></div>';
+				return s;
 			};
 		});
 
@@ -179,11 +335,11 @@ describe('XQCore View', function() {
 			expect(view.$el.get(0).outerHTML).to.eql(
 				'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
-				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<ul class="listing xq-scope xq-scope001">' +
 				'<li><span class="name">Andi</span>' +
-				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<span class="image xq-scope xq-scope002"></span></li>' +
 				'<li><span class="name">Donnie</span>' +
-				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<span class="image xq-scope xq-scope002"></span></li>' +
 				'</ul></div>');
 
 			view.insert('listing', 1, {name: 'Carl'});
@@ -191,13 +347,13 @@ describe('XQCore View', function() {
 			expect(view.$el.get(0).outerHTML).to.eql(
 			'<div class="example"><h1>Insert test</h1>' +
 				'<div class="description">undefined</div>' +
-				'<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+				'<ul class="listing xq-scope xq-scope001">' +
 				'<li><span class="name">Andi</span>' +
-				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<span class="image xq-scope xq-scope002"></span></li>' +
 				'<li><span class="name">Carl</span>' +
-				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<span class="image xq-scope xq-scope002"></span></li>' +
 				'<li><span class="name">Donnie</span>' +
-				'<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+				'<span class="image xq-scope xq-scope002"></span></li>' +
 				'</ul></div>');
 		});
 

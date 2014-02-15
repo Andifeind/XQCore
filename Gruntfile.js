@@ -82,6 +82,16 @@ module.exports = function(grunt) {
 						dest: '../component-builds/nonamemedia-xqcore/xqcore.js'
 					}
 				]
+			},
+			firetpl: {
+				files: [
+					{
+						src: ['firetpl.js', 'firetpl-runtime.js'],
+						dest: 'lib/',
+						cwd: '../firetpl/',
+						expand: true
+					}
+				]
 			}
 		},
 		clean: {

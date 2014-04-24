@@ -1,5 +1,7 @@
 /**
  *	@requires XQCore.Utils
+ *	@requires XQCore.Event
+ *	@requires XQCore.Logger
  */
 (function(XQCore, undefined) {
 	'use strict';

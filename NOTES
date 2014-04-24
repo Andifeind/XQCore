@@ -42,3 +42,47 @@ Model func                       Event                 View func        --------
 ~prepend(path, data)			      *subset.prepend       *prepend
 ~remove(path, index)			      *subset.remove        *remove
 *insert(path, index, data)	    *subset.insert        *insert
+
+
+
+Parse
+- - - - - - - - - - - - - - - - - - -
+Template:
+
+<h1 id="item001">$title</h1>
+<div class="listingContainer">
+  <if $listing id="scope001">
+    <h2>Listing>
+    <each $listing class="scope002">
+      <if $image class="scope003">
+        <img src="$image" id="item002">
+      </if>
+      <span class="name" id="item003">$name</span>
+    </each>
+  </if>
+</div>
+
+title {
+  item001: Object
+}
+
+listing: {
+  scope001: Object
+  scope002: Object
+}
+
+listing[].image: {
+  scope003: Object,
+  item002: Object
+}
+
+listing[].name: {
+  item003: Object
+}
+
+change:title => title.item001.replaceWith(value);
+listing:change => listing.scope001.replaceWith(value);
+listing:change => listing.scope002.replaceWith(value);
+
+listing:append => listing.scope001 ignore
+listing:append => listing.scope002.replaceWith(value);

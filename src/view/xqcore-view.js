@@ -476,6 +476,64 @@
 	};
 
 	/**
+	 * Parse a precompiled template and returns a html string
+	 *
+	 * @method parse
+	 *
+	 * @param {Function} template Precompiled template
+	 * @param {Object} data Data object
+	 *
+	 * @return {String} compiled html
+	 */
+	View.prototype.parse = function(template, data) {
+		var html;
+
+		template.scopeStore = {};
+		template.scopes = {};
+
+		try {
+			html = template(data || {}, template.scopes);
+		}
+		catch(err) {
+			html = '<p class="renderError"><b>View render error!</b><br>' + err.message + '</p>';
+			this.error('View render error!', err);
+		}
+
+
+		if (html) {
+			html = $.parseHTML(html);
+			var $newEl = $(html);
+			var els = $newEl.find('scope');
+			console.log('EL', els.length);
+			els.each(function() {
+				var scopeId = $(this).attr('id'),
+					path = $(this).attr('path'),
+					content;
+
+				console.log('Parse path', path);
+				content = {};
+				if (scopeId) {
+					content.value = $.parseHTML(template.scopes[scopeId](data[path], data));
+					content.id = scopeId
+				}
+				else {
+					content.value = $.parseHTML(data[path]);
+				}
+
+				template.scopeStore[path] = template.scopeStore[path] || [];
+				template.scopeStore[path].push(content);
+
+				console.log('EL', $(this).get(0).outerHTML);
+				console.log('CONTENT', $(content.value).get(0).outerHTML);
+				$(this).replaceWith($(content.value));
+				console.log('REPLACETD', $newEl.get(0).outerHTML);
+			});
+		}
+
+		return $newEl;
+	};
+
+	/**
 	 * Render view
 	 *
 	 * @method render

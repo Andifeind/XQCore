@@ -187,9 +187,17 @@
 		this.properties = newData;
 		if (options.silent !== true) {
 			if (setAll) {
+				if (typeof this.sync === 'function' && options.sync !== false) {
+					this.sync('replace', newData);
+				}
+
 				this.emit('data.replace', newData, oldData);
 			}
 			else if (setItem){
+				if (typeof this.sync === 'function' && options.sync !== false) {
+					this.sync('item', key, value);
+				}
+				
 				this.emit('data.item', key, value);
 			}
 
@@ -260,6 +268,10 @@
 		}
 
 		if (options.silent !== true) {
+			if (typeof this.sync === 'function' && options.sync !== false) {
+				this.sync('append', path, data);
+			}
+
 			this.emit('data.append', path, data);
 			this.emit('data.change', this.properties);
 		}
@@ -291,6 +303,10 @@
 		}
 
 		if (options.silent !== true) {
+			if (typeof this.sync === 'function' && options.sync !== false) {
+				this.sync('prepend', path, data);
+			}
+
 			this.emit('data.prepend', path, data);
 			this.emit('data.change', this.properties);
 		}
@@ -316,6 +332,10 @@
 		}
 
 		if (options.silent !== true) {
+			if (typeof this.sync === 'function' && options.sync !== false) {
+				this.sync('insert', path, 1, data);
+			}
+
 			this.emit('data.insert', path, index, data);
 			this.emit('data.change', this.properties);
 		}
@@ -346,6 +366,10 @@
 		}
 
 		if (removed && options.silent !== true) {
+			if (typeof this.sync === 'function' && options.sync !== false) {
+				this.sync('remove', path, index);
+			}
+
 			this.emit('data.remove', path, index, removed[0]);
 			this.emit('data.change', this.properties);
 		}

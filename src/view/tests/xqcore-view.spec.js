@@ -1,5 +1,5 @@
 /*global $:false, FireTPL:false */
-describe('XQCore View', function() {
+describe.skip('XQCore View', function() {
 	'use strict';
 
 	beforeEach(function() {
@@ -85,7 +85,7 @@ describe('XQCore View', function() {
 		});
 	});
 
-	describe.only('parse', function() {
+	describe('parse', function() {
 		var view,
 			$el;
 

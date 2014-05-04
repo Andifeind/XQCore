@@ -389,6 +389,71 @@ describe('XQCore Model', function() {
 			validationOneStub.restore();
 		});
 
+		it('Should call sync method with replace mode', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.set({a: 'aa'});
+
+			expect(syncStub).was.calledOnce();
+			expect(syncStub).was.calledWith('replace', {a:'aa'});
+		});
+
+		it('Should call sync method with item mode', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.set('a', 'aa');
+
+			expect(syncStub).was.calledOnce();
+			expect(syncStub).was.calledWith('item', 'a', 'aa');
+		});
+
+		it('Should not call sync method when sync option is false', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.set({a: 'aa'}, { sync: false });
+
+			expect(syncStub).was.notCalled();
+		});
+
+		it('Should not call sync method when sync option is false', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.set('a', 'aa', { sync: false });
+
+			expect(syncStub).was.notCalled();
+		});
+
+		it('Should not call sync method when validation fails', function() {
+			var syncStub = sinon.stub();
+			var validationStub = sinon.stub(model, 'validate');
+			validationStub.returns({});
+
+			model.sync = syncStub;
+			model.schema = { a: 'Number' };
+
+			model.set({a: 'aa'});
+
+			expect(validationStub).was.calledOnce();
+			expect(syncStub).was.notCalled();
+		});
+
+		it('Should not call sync method when validation fails', function() {
+			var syncStub = sinon.stub();
+			var validationStub = sinon.stub(model, 'validate');
+			validationStub.returns({});
+
+			model.sync = syncStub;
+			model.schema = { a: 'Number' };
+
+			model.set('a', 'aa');
+
+			expect(validationStub).was.calledOnce();
+			expect(syncStub).was.notCalled();
+		});
 	});
 
 	describe('set with custom validation', function() {
@@ -588,6 +653,27 @@ describe('XQCore Model', function() {
 			emitStub.restore();
 			errorStub.restore();
 		});
+
+		it('Should call sync method with append mode', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.properties = { listing: [] };
+			model.append('listing', {a: 'aa'});
+
+			expect(syncStub).was.calledOnce();
+			expect(syncStub).was.calledWith('append', 'listing', {a:'aa'});
+		});
+
+		it('Should not call sync method when sync option is false', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.properties = { listing: [] };
+			model.append('listing', {a: 'aa'}, { sync: false });
+
+			expect(syncStub).was.notCalled();
+		});
 	});
 
 	describe('prepend', function() {
@@ -714,6 +800,27 @@ describe('XQCore Model', function() {
 
 			emitStub.restore();
 			errorStub.restore();
+		});
+
+		it('Should call sync method with prepend mode', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.properties = { listing: [] };
+			model.prepend('listing', {a: 'aa'});
+
+			expect(syncStub).was.calledOnce();
+			expect(syncStub).was.calledWith('prepend', 'listing', {a:'aa'});
+		});
+
+		it('Should not call sync method when sync option is false', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.properties = { listing: [] };
+			model.prepend('listing', {a: 'aa'}, { sync: false });
+
+			expect(syncStub).was.notCalled();
 		});
 	});
 
@@ -868,6 +975,27 @@ describe('XQCore Model', function() {
 			emitStub.restore();
 			errorStub.restore();
 		});
+
+		it('Should call sync method with insert mode', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.properties = { listing: [] };
+			model.insert('listing', 1, {a: 'aa'});
+
+			expect(syncStub).was.calledOnce();
+			expect(syncStub).was.calledWith('insert', 'listing', 1, {a:'aa'});
+		});
+
+		it('Should not call sync method when sync option is false', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.properties = { listing: [] };
+			model.insert('listing', 1, {a: 'aa'}, { sync: false });
+
+			expect(syncStub).was.notCalled();
+		});
 	});
 
 	describe('remove', function() {
@@ -1004,6 +1132,27 @@ describe('XQCore Model', function() {
 
 			emitStub.restore();
 			errorStub.restore();
+		});
+
+		it('Should call sync method with remove mode', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.properties = { listing: [] };
+			model.remove('listing', 1);
+
+			expect(syncStub).was.calledOnce();
+			expect(syncStub).was.calledWith('remove', 'listing', 1);
+		});
+
+		it('Should not call sync method when sync option is false', function() {
+			var syncStub = sinon.stub();
+			model.sync = syncStub;
+
+			model.properties = { listing: [] };
+			model.remove('listing', 1, { sync: false });
+
+			expect(syncStub).was.notCalled();
 		});
 	});
 

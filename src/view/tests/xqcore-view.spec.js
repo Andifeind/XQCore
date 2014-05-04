@@ -138,6 +138,7 @@ describe.skip('XQCore View', function() {
 			};
 
 			view.template = function(data,scopes) {
+				//jshint unused:false
 
 				var h=new FireTPL.Runtime();
 

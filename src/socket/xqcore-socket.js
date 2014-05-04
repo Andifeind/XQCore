@@ -31,15 +31,16 @@
 
 
 		this.sockJS = new SockJS(url, null, options);
+		console.log('Connect to socket server ', url, 'using options:', options);
 
 		this.sockJS.onopen = function() {
-			this.log('Connection was successful!');
+			console.log('Connection was successful!');
 			if (typeof callback === 'function') {
 				callback();
 			}
 
 			self.setReady();
-		};
+		}.bind(this);
 
 		this.sockJS.onmessage = function(e) {
 			var msg;
@@ -48,16 +49,16 @@
 				msg = JSON.parse(e.data);
 			}
 			catch(err) {
-				this.error('Could\'t parse socket message!', e.data);
+				console.error('Could\'t parse socket message!', e.data);
 			}
 
-			this.log('Got message', msg.eventName, msg.data);
+			console.log('Got message', msg.eventName, msg.data);
 			self.__eventEmitter.emit(msg.eventName, msg.data);
-		};
+		}.bind(this);
 
 		this.sockJS.onclose = function() {
-			this.log('Connection closed!');
-		};
+			console.log('Connection closed!');
+		}.bind(this);
 	};
 
 	/**
@@ -67,12 +68,12 @@
 	 */
 	Socket.prototype.emit = function(eventName, data) {
 		this.ready(function() {
-			this.log('Send message ', eventName, data);
+			console.log('Send message ', eventName, data);
 			this.sockJS.send(JSON.stringify({
 				eventName: eventName,
 				data: data
 			}));
-		});
+		}.bind(this));
 	};
 
 	/**

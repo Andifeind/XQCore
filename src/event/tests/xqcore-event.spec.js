@@ -1,16 +1,6 @@
-/*global XQCore:true, sinon:true, expect:true */
-if (typeof global === 'object' && typeof window === 'undefined') {
-	//It's node.js
-
-	var XQCore = require('../../../build/xqcore'),
-		sinon = require('sinon'),
-		expect = require('expect.js');
-
-	expect = require('sinon-expect').enhance(expect, sinon, 'was');
-}
-
-describe.only('XQCore.Event', function() {
+describe('XQCore.Event', function() {
 	'use strict';
+
 	beforeEach(function() {
 
 	});

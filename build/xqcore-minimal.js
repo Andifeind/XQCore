@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.7.3-15
+ * XQCore - +0.8.0-12
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2014 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2014-02-09
+ * Creation Date: 2014-05-04
  */
 
 /*global XQCore:true */
@@ -36,7 +36,7 @@ var XQCore;
 	 * @type {Object}
 	 */
 	XQCore = {
-		version: '0.7.3-15',
+		version: '0.8.0-12',
 		defaultRoute: 'index',
 		html5Routes: false,
 		hashBang: '#!',
@@ -669,6 +669,8 @@ var XQCore;
 })(XQCore);
 /**
  *	@requires XQCore.Utils
+ *	@requires XQCore.Event
+ *	@requires XQCore.Logger
  */
 (function(XQCore, undefined) {
 	'use strict';
@@ -854,9 +856,17 @@ var XQCore;
 		this.properties = newData;
 		if (options.silent !== true) {
 			if (setAll) {
+				if (typeof this.sync === 'function' && options.sync !== false) {
+					this.sync('replace', newData);
+				}
+
 				this.emit('data.replace', newData, oldData);
 			}
 			else if (setItem){
+				if (typeof this.sync === 'function' && options.sync !== false) {
+					this.sync('item', key, value);
+				}
+				
 				this.emit('data.item', key, value);
 			}
 
@@ -927,6 +937,10 @@ var XQCore;
 		}
 
 		if (options.silent !== true) {
+			if (typeof this.sync === 'function' && options.sync !== false) {
+				this.sync('append', path, data);
+			}
+
 			this.emit('data.append', path, data);
 			this.emit('data.change', this.properties);
 		}
@@ -958,6 +972,10 @@ var XQCore;
 		}
 
 		if (options.silent !== true) {
+			if (typeof this.sync === 'function' && options.sync !== false) {
+				this.sync('prepend', path, data);
+			}
+
 			this.emit('data.prepend', path, data);
 			this.emit('data.change', this.properties);
 		}
@@ -983,6 +1001,10 @@ var XQCore;
 		}
 
 		if (options.silent !== true) {
+			if (typeof this.sync === 'function' && options.sync !== false) {
+				this.sync('insert', path, 1, data);
+			}
+
 			this.emit('data.insert', path, index, data);
 			this.emit('data.change', this.properties);
 		}
@@ -1013,6 +1035,10 @@ var XQCore;
 		}
 
 		if (removed && options.silent !== true) {
+			if (typeof this.sync === 'function' && options.sync !== false) {
+				this.sync('remove', path, index);
+			}
+
 			this.emit('data.remove', path, index, removed[0]);
 			this.emit('data.change', this.properties);
 		}

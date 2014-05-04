@@ -486,7 +486,8 @@
 	 * @return {String} compiled html
 	 */
 	View.prototype.parse = function(template, data) {
-		var html;
+		var html,
+			$newEl;
 
 		template.scopeStore = {};
 		template.scopes = {};
@@ -502,7 +503,7 @@
 
 		if (html) {
 			html = $.parseHTML(html);
-			var $newEl = $(html);
+			$newEl = $(html);
 			var els = $newEl.find('scope');
 			console.log('EL', els.length);
 			els.each(function() {
@@ -514,7 +515,7 @@
 				content = {};
 				if (scopeId) {
 					content.value = $.parseHTML(template.scopes[scopeId](data[path], data));
-					content.id = scopeId
+					content.id = scopeId;
 				}
 				else {
 					content.value = $.parseHTML(data[path]);

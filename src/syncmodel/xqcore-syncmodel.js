@@ -1,5 +1,3 @@
-/*global SockJS:false */
-
 /**
  *	@requires XQCore.Model
  *	@requires XQCore.Socket
@@ -14,7 +12,7 @@
 
 		this.server = conf.server || location.protocol + '//' + location.hostname;
 		this.port = conf.port || 9999;
-		this.path = conf.path || 'xqmodel';
+		this.path = conf.path || 'xqsocket/' + name;
 		this.syncEnabled = false;
 	};
 
@@ -47,13 +45,14 @@
 
 		this.syncEnabled = !!enableSync;
 
+		console.log('register model at server');
 		this.socket.emit('syncmodel.register', {
 			name: modelName
 		});
 
 		this.socket.on('syncmodel.change', function(data) {
 			var opts = {
-				sync: 'false'
+				sync: false
 			};
 
 			var args = data.slice(1);

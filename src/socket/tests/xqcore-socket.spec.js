@@ -1,4 +1,6 @@
 describe('XQCore.Socket', function() {
+	'use strict';
+	
 	beforeEach(function() {
 
 	});

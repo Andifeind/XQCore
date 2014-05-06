@@ -13,11 +13,13 @@
     "grunt-contrib-copy": "~0.4.1",
     "grunt-bump": "0.0.11",
     "grunt-bumpup": "~0.4.2",
-    "commander": "~2.1.0",
+    "commander": "^2.2.0",
     "node.extend": "~1.0.8",
-    "mkdirp": "~0.3.5",
+    "mkdirp": "^0.4.1",
     "express": "~3.4.7",
-    "grunt-version": "~0.3.0"
+    "grunt-version": "~0.3.0",
+    "promptly": "^0.2.0",
+    "handlebars": "^2.0.0-alpha.2"
   },
   "scripts": {
     "test": "test"

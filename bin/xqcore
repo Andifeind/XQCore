@@ -1,7 +1,0 @@
-#!/usr/bin/env node
-var program = require('commander'),
-	version = require('../package.json').version;
-
-program.version(version)
-	.command('init', 'Create a new XQCore project')
-	.parse(process.argv);

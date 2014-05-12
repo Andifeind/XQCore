@@ -8,11 +8,42 @@ v0.8.0
 
 TODO v1.0.0
 
+Tests:
+	- Comparsion with other frameworks
+	- Green unit tests
+	- Tests for all components
+
+Examples:
+	- Project Setup
+	- Presenter
+	- Model
+	- View
+	- Routing
+	- Sync
+	- Forms
+
+Docu:
+	- Main
+	- Presenter
+		- Routing
+		- Load views
+	- Model
+		- Sync
+	- View
+	- Event
+	- Logger
+	- Socket
+	- SyncModel
+	- Template Engines
+	- Utils
+	- Config
+	- CLI
+
 Presenter
-	- Events - DONE
-	- Register routings - DONE
+	- DONE - Events
+	- DONE - Register routings
 Model
-	- More add/update functions - DONE
+	- DONE - More add/update functions
 View
 	- Form validation - (We use model validation)
 Routing

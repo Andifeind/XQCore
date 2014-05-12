@@ -545,7 +545,7 @@
 	 */
 	View.prototype.render = function(data) {
 		if (this.__domReady === false) {
-			this.__initialData = data;
+			this.__initialData = data || {};
 			return;
 		}
 

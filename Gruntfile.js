@@ -104,6 +104,15 @@ module.exports = function(grunt) {
 				'webdocs/build/xqcore-minimal.min.js'
 			]
 		},
+		dox: {
+			options: {
+				title: 'XQCore Documentation'
+			},
+			files: {
+				src: ['src/'],
+				dest: 'docs/' + ('<%= pkg.version.replace(/-.+$/, "") %>')
+			}
+		},
 		version: {
 			component: {
 				src: ['../component-builds/nonamemedia-xqcore/component.json']
@@ -120,9 +129,9 @@ module.exports = function(grunt) {
 				version: '<%= pkg.version %>',
 				url: '<%= pkg.homepage %>',
 				options: {
-					paths: 'webdocs/js/',
-					outdir: 'webdocs/doc/',
-					exclude: 'xqcore.js, xqcore.min.js'
+					paths: 'src/',
+					outdir: 'doc/',
+					theme: 'simple'
 				}
 			}
 		}
@@ -136,7 +145,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-yuidoc');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-bumpup');
+	grunt.loadNpmTasks('grunt-dox');
+	grunt.loadNpmTasks('grunt-simple-dox');
 	grunt.loadNpmTasks('grunt-version');
+
 	// grunt.loadNpmTasks('grunt-contrib-bump');
 
 	grunt.registerTask('default', 'jshint');

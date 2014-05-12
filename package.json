@@ -19,7 +19,9 @@
     "express": "~3.4.7",
     "grunt-version": "~0.3.0",
     "promptly": "^0.2.0",
-    "handlebars": "^2.0.0-alpha.2"
+    "handlebars": "^2.0.0-alpha.2",
+    "grunt-simple-dox": "0.0.2",
+    "grunt-dox": "~0.5.0"
   },
   "scripts": {
     "test": "test"

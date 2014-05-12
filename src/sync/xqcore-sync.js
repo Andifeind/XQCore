@@ -57,7 +57,7 @@
 			data = this.onSend.call(this, data);
 		}
 
-		this.log('Sending an ajax call to ', this.server, 'with data: ', data);
+		this.log('Sending an ajax call to ', url, 'with data: ', data);
 		this.state('syncing');
 
 		$.ajax({

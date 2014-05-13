@@ -112,7 +112,6 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		},
 		version: {
 			component: {
 				src: ['../component-builds/nonamemedia-xqcore/component.json']

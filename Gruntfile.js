@@ -1,9 +1,11 @@
 module.exports = function(grunt) {
 	'use strict';
 
+	var pkg = grunt.file.readJSON('package.json');
+
 	// Project configuration.
 	grunt.initConfig({
-		pkg: grunt.file.readJSON('package.json'),
+		pkg: pkg,
 
 		bumpup: {
 			file: 'package.json'
@@ -123,14 +125,14 @@ module.exports = function(grunt) {
 		},
 		yuidoc: {
 			compile: {
-				name: '<%= pkg.name %>',
+				name: 'XQCore',
 				description: '<%= pkg.description %>',
 				version: '<%= pkg.version %>',
 				url: '<%= pkg.homepage %>',
 				options: {
 					paths: 'src/',
-					outdir: 'doc/',
-					theme: 'simple'
+					outdir: 'docs/v' + pkg.version.replace(/-\d+$/,''),
+					parseOnly: true
 				}
 			}
 		}
@@ -145,7 +147,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-bumpup');
 	grunt.loadNpmTasks('grunt-doxit');
-	grunt.loadNpmTasks('grunt-simple-dox');
+	// grunt.loadNpmTasks('grunt-simple-dox');
 	grunt.loadNpmTasks('grunt-version');
 
 	// grunt.loadNpmTasks('grunt-contrib-bump');

@@ -3,6 +3,10 @@
 	"description": "",
 	"version": "<%= version %>",
 	"main": "xqcore.js",
+	"dependencies": {
+		"components/jquery": "^2.1.0",
+		"nonamemedia/firetpl": "*"
+	},
 	"scripts": [
 		"xqcore.js"
 	]

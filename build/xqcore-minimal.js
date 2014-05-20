@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.8.0-12
+ * XQCore - +0.8.0-18
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2014 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2014-05-04
+ * Creation Date: 2014-05-19
  */
 
 /*global XQCore:true */
@@ -36,7 +36,7 @@ var XQCore;
 	 * @type {Object}
 	 */
 	XQCore = {
-		version: '0.8.0-12',
+		version: '0.8.0-18',
 		defaultRoute: 'index',
 		html5Routes: false,
 		hashBang: '#!',
@@ -1047,7 +1047,7 @@ var XQCore;
 	};
 
 	/**
-	 * Search a item in models properties
+	 * Search an item in models properties
 	 *
 	 * @param {String} path Path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub) (Optional)
 	 * @param {Object} searchfor Searching for object

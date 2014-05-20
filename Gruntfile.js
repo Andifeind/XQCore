@@ -1,7 +1,8 @@
 module.exports = function(grunt) {
 	'use strict';
 
-	var pkg = grunt.file.readJSON('package.json');
+	var pkg = grunt.file.readJSON('package.json'),
+		version = pkg.version.replace(/-\d+$/g, '');
 
 	// Project configuration.
 	grunt.initConfig({
@@ -80,10 +81,18 @@ module.exports = function(grunt) {
 		},
 		copy: {
 			component: {
+				options: {
+					processContent: function (content, srcpath) {
+						return content.replace('<%= version %>', version);
+					}
+				},
 				files: [
 					{
 						src: ['build/xqcore.js'],
-						dest: '../component-builds/nonamemedia-xqcore/xqcore.js'
+						dest: '../component-builds/nonamemedia/xqcore/' + version + '/xqcore.js'
+					}, {
+						src: ['component.json'],
+						dest: '../component-builds/nonamemedia/xqcore/' + version + '/',
 					}
 				]
 			},
@@ -116,7 +125,7 @@ module.exports = function(grunt) {
 		},
 		version: {
 			component: {
-				src: ['../component-builds/nonamemedia-xqcore/component.json']
+				src: ['../component-builds/nonamemedia/xqcore/component.json']
 			}
 		},
 		watch: {
@@ -131,7 +140,7 @@ module.exports = function(grunt) {
 				url: '<%= pkg.homepage %>',
 				options: {
 					paths: 'src/',
-					outdir: 'docs/v' + pkg.version.replace(/-\d+$/,''),
+					outdir: 'docs/v' + version,
 					parseOnly: true
 				}
 			}

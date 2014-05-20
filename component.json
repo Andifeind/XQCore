@@ -1,0 +1,9 @@
+{
+	"name": "xqcxore",
+	"description": "",
+	"version": "<%= version %>",
+	"main": "xqcore.js",
+	"scripts": [
+		"xqcore.js"
+	]
+}

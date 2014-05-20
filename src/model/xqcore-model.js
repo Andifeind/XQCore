@@ -378,7 +378,7 @@
 	};
 
 	/**
-	 * Search a item in models properties
+	 * Search an item in models properties
 	 *
 	 * @param {String} path Path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub) (Optional)
 	 * @param {Object} searchfor Searching for object

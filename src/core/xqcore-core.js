@@ -74,7 +74,7 @@ var XQCore;
 		return false;
 	};
 
-	XQCore.require = function(moduleName) {
+	XQCore.include = function(moduleName) {
 		if (moduleName === 'jquery') {
 			return jQuery;
 		}

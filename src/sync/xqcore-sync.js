@@ -1,7 +1,7 @@
 (function(XQCore, undefined) {
 	'use strict';
 
-	var $ = XQCore.require('jquery');
+	var $ = XQCore.include('jquery');
 
 	var Sync = function() {
 

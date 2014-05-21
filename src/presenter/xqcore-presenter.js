@@ -6,7 +6,7 @@
 (function(XQCore, undefined) {
 	'use strict';
 
-	var $ = XQCore.require('jquery');
+	var $ = XQCore.include('jquery');
 
 	/**
 	 * XQCore.Presenter base class

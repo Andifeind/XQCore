@@ -132,10 +132,10 @@
 		}
 		else if (typeof arguments[0] === 'object') {
 			//Add a dataset
-			key = null;
 			options = value || {};
 			newData = options.extend ? XQCore.extend(newData, oldData, arguments[0]) : arguments[0];
 			setAll = true;
+			key = null;
 			this.log('Set data', newData, oldData);
 		}
 		else if (typeof arguments[0] === 'string') {

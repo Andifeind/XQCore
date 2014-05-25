@@ -210,15 +210,58 @@
 	/**
 	 * Get one or all properties from a dataset
 	 *
-	 * @param  {String} key Data key
+	 * <b>Options:</b>
+	 *   copy: <Boolean>  //Set it to true to get a copy of the dataset
+	 *
+	 * @param {String} key Data key
+	 * @param {Object} options Set options
 	 *
 	 * @return {Object}     model dataset
 	 */
-	Model.prototype.get = function(key) {
-		if (key === undefined) {
+	Model.prototype.get = function(key, options) {
+		options = options || {};
+
+		var data;
+
+		if (typeof key === options && key !== null) {
+			options = key;
+			key = null;
+		}
+
+		if (key === undefined || key === null) {
+			if (options.copy === true) {
+				data = this.properties;
+				switch (typeof data) {
+					case 'object':
+						return XQCore.extend({}, data);
+					case 'array':
+						return data.slice();
+					case 'function':
+						//jshint evil:true
+						return eval('(' + data.toString() + ')');
+					default:
+						return data;
+				}
+			}
+
 			return this.properties;
 		}
 		else {
+			if (options.copy === true) {
+				data = XQCore.undotify(key, this.properties);
+				switch (typeof data) {
+					case 'object':
+						return XQCore.extend({}, data);
+					case 'array':
+						return data.slice();
+					case 'function':
+						//jshint evil:true
+						return eval('(' + data.toString() + ')');
+					default:
+						return data;
+				}
+			}
+			
 			return XQCore.undotify(key, this.properties);
 		}
 	};

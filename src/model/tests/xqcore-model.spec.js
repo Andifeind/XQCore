@@ -101,6 +101,97 @@ describe('XQCore Model', function() {
 			expect(model.get('profession.name')).to.be.a('string');
 			expect(model.get('profession.name')).to.eql('Developer');
 		});
+
+		it('Should get a pointer of the dataset', function() {
+			var data = model.get();
+
+			expect(data).to.equal(modelData);
+		});
+
+		it('Should get a pointer of the sub dataset (string)', function() {
+			var data = model.get('name');
+
+			expect(data).to.equal(modelData.name);
+		});
+
+		it('Should get a pointer of the sub dataset (array)', function() {
+			var data = model.get('favorites');
+
+			expect(data).to.equal(modelData.favorites);
+		});
+
+		it('Should get a pointer of the sub dataset (function)', function() {
+			var data = model.get('sayHello');
+
+			expect(data).to.equal(modelData.sayHello);
+		});
+
+		it('Should get a pointer of the sub dataset (object)', function() {
+			var data = model.get('profession');
+
+			expect(data).to.equal(modelData.profession);
+		});
+
+		//Set copy flag
+
+		it('Should get all data of a model, copy flag is true', function() {
+			expect(model.get(null, { copy: true })).to.be.an('object');
+			expect(model.get(null, { copy: true })).to.eql(modelData);
+		});
+
+		it('Should get a item of a model (type string), copy flag is true', function() {
+			expect(model.get('name', { copy: true })).to.be.a('string');
+			expect(model.get('name', { copy: true })).to.eql('Andi');
+		});
+
+		it('Should get a item of a model (type object), copy flag is true', function() {
+			expect(model.get('favorites', { copy: true })).to.be.an('object');
+			expect(model.get('favorites', { copy: true })).to.eql(modelData.favorites);
+		});
+
+		it('Should get a item of a model (type function), copy flag is true', function() {
+			expect(model.get('sayHello', { copy: true })).to.be.a('function');
+			expect(model.get('sayHello', { copy: true })()).to.eql('Servus!');
+		});
+
+		it('Should get a deep item of a model (type string), copy flag is true', function() {
+			expect(model.get('profession.name', { copy: true })).to.be.a('string');
+			expect(model.get('profession.name', { copy: true })).to.eql('Developer');
+		});
+
+		it('Should get a copy of the dataset', function() {
+			var data = model.get(null, {copy: true});
+
+			expect(data).not.to.equal(modelData);
+			expect(data).to.eql(modelData);
+		});
+
+		it('Should get a copy of the sub dataset (string)', function() {
+			var data = model.get('name', { copy: true });
+
+			expect(data).to.eql(modelData.name);
+		});
+
+		it('Should get a copy of the sub dataset (array)', function() {
+			var data = model.get('favorites', { copy: true });
+
+			expect(data).not.to.equal(modelData.favorites);
+			expect(data).to.eql(modelData.favorites);
+		});
+
+		it('Should get a copy of the sub dataset (function)', function() {
+			var data = model.get('sayHello', { copy: true });
+
+			expect(data).not.to.equal(modelData.sayHello);
+			expect(data.toString()).to.eql(modelData.sayHello.toString());
+		});
+
+		it('Should get a copy of the sub dataset (object)', function() {
+			var data = model.get('profession', { copy: true });
+
+			expect(data).not.to.equal(modelData.profession);
+			expect(data).to.eql(modelData.profession);
+		});
 	});
 
 	describe('set', function() {

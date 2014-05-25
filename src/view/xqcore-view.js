@@ -591,6 +591,10 @@
 			this.__setReadyState();
 		}
 
+		if (this.$el.parent().length === 0) {
+			this.inject();
+		}
+
 		this.registerListener(this.$el);
 		this.emit('content.change', data);
 	};

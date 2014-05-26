@@ -233,9 +233,7 @@
 				data = this.properties;
 				switch (typeof data) {
 					case 'object':
-						return XQCore.extend({}, data);
-					case 'array':
-						return data.slice();
+						return Array.isArray(data) ? data.slice() : XQCore.extend(true, {}, data);
 					case 'function':
 						//jshint evil:true
 						return eval('(' + data.toString() + ')');
@@ -251,9 +249,7 @@
 				data = XQCore.undotify(key, this.properties);
 				switch (typeof data) {
 					case 'object':
-						return XQCore.extend({}, data);
-					case 'array':
-						return data.slice();
+						return Array.isArray(data) ? data.slice() : XQCore.extend(true, {}, data);
 					case 'function':
 						//jshint evil:true
 						return eval('(' + data.toString() + ')');

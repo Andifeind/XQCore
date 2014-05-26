@@ -117,6 +117,7 @@ describe('XQCore Model', function() {
 		it('Should get a pointer of the sub dataset (array)', function() {
 			var data = model.get('favorites');
 
+			expect(data).to.be.an('array');
 			expect(data).to.equal(modelData.favorites);
 		});
 
@@ -175,6 +176,7 @@ describe('XQCore Model', function() {
 		it('Should get a copy of the sub dataset (array)', function() {
 			var data = model.get('favorites', { copy: true });
 
+			expect(data).to.be.an('array');
 			expect(data).not.to.equal(modelData.favorites);
 			expect(data).to.eql(modelData.favorites);
 		});

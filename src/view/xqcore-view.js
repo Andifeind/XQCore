@@ -15,8 +15,6 @@
 	 * @class XQCore.View
 	 * @constructor
 	 *
-	 * @uses XQCore.Logger
-	 * @uses XQCore.Event
 	 * 
 	 * @param {object} conf View configuration
 	 */

@@ -117,7 +117,9 @@ module.exports = function(grunt) {
 		},
 		doxit: {
 			dest: {
-				options: {},
+				options: {
+					beautifyCode: true
+				},
 				files: {
 					'docs/': ['src/**/*.js']
 				}

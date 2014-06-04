@@ -33,6 +33,7 @@ var XQCore;
 	 * XQCore main object
 	 *
 	 * @package XQcore
+	 * @module  XQCore
 	 * @type {Object}
 	 */
 	XQCore = {

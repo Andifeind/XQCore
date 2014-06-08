@@ -1,0 +1,1 @@
+- Can't re-render a overwriten view. this.$el exists, but this.$el.context is undefined

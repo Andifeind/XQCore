@@ -133,19 +133,6 @@ module.exports = function(grunt) {
 		watch: {
 			files: 'webdocs/js/**/*.js',
 			tasks: ['build']
-		},
-		yuidoc: {
-			compile: {
-				name: 'XQCore',
-				description: '<%= pkg.description %>',
-				version: '<%= pkg.version %>',
-				url: '<%= pkg.homepage %>',
-				options: {
-					paths: 'src/',
-					outdir: 'docs/v' + version,
-					parseOnly: true
-				}
-			}
 		}
 	});
 
@@ -154,7 +141,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-contrib-yuidoc');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-bumpup');
 	grunt.loadNpmTasks('grunt-doxit');

@@ -81,6 +81,19 @@ var XQCore;
 		}
 	};
 
+	XQCore.setLocale = function(locale) {
+		localStorage.setItem('xqcore.locale', 'locale');
+	};
+
+	XQCore.getLocale = function() {
+		var locale = localStorage.getItem('xqcore.locale');
+		if (locale) {
+			return locale;
+		}
+
+		return navigator.language;
+	};
+
 	return XQCore;
 }));
 

@@ -1,7 +1,7 @@
 /**
  * XQCore Presenter
  *
- * @module XQCore Presenter
+ * @module XQCore.Presenter
  */
 (function(XQCore, undefined) {
 	'use strict';

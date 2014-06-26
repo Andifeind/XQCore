@@ -1,12 +1,26 @@
 /**
- *	@requires XQCore.Utils
- *	@requires XQCore.Event
- *	@requires XQCore.Logger
+ * XQCore Model
+ *  
+ * @module  XQCore.Model
+ * @requires XQCore.Utils
+ * @requires XQCore.Event
+ * @requires XQCore.Logger
  */
 (function(XQCore, undefined) {
 	'use strict';
 	var Model;
 
+	/**
+	 * XQCore.Model base class
+	 *
+	 * @class XQCore.Model
+	 * @constructor
+	 *
+	 * @uses XQCore.Logger
+	 * @uses XQCore.Event
+	 *
+	 * @param {Object} conf Model extend object
+	 */
 	Model = function(name, conf) {
 		if (typeof arguments[0] === 'object') {
 			conf = name;

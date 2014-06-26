@@ -1,3 +1,8 @@
+/**
+ * XQCore.Sync
+ *
+ * @module  XQCore.Sync
+ */
 (function(XQCore, undefined) {
 	'use strict';
 

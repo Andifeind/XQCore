@@ -10,6 +10,8 @@
 		//Call XQCore.Model constructor
 		XQCore.Model.call(this, name, conf);
 
+		conf = conf || {};
+
 		this.server = conf.server || location.protocol + '//' + location.hostname;
 		this.port = conf.port || 9999;
 		this.path = conf.path || 'xqsocket/' + name;

@@ -496,6 +496,8 @@
         catch(err) {
             html = '<p class="renderError"><b>View render error!</b><br>' + err.message + '</p>';
             this.error('View render error!', err);
+            console.log('ERR', err);
+            console.log('ERREND');
         }
 
 

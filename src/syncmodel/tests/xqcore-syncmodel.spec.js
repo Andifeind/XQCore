@@ -66,7 +66,7 @@ describe('XQCore.SyncModel', function() {
 
 			expect(syncModel.socket).to.be.an('object');
 			expect(sockJSStub).was.calledOnce();
-			expect(sockJSStub).was.calledWith('http://' + document.domain + ':9999/xqmodel');
+			expect(sockJSStub).was.calledWith('http://' + document.domain + ':9999/xqsocket/test');
 
 			sockJSStub.restore();
 		});
@@ -80,7 +80,7 @@ describe('XQCore.SyncModel', function() {
 
 			expect(syncModel.socket).to.be.an('object');
 			expect(sockJSStub).was.calledOnce();
-			expect(sockJSStub).was.calledWith('http://' + document.domain + ':9999/xqmodel');
+			expect(sockJSStub).was.calledWith('http://' + document.domain + ':9999/xqsocket/test');
 
 			sockJSStub.restore();
 		});

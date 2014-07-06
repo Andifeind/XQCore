@@ -3,7 +3,9 @@ v0.7.0
 
 v0.8.0
 	
-	- View.update
+	- Better view inject
+	- Use FireTPL scope tags
+	- Event logging
 
 
 TODO v1.0.0

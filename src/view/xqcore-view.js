@@ -352,7 +352,6 @@
      * @param {Object} err Validation error object
      */
     View.prototype.validationFailed = function(err, data) {
-        console.log(err, data);
         err.forEach(function(item) {
             this.$el.find('[name="' + item.property + '"]').addClass('xq-invalid');
         }.bind(this));
@@ -496,22 +495,17 @@
         catch(err) {
             html = '<p class="renderError"><b>View render error!</b><br>' + err.message + '</p>';
             this.error('View render error!', err);
-            console.log('ERR', err);
-            console.log('ERREND');
         }
-
 
         if (html) {
             html = $.parseHTML(html);
             $newEl = $(html);
             var els = $newEl.find('scope');
-            console.log('EL', els.length);
             els.each(function() {
                 var scopeId = $(this).attr('id'),
                     path = $(this).attr('path'),
                     content;
 
-                console.log('Parse path', path);
                 content = {};
                 if (scopeId) {
                     content.value = $.parseHTML(template.scopes[scopeId](data[path], data));
@@ -524,10 +518,10 @@
                 template.scopeStore[path] = template.scopeStore[path] || [];
                 template.scopeStore[path].push(content);
 
-                console.log('EL', $(this).get(0).outerHTML);
-                console.log('CONTENT', $(content.value).get(0).outerHTML);
+                // console.log('EL', $(this).get(0).outerHTML);
+                // console.log('CONTENT', $(content.value).get(0).outerHTML);
                 $(this).replaceWith($(content.value));
-                console.log('REPLACETD', $newEl.get(0).outerHTML);
+                // console.log('REPLACETD', $newEl.get(0).outerHTML);
             });
         }
 
@@ -713,6 +707,44 @@
         $scope.children(':eq(' + index + ')').remove();
     };
 
+    View.prototype.formSetup = function(model, $el) {
+        var errClassName = 'xq-invalid',
+            disabledClass = 'xq-disabled';
+
+        if (!$el) {
+            $el = this.$el.find('form');
+        }
+
+        $el.each(function() {
+            var $form = $(this);
+            $form.find(':input').each(function() {
+                var $input = $(this);
+                $input.blur(function() {
+                    $input.removeClass(errClassName);
+                    var name = $input.attr('name'),
+                        value = $input.val();
+
+                    if (name && model.schema && model.schema[name]) {
+                        var result = model.validateOne(model.schema[name], value);
+                        if (result.isValid) {
+
+                            //Set form valid state
+                            if ($form.find(':input[class~="' + errClassName + '"]')) {
+                                $form.removeClass(errClassName);
+                                $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
+                            }
+                        }
+                        else {
+                            $input.addClass(errClassName);
+                            $form.addClass(errClassName);
+                            $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
+                        }
+                    }
+
+                });
+            });
+        });
+    };
 
     XQCore.View = View;
 

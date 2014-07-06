@@ -449,6 +449,10 @@
 			}
 		}
 
+		if (conf.forms) {
+			view.formSetup(model);
+		}
+
 		return this;
 	};
 
@@ -553,6 +557,7 @@
 			self.template = XQCore.Tmpl.getTemplate(viewName);
 			self.mode = options.mode || 'replace';
 			self.container = container || 'body';
+			self.hidden = !!options.hidden;
 			if (options.inject === false) {
 				self.autoInject = false;
 			}

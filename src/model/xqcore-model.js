@@ -776,14 +776,36 @@
 		return failed;
 	};
 
+	/**
+	 * Returns the validation state of the model
+	 * 
+	 * @method isValid
+	 * @returns {Boolean} Returns true when model data are valid. When no data was set it'll returns false
+	 */
 	Model.prototype.isValid = function() {
 		return this._isValid;
 	};
 
+	/**
+	 * To be called on a form submit in a coupled model
+	 *
+	 * Throws a <i>submit.success</i> event when falidation succeeds,
+	 * otherwise a <i>submit.failed</i> event will be thrown
+	 * 
+	 * @method setData
+	 * @param {Object} data Form data
+	 */
 	Model.prototype.setData = function(data, caller) {
-		return this.set(data, {
+		var result = this.set(data, {
 			extend: true
 		});
+
+		if (result) {
+			this.emit('submit.success', data);
+		}
+		else {
+			this.emit('submit.failed', data, caller);
+		}
 	};
 
 	/**

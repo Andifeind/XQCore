@@ -37,6 +37,8 @@ var presenter = new XQCore.Presenter('Main', function(self) {
 		console.log('FormSubmit');
 		listingView.inject();
 	});
+
+	addView.formSetup(addModel);
 });
 
 presenter.init();

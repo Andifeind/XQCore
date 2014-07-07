@@ -3,7 +3,7 @@ v0.7.0
 
 v0.8.0
 	
-	- Better view inject
+	- DONE - Better view inject
 	- Use FireTPL scope tags
 	- Event logging
 
@@ -47,7 +47,7 @@ Presenter
 Model
 	- DONE - More add/update functions
 View
-	- Form validation - (We use model validation)
+	- DONE - Form validation - (We use model validation)
 Routing
 
 EventEmitter
@@ -58,13 +58,15 @@ Tmpl
 	- Animations
 	- Drag n Drop support
 	- Inline functions
-	- i18n support
+	- DONE - i18n support
 Logging
 	- Global log levels
 
 Tools
-	- Precompiler
+	- DONE - Precompiler
 	- HTML/Hbs to Tmpl
 
 v2.0.0
 	- data cache
+
+	

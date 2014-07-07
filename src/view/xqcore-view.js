@@ -205,9 +205,6 @@
                 if (typeof this.customInit === 'function') {
                     this.customInit.call(this);
                 }
-
-                //Call presenter.initView()
-                // this.presenter.fireViewInit(this);
             }
             else {
                 this.error('Can\'t initialize View, Container not found!', this.container);
@@ -437,7 +434,12 @@
      * @method inject
      */
     View.prototype.inject = function() {
-        this.$ct = $(this.container);
+        this.$ct = this.$ct || $(this.container);
+
+        if (this.$el.parent().get(0) === this.$ct.get(0)) {
+            return;
+        }
+
         this.log('Inject view into container', this.$ct);
 
         this.el = this.$el.get(0);
@@ -459,7 +461,6 @@
         if (this.mode === 'replace') {
             this.$ct.contents().detach();
             this.$ct.append(this.$el);
-            // this.$ct.children().replaceWith(this.$el);
         }
         else if(this.mode === 'append') {
             this.$ct.append(this.$el);
@@ -486,6 +487,7 @@
         var html,
             $newEl;
 
+            console.log('SCOPES', template);
         template.scopeStore = {};
         template.scopes = {};
 
@@ -498,6 +500,7 @@
         }
 
         if (html) {
+            console.log('HTML', html);
             html = $.parseHTML(html);
             $newEl = $(html);
             var els = $newEl.find('scope');
@@ -570,10 +573,6 @@
 
         html = $.parseHTML(html);
         $newEl = $(html);
-        
-        // if (this.$el) {
-        //  this.$el.replaceWith($newEl);
-        // }
 
         this.$el = $newEl;
 
@@ -583,10 +582,6 @@
             }
             //Set ready state
             this.__setReadyState();
-        }
-
-        if (this.$el.parent().length === 0) {
-            this.inject();
         }
 
         this.registerListener(this.$el);

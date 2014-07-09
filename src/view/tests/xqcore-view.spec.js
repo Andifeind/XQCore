@@ -85,7 +85,7 @@ describe('XQCore View', function() {
         });
     });
 
-    describe.only('parse', function() {
+    describe.skip('parse', function() {
         var view,
             $el;
 
@@ -248,32 +248,118 @@ describe('XQCore View', function() {
         });
     });
 
-    describe.skip('parse using scopetags', function() {
+    describe.only('parse using scopetags', function() {
         var view,
             presenter,
-            tmpl;
+            simpleTmpl,
+            regularTmpl,
+            data;
 
         beforeEach(function() {
             view = new XQCore.View();
             presenter = new XQCore.Presenter();
 
-            tmpl = FireTPL.compile('section\n' +
-                '   h1 $title\n' +
-                '   ul class=listing\n' +
-                '       :each $listing\n' +
-                '           li\n' +
-                '               :if $image\n' +
-                '                   img data-src=$src\n' +
-                '               span class=name $name\n');
+            view.init(presenter);
+
+            simpleTmpl = FireTPL.compile('section\n' +
+                '    h1 $title\n' +
+                '    ul class=listing\n' +
+                '        :each $listing\n' +
+                '            li\n' +
+                '                span class=color $color\n' +
+                '', {
+                    scopeTags: true
+                }
+            );
+
+            regularTmpl = FireTPL.compile('section\n' +
+                '    h1 $title\n' +
+                '    ul class=listing\n' +
+                '        :each $listing\n' +
+                '            li\n' +
+                '                :if $image\n' +
+                '                    img data-src=$src\n' +
+                '                span class=color $color\n' +
+                '', {
+                    scopeTags: true
+                }
+            );
+
+            data = {
+                title: 'Crazy colors',
+                listing: [{
+                    color: 'lime'
+                }, {
+                    color: 'turquouse'
+                }, {
+                    color: 'purple'
+                }]
+            };
 
         });
 
-        it('Should render a view', function() {
-            var data = { a: 'AA' };
+        it.skip('Should render a view with a simple template', function() {
+            var $html = view.parse(simpleTmpl, data);
+            
+            try {
+                console.log('SimpleTmpl', simpleTmpl.scopes);
+                console.log('ScopeStore', simpleTmpl.scopeStore);
+            } catch(err) {
+                console.log(err.message);
+            }
 
-            view.init(presenter);
-            var $html = view.parse(tmpl, data);
-            expect($html.get(0).outerHTML).to.eql('<section></section>');
+            expect(simpleTmpl.scopes).to.be.an('object').and.only.have.keys('scope001');
+            expect(simpleTmpl.scopes.scope001).to.be.a('function');
+
+            expect(simpleTmpl.scopeStore).to.be.an('object').and.only.have.keys('title', 'listing');
+
+            expect(simpleTmpl.scopeStore.title).to.be.an('array').and.to.have.length(1);
+            expect(simpleTmpl.scopeStore.title[0].value).to.be.an('object');
+            expect(simpleTmpl.scopeStore.title[0].id).to.be(undefined);
+
+            expect(simpleTmpl.scopeStore.listing).to.be.an('array').and.to.have.length(1);
+            expect(simpleTmpl.scopeStore.listing[0].value).to.be.an('object');
+            expect(simpleTmpl.scopeStore.listing[0].id).to.eql('scope001');
+
+
+            expect($html.get(0).outerHTML).to.eql('<section><h1>Crazy colors</h1>'+
+                '<ul class="listing">' +
+                '<li><span class="color">lime</span></li>' +
+                '<li><span class="color">turquouse</span></li>' +
+                '<li><span class="color">purple</span></li>' +
+                '</ul></section>');
+        });
+
+        it('Should render a view with a regular template', function() {
+            var $html = view.parse(regularTmpl, data);
+            
+            try {
+                console.log('SimpleTmpl', regularTmpl.scopes);
+                console.log('ScopeStore', regularTmpl.scopeStore);
+            } catch(err) {
+                console.log(err.message);
+            }
+
+            expect(regularTmpl.scopes).to.be.an('object').and.have.keys('scope001', 'scope002');
+            expect(regularTmpl.scopes.scope001).to.be.a('function');
+
+            expect(regularTmpl.scopeStore).to.be.an('object').and.have.keys('title', 'listing');
+
+            expect(regularTmpl.scopeStore.title).to.be.an('array').and.to.have.length(1);
+            expect(regularTmpl.scopeStore.title[0].value).to.be.an('object');
+            expect(regularTmpl.scopeStore.title[0].id).to.be(undefined);
+
+            expect(regularTmpl.scopeStore.listing).to.be.an('array').and.to.have.length(1);
+            expect(regularTmpl.scopeStore.listing[0].value).to.be.an('object');
+            expect(regularTmpl.scopeStore.listing[0].id).to.eql('scope001');
+
+
+            expect($html.get(0).outerHTML).to.eql('<section><h1>Crazy colors</h1>'+
+                '<ul class="listing">' +
+                '<li><span class="color">lime</span></li>' +
+                '<li><span class="color">turquouse</span></li>' +
+                '<li><span class="color">purple</span></li>' +
+                '</ul></section>');
         });
     });
 

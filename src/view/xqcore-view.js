@@ -499,33 +499,48 @@
             this.error('View render error!', err);
         }
 
-        if (html) {
-            console.log('HTML', html);
+        var parseScope = function(html, data, parent) {
+            // console.log('\nParse scope\n-------------------\n', html, '\n');
             html = $.parseHTML(html);
-            $newEl = $(html);
-            var els = $newEl.find('scope');
+            var $scopeEl = $(html);
+            var els = $scopeEl.find('scope');
+
+            // console.log('Found %s scopes', els.length);
+
             els.each(function() {
                 var scopeId = $(this).attr('id'),
                     path = $(this).attr('path'),
                     content;
 
+                var dataPath = parent ? parent + '.' + path : path;
+                // console.log('Scope:', path, scopeId);
+
                 content = {};
                 if (scopeId) {
-                    content.value = $.parseHTML(template.scopes[scopeId](data[path], data));
+                    var scopeHTML = template.scopes[scopeId](data[path], data);
+                    // console.log('ScopeHTML', scopeHTML);
+                    content.value = scopeHTML ? parseScope(scopeHTML, data, dataPath) : document.createTextNode('');
                     content.id = scopeId;
                 }
                 else {
                     content.value = $.parseHTML(data[path]);
                 }
 
-                template.scopeStore[path] = template.scopeStore[path] || [];
-                template.scopeStore[path].push(content);
+                template.scopeStore[dataPath] = template.scopeStore[dataPath] || [];
+                template.scopeStore[dataPath].push(content);
 
                 // console.log('EL', $(this).get(0).outerHTML);
-                // console.log('CONTENT', $(content.value).get(0).outerHTML);
+                // console.log('Content:', $(content.value).get(0).outerHTML);
                 $(this).replaceWith($(content.value));
                 // console.log('REPLACETD', $newEl.get(0).outerHTML);
             });
+
+            // console.log('\nEnd of parse scope\n-------------------\n', $scopeEl.get(0).outerHTML, '\n\n');
+            return $scopeEl;
+        };
+
+        if (html) {
+            $newEl = parseScope(html, data);
         }
 
         return $newEl;

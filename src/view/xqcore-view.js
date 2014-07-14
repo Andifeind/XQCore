@@ -139,8 +139,10 @@
                 this.log('  ... using Presenter:', this.presenter.name);
                 this.log('  ... using Container:', this.container);
 
+                //Deprecated code, July 13, 2014
                 //Send events to presenter
                 if (this.events) {
+                    console.warn('View.events is deprecated since XQCore 0.8.0');
                     Object.keys(this.events).forEach(function(key) {
                         var spacePos = key.indexOf(' '),
                             eventFunc = this.events[key],
@@ -178,6 +180,7 @@
 
                                     if (e.type === 'submit') {
                                         formData = XQCore.Util.serializeForm(e.currentTarget);
+                                        formData = self.onSubmit(formData, e.currentTarget);
                                     }
                                     else if (e.type === 'keydown' || e.type === 'keyup' || e.type === 'keypress') {
                                         formData = $(e.currentTarget).val();
@@ -213,7 +216,7 @@
             //Set DOM ready state
             this.__domReady = true;
             if (this.__initialData) {
-                this.render(this.__initialData);
+                this.render('b', this.__initialData);
                 delete this.__initialData;
             }
             
@@ -299,6 +302,7 @@
      * Triggers a view event to the presenter
      *
      * @method triggerEvent
+     * @deprecated July 13, 2014
      *
      * @param {String} eventName Event of the triggered event
      * @param {Object} e EventObject
@@ -306,6 +310,8 @@
      * @param {Object} data Event data
      */
     View.prototype.triggerEvent = function(eventName, e, tag, data) {
+        console.warn('View.triggerEvent is deprecated since XQCore 0.8.0');
+
         if (this.presenter.events[eventName]) {
             this.presenter.events[eventName].call(this.presenter, e, tag, data);
         }
@@ -333,12 +339,14 @@
      * Navigate to a given route
      *
      * @method navigateTo
+     * @deprecated
      *
      * @param {String} route Route url
      * @param {Object} data Data object
      * @param {Boolean} replace Replace current history entry with route
      */
     View.prototype.navigateTo = function(route, data, replace) {
+        console.warn('View.navigateTo is deprecated since XQCore 0.8.0');
         this.presenter.navigateTo(route, data, replace);
     };
 
@@ -399,6 +407,7 @@
      *
      * @return {Number}    index of the element or null
      */
+    //Deprecated July 13, 2014
     var getItemIndex = function(el) {
         var index = null,
             container = $(this.container).get(0),
@@ -487,7 +496,7 @@
         var html,
             $newEl;
 
-            console.log('SCOPES', template);
+        // console.log('SCOPES', template);
         template.scopeStore = {};
         template.scopes = {};
 
@@ -574,9 +583,6 @@
 
         var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
         this.scopes = {};
-        /*if (this.$el) {
-            this.$el.remove();
-        }*/
 
         try {
             html = template(data || {}, this.scopes);
@@ -589,14 +595,21 @@
         html = $.parseHTML(html);
         $newEl = $(html);
 
-        this.$el = $newEl;
 
         if (isInitialRender) {
+            this.$el = $newEl;
+            
             if (this.autoInject) {
                 this.inject();
             }
             //Set ready state
             this.__setReadyState();
+        }
+        else {
+            this.$el.replaceWith($newEl);
+            this.$el = $newEl;
+            this.el = $newEl.get(0);
+            this.$el.addClass('xq-view xq-view-' + this.name.toLowerCase());
         }
 
         this.registerListener(this.$el);
@@ -606,7 +619,6 @@
     View.prototype.registerListener = function($el) {
         var self = this;
 
-        //TODO get form data on submit event
         $el.find('[on]').addBack('[on]').each(function() {
             var $cur = $(this);
             var events = $(this).attr('on');
@@ -622,6 +634,7 @@
                     listenerFunc = function(e) {
                         e.preventDefault();
                         data = self.serializeForm(e.target);
+                        data = self.onSubmit(data, e.target);
                         self.presenter.emit(ev[1], data, e);
                         self.emit('form.submit', data);
                     }.bind(this);
@@ -672,10 +685,10 @@
      */
     View.prototype.insert = function(path, index, data) {
         var self = this;
-        var $scope = this.$el.find('.xq-scope[xq-path="' + path + '"]');
+        var $scope = this.$el.find('[fire-path="' + path + '"]');
         if ($scope.length) {
             $scope.each(function() {
-                var scope = $(this).attr('xq-scope');
+                var scope = $(this).attr('fire-scope');
                 var html = self.scopes[scope]([data]);
 
                 var $childs = $(this).children();
@@ -713,7 +726,7 @@
      * @param  {Number} index Index of the item
      */
     View.prototype.remove = function(path, index) {
-        var $scope = this.$el.find('.xq-scope[xq-path="' + path + '"]');
+        var $scope = this.$el.find('[fire-path="' + path + '"]');
         $scope.children(':eq(' + index + ')').remove();
     };
 
@@ -754,6 +767,18 @@
                 });
             });
         });
+    };
+
+    /**
+     * Called on submiting a form. 
+     * 
+     * @method onSubmit
+     * @param {Object} data Form data
+     * @param {Object} $form jQuery selector of the submited form
+     * @returns {Object} Changed form data
+     */
+    View.prototype.onSubmit = function(data, $form) {
+        return data;
     };
 
     XQCore.View = View;

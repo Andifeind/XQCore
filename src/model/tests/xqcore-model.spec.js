@@ -33,13 +33,32 @@ describe('XQCore Model', function() {
 		});
 
 		it('Should set default data', function() {
-			var model = new XQCore.Model({
-				defaults: {name: 'Andi'}
+			var model = new XQCore.Model('test', function(self) {
+				self.schema = { name: { type: 'string', required: true }};
+				self.defaults = {name: 'Andi'};
 			});
 
+			var changeStub = sinon.stub();
+			var validationStub = sinon.stub(model, 'validate');
+			var setSpy = sinon.spy(model, 'set');
+
+			model.on('data.change', changeStub);
 			model.init();
 
+			expect(validationStub).was.notCalled();
 			expect(model.properties).to.eql({name: 'Andi'});
+			expect(changeStub).was.notCalled();
+			expect(setSpy).was.calledOnce();
+			expect(setSpy).was.calledWith({
+				name: 'Andi'
+			}, {
+				silent: true,
+				noValidation: true
+			});
+
+
+			validationStub.restore();
+			setSpy.restore();
 		});
 
 		it('Should overwrite a core method', function() {

@@ -226,18 +226,13 @@ describe('XQCore View', function() {
         beforeEach(function() {
             view = new XQCore.View();
             presenter = new XQCore.Presenter();
-
-            renderSpy = sinon.spy(view, 'render');
-            injectStub = sinon.stub(view, 'inject');
-        });
-
-        afterEach(function() {
-            renderSpy.restore();
-            injectStub.restore();
         });
 
         it('Should render a view', function() {
             var data = { a: 'AA' };
+
+            renderSpy = sinon.spy(view, 'render');
+            injectStub = sinon.stub(view, 'inject');
 
             view.init(presenter);
             view.render(data);
@@ -245,10 +240,42 @@ describe('XQCore View', function() {
             expect(injectStub).was.called();
             expect(renderSpy).was.called();
             expect(renderSpy).was.calledWith(data);
+
+
+            renderSpy.restore();
+            injectStub.restore();
+        });
+
+        it('Should re-render a view', function() {
+            var data = { a: 'AA' };
+
+            var container = document.createElement('div');
+            view.container = container;
+            view.template = 'div $a';
+            view.init(presenter);
+            view.render({});
+
+            var ct = view.ct,
+                $ct = view.$ct,
+                el = view.el,
+                $el = view.$el;
+
+            expect(view.$ct.html()).to.eql('<div class="xq-view xq-view-namelessview">undefined</div>');
+            expect(view.$el.html()).to.eql('undefined');
+
+            view.render(data);
+
+            expect(view.$ct.html()).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
+            expect(view.$el.html()).to.eql('AA');
+
+            expect(ct).to.equal(view.ct);
+            expect($ct).to.equal(view.$ct);
+            expect(el).not.to.equal(view.el);
+            expect($el).not.to.equal(view.$el);
         });
     });
 
-    describe.only('parse using scopetags', function() {
+    describe('parse using scopetags', function() {
         var view,
             presenter,
             simpleTmpl,
@@ -301,12 +328,12 @@ describe('XQCore View', function() {
         it.skip('Should render a view with a simple template', function() {
             var $html = view.parse(simpleTmpl, data);
             
-            try {
-                console.log('SimpleTmpl', simpleTmpl.scopes);
-                console.log('ScopeStore', simpleTmpl.scopeStore);
-            } catch(err) {
-                console.log(err.message);
-            }
+            // try {
+            //     console.log('SimpleTmpl', simpleTmpl.scopes);
+            //     console.log('ScopeStore', simpleTmpl.scopeStore);
+            // } catch(err) {
+            //     console.log(err.message);
+            // }
 
             expect(simpleTmpl.scopes).to.be.an('object').and.only.have.keys('scope001');
             expect(simpleTmpl.scopes.scope001).to.be.a('function');
@@ -333,12 +360,12 @@ describe('XQCore View', function() {
         it('Should render a view with a regular template', function() {
             var $html = view.parse(regularTmpl, data);
             
-            try {
-                console.log('SimpleTmpl', regularTmpl.scopes);
-                console.log('ScopeStore', regularTmpl.scopeStore);
-            } catch(err) {
-                console.log(err.message);
-            }
+            // try {
+            //     console.log('SimpleTmpl', regularTmpl.scopes);
+            //     console.log('ScopeStore', regularTmpl.scopeStore);
+            // } catch(err) {
+            //     console.log(err.message);
+            // }
 
             expect(regularTmpl.scopes).to.be.an('object').and.have.keys('scope001', 'scope002');
             expect(regularTmpl.scopes.scope001).to.be.a('function');
@@ -706,19 +733,19 @@ describe('XQCore View', function() {
 
         beforeEach(function() {
             view = new XQCore.View();
+            view.container = document.createElement('div');
             presenter = new XQCore.Presenter();
 
             view.template = FireTPL.compile(
                 'div class="example"\n' +
                 '    h1 $title\n' +
                 '    div class="description" $description\n' +
-                '    ul class="listing\n' +
-                '        :each $listing\n' +
-                '            li\n' +
-                '                span class="name" $name\n' +
-                '                span class="image"\n' +
-                '                    :if $image\n' +
-                '                        img src="$image\n'
+                '    :each $listing : ul class="listing"\n' +
+                '        li\n' +
+                '            span class="name" $name\n' +
+                '            span class="image"\n' +
+                '                :if $image\n' +
+                '                    img src="$image\n'
             );
         });
 
@@ -740,7 +767,7 @@ describe('XQCore View', function() {
             expect(view.$el.get(0).outerHTML).to.eql(
                 '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
                 '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
@@ -752,7 +779,7 @@ describe('XQCore View', function() {
             expect(view.$el.get(0).outerHTML).to.eql(
                 '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
                 '<span class="image"></span></li>' +
                 '<li><span class="name">Carl</span>' +
@@ -775,27 +802,27 @@ describe('XQCore View', function() {
             view.render(data);
 
             expect(view.$el.get(0).outerHTML).to.eql(
-                '<div class="example"><h1>Insert test</h1>' +
+                '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
 
             view.insert('listing', 0, {name: 'Carl'});
 
             expect(view.$el.get(0).outerHTML).to.eql(
-            '<div class="example"><h1>Insert test</h1>' +
+            '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Carl</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
         });
 
@@ -812,27 +839,27 @@ describe('XQCore View', function() {
             view.render(data);
 
             expect(view.$el.get(0).outerHTML).to.eql(
-                '<div class="example"><h1>Insert test</h1>' +
+                '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
 
             view.insert('listing', 1, {name: 'Carl'});
 
             expect(view.$el.get(0).outerHTML).to.eql(
-            '<div class="example"><h1>Insert test</h1>' +
+            '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Carl</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
         });
 
@@ -849,27 +876,27 @@ describe('XQCore View', function() {
             view.render(data);
 
             expect(view.$el.get(0).outerHTML).to.eql(
-                '<div class="example"><h1>Insert test</h1>' +
+                '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
 
             view.insert('listing', -1, {name: 'Carl'});
 
             expect(view.$el.get(0).outerHTML).to.eql(
-            '<div class="example"><h1>Insert test</h1>' +
+            '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Carl</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
         });
 
@@ -886,27 +913,27 @@ describe('XQCore View', function() {
             view.render(data);
 
             expect(view.$el.get(0).outerHTML).to.eql(
-                '<div class="example"><h1>Insert test</h1>' +
+                '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
 
             view.prepend('listing', {name: 'Carl'});
 
             expect(view.$el.get(0).outerHTML).to.eql(
-            '<div class="example"><h1>Insert test</h1>' +
+            '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Carl</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
         });
 
@@ -923,27 +950,27 @@ describe('XQCore View', function() {
             view.render(data);
 
             expect(view.$el.get(0).outerHTML).to.eql(
-                '<div class="example"><h1>Insert test</h1>' +
+                '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
 
             view.append('listing', {name: 'Carl'});
 
             expect(view.$el.get(0).outerHTML).to.eql(
-            '<div class="example"><h1>Insert test</h1>' +
+            '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Carl</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
         });
 
@@ -963,19 +990,19 @@ describe('XQCore View', function() {
             view.render(data);
 
             expect(view.$el.get(0).outerHTML).to.eql(
-                '<div class="example"><h1>Insert test</h1>' +
+                '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Andi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Barney</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Bubu</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Stummi</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
 
             view.remove('listing', 0);
@@ -984,13 +1011,13 @@ describe('XQCore View', function() {
             view.remove('listing', -1);
 
             expect(view.$el.get(0).outerHTML).to.eql(
-            '<div class="example"><h1>Insert test</h1>' +
+            '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing xq-scope xq-scope001" xq-scope="scope001" xq-path="listing">' +
+                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
                 '<li><span class="name">Donnie</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '<li><span class="name">Barney</span>' +
-                '<span class="image xq-scope xq-scope002" xq-scope="scope002" xq-path="image"></span></li>' +
+                '<span class="image"></span></li>' +
                 '</ul></div>');
         });
     });
@@ -1076,7 +1103,7 @@ describe('XQCore View', function() {
                 required: true
             }, 'test');
 
-            expect(addClassStub).was.calledTrice();
+            expect(addClassStub).was.calledThrice();
             expect(addClassStub).was.calledWith('xq-invalid');
 
             blurStub.restore();
@@ -1086,39 +1113,27 @@ describe('XQCore View', function() {
         });
     });
 
-    xit('Should register view events at presenter', function() {
-        var view,
-            presenter,
-            testSpy1 = sinon.spy(),
-            testSpy2 = sinon.spy();
+    describe('onSubmit', function() {
+        it('Should change form data on submiting a form', function() {
+            var submitStub = sinon.stub();
+            var $form = $($.parseHTML('<form on="submit"><input type="hidden" name="test" value="aa"></form>'));
 
-        presenter = new XQCore.Presenter({
-            events: {
-                'test1': testSpy1,
-                'test2': testSpy2
-            }
+            var view = new XQCore.View('test');
+            view.presenter = new XQCore.Presenter();
+            view.registerListener($form);
+            view.onSubmit = submitStub;
+
+            $form.trigger('submit');
+
+            expect(submitStub).was.calledOnce();
+            expect(submitStub).was.calledWith({ test: 'aa' }, $form.get(0));
         });
 
-        view = new XQCore.View({
-            debug: false,
-            name: 'test1',
-            // container: viewContainer,
-            events: {
-                'mousedown #test': 'test1',
-                'mouseup #test': 'test2'
-            }
+        it('Should return changed form data', function() {
+            var view = new XQCore.View('test');
+            var data = view.onSubmit({ test: 'aa' });
+            expect(data).to.eql({ test: 'aa' });
         });
-
-        presenter.registerView(view);
-        presenter.init();
-
-        expect(view).to.be.an('object');
-        expect(presenter).to.be.an('object');
-
-        // viewContainer.find('#test').trigger('mousedown');
-        // viewContainer.find('#test').trigger('mouseup');
-        expect(testSpy1).was.called();
-        expect(testSpy2).was.called();
     });
 
     xit('Should initialize a view and call presenter.viewInit', function() {

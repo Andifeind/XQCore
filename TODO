@@ -69,4 +69,46 @@ Tools
 v2.0.0
 	- data cache
 
-	
+
+
+------------------------------------ T·O·D·O ------------------------------------
+
+o Find all Components
+   o Routes
+   o Forms
+   o Views
+   o Model states
+o Document Modules
+   o Document Core
+   o Document Presenter
+   o Document Model
+   o Document View
+   o Document Event
+   o Document Logger
+   o Document Router
+   o Document Socket
+   o Document Sync
+   o Document Syncmodel
+   o Document Tmpl
+   o Document Utils
+o Fix skiped tests
+o Show coverage
+o Examples for all Components
+   o Write examples for Core
+   o Write examples for Presenter
+   o Write examples for Model
+   o Write examples for View
+   o Write examples for Event
+   o Write examples for Logger
+   o Write examples for Router
+   o Write examples for Socket
+   o Write examples for Sync
+   o Write examples for Syncmodel
+   o Write examples for Tmpl
+   o Write examples for Utils
+o Document Tools
+o Make comparsions with other Frameworks
+o Add tests to build progress
+
+o Publish on github
+o Publish XQNode on github

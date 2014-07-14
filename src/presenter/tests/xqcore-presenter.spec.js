@@ -59,11 +59,6 @@ describe('XQCore Presenter', function() {
 			presenter = new XQCore.Presenter();
 			model = new XQCore.Model();
 			view = new XQCore.View();
-
-			presenter.couple({
-				view: view,
-				model: model
-			});
 			
 			renderStub = sinon.stub(view, 'render');
 			appendStub = sinon.stub(view, 'append');
@@ -83,6 +78,11 @@ describe('XQCore Presenter', function() {
 		});
 		
 		it('Should couple a model with a view', function() {
+			presenter.couple({
+				view: view,
+				model: model
+			});
+
 			model.set({
 				data: 'changed'
 			});
@@ -90,6 +90,22 @@ describe('XQCore Presenter', function() {
 			expect(renderStub).was.called();
 			expect(renderStub).was.calledWith({
 				data: 'changed'
+			});
+		});
+		
+		it('Should render view with model data on an initial call', function() {
+			model.properties = {
+				'data': 'initial'
+			};
+
+			presenter.couple({
+				view: view,
+				model: model
+			});
+
+			expect(renderStub).was.calledOnce();
+			expect(renderStub).was.calledWith({
+				data: 'initial'
 			});
 		});
 
@@ -99,24 +115,29 @@ describe('XQCore Presenter', function() {
 					view: view,
 					model: model
 				});
-			});
+			}).init();
 
 			model.set({
 				data: 'changed'
 			});
 
-			expect(renderStub).was.called();
+			expect(renderStub).was.calledTwice();
 			expect(renderStub).was.calledWith({
 				data: 'changed'
 			});
 		});
 
 		it('Should trigger an append event', function() {
+			presenter.couple({
+				view: view,
+				model: model
+			});
+
 			model.append('listing', {
 				data: 'changed'
 			});
 
-			expect(renderStub).was.notCalled();
+			expect(renderStub).was.calledOnce();
 			expect(appendStub).was.calledOnce();
 			expect(appendStub).was.calledWith('listing', {
 				data: 'changed'
@@ -124,11 +145,16 @@ describe('XQCore Presenter', function() {
 		});
 
 		it('Should trigger an prepend event', function() {
+			presenter.couple({
+				view: view,
+				model: model
+			});
+
 			model.prepend('listing', {
 				data: 'changed'
 			});
 
-			expect(renderStub).was.notCalled();
+			expect(renderStub).was.calledOnce();
 			expect(prependStub).was.calledOnce();
 			expect(prependStub).was.calledWith('listing', {
 				data: 'changed'
@@ -136,11 +162,16 @@ describe('XQCore Presenter', function() {
 		});
 
 		it('Should trigger an insert event', function() {
+			presenter.couple({
+				view: view,
+				model: model
+			});
+
 			model.insert('listing', 0, {
 				data: 'changed'
 			});
 
-			expect(renderStub).was.notCalled();
+			expect(renderStub).was.calledOnce();
 			expect(insertStub).was.calledOnce();
 			expect(insertStub).was.calledWith('listing', 0, {
 				data: 'changed'
@@ -148,10 +179,15 @@ describe('XQCore Presenter', function() {
 		});
 
 		it('Should trigger an remove event', function() {
+			presenter.couple({
+				view: view,
+				model: model
+			});
+
 			model.set({ listing: [ { name: 'AAA' }]}, { silent: true });
 			model.remove('listing', 0);
 
-			expect(renderStub).was.notCalled();
+			expect(renderStub).was.calledOnce();
 			expect(removeStub).was.calledOnce();
 			expect(removeStub).was.calledWith('listing', 0, {
 				name: 'AAA'
@@ -181,9 +217,8 @@ describe('XQCore Presenter', function() {
 			presenter.init();
 		});
 
-		xit('Should init and render a view', function() {
-			var renderStub = sinon.stub(XQCore.View.prototype, 'render'),
-				injectStub = sinon.stub(XQCore.View.prototype, 'inject');
+		it('Should init view', function() {
+			var initStub = sinon.stub(XQCore.View.prototype, 'init');
 			
 			var presenter = new XQCore.Presenter('Test', function(self) {
 				self.initView('TestView');
@@ -191,32 +226,8 @@ describe('XQCore Presenter', function() {
 
 			presenter.init();
 
-			expect(renderStub).was.called();
-			expect(renderStub).was.called();
-			expect(injectStub).was.calledWith();
-			expect(renderStub).was.calledWith();
-
-			renderStub.restore();
-			injectStub.restore();
-		});
-
-		xit('Should init but dont\'t inject view', function() {
-			var renderStub = sinon.stub(XQCore.View.prototype, 'render'),
-				injectStub = sinon.stub(XQCore.View.prototype, 'inject');
-			
-			var presenter = new XQCore.Presenter('Test', function(self) {
-				self.initView('TestView', 'none', {
-					inject: false
-				});
-			});
-
-			presenter.init();
-
-			expect(renderStub).was.called();
-			expect(injectStub).was.notCalled();
-
-			renderStub.restore();
-			injectStub.restore();
+			expect(initStub).was.calledOnce();
+			initStub.restore();
 		});
 
 		it('Should log a warning on registering an existing view', function() {
@@ -229,16 +240,6 @@ describe('XQCore Presenter', function() {
 				expect(warnStub).was.called();
 				expect(warnStub).was.calledWith('View allready registered!');
 				warnStub.restore();
-			});
-
-			presenter.init();
-		});
-
-		xit('Should register Test view', function() {
-			var presenter = new XQCore.Presenter('Test', function(self) {
-				var view = self.initView('Test');
-				expect(view).to.be.a(XQCore.View);
-				expect(presenter.__views.TestI).to.be.ok();
 			});
 
 			presenter.init();

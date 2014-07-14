@@ -423,7 +423,7 @@
 		var registerModelListener = function(listener, func) {
 			model.on(listener, function() {
 				var args = Array.prototype.slice.call(arguments);
-				args.push(model.name);
+				args.push(model.name, listener);
 				view[func].apply(view, args);
 			});
 		};
@@ -437,9 +437,6 @@
 		for (key in modelEventConf) {
 			if (modelEventConf.hasOwnProperty(key)) {
 				registerModelListener(key, modelEventConf[key]);
-				if (key === 'data.replace') {
-					model.emit(key, model.get());
-				}
 			}
 		}
 
@@ -448,6 +445,9 @@
 				registerViewListener(key, viewEventConf[key]);
 			}
 		}
+
+		//Initial view render with current model data
+		view.render(model.properties);
 
 		if (conf.forms) {
 			view.formSetup(model);

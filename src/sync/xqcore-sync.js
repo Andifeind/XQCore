@@ -62,7 +62,7 @@
 			data = this.onSend.call(this, data);
 		}
 
-		this.log('Sending an ajax call to ', url, 'with data: ', data);
+		this.log('Send an ajax call to ', url, 'with data: ', data);
 		this.state('syncing');
 
 		$.ajax({
@@ -190,8 +190,13 @@
 	 * Save a model if it's valid
 	 */
 	Sync.prototype.save = function(callback) {
+		var self = this;
+
 		if (this.isValid()) {
-			this.sendPOST(this.get(), callback);
+			this.sendPOST(this.get(), function(err, result) {
+				self.state(err ? 'error' : 'saved');
+				callback(err, result);
+			});
 		}
 		else {
 			if (typeof callback === 'function') {

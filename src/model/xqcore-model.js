@@ -76,7 +76,10 @@
 
 		//Add default values
 		if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
-			this.set(this.defaults);
+			this.set(this.defaults, {
+				silent: true,
+				noValidation: true
+			});
 		}
 
 		this.state('ready');
@@ -789,8 +792,8 @@
 	/**
 	 * To be called on a form submit in a coupled model
 	 *
-	 * Throws a <i>submit.success</i> event when falidation succeeds,
-	 * otherwise a <i>submit.failed</i> event will be thrown
+	 * Model gets <i>submited</i> state when validation succeeds
+	 * If validation fails, model gets <i>invalid</i> state
 	 * 
 	 * @method setData
 	 * @param {Object} data Form data
@@ -801,10 +804,7 @@
 		});
 
 		if (result) {
-			this.emit('submit.success', data);
-		}
-		else {
-			this.emit('submit.failed', data, caller);
+			this.state('submited');
 		}
 	};
 

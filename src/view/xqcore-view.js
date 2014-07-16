@@ -141,68 +141,68 @@
 
                 //Deprecated code, July 13, 2014
                 //Send events to presenter
-                if (this.events) {
-                    console.warn('View.events is deprecated since XQCore 0.8.0');
-                    Object.keys(this.events).forEach(function(key) {
-                        var spacePos = key.indexOf(' '),
-                            eventFunc = this.events[key],
-                            eventName = key.substr(0, spacePos),
-                            selector = key.substr(spacePos + 1) || this.container,
-                            self = this,
-                            eventDest;
+                // if (this.events) {
+                //     console.warn('View.events is deprecated since XQCore 0.8.0');
+                //     Object.keys(this.events).forEach(function(key) {
+                //         var spacePos = key.indexOf(' '),
+                //             eventFunc = this.events[key],
+                //             eventName = key.substr(0, spacePos),
+                //             selector = key.substr(spacePos + 1) || this.container,
+                //             self = this,
+                //             eventDest;
 
-                        if (typeof eventFunc === 'function') {
-                            eventDest = this;
-                        }
-                        else if (eventFunc.indexOf('view:') === 0) {
-                            eventFunc = this[eventFunc.substr(5)];
-                            eventDest = this;
-                        }
-                        else if (typeof this.presenter.events[this.events[key]] === 'function') {
-                            eventFunc = this.presenter.events[this.events[key]];
-                            eventDest = this.presenter;
-                        }
-                        else {
-                            var eventFuncStr = eventFunc;
-                            eventFunc = function(e, tag, data) {
-                                this.triggerEvent(eventFuncStr, e, tag, data);
-                            }.bind(this);
-                            eventDest = this;
-                        }
+                //         if (typeof eventFunc === 'function') {
+                //             eventDest = this;
+                //         }
+                //         else if (eventFunc.indexOf('view:') === 0) {
+                //             eventFunc = this[eventFunc.substr(5)];
+                //             eventDest = this;
+                //         }
+                //         else if (typeof this.presenter.events[this.events[key]] === 'function') {
+                //             eventFunc = this.presenter.events[this.events[key]];
+                //             eventDest = this.presenter;
+                //         }
+                //         else {
+                //             var eventFuncStr = eventFunc;
+                //             eventFunc = function(e, tag, data) {
+                //                 this.triggerEvent(eventFuncStr, e, tag, data);
+                //             }.bind(this);
+                //             eventDest = this;
+                //         }
 
-                        if (eventFunc && eventName) {
+                //         if (eventFunc && eventName) {
 
-                            if (typeof eventFunc === 'function') {
-                                //Register event listener
-                                this.container.delegate(selector, eventName, function(e) {
-                                    var formData = null,
-                                        tagData = null;
+                //             if (typeof eventFunc === 'function') {
+                //                 //Register event listener
+                //                 this.container.delegate(selector, eventName, function(e) {
+                //                     var formData = null,
+                //                         tagData = null;
 
-                                    if (e.type === 'submit') {
-                                        formData = XQCore.Util.serializeForm(e.currentTarget);
-                                        formData = self.onSubmit(formData, e.currentTarget);
-                                    }
-                                    else if (e.type === 'keydown' || e.type === 'keyup' || e.type === 'keypress') {
-                                        formData = $(e.currentTarget).val();
-                                    }
+                //                     if (e.type === 'submit') {
+                //                         formData = XQCore.Util.serializeForm(e.currentTarget);
+                //                         formData = self.onSubmit(formData, e.currentTarget);
+                //                     }
+                //                     else if (e.type === 'keydown' || e.type === 'keyup' || e.type === 'keypress') {
+                //                         formData = $(e.currentTarget).val();
+                //                     }
 
-                                    tagData = $.extend($(e.currentTarget).data(), {
-                                        itemIndex: getItemIndex.call(self, e.currentTarget)
-                                    });
+                //                     tagData = $.extend($(e.currentTarget).data(), {
+                //                         itemIndex: getItemIndex.call(self, e.currentTarget)
+                //                     });
 
-                                    eventFunc.call(eventDest, e, tagData, formData);
-                                }.bind(this));
-                                this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
-                            }
-                            else {
-                                this.warn('Event handler callback not defined in Presenter:', this.events[key]);
-                            }
-                        }
-                        else {
-                            this.warn('Incorect event configuration', key);
-                        }
-                    }, this);
-                }
+                //                     eventFunc.call(eventDest, e, tagData, formData);
+                //                 }.bind(this));
+                //                 this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
+                //             }
+                //             else {
+                //                 this.warn('Event handler callback not defined in Presenter:', this.events[key]);
+                //             }
+                //         }
+                //         else {
+                //             this.warn('Incorect event configuration', key);
+                //         }
+                //     }, this);
+                // }
 
                 // custom init
                 if (typeof this.customInit === 'function') {
@@ -312,27 +312,27 @@
     View.prototype.triggerEvent = function(eventName, e, tag, data) {
         console.warn('View.triggerEvent is deprecated since XQCore 0.8.0');
 
-        if (this.presenter.events[eventName]) {
-            this.presenter.events[eventName].call(this.presenter, e, tag, data);
-        }
-        else {
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
+        // if (this.presenter.events[eventName]) {
+        //     this.presenter.events[eventName].call(this.presenter, e, tag, data);
+        // }
+        // else {
+        //     if (e) {
+        //         e.preventDefault();
+        //         e.stopPropagation();
+        //     }
             
-            if (this.__coupledWith) {
-                this.__coupledWith.forEach(function(m) {
-                    if (typeof m[eventName] === 'function') {
-                        this.log('Autotrigger to model:', eventName, data);
-                        m[eventName](data);
-                    }
-                    else {
-                        this.warn('Autotrigger to model failed! Function doesn\'t exists:', eventName, data);
-                    }
-                }.bind(this));
-            }
-        }
+        //     if (this.__coupledWith) {
+        //         this.__coupledWith.forEach(function(m) {
+        //             if (typeof m[eventName] === 'function') {
+        //                 this.log('Autotrigger to model:', eventName, data);
+        //                 m[eventName](data);
+        //             }
+        //             else {
+        //                 this.warn('Autotrigger to model failed! Function doesn\'t exists:', eventName, data);
+        //             }
+        //         }.bind(this));
+        //     }
+        // }
     };
 
     /**
@@ -408,31 +408,31 @@
      * @return {Number}    index of the element or null
      */
     //Deprecated July 13, 2014
-    var getItemIndex = function(el) {
-        var index = null,
-            container = $(this.container).get(0),
-            curEl = $(el),
-            nextEl = curEl.parent(),
-            subSelector = $(this.subSelector).get(0),
-            d = 0;
+    // var getItemIndex = function(el) {
+    //     var index = null,
+    //         container = $(this.container).get(0),
+    //         curEl = $(el),
+    //         nextEl = curEl.parent(),
+    //         subSelector = $(this.subSelector).get(0),
+    //         d = 0;
 
-        if (this.subSelector) {
-            do {
-                if (nextEl.get(0) === subSelector) {
-                    return $(curEl).index();
-                }
-                curEl = curEl.parent();
-                nextEl = curEl.parent();
+    //     if (this.subSelector) {
+    //         do {
+    //             if (nextEl.get(0) === subSelector) {
+    //                 return $(curEl).index();
+    //             }
+    //             curEl = curEl.parent();
+    //             nextEl = curEl.parent();
 
-                if (++d > 100) {
-                    console.error('Break loop!');
-                    break;
-                }
-            } while(curEl.length && curEl.get(0) !== container);
-        }
+    //             if (++d > 100) {
+    //                 console.error('Break loop!');
+    //                 break;
+    //             }
+    //         } while(curEl.length && curEl.get(0) !== container);
+    //     }
 
-        return index;
-    };
+    //     return index;
+    // };
 
     /* +---------- new since v0.7.0 ----------+ */
 
@@ -492,13 +492,13 @@
      *
      * @return {String} compiled html
      */
-    View.prototype.parse = function(template, data) {
+    View.prototype.parse = function(template, data, __scopes) {
         var html,
             $newEl;
 
-        // console.log('SCOPES', template);
+        console.log('SCOPES', template);
         template.scopeStore = {};
-        template.scopes = {};
+        template.scopes = __scopes || {};
 
         try {
             html = template(data || {}, template.scopes);
@@ -509,12 +509,16 @@
         }
 
         var parseScope = function(html, data, parent) {
-            // console.log('\nParse scope\n-------------------\n', html, '\n');
+            console.log('\nParse scope\n-------------------\n', html, '\n');
             html = $.parseHTML(html);
             var $scopeEl = $(html);
             var els = $scopeEl.find('scope');
 
-            // console.log('Found %s scopes', els.length);
+            console.log('Found %s scopes', els.length);
+            console.log('Path', parent);
+            console.log('Data: ', (Array.isArray(data) ? 'array' : typeof(data)), data);
+
+            var counter = {};
 
             els.each(function() {
                 var scopeId = $(this).attr('id'),
@@ -522,13 +526,20 @@
                     content;
 
                 var dataPath = parent ? parent + '.' + path : path;
-                // console.log('Scope:', path, scopeId);
+                console.log('Scope:', path, scopeId);
+
+                var templateData = data;
+                if (Array.isArray(data)) {
+                    counter[path] = counter[path] || 0;
+                    templateData = data[counter[path]++];
+                }
 
                 content = {};
                 if (scopeId) {
+                    console.log('Call scope with:', data[path], data, path);
                     var scopeHTML = template.scopes[scopeId](data[path], data);
                     // console.log('ScopeHTML', scopeHTML);
-                    content.value = scopeHTML ? parseScope(scopeHTML, data, dataPath) : document.createTextNode('');
+                    content.value = scopeHTML ? parseScope(scopeHTML, data[path], dataPath) : document.createTextNode('');
                     content.id = scopeId;
                 }
                 else {
@@ -544,7 +555,7 @@
                 // console.log('REPLACETD', $newEl.get(0).outerHTML);
             });
 
-            // console.log('\nEnd of parse scope\n-------------------\n', $scopeEl.get(0).outerHTML, '\n\n');
+            console.log('\nEnd of parse scope\n-------------------\n', $scopeEl.get(0).outerHTML, '\n\n');
             return $scopeEl;
         };
 

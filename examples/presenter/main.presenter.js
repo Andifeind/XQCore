@@ -1,11 +1,15 @@
 /*global listingModel:false, addModel:false */
 XQCore.debug = true;
 var presenter = new XQCore.Presenter('Main', function(self) {
+	'use strict';
+
 	var mainView = self.initView('main', 'body');
 	var listingView = self.initView('listing', '.listing');
 	var addView = self.initView('add-form', '.listing', {
 		inject: false
 	});
+
+	mainView.render();
 
 	self.couple({
 		view: listingView,

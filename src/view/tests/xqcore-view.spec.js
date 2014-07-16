@@ -358,14 +358,27 @@ describe('XQCore View', function() {
         });
 
         it('Should render a view with a regular template', function() {
-            var $html = view.parse(regularTmpl, data);
+
+            var scopes = {};
+            var html = regularTmpl(data, scopes);
+
+            var tempalteStub = sinon.stub();
+            tempalteStub.returns(html);
+
+            console.log('KEYS 1', Object.keys(scopes));
+
+            var scope001Spy = sinon.spy(scopes, 'scope001');
+            var scope002Spy = sinon.spy(scopes, 'scope002');
+            // var scope003Spy = sinon.spy(scopes, 'scope003');
+
+            var $html = view.parse(tempalteStub, data, scopes);
             
-            // try {
-            //     console.log('SimpleTmpl', regularTmpl.scopes);
-            //     console.log('ScopeStore', regularTmpl.scopeStore);
-            // } catch(err) {
-            //     console.log(err.message);
-            // }
+            expect(scope001Spy).was.calledOnce();
+            expect(scope001Spy).was.calledWith(data.listing, data);
+            expect(scope002Spy).was.calledThrice();
+            expect(scope002Spy).was.calledWith(data.listing, data);
+            
+            console.log('KEYS', Object.keys(scopes));
 
             expect(regularTmpl.scopes).to.be.an('object').and.have.keys('scope001', 'scope002');
             expect(regularTmpl.scopes.scope001).to.be.a('function');

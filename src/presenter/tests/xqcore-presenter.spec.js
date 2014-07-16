@@ -1,4 +1,4 @@
-describe('XQCore Presenter', function() {
+describe.only('XQCore Presenter', function() {
 	'use strict';
 
 	describe('initialize', function() {

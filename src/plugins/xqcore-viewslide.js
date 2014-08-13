@@ -12,6 +12,8 @@
 	};
 
 	proto.slideIn = function(conf) {
+		var self = this;
+
 		conf = XQCore.extend({
 			parent: this.el.parentNode,
 			transition: 'left .75s',
@@ -35,9 +37,9 @@
 			this.el.style[cssTransition] = 'none';
 			this.el.style.left = posX + 'px';
 			window.setTimeout(function() {
-				this.el.style[cssTransition] = conf.transition;
-				this.el.style.left = '0';
-			}.bind(this));
+				self.el.style[cssTransition] = conf.transition;
+				self.el.style.left = '0';
+			});
 		}
 		else {
 			this.warn('> slide plugin > Can\'t slide view! View or parent not found! View', this.el, 'in container', conf.parent);
@@ -45,6 +47,8 @@
 	};
 
 	proto.slideOut = function(conf) {
+		var self = this;
+		
 		conf = XQCore.extend({
 			parent: this.el.parentNode,
 			transition: 'left .75s',
@@ -68,12 +72,12 @@
 				this.el.style.left = posX + 'px';
 
 			var transitionEndFunc = function() {
-				if (+this.el.style.left.replace('px', '') >= posX) {
-					this.el.style.display = 'none';
-					this.el.style[cssTransition] = 'none';
+				if (+self.el.style.left.replace('px', '') >= posX) {
+					self.el.style.display = 'none';
+					self.el.style[cssTransition] = 'none';
 				}
-				this.el.removeEventListener('transitionend', transitionEndFunc);
-			}.bind(this);
+				self.el.removeEventListener('transitionend', transitionEndFunc);
+			};
 			
 			this.el.addEventListener('transitionend', transitionEndFunc);
 		}

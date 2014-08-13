@@ -448,6 +448,9 @@
 			path = '';
 			parent = this.properties;
 		}
+		else if (!path) {
+			parent = this.properties;
+		}
 		else {
 			parent = XQCore.undotify(path, this.properties);
 		}
@@ -477,6 +480,25 @@
 		}
 
 		return null;
+	};
+
+	/**
+	 * Modify a dataset
+	 * @develo
+	 * 
+	 * @method modify
+	 * @param {[type]} path [description]
+	 * @param {[type]} match [description]
+	 * @param {[type]} data [description]
+	 * @returns {[type]} [description]
+	 */
+	Model.prototype.modify = function(path, match, data) {
+		var item = this.search(path, match);
+		if (item) {
+			XQCore.extend(item, data);
+			this.emit('data.modify', path, data, item);
+			this.emit('data.change', this.properties);
+		}
 	};
 
 	/**
@@ -578,21 +600,22 @@
 	};
 
 	Model.prototype.validate = function(data, schema) {
-		var failed = [];
+		var self = this,
+			failed = [];
 			
 		schema = schema || this.schema;
 
 		if (schema) {
 			Object.keys(schema).forEach(function(key) {
 				if (typeof data[key] === 'object' && typeof schema[key].type === 'undefined') {
-					var subFailed = this.validate(XQCore.extend({}, data[key]), XQCore.extend({}, schema[key]));
+					var subFailed = self.validate(XQCore.extend({}, data[key]), XQCore.extend({}, schema[key]));
 					if (Array.isArray(subFailed) && subFailed.length > 0) {
 						failed = failed.concat(subFailed);
 					}
 					return;
 				}
 				
-				var validationResult = this.validateOne(schema[key], data[key]);
+				var validationResult = self.validateOne(schema[key], data[key]);
 
 				if (validationResult.isValid === true) {
 					data[key] = validationResult.value;
@@ -601,7 +624,7 @@
 					validationResult.error.property = key;
 					failed.push(validationResult.error);
 				}
-			}.bind(this));
+			});
 		}
 
 		if (failed.length === 0) {

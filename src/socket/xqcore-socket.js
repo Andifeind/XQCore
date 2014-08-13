@@ -40,7 +40,7 @@
 			}
 
 			self.setReady();
-		}.bind(this);
+		};
 
 		this.sockJS.onmessage = function(e) {
 			var msg;
@@ -54,11 +54,11 @@
 
 			console.log('Got message', msg.eventName, msg.data);
 			self.__eventEmitter.emit(msg.eventName, msg.data);
-		}.bind(this);
+		};
 
 		this.sockJS.onclose = function() {
 			console.log('Connection closed!');
-		}.bind(this);
+		};
 	};
 
 	/**
@@ -67,13 +67,15 @@
 	 * @param  {Object} data      Data
 	 */
 	Socket.prototype.emit = function(eventName, data) {
+		var self = this;
+
 		this.ready(function() {
 			console.log('Send message ', eventName, data);
-			this.sockJS.send(JSON.stringify({
+			self.sockJS.send(JSON.stringify({
 				eventName: eventName,
 				data: data
 			}));
-		}.bind(this));
+		});
 	};
 
 	/**
@@ -118,10 +120,12 @@
 	};
 
 	Socket.prototype.setReady = function() {
+		var self = this;
+		
 		this.__isReady = true;
 		this.__onReadyCallbacks.forEach(function(fn) {
-			fn.call(this);
-		}.bind(this));
+			fn.call(self);
+		});
 
 		this.__onReadyCallbacks = [];
 	};

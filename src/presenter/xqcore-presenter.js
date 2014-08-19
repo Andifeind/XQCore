@@ -172,23 +172,30 @@
 
             //Add routes
             Object.keys(conf.routes).forEach(function(route) {
-                var callback = this.routes[route];
+                var callback = self.routes[route];
                 if (typeof callback === 'string') {
-                    callback = this[callback];
+                    callback = self[callback];
                 }
 
                 if (typeof callback === 'function') {
-                    this.__Router.addRoute(route, callback);
+                    self.__Router.addRoute(route, callback);
                 }
                 else {
-                    this.warn('Router callback isn\'t a function', callback, 'of route', route);
+                    self.warn('Router callback isn\'t a function', callback, 'of route', route);
                 }
-            }.bind(this));
+            });
         }
 
-        window.addEventListener('popstate', function(e) {
-            self.__onPopstate(e.state);
-        }, false);
+        if (XQCore.html5Routes) {
+            window.addEventListener('popstate', function(e) {
+                self.__onPopstate(e.state);
+            }, false);
+        }
+        else {
+            window.addEventListener('hashchange', function(e) {
+                self.__onPopstate(e.state);
+            }, false);
+        }
 
         var route = XQCore.defaultRoute;
         if (/^#![a-zA-Z0-9]+/.test(self.getHash())) {
@@ -293,12 +300,26 @@
 
         // this.__onPopstate(data);
         /*global PopStateEvent:false */
-        var evt = new PopStateEvent('popstate', {
-            bubbles: false,
-            cancelable: false,
-            state: null
-        });
-        window.dispatchEvent(evt);
+        if (XQCore.html5Routes) {
+            var evt = new PopStateEvent('popstate', {
+                bubbles: false,
+                cancelable: false,
+                state: null
+            });
+            window.dispatchEvent(evt);
+        }
+        else {
+            location.hash = XQCore.hashBang + route;
+        }
+    };
+
+    /**
+     * Navigate back
+     * 
+     * @method navigateBack
+     */
+    Presenter.prototype.navigateBack = function() {
+        history.back();
     };
 
     /**
@@ -580,6 +601,8 @@
      * @param {Function} callback Callback function
      */
     Presenter.prototype.route = function(route, callback) {
+        var self = this;
+
         if (typeof callback === 'string') {
             callback = this[callback];
         }
@@ -591,9 +614,9 @@
             }
             else if (Array.isArray(route)) {
                 route.forEach(function(r) {
-                    this.log('Register route', r, 'with callback', callback);
-                    this.__Router.addRoute(r, callback);
-                }.bind(this));
+                    self.log('Register route', r, 'with callback', callback);
+                    self.__Router.addRoute(r, callback);
+                });
             }
 
         }

@@ -34,6 +34,7 @@
 	 * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
 	 */
 	Sync.prototype.send = function(method, url, data, callback) {
+		var self = this;
 
 		if (typeof url === 'object') {
 			callback = data;
@@ -72,19 +73,19 @@
 			dataType: 'json',
 			success: function(data, status, jqXHR) {
 				if (typeof callback === 'function') {
-					callback.call(this, null, data, status, jqXHR);
+					callback.call(self, null, data, status, jqXHR);
 				}
-				this.state('success');
-			}.bind(this),
+				self.state('success');
+			},
 			error: function(jqXHR, status, error) {
 				if (typeof callback === 'function') {
-					callback.call(this, {
+					callback.call(self, {
 						type: status,
 						http: error
 					}, null, status, jqXHR);
 				}
-				this.state('failed');
-			}.bind(this)
+				self.state('failed');
+			}
 		});
 	};
 
@@ -148,13 +149,15 @@
 	 * Check if model is ready and call func or wait for ready state
 	 */
 	Sync.prototype.ready = function(func) {
+		var self = this;
+		
 		if (func === true) {
 			//Call ready funcs
 			if (Array.isArray(this.__callbacksOnReady)) {
 				this.log('Trigger ready state');
 				this.__callbacksOnReady.forEach(function(func) {
-					func.call(this);
-				}.bind(this));
+					func.call(self);
+				});
 			}
 
 			this.__isReady = true;

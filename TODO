@@ -10,6 +10,8 @@ v0.8.0
 
 TODO v1.0.0
 
+- Remove .bind()
+
 Tests:
 	- Comparsion with other frameworks
 	- Green unit tests
@@ -49,6 +51,7 @@ Model
 View
 	- DONE - Form validation - (We use model validation)
 Routing
+	- PopStateEvent not supportet in old browsers (e.g <= Android 4)
 
 EventEmitter
 

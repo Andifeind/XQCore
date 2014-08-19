@@ -130,14 +130,14 @@
 
         $(function() {
 
-            if (this.container.length > 0) {
+            if (self.container.length > 0) {
                 window.addEventListener('resize', function(e) {
                     self.resize(e);
                 }, false);
 
-                this.log('Initialize view with conf:', conf);
-                this.log('  ... using Presenter:', this.presenter.name);
-                this.log('  ... using Container:', this.container);
+                self.log('Initialize view with conf:', conf);
+                self.log('  ... using Presenter:', self.presenter.name);
+                self.log('  ... using Container:', self.container);
 
                 //Deprecated code, July 13, 2014
                 //Send events to presenter
@@ -205,22 +205,22 @@
                 // }
 
                 // custom init
-                if (typeof this.customInit === 'function') {
-                    this.customInit.call(this);
+                if (typeof self.customInit === 'function') {
+                    self.customInit.call(self);
                 }
             }
             else {
-                this.error('Can\'t initialize View, Container not found!', this.container);
+                self.error('Can\'t initialize View, Container not found!', self.container);
             }
 
             //Set DOM ready state
-            this.__domReady = true;
-            if (this.__initialData) {
-                this.render('b', this.__initialData);
-                delete this.__initialData;
+            self.__domReady = true;
+            if (self.__initialData) {
+                self.render('b', self.__initialData);
+                delete self.__initialData;
             }
             
-        }.bind(this));
+        });
 
     };
 
@@ -357,9 +357,11 @@
      * @param {Object} err Validation error object
      */
     View.prototype.validationFailed = function(err, data) {
+        var self = this;
+
         err.forEach(function(item) {
-            this.$el.find('[name="' + item.property + '"]').addClass('xq-invalid');
-        }.bind(this));
+            self.$el.find('[name="' + item.property + '"]').addClass('xq-invalid');
+        });
     };
 
     /**
@@ -391,11 +393,13 @@
     };
 
     View.prototype.__setReadyState = function() {
+        var self = this;
+
         this.isReady = true;
         if (this.__readyCallbacks) {
             this.__readyCallbacks.forEach(function(fn) {
-                fn.call(this);
-            }.bind(this));
+                fn.call(self);
+            });
         }
     };
 
@@ -648,14 +652,14 @@
                         data = self.onSubmit(data, e.target);
                         self.presenter.emit(ev[1], data, e);
                         self.emit('form.submit', data);
-                    }.bind(this);
+                    };
                 }
                 else {
                     listenerFunc = function(e) {
                         e.preventDefault();
                         var value = e.currentTarget.value || '';
                         self.presenter.emit(ev[1], value, data, e);
-                    }.bind(this);
+                    };
                 }
 
                 $cur.bind(ev[0], listenerFunc);

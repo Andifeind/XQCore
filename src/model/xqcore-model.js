@@ -637,8 +637,8 @@
 			value = undefined;
 		}
 
-		if ((value === undefined || value === null) && schema.default) {
-			value = schema.default;
+		if ((value === undefined || value === null) && schema['default']) {
+			value = schema['default'];
 		}
 
 		if ((value === undefined || value === null || value === '')) {

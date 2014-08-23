@@ -464,10 +464,10 @@
 					if (searchfor.hasOwnProperty(p)) {
 						if (prop[p] && prop[p] === searchfor[p]) {
 							matching = true;
+							break;
 						}
 						else {
 							matching = false;
-							break;
 						}
 					}
 				}

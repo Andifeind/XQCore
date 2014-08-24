@@ -310,6 +310,7 @@
         }
         else {
             location.hash = XQCore.hashBang + route;
+            this.__onPopstate();
         }
     };
 

@@ -89,10 +89,10 @@ module.exports = function(grunt) {
 				files: [
 					{
 						src: ['build/xqcore.js'],
-						dest: '../component-builds/nonamemedia/xqcore/' + version + '/xqcore.js'
+						dest: '../component-builds/xqcore/xqcore.js'
 					}, {
 						src: ['component.json'],
-						dest: '../component-builds/nonamemedia/xqcore/' + version + '/',
+						dest: '../component-builds/xqcore/',
 					}
 				]
 			},
@@ -127,7 +127,7 @@ module.exports = function(grunt) {
 		},
 		version: {
 			component: {
-				src: ['../component-builds/nonamemedia/xqcore/component.json']
+				src: ['../component-builds/xqcore/component.json']
 			}
 		},
 		watch: {

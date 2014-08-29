@@ -55,6 +55,18 @@ describe('XQCore.SyncModel', function() {
 
 			modelInitStub.restore();
 		});
+
+		it('Should initialize a syncmodel', function() {
+			var model,
+				initFunc = sinon.spy();
+
+			model = new XQCore.SyncModel('Test II', initFunc);
+
+			expect(model).to.be.a(XQCore.SyncModel);
+			model.init();
+			expect(initFunc).was.called();
+			expect(initFunc).was.calledWith(model);
+		});
 	});
 
 	describe('connect', function() {

@@ -216,7 +216,7 @@
             //Set DOM ready state
             self.__domReady = true;
             if (self.__initialData) {
-                self.render('b', self.__initialData);
+                self.render(self.__initialData);
                 delete self.__initialData;
             }
             

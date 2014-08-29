@@ -126,6 +126,7 @@
 	 *   silent: <Boolean> Don't trigger any events
 	 *   noValidation: <Boolean> Don't validate
 	 *   validateOne: <Boolean> Only if setting one item, validate the item only
+	 *   extend: <Boolean> Merge new dataset with existing dataset
 	 * }
 	 *
 	 * @method set

@@ -1,12 +1,12 @@
 {
-	"name": "xqcxore",
+	"name": "xqcore",
 	"description": "",
 	"version": "<%= version %>",
 	"main": "xqcore.js",
-	"dependencies": {
-		"components/jquery": "^2.1.0",
-		"nonamemedia/firetpl": "*"
-	},
+	"locals": [
+		"jquery",
+		"firetpl"
+	],
 	"scripts": [
 		"xqcore.js"
 	]

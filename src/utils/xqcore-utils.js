@@ -42,6 +42,15 @@
 			var len = key.length;
 			key.forEach(function(k, i) {
 				if (i === len - 1) {
+					if (/\[\]$/.test(k)) {
+						k = k.substr(0, k.length - 2);
+						if (!obj[k]) {
+							obj[k] = [];
+						}
+						obj[k].push(value);
+						return;
+					}
+
 					obj[k] = value;
 					return;
 				}

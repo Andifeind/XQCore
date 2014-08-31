@@ -283,6 +283,7 @@
 	/**
 	 * Check wether model has a dataset
 	 *
+	 * @method  has
 	 * @param {String} key Dataset key
 	 * @return {Boolean} Returns true if model has a dataset with key
 	 */
@@ -292,6 +293,8 @@
 
 	/**
 	 * Remove all data from model
+	 *
+	 * @method reset
 	 */
 	Model.prototype.reset = function() {
 		this.log('Reset model');
@@ -302,6 +305,7 @@
 	/**
 	 * Append data to a subset
 	 *
+	 * @method append
 	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
@@ -337,6 +341,7 @@
 	/**
 	 * Prepend data to a subset
 	 *
+	 * @method prepend
 	 * @param {String} path path to subset
 	 * @param {Object} data data to add
 	 */
@@ -369,6 +374,15 @@
 		}
 	};
 
+	/**
+	 * Insert data into a subset at a given index
+	 * 
+	 * @method insert
+	 * @param {String} path Path to subset
+	 * @param {Number} index The index where the data should be inserted
+	 * @param {Object} data Dataset to be inserted
+	 * @param {Object} options Inserting options
+	 */
 	Model.prototype.insert = function(path, index, data, options) {
 		var dataset = XQCore.undotify(path, this.properties);
 
@@ -401,6 +415,7 @@
 	/**
 	 * Remove a subset
 	 *
+	 * @method remove
 	 * @param {String} path path to subset
 	 * @param {Number} index Index of the subsut to remove
 	 * @param {Object} options Remove options
@@ -437,6 +452,7 @@
 	/**
 	 * Search an item in models properties
 	 *
+	 * @method search
 	 * @param {String} path Path to the parent property. We use dot notation to navigate to subproperties. (data.bla.blub) (Optional)
 	 * @param {Object} searchfor Searching for object
 	 * @return {Object} Returns the first matched item or null
@@ -485,7 +501,7 @@
 
 	/**
 	 * Modify a dataset
-	 * @develo
+	 * @development
 	 * 
 	 * @method modify
 	 * @param {[type]} path [description]
@@ -505,6 +521,7 @@
 	/**
 	 * Sort an array collection by a given attribute
 	 *
+	 * @method  sortBy
 	 * @param {String} path Path to the collection
 	 * @param {Object} sortKeys Sort by key
 	 *
@@ -552,6 +569,7 @@
 	/**
 	 * Filter an array collection by a given filter function
 	 *
+	 * @method filter
 	 * @param {String} path Path to the collection
 	 * @param {String | Function} filter Filter function
 	 *
@@ -600,6 +618,13 @@
 		}
 	};
 
+	/**
+	 * Validate model
+	 * @method validate
+	 * @param {Object} data Data to be validated
+	 * @param {Object} schema Schema
+	 * @returns {Object} Returns an object with failed validations or null if validation succeeds
+	 */
 	Model.prototype.validate = function(data, schema) {
 		var self = this,
 			failed = [];
@@ -854,8 +879,17 @@
 		obj.__registeredFilter[filterName] = filterFunction;
 	};
 
+	/**
+	 * Alias for Model.registerFilter
+	 * @type {method}
+	 */
 	Model.prototype.registerFilter = Model.registerFilter;
 
+	/**
+	 * Holds registered filter
+	 * @type {Object}
+	 * @private
+	 */
 	Model.prototype.__registeredFilter = {
 		quicksearch: function(property, query, item) {
 			// console.log('Filter item:', property, query, item);

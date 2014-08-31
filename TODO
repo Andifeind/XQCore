@@ -48,6 +48,9 @@ Presenter
 	- DONE - Register routings
 Model
 	- DONE - More add/update functions
+    - groupBy method ( Example: devopts browserListingModel )
+    - mapReduce method
+    - distinct method ( Make an array unique )
 View
 	- DONE - Form validation - (We use model validation)
 Routing
@@ -56,6 +59,8 @@ Routing
 EventEmitter
 
 Async Lib
+
+XQArray ( Extended Array Object )
 
 Tmpl
 	- Animations

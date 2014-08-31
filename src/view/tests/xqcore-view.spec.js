@@ -83,6 +83,22 @@ describe('XQCore View', function() {
             expect(bindStub).was.calledOnce();
             bindStub.restore();
         });
+
+        it('Should serialize multiple checkboxes', function() {
+            var html = '<form>' +
+                '<input type="checkbox" name="browser[]" value="Firefox" checked="checked">' +
+                '<input type="checkbox" name="browser[]" value="Opera" checked="checked">' +
+                '<input type="checkbox" name="browser[]" value="Chrome" checked="checked">' +
+                '</form>';
+
+            var $el = $($.parseHTML(html));
+            var view = new XQCore.View();
+            var data = view.serializeForm($el);
+
+            expect(data).to.eql({
+                browser: ['Firefox', 'Opera', 'Chrome']
+            });
+        });
     });
 
     describe.skip('parse', function() {

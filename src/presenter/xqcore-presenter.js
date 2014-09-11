@@ -286,31 +286,44 @@
     /**
      * Navigates to a given route
      *
+     * Options: {
+     *  replace: <Boolean> Replace current history entry with route (Only when html5 routes are enabled)
+     *  trigger: <Boolean> Set this to false to surpress a route change when new route equals to old route
+     * }
+     *
      * @param {String} route Route url
      * @param {Object} data Data object
-     * @param {Boolean} replace Replace current history entry with route
+     * @param {Object} options Options
      */
-    Presenter.prototype.navigateTo = function(route, data, replace) {
-        this.log('Navigate to route: ', route, data, replace);
-        if (replace) {
-            this.replaceState(data, route);
-        } else {
-            this.pushState(data, route);
-        }
+    Presenter.prototype.navigateTo = function(route, data, options) {
+        this.log('Navigate to route: ', route, data, options);
 
-        // this.__onPopstate(data);
+        options = options || {};
+
         /*global PopStateEvent:false */
         if (XQCore.html5Routes) {
+            if (options.replace) {
+                this.replaceState(data, route);
+            } else {
+                this.pushState(data, route);
+            }
+            
             var evt = new PopStateEvent('popstate', {
                 bubbles: false,
                 cancelable: false,
                 state: null
             });
+
             window.dispatchEvent(evt);
         }
         else {
-            location.hash = XQCore.hashBang + route;
-            this.__onPopstate();
+            var hashRoute = XQCore.hashBang + route;
+            if (options.trigger !== false && location.hash === hashRoute) {
+                this.__onPopstate();
+                return;
+            }
+
+            location.hash = hashRoute;
         }
     };
 

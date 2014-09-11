@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>XQCore routes example</title>
+    <script type="text/javascript" src="lib/jquery.js"></script>
+    <script type="text/javascript" src="lib/firetpl.js"></script>
+    <script type="text/javascript" src="../build/xqcore.js"></script>
+    <script type="text/javascript">
+
+    var presenter = new XQCore.Presenter('routes', function(self) {
+        self.route('fruit/:fruit', function(data) {
+            console.log('Route change', data);
+            document.getElementById('out').innerHTML = data.fruit;
+        });
+    });
+
+    presenter.init();
+
+    window.addEventListener('hashchange', function(e) {
+        console.log('Hashchange event', e.type, location.hash);
+    }, false);
+
+    </script>
+</head>
+<body>
+<div class="links">
+    <a href="#!fruit/apple">Apple</a>
+    <a href="#!fruit/banana">Banana</a>
+    <a href="#!fruit/coconut">Coconut</a>
+</div>
+
+<div class="lochash">
+    <a onclick="location.hash='#!fruit/lemon'">Lemon</a>
+    <a onclick="location.hash='#!fruit/mango'">Mango</a>
+    <a onclick="location.hash='#!fruit/nuts'">Nuts</a>
+</div>
+
+<div class="navigate">
+    <a onclick="presenter.navigateTo('fruit/orange')">Orange</a>
+    <a onclick="presenter.navigateTo('fruit/peach')">Peach</a>
+    <a onclick="presenter.navigateTo('fruit/qfruit')">Q-fruit</a>
+</div>
+
+<div class="result">
+<span id="out"></span> clicked
+</div>
+</body>
+</html>

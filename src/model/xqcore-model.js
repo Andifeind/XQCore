@@ -288,18 +288,41 @@
 	 * @return {Boolean} Returns true if model has a dataset with key
 	 */
 	Model.prototype.has = function(key) {
-		return !!this.properties[key];
+		var hasKey = true,
+			obj = this.properties;
+
+		key = key.split('.');
+		for (var i = 0, len = key.length; i < len; i++) {
+			if (typeof obj === 'object' && (key[i] in obj)) {
+				obj = obj[key[i]];
+				continue;
+			}
+
+			hasKey = false;
+			break;
+		}
+
+		return hasKey;
 	};
 
 	/**
 	 * Remove all data from model
 	 *
 	 * @method reset
+	 * @chainable
 	 */
-	Model.prototype.reset = function() {
+	Model.prototype.reset = function(removeListener) {
 		this.log('Reset model');
+		var oldData = this.get();
 		this.properties = {};
-		// this.removeAllListeners();
+		if (removeListener) {
+			this.removeAllListeners();
+		}
+		else {
+			this.emit('data.reset', oldData);
+		}
+		
+		return this;
 	};
 
 	/**
@@ -679,7 +702,7 @@
 	 * @return {Object}       Returns a ValidatorResultItemObject
 	 */
 	Model.prototype.validateOne = function(schema, value) {
-		var failed = null,
+		var failed,
 			schemaType = typeof schema.type === 'function' ? typeof schema.type() : schema.type.toLowerCase();
 
 		if (value === '' && schema.noEmpty === true) {
@@ -698,118 +721,16 @@
 				};
 			}
 		}
-		else if (schemaType === 'string') {
-			if (schema.convert && typeof(value) === 'number') {
-				value = String(value);
+		else {
+			if (this.__registeredValidations[schemaType]) {
+				failed = this.__registeredValidations[schemaType].call(this, value, schema);
 			}
-
-			if (schemaType !== typeof(value)) {
-				failed = {
-					msg: 'Property type is a ' + typeof(value) + ', but a string is required',
-					errCode: 11
-				};
-			}
-			else if(schema.min && schema.min > value.length) {
-				failed = {
-					msg: 'String length is too short',
-					errCode: 12
-				};
-			}
-			else if(schema.max && schema.max < value.length) {
-				failed = {
-					msg: 'String length is too long',
-					errCode: 13
-				};
-			}
-			else if(schema.match && !schema.match.test(value)) {
-				failed = {
-					msg: 'String doesn\'t match regexp',
-					errCode: 14
-				};
-			}
-
-		}
-		else if(schemaType === 'number') {
-			if (schema.convert && typeof(value) === 'string') {
-				value = parseInt(value, 10);
-			}
-
-			if (schemaType !== typeof(value)) {
-				failed = {
-					msg: 'Property type is a ' + typeof(value) + ', but a number is required',
-					errCode: 21
-				};
-			}
-			else if(schema.min && schema.min > value) {
-				failed = {
-					msg: 'Number is too low',
-					errCode: 22
-				};
-			}
-			else if(schema.max && schema.max < value) {
-				failed = {
-					msg: 'Number is too high',
-					errCode: 23
-				};
-			}
-		}
-		else if(schemaType === 'date') {
-			if (value) {
-				var date = Date.parse(value);
-				if (isNaN(date)) {
-					failed = {
-						msg: 'Property isn\'t a valid date',
-						errCode: 31
-					};
-				}
-			}
-		}
-		else if(schemaType === 'array') {
-			if (!Array.isArray(value)) {
-				failed = {
-					msg: 'Property type is a ' + typeof(value) + ', but an array is required',
-					errCode: 41
-				};
-			}
-			else if(schema.min && schema.min > value.length) {
-				failed = {
-					msg: 'Array length is ' + value.length + ' but must be greater than ' + schema.min,
-					errCode: 42
-				};
-			}
-			else if(schema.max && schema.max < value.length) {
-				failed = {
-					msg: 'Array length is ' + value.length + ' but must be lesser than ' + schema.max,
-					errCode: 43
-				};
-			}
-		}
-		else if(schemaType === 'object') {
-			if (typeof(value) !== 'object') {
-				failed = {
-					msg: 'Property isn\'t a valid object',
-					errCode: 51
-				};
-			}
-		}
-		else if(schemaType === 'objectid') {
-			if (!/^[a-zA-Z0-9]{24}$/.test(value)) {
-				failed = {
-					msg: 'Property isn\'t a valid objectId',
-					errCode: 52
-				};
-			}
-		}
-		else if(schemaType === 'boolean') {
-			if (typeof(value) !== 'boolean') {
-				failed = {
-					msg: 'Property isn\'t a valid boolean',
-					errCode: 61
-				};
+			else {
+				throw new Error('Undefined schema type', schema);
 			}
 		}
 
-		if (failed === null) {
+		if (failed === undefined) {
 			failed = {
 				isValid: true,
 				value: value,
@@ -892,10 +813,8 @@
 	 */
 	Model.prototype.__registeredFilter = {
 		quicksearch: function(property, query, item) {
-			// console.log('Filter item:', property, query, item);
 			var value = XQCore.undotify(property, item);
 			var pat = new RegExp(query.replace(/[a-z0-9äüöß]/g, '$&.*'), 'i');
-			// console.log('Pat:', pat.source);
 			return pat.test(value);
 		}
 	};
@@ -927,7 +846,117 @@
 	 * @type {Object}
 	 * @private
 	 */
-	Model.prototype.__registeredValidations = {};
+	Model.prototype.__registeredValidations = {
+		'string': function(value, schema) {
+			if (schema.convert && typeof(value) === 'number') {
+				value = String(value);
+			}
+
+			if ('string' !== typeof(value)) {
+				return {
+					msg: 'Property type is a ' + typeof(value) + ', but a string is required',
+					errCode: 11
+				};
+			}
+			else if(schema.min && schema.min > value.length) {
+				return {
+					msg: 'String length is too short',
+					errCode: 12
+				};
+			}
+			else if(schema.max && schema.max < value.length) {
+				return {
+					msg: 'String length is too long',
+					errCode: 13
+				};
+			}
+			else if(schema.match && !schema.match.test(value)) {
+				return {
+					msg: 'String doesn\'t match regexp',
+					errCode: 14
+				};
+			}
+		},
+		'number': function(value, schema) {
+			if (schema.convert && typeof(value) === 'string') {
+				value = parseInt(value, 10);
+			}
+
+			if ('number' !== typeof(value)) {
+				return {
+					msg: 'Property type is a ' + typeof(value) + ', but a number is required',
+					errCode: 21
+				};
+			}
+			else if(schema.min && schema.min > value) {
+				return {
+					msg: 'Number is too low',
+					errCode: 22
+				};
+			}
+			else if(schema.max && schema.max < value) {
+				return {
+					msg: 'Number is too high',
+					errCode: 23
+				};
+			}
+		},
+		'date': function(value, schema) {
+			if (value) {
+				var date = Date.parse(value);
+				if (isNaN(date)) {
+					return {
+						msg: 'Property isn\'t a valid date',
+						errCode: 31
+					};
+				}
+			}
+		},
+		'array': function(value, schema) {
+			if (!Array.isArray(value)) {
+				return {
+					msg: 'Property type is a ' + typeof(value) + ', but an array is required',
+					errCode: 41
+				};
+			}
+			else if(schema.min && schema.min > value.length) {
+				return {
+					msg: 'Array length is ' + value.length + ' but must be greater than ' + schema.min,
+					errCode: 42
+				};
+			}
+			else if(schema.max && schema.max < value.length) {
+				return {
+					msg: 'Array length is ' + value.length + ' but must be lesser than ' + schema.max,
+					errCode: 43
+				};
+			}
+		},
+		'object': function(value, schema) {
+			if (typeof(value) !== 'object') {
+				return {
+					msg: 'Property isn\'t a valid object',
+					errCode: 51
+				};
+			}
+		},
+		'objectid': function(value, schema) {
+			if (!/^[a-zA-Z0-9]{24}$/.test(value)) {
+				return {
+					msg: 'Property isn\'t a valid objectId',
+					errCode: 52
+				};
+			}
+		},
+		'boolean': function(value, schema) {
+			if (typeof(value) !== 'boolean') {
+				return {
+					msg: 'Property isn\'t a valid boolean',
+					errCode: 61
+				};
+			}
+		}
+	};
 
 	XQCore.Model = Model;
 })(XQCore);

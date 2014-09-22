@@ -373,7 +373,7 @@ describe('XQCore View', function() {
                 '</ul></section>');
         });
 
-        it('Should render a view with a regular template', function() {
+        it.skip('Should render a view with a regular template', function() {
 
             var scopes = {};
             var html = regularTmpl(data, scopes);
@@ -756,7 +756,7 @@ describe('XQCore View', function() {
         });
     });
 
-    describe('insert', function() {
+    describe.skip('insert', function() {
         var view,
             presenter;
 
@@ -796,7 +796,7 @@ describe('XQCore View', function() {
             expect(view.$el.get(0).outerHTML).to.eql(
                 '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
+                '<ul class="listing">' +
                 '<li><span class="name">Andi</span>' +
                 '<span class="image"></span></li>' +
                 '<li><span class="name">Donnie</span>' +
@@ -808,7 +808,7 @@ describe('XQCore View', function() {
             expect(view.$el.get(0).outerHTML).to.eql(
                 '<div class="example xq-view xq-view-namelessview"><h1>Insert test</h1>' +
                 '<div class="description">undefined</div>' +
-                '<ul class="listing" fire-scope="scope001" fire-path="listing">' +
+                '<ul class="listing">' +
                 '<li><span class="name">Andi</span>' +
                 '<span class="image"></span></li>' +
                 '<li><span class="name">Carl</span>' +

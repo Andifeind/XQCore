@@ -100,7 +100,31 @@ o Document Modules
    o Document Tmpl
    o Document Utils
 o Fix skiped tests
-o Show coverage
+   o Core tests
+   o Presenter tests
+   ✔ Model tests
+   o View tests
+   o Event tests
+   o Logger tests
+   o Router tests
+   o Socket tests
+   o Sync tests
+   o Syncmodel tests
+   o Tmpl tests
+   o Utils tests
+o Increase code coverage
+   o Core coverage more than 80%
+   o Presenter coverage more than 80%
+   ✔ Model coverage more than 80%
+   o View coverage more than 80%
+   o Event coverage more than 80%
+   o Logger coverage more than 80%
+   o Router coverage more than 80%
+   o Socket coverage more than 80%
+   o Sync coverage more than 80%
+   o Syncmodel coverage more than 80%
+   o Tmpl coverage more than 80%
+   o Utils coverage more than 80%
 o Examples for all Components
    o Write examples for Core
    o Write examples for Presenter

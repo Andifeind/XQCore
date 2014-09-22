@@ -1,10 +1,24 @@
 {
 	"project": "XQCore",
 	"browser": true,
-	"files": ["lib/firetpl.js", "build/xqcore.js"],
+    "libs": [
+        "lib/firetpl.js"
+    ],
+    "files": [
+        "src/core/xqcore-core.js",
+        "src/cache/xqcore-cache.js",
+        "src/event/xqcore-event.js",
+        "src/logger/xqcore-logger.js",
+        "src/model/xqcore-model.js",
+        "src/presenter/xqcore-presenter.js",
+        "src/router/xqcore-router.js",
+        "src/socket/xqcore-socket.js",
+        "src/sync/xqcore-sync.js",
+        "src/syncmodel/xqcore-syncmodel.js",
+        "src/tmpl/xqcore-tmpl.js",
+        "src/utils/xqcore-utils.js",
+        "src/view/xqcore-view.js"
+    ],
 	"watch": "src/**/*.js",
-	"tests": "src/**/*.spec.js",
-	"grunt": {
-		"task": "concat:build"
-	}
+	"tests": "src/**/*.spec.js"
 }

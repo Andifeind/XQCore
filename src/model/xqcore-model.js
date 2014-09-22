@@ -900,5 +900,34 @@
 		}
 	};
 
+	/**
+	 * Register validation metods for all Models
+	 *
+	 * @method registerValidation
+	 * @static
+	 * @param {String} type Data type
+	 * @param {Function} fn Validation function
+	 */
+	Model.registerValidation = function(type, fn) {
+		var obj = typeof this === 'function' ? Model.prototype : this;
+		obj.__registeredValidations[type] = fn;
+	};
+
+	/**
+	 * Register new validation method for currentyl instanciated model
+	 *
+	 * @method registerValidation
+	 * @param {String} type Data type
+	 * @param {Function} fn Validation function
+	 */
+	Model.prototype.registerValidation = Model.registerValidation;
+
+	/**
+	 * Stores registered validatiion functions
+	 * @type {Object}
+	 * @private
+	 */
+	Model.prototype.__registeredValidations = {};
+
 	XQCore.Model = Model;
 })(XQCore);

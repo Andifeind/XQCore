@@ -1468,15 +1468,78 @@ describe('XQCore Model', function() {
 		});
 	});
 
-	describe('validate', function() {
-		xit('Should validate a model', function() {
-			
+	describe('registerValidation', function() {
+		var model;
+
+		beforeEach(function() {
+			model = new XQCore.Model();
+		});
+
+		it('Should register a validation method', function() {
+			var fn1 = sinon.stub();
+			var fn2 = sinon.stub();
+
+			model.registerValidation('test1', fn1);
+			model.registerValidation('test2', fn2);
+
+			expect(model.__registeredValidations.test1).to.eql(fn1);
+			expect(model.__registeredValidations.test2).to.eql(fn2);
+		});
+
+		it('Should register a validation method for all models', function() {
+			var fn1 = sinon.stub();
+			var fn2 = sinon.stub();
+
+			XQCore.Model.registerValidation('test1', fn1);
+			XQCore.Model.registerValidation('test2', fn2);
+
+			expect(model.__registeredValidations.test1).to.eql(fn1);
+			expect(model.__registeredValidations.test2).to.eql(fn2);
+		});
+	});
+
+	describe.only('validate', function() {
+		var model;
+
+		beforeEach(function() {
+			model = new XQCore.Model('validation-test', function(self) {
+				self.schema = {
+					title: { type: 'string' }
+				};
+			});	
+		});
+
+		it('Should validate a model', function() {
+			var result = model.validate({
+				title: 'Test'
+			});
+
+			expect(result).to.be(null);
+			expect(model.isValid()).to.be(true);
 		});
 	});
 
 	describe('validateOne', function() {
-		xit('Should validate on model item', function() {
-			
+		var model;
+
+		beforeEach(function() {
+			model = new XQCore.Model('validation-test', function(self) {
+				self.schema = {
+					title: { type: 'string' },
+					number: { type: 'number' }
+				};
+			});
+
+			model.init();
+		});
+
+		it('Should validate on model item', function() {
+			var result = model.validateOne(model.schema.title, 'Test title');
+			expect(result).to.eql({
+				isValid: true,
+				value: 'Test title',
+				error: null
+			});
 		});
 	});
 

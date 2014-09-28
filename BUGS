@@ -1,1 +1,2 @@
 - Can't re-render a overwriten view. this.$el exists, but this.$el.context is undefined
+- Validation.error should return an object instead of an array of errors

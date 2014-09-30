@@ -78,7 +78,8 @@
 		if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
 			this.set(this.defaults, {
 				silent: true,
-				noValidation: true
+				noValidation: true,
+				extend: true
 			});
 		}
 

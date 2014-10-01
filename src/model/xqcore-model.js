@@ -776,6 +776,7 @@
 
 		if (result) {
 			this.state('submited');
+			this.emit('form.submited', data);
 		}
 	};
 

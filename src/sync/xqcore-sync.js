@@ -192,11 +192,16 @@
 	/**
 	 * Save a model if it's valid
 	 */
-	Sync.prototype.save = function(callback) {
+	Sync.prototype.save = function(data, callback) {
 		var self = this;
 
+		if (typeof data === 'function') {
+			callback = data;
+			data = this.get();
+		}
+
 		if (this.isValid()) {
-			this.sendPOST(this.get(), function(err, result) {
+			this.sendPOST(data, function(err, result) {
 				self.state(err ? 'error' : 'saved');
 				callback(err, result);
 			});
@@ -213,7 +218,12 @@
 	/**
 	 * Update a model if it's valid
 	 */
-	Sync.prototype.update = function(callback) {
+	Sync.prototype.update = function(data, callback) {
+		if (typeof data === 'function') {
+			callback = data;
+			data = this.get();
+		}
+
 		if (this.isValid()) {
 			this.sendPUT(this.get(), callback);
 		}

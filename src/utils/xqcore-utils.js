@@ -8,7 +8,7 @@
 		if(path) {
 			path = path.split('.');
 			path.forEach(function(key) {
-				obj = obj[key];
+				obj = obj ? obj[key] : undefined;
 			});
 		}
 

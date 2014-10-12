@@ -197,7 +197,7 @@
 
 		if (typeof data === 'function') {
 			callback = data;
-			data = this.get();
+			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.get();
 		}
 
 		if (this.isValid()) {
@@ -219,13 +219,18 @@
 	 * Update a model if it's valid
 	 */
 	Sync.prototype.update = function(data, callback) {
+		var self = this;
+
 		if (typeof data === 'function') {
 			callback = data;
-			data = this.get();
+			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.get();
 		}
 
 		if (this.isValid()) {
-			this.sendPUT(this.get(), callback);
+			this.sendPUT(data, function(err, result) {
+				self.state(err ? 'error' : 'saved');
+				callback(err, result);
+			});
 		}
 		else {
 			if (typeof callback === 'function') {

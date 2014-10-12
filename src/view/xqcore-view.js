@@ -745,40 +745,48 @@
         $scope.children(':eq(' + index + ')').remove();
     };
 
+    /**
+     * Seting up forms
+     * It's wating till view is ready
+     * @param  {Object} model Coupled model
+     * @param  {Object} $el   Form element
+     */
     View.prototype.formSetup = function(model, $el) {
-        var errClassName = 'xq-invalid',
-            disabledClass = 'xq-disabled';
+        this.ready(function() {
+            var errClassName = 'xq-invalid',
+                disabledClass = 'xq-disabled';
 
-        if (!$el) {
-            $el = this.$el.find('form');
-        }
+            if (!$el) {
+                $el = this.$el.find('form');
+            }
 
-        $el.each(function() {
-            var $form = $(this);
-            $form.find(':input').each(function() {
-                var $input = $(this);
-                $input.blur(function() {
-                    $input.removeClass(errClassName);
-                    var name = $input.attr('name'),
-                        value = $input.val();
+            $el.each(function() {
+                var $form = $(this);
+                $form.find(':input').each(function() {
+                    var $input = $(this);
+                    $input.blur(function() {
+                        $input.removeClass(errClassName);
+                        var name = $input.attr('name'),
+                            value = $input.val();
 
-                    if (name && model.schema && model.schema[name]) {
-                        var result = model.validateOne(model.schema[name], value);
-                        if (result.isValid) {
+                        if (name && model.schema && model.schema[name]) {
+                            var result = model.validateOne(model.schema[name], value);
+                            if (result.isValid) {
 
-                            //Set form valid state
-                            if ($form.find(':input[class~="' + errClassName + '"]')) {
-                                $form.removeClass(errClassName);
-                                $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
+                                //Set form valid state
+                                if ($form.find(':input[class~="' + errClassName + '"]')) {
+                                    $form.removeClass(errClassName);
+                                    $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
+                                }
+                            }
+                            else {
+                                $input.addClass(errClassName);
+                                $form.addClass(errClassName);
+                                $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
                             }
                         }
-                        else {
-                            $input.addClass(errClassName);
-                            $form.addClass(errClassName);
-                            $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
-                        }
-                    }
 
+                    });
                 });
             });
         });
@@ -794,6 +802,35 @@
      */
     View.prototype.onSubmit = function(data, $form) {
         return data;
+    };
+
+    /**
+     * Removes a view from dom and unregisters all its listener
+     * @return {[type]} [description]
+     */
+    View.prototype.destroy = function() {
+        this.$el.remove();
+        this.removeAllListeners();
+        if (this.__coupledWith) {
+            for (var i = 0, len = this.__coupledWith.length; i < len; i++) {
+                var coupledObj = this.__coupledWith[i];
+                if (coupledObj._events) {
+                    for (var ev in coupledObj._events) {
+                        if (coupledObj._events[ev]) {
+                            var eventName = ev;
+                            for (var j = 0, len2 = coupledObj._events[ev].length; j < len2; j++) {
+                                if (coupledObj._events[ev][j].listener.fnType === 'coupled-model-listener' && coupledObj._events[ev][j].listener.fnParent === this) {
+                                    coupledObj.removeEvent(eventName, coupledObj._events[ev][j].listener);
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        console.log('View has been destroyed', this.name);
     };
 
     XQCore.View = View;

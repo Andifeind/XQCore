@@ -52,7 +52,8 @@ describe('XQCore Model', function() {
 				name: 'Andi'
 			}, {
 				silent: true,
-				noValidation: true
+				noValidation: true,
+				extend: true
 			});
 
 
@@ -212,6 +213,122 @@ describe('XQCore Model', function() {
 			expect(data).not.to.equal(modelData.profession);
 			expect(data).to.eql(modelData.profession);
 		});
+	});
+
+	describe('getByKeys', function() {
+		it('Should get data by a key array', function() {
+			var data = {
+				'name': 1,
+				'title': 1,
+				'category': 1,
+				'state': 1
+			};
+
+			var keys = ['name', 'title', 'category'];
+			var model = new XQCore.Model('test');
+			var result = model.getByKeys(keys, data);
+			expect(result).to.eql({
+				'name': 1,
+				'title': 1,
+				'category': 1
+			});
+		});
+
+		it('Should get data by a key array with subdata', function() {
+			var data = {
+				'user': {
+					'name': 1,
+					'id': 1
+				},
+				'title': 1,
+				'category': 1,
+				'state': 1
+			};
+
+			var keys = ['user.name', 'title', 'category'];
+			var model = new XQCore.Model('test');
+			var result = model.getByKeys(keys, data);
+			expect(result).to.eql({
+				'user': {
+					'name': 1
+				},
+				'title': 1,
+				'category': 1,
+			});
+		});
+
+		it('Should get data by a key array with subdata, some input data ar missing', function() {
+			var data = {
+				'title': 1,
+				'state': 1
+			};
+
+			var keys = ['user.name', 'title', 'category'];
+			var model = new XQCore.Model('test');
+			var result = model.getByKeys(keys, data);
+			expect(result).to.eql({
+				'user': {
+					'name': undefined
+				},
+				'title': 1,
+				'category': undefined,
+			});
+		});
+
+		it('Should get data by a key object', function() {
+			var data = {
+				'name': 'Andi',
+				'title': 'Test',
+				'category': 'Bla > Blubb',
+				'state': 'new'
+			};
+
+			var keys = {
+				'name': 1,
+				'title': 1,
+				'category': 1
+			};
+
+			var model = new XQCore.Model('test');
+			var result = model.getByKeys(keys, data);
+			expect(result).to.eql({
+				'name': 'Andi',
+				'title': 'Test',
+				'category': 'Bla > Blubb'
+			});
+		});
+
+		it('Should get data by a key object with subdata', function() {
+			var data = {
+				'user': {
+					'name': 'Andi',
+					'id': '123'
+				},
+				'title': 'Test',
+				'category': 'Bla > Blubb',
+				'state': 'new'
+			};
+
+			var keys = {
+				'user': {
+					'name': 1
+				},
+				'title': 1,
+				'category': 1
+			};
+
+			var model = new XQCore.Model('test');
+			var result = model.getByKeys(keys, data);
+			expect(result).to.eql({
+				'user': {
+					'name': 'Andi'
+				},
+				'title': 'Test',
+				'category': 'Bla > Blubb',
+			});
+		});
+
+		
 	});
 
 	describe('set', function() {

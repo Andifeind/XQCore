@@ -461,17 +461,25 @@
         }
 
         var registerModelListener = function(listener, func) {
-            model.on(listener, function() {
+            var fn = function() {
                 var args = Array.prototype.slice.call(arguments);
                 args.push(model.name, listener);
                 view[func].apply(view, args);
-            });
+            };
+
+            fn.fnType = 'coupled-model-listener';
+            fn.fnParent = view;
+            model.on(listener, fn);
         };
 
         var registerViewListener = function(listener, func) {
-            view.on(listener, function(arg, arg2) {
+            var fn = function(arg, arg2) {
                 model[func](arg, arg2, view.name);
-            });
+            };
+
+            fn.fnType = 'coupled-view-listener';
+            fn.fnParent = model;
+            view.on(listener, fn);
         };
 
         for (key in modelEventConf) {
@@ -583,10 +591,10 @@
     Presenter.prototype.initView = function(viewName, container, options) {
         options = options || {};
 
-        if (this.__views[viewName]) {
-            this.warn('View allready registered!', viewName);
-            return;
-        }
+        // if (this.__views[viewName]) {
+        //     this.warn('View allready registered!', viewName);
+        //     return;
+        // }
 
         if (this.debug) {
             this.log('Init view', viewName);

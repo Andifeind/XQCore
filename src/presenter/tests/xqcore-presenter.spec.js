@@ -229,21 +229,6 @@ describe('XQCore Presenter', function() {
 			expect(initStub).was.calledOnce();
 			initStub.restore();
 		});
-
-		it('Should log a warning on registering an existing view', function() {
-			var presenter = new XQCore.Presenter('Test', function(self) {
-				var warnStub = sinon.stub(presenter, 'warn');
-
-				self.initView('TestI');
-				self.initView('TestI');
-				
-				expect(warnStub).was.called();
-				expect(warnStub).was.calledWith('View allready registered!');
-				warnStub.restore();
-			});
-
-			presenter.init();
-		});
 	});
 
 	describe('route', function() {

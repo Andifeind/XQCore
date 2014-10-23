@@ -357,7 +357,8 @@
     Model.prototype.reset = function(removeListener) {
         this.log('Reset model');
         var oldData = this.get();
-        this.properties = {};
+        this.properties = XQCore.extend({}, this.defaults);
+        this.state('starting');
         if (removeListener) {
             this.removeAllListeners();
         }

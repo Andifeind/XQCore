@@ -18,6 +18,18 @@ Gekoppelt:
 presenter lauscht auf state.mystate und ruft dann in der view onStateChange auf
 
 
+Form cyclus:
+-----------------------------------------------------------------------------------------
+Action                      Model state                           Model event
+
+Render Form                 ready
+Submit, validation failed   invalid
+Submit, validation succeeds valid
+Sync with BE                syncing
+Sync was success            success
+Sync failed                 failed
+
+
 
 * Leite events an die view
 Gekoppelt:

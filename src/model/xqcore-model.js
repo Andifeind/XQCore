@@ -83,6 +83,7 @@
             });
         }
 
+        this._isValid = !this.schema;
         this.state('ready');
     };
 

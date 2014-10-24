@@ -475,7 +475,7 @@
             this.$ct.contents().detach();
             this.$ct.append(this.$el);
         }
-        else if(this.mode === 'append') {
+        else if (this.mode === 'append') {
             this.$ct.append(this.$el);
         }
         else if (this.mode === 'prepend') {
@@ -484,6 +484,7 @@
         else {
             throw new Error('Unknow insert mode in view.init()');
         }
+
     };
 
     /**
@@ -765,6 +766,7 @@
                 $form.find(':input').each(function() {
                     var $input = $(this);
                     $input.blur(function() {
+                    $input.delegate('blur', function() {
                         $input.removeClass(errClassName);
                         var name = $input.attr('name'),
                             value = $input.val();
@@ -774,7 +776,7 @@
                             if (result.isValid) {
 
                                 //Set form valid state
-                                if ($form.find(':input[class~="' + errClassName + '"]')) {
+                                if ($form.find(':input[class~="' + errClassName + '"]').length === 0) {
                                     $form.removeClass(errClassName);
                                     $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
                                 }
@@ -785,7 +787,6 @@
                                 $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
                             }
                         }
-
                     });
                 });
             });

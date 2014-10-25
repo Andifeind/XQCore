@@ -93,6 +93,9 @@ module.exports = function(grunt) {
 					}, {
 						src: ['component.json'],
 						dest: '../component-builds/xqcore/',
+					}, {
+						src: ['build/xqcore.css'],
+						dest: '../component-builds/xqcore/xqcore.css'
 					}
 				]
 			},
@@ -105,7 +108,20 @@ module.exports = function(grunt) {
 						expand: true
 					}
 				]
-			}
+			},
+			styles: {
+				options: {
+					processContent: function (content, srcpath) {
+						return content.replace('<%= version %>', version);
+					}
+				},
+				files: [
+					{
+						src: ['build/xqcore.css'],
+						dest: '../component-builds/xqcore/xqcore.css'
+					}
+				]
+			},
 		},
 		clean: {
 			build: [
@@ -125,23 +141,42 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+		less: {
+			dist: {
+                options: {
+                    paths: 'less/'
+                },
+                files: {
+                    'build/xqcore.css': 'less/main.less'
+                }
+            }
+		},
 		version: {
 			component: {
 				src: ['../component-builds/xqcore/component.json']
 			}
 		},
 		watch: {
-			files: 'webdocs/js/**/*.js',
-			tasks: ['build']
+			js: {
+				files: 'src/**/*.js',
+				tasks: ['build']
+			},
+			styles: {
+
+				files: 'less/*.less',
+				tasks: ['less', 'copy:styles']
+			}
 		}
 	});
 
 	// grunt.loadTasks('./modules/grunt-xqcoretest');
-	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-copy');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
-	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-contrib-less');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-bumpup');
 	grunt.loadNpmTasks('grunt-doxit');
 	// grunt.loadNpmTasks('grunt-simple-dox');
@@ -153,6 +188,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('doc', 'doxit');
 	grunt.registerTask('test', 'xqcoretest');
 	grunt.registerTask('build', [
+		'less',
 		'jshint:files',
 		'clean:build',
 		'concat:build',

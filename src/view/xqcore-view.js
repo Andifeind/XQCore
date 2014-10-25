@@ -766,7 +766,6 @@
                 $form.find(':input').each(function() {
                     var $input = $(this);
                     $input.blur(function() {
-                    $input.delegate('blur', function() {
                         $input.removeClass(errClassName);
                         var name = $input.attr('name'),
                             value = $input.val();

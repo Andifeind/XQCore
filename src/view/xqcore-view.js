@@ -93,6 +93,13 @@
          */
         this.__domReady = false;
 
+        /**
+         * Registered view events
+         * @type {array}
+         * @private
+         */
+        this.__viewEvents = [];
+
 
         /* ++++++++++ old stuff +++++++++++++ */
 
@@ -666,6 +673,11 @@
                 $cur.bind(ev[0], listenerFunc);
             });
         });
+
+        //Register DOM listener
+        this.__viewEvents.forEach(function(listener) {
+            self.$el.delegate(listener.selector, listener.events, listener.callback);
+        });
     };
 
     /**
@@ -761,34 +773,33 @@
                 $el = this.$el.find('form');
             }
 
-            $el.each(function() {
-                var $form = $(this);
-                $form.find(':input').each(function() {
-                    var $input = $(this);
-                    $input.blur(function() {
-                        $input.removeClass(errClassName);
-                        var name = $input.attr('name'),
-                            value = $input.val();
+            var blurHandler = function(e) {
+                var $form = $(this).closest('form'),
+                    $input = $(this);
 
-                        if (name && model.schema && model.schema[name]) {
-                            var result = model.validateOne(model.schema[name], value);
-                            if (result.isValid) {
+                $input.removeClass(errClassName);
+                var name = $input.attr('name'),
+                    value = $input.val();
 
-                                //Set form valid state
-                                if ($form.find(':input[class~="' + errClassName + '"]').length === 0) {
-                                    $form.removeClass(errClassName);
-                                    $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
-                                }
-                            }
-                            else {
-                                $input.addClass(errClassName);
-                                $form.addClass(errClassName);
-                                $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
-                            }
+                if (name && model.schema && model.schema[name]) {
+                    var result = model.validateOne(model.schema[name], value);
+                    if (result.isValid) {
+
+                        //Set form valid state
+                        if ($form.find(':input[class~="' + errClassName + '"]').length === 0) {
+                            $form.removeClass(errClassName);
+                            $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
                         }
-                    });
-                });
-            });
+                    }
+                    else {
+                        $input.addClass(errClassName);
+                        $form.addClass(errClassName);
+                        $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
+                    }
+                }
+            };
+
+            this.addEvent(':input', 'blur', blurHandler);
         });
     };
 
@@ -831,6 +842,20 @@
         }
 
         console.log('View has been destroyed', this.name);
+    };
+
+    /**
+     * Register a DOM event listerner for a given element. The DOM element mustnt exists a this time. (Using jQuery.deleget() on the this.$el element)
+     * @param {String}   selector A selector to the item that should trigger the event
+     * @param {String}   events   A string of on ore more Javascript event handler. Use a space separated list for mor then one event. E.g: 'click mousedown'
+     * @param {Function} callback Callback function to be called when event is triggered
+     */
+    View.prototype.addEvent = function(selector, events, callback) {
+        this.__viewEvents.push({
+            events: events,
+            selector: selector,
+            callback: callback
+        });
     };
 
     XQCore.View = View;

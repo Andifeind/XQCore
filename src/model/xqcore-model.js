@@ -129,6 +129,7 @@
      *   noValidation: <Boolean> Don't validate
      *   validateOne: <Boolean> Only if setting one item, validate the item only
      *   extend: <Boolean> Merge new dataset with existing dataset
+     *   noSync: <Boolean> Don't call sync method
      * }
      *
      * @method set
@@ -207,14 +208,14 @@
         this.properties = newData;
         if (options.silent !== true) {
             if (setAll) {
-                if (typeof this.sync === 'function' && options.sync !== false) {
+                if (typeof this.sync === 'function' && options.noSync !== true) {
                     this.sync('replace', newData);
                 }
 
                 this.emit('data.replace', newData, oldData);
             }
             else if (setItem){
-                if (typeof this.sync === 'function' && options.sync !== false) {
+                if (typeof this.sync === 'function' && options.noSync !== true) {
                     this.sync('item', key, value);
                 }
                 
@@ -397,7 +398,7 @@
         }
 
         if (options.silent !== true) {
-            if (typeof this.sync === 'function' && options.sync !== false) {
+            if (typeof this.sync === 'function' && options.noSync !== true) {
                 this.sync('append', path, data);
             }
 
@@ -433,7 +434,7 @@
         }
 
         if (options.silent !== true) {
-            if (typeof this.sync === 'function' && options.sync !== false) {
+            if (typeof this.sync === 'function' && options.noSync !== true) {
                 this.sync('prepend', path, data);
             }
 
@@ -471,7 +472,7 @@
         }
 
         if (options.silent !== true) {
-            if (typeof this.sync === 'function' && options.sync !== false) {
+            if (typeof this.sync === 'function' && options.noSync !== true) {
                 this.sync('insert', path, 1, data);
             }
 
@@ -506,7 +507,7 @@
         }
 
         if (removed && options.silent !== true) {
-            if (typeof this.sync === 'function' && options.sync !== false) {
+            if (typeof this.sync === 'function' && options.noSync !== true) {
                 this.sync('remove', path, index);
             }
 
@@ -723,10 +724,12 @@
 
         if (failed.length === 0) {
             this._isValid = true;
+            this.state('valid');
             return null;
         }
         else {
             this._isValid = false;
+            this.state('invalid');
             return failed;
         }
     };
@@ -805,7 +808,7 @@
     };
 
     /**
-     * To be called on a form submit in a coupled model
+     * To be called when a form has been submited in a coupled model
      *
      * Model gets <i>submited</i> state when validation succeeds
      * If validation fails, model gets <i>invalid</i> state
@@ -814,14 +817,9 @@
      * @param {Object} data Form data
      */
     Model.prototype.setData = function(data, caller) {
-        var result = this.set(data, {
+        this.set(data, {
             extend: true
         });
-
-        if (result) {
-            this.state('submited');
-            this.emit('form.submited', data);
-        }
     };
 
     /**

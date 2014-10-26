@@ -9,5 +9,8 @@
 	],
 	"scripts": [
 		"xqcore.js"
+	],
+	"styles": [
+		"xqcore.css"
 	]
 }

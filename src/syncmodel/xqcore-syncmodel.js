@@ -54,7 +54,7 @@
 
 		this.socket.on('syncmodel.change', function(data) {
 			var opts = {
-				sync: false
+				noSync: true
 			};
 
 			var args = data.slice(1);

@@ -928,7 +928,7 @@
                 value = parseInt(value, 10);
             }
 
-            if ('number' !== typeof(value)) {
+            if (isNaN(value)) {
                 return {
                     msg: 'Property type is a ' + typeof(value) + ', but a number is required',
                     errCode: 21

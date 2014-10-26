@@ -930,7 +930,7 @@
 
             if (isNaN(value)) {
                 return {
-                    msg: 'Property type is a ' + typeof(value) + ', but a number is required',
+                    msg: 'Property type is not a valid number',
                     errCode: 21
                 };
             }

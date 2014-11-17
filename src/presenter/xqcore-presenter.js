@@ -504,38 +504,6 @@
         return this;
     };
 
-    /**
-     * Triggers a view event to the presenter
-     *
-     * @method triggerEvent
-     * @deprecated  sinve v0.8.1
-     *
-     * @param {String} eventName Event of the triggered event
-     * @param {Object} e EventObject
-     * @param {Object} tag Tag data
-     * @param {Object} data Event data
-     */
-    Presenter.prototype.triggerEvent = function(v, eventName, e, tag, data) {
-        console.warn('Presenter.triggerEvent was removed since v0.8.1');
-
-        // if (this.events[eventName]) {
-        //     this.events[eventName].call(this, e, tag, data);
-        // }
-        // else {
-        //     e.preventDefault();
-        //     e.stopPropagation();
-        //     v.__coupledWith.forEach(function(m) {
-        //         if (typeof m[eventName] === 'function') {
-        //             this.log('Autotrigger to model ', m.name, ' - ', eventName, data);
-        //             m[eventName](data);
-        //         }
-        //         else {
-        //             this.warn('Autotrigger to model failed! Function doesn\'t exists:', eventName, data);
-        //         }
-        //     });
-        // }
-    };
-
 
     /**
      * PopstateEvent

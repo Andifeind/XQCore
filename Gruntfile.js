@@ -195,8 +195,7 @@ module.exports = function(grunt) {
 		'concat:minimal',
 		'uglify',
 		'doc',
-		'component-build',
-		'bumpup:prerelease'
+		'component-build'
 	]);
 
 	grunt.registerTask('component-build', [

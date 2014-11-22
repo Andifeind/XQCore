@@ -245,7 +245,7 @@
 	 * To be called when model is valid and data were seted.
 	 * @method sync
 	 * @override
-	 * @param  {string} syncType Sync type (replace, item, append, prepend, insert, remove)
+	 * @param  {string} syncType Sync type (set, item, append, prepend, insert, remove)
 	 * @param  {Any} data     data
 	 */
 	Sync.prototype.sync = function(syncType, data) {

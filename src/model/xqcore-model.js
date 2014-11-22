@@ -128,8 +128,8 @@
      *   silent: <Boolean> Don't trigger any events
      *   noValidation: <Boolean> Don't validate
      *   validateOne: <Boolean> Only if setting one item, validate the item only
-     *   extend: <Boolean> Merge new dataset with existing dataset
-     *   noSync: <Boolean> Don't call sync method
+     *   replace: <Boolean> Replace all date with new data
+     *   sync: <Boolean> Calles sync method if validations succeeds. Default: false
      * }
      *
      * @method set
@@ -154,7 +154,7 @@
         else if (typeof arguments[0] === 'object') {
             //Add a dataset
             options = value || {};
-            newData = options.extend ? XQCore.extend(newData, oldData, arguments[0]) : arguments[0];
+            newData = options.replace ? arguments[0] : XQCore.extend(newData, oldData, arguments[0]);
             setAll = true;
             key = null;
             this.log('Set data', newData, oldData);
@@ -208,14 +208,12 @@
         this.properties = newData;
         if (options.silent !== true) {
             if (setAll) {
-                if (typeof this.sync === 'function' && options.noSync !== true) {
-                    this.sync('replace', newData);
+                if (typeof this.sync === 'function' && options.sync === true) {
+                    this.sync('set', newData);
                 }
-
-                this.emit('data.replace', newData, oldData);
             }
             else if (setItem){
-                if (typeof this.sync === 'function' && options.noSync !== true) {
+                if (typeof this.sync === 'function' && options.sync === true) {
                     this.sync('item', key, value);
                 }
                 
@@ -398,7 +396,7 @@
         }
 
         if (options.silent !== true) {
-            if (typeof this.sync === 'function' && options.noSync !== true) {
+            if (typeof this.sync === 'function' && options.sync === true) {
                 this.sync('append', path, data);
             }
 
@@ -434,7 +432,7 @@
         }
 
         if (options.silent !== true) {
-            if (typeof this.sync === 'function' && options.noSync !== true) {
+            if (typeof this.sync === 'function' && options.sync === true) {
                 this.sync('prepend', path, data);
             }
 
@@ -472,7 +470,7 @@
         }
 
         if (options.silent !== true) {
-            if (typeof this.sync === 'function' && options.noSync !== true) {
+            if (typeof this.sync === 'function' && options.sync === true) {
                 this.sync('insert', path, 1, data);
             }
 
@@ -507,7 +505,7 @@
         }
 
         if (removed && options.silent !== true) {
-            if (typeof this.sync === 'function' && options.noSync !== true) {
+            if (typeof this.sync === 'function' && options.sync === true) {
                 this.sync('remove', path, index);
             }
 
@@ -516,6 +514,19 @@
         }
 
         return removed;
+    };
+
+    /**
+     * Replace all models data with new data. This is a alias for set(<AnyData>, {replace: true})
+     *
+     * @method repalce
+     * @param {Object} data Data object
+     * @param {Object} options Option data. (See set method for details)
+     */
+    Model.prototype.repalce = function(data, options) {
+        options = options || {};
+        options.repalce = true;
+        return this.set(data, options);
     };
 
     /**

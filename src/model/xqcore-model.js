@@ -812,11 +812,13 @@
      *
      * Model gets <i>submited</i> state when validation succeeds
      * If validation fails, model gets <i>invalid</i> state
-     * 
+     *
+     * @deprecated
      * @method setData
      * @param {Object} data Form data
      */
     Model.prototype.setData = function(data, caller) {
+        this.warn('Model.setData has been deprecated since v0.9');
         this.set(data, {
             extend: true
         });

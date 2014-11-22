@@ -659,7 +659,6 @@
                         data = self.serializeForm(e.target);
                         data = self.onSubmit(data, e.target);
                         self.presenter.emit(ev[1], data, e);
-                        self.emit('form.submit', data);
                     };
                 }
                 else {
@@ -799,7 +798,13 @@
                 }
             };
 
+            var submitHandler = function() {
+                var $form = $(this);
+                self.emit('form.submit', data);
+            };
+
             this.addEvent(':input', 'blur', blurHandler);
+            this.addEvent(':form', 'submit', submitHandler);
         });
     };
 

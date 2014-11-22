@@ -429,7 +429,7 @@
         }, conf.modelEvents);
 
         var viewEventConf = XQCore.extend({
-            'form.submit': 'setData'
+            'form.submit': 'sync'
         }, conf.viewEvents);
 
         if (!view instanceof XQCore.View) {

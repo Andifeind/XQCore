@@ -170,7 +170,8 @@
                 options.noValidation = true;
                 validateResult = this.validateOne(this.schema[key], value);
                 if (validateResult.isValid === false) {
-                    this.warn('Validate error in model.set', validateResult);
+                    validateResult.error.property = key;
+                    this.warn('Validation error in model.set of property', key, validateResult);
                     if (options.silent !== true) {
                         this.emit('validation.error', validateResult, newData);
                     }
@@ -760,7 +761,7 @@
      *
      * @return {Object}       Returns a ValidatorResultItemObject
      */
-    Model.prototype.validateOne = function(schema, value) {
+    Model.prototype.validateOne = function(schema, value, propName) {
         var failed,
             schemaType = typeof schema.type === 'function' ? typeof schema.type() : schema.type.toLowerCase();
 
@@ -768,7 +769,7 @@
             value = undefined;
         }
 
-        if ((value === undefined || value === null) && schema['default']) {
+        if ((value === undefined || value === null || value === '') && schema['default']) {
             value = schema['default'];
         }
 
@@ -797,7 +798,6 @@
             };
         }
         else {
-            this.warn('Validation error on property', failed, 'Data:', value);
             failed = {
                 isValid: false,
                 value: value,
@@ -1009,6 +1009,23 @@
             if (typeof(value) !== 'boolean') {
                 return {
                     msg: 'Property isn\'t a valid boolean',
+                    errCode: 61
+                };
+            }
+        },
+
+        /**
+         * Validation type time
+         *
+         * Allowed values are:
+         * HH:MM
+         * HH:MM:SS
+         * D:HH:MM:SS
+         */
+        'time': function(value, schema) {
+            if (!/^\d+(:\d{2}){1,3}$/.test(value)) {
+                return {
+                    msg: 'Property isn\'t a valid time',
                     errCode: 61
                 };
             }

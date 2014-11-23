@@ -4,7 +4,7 @@ Setzt einen model state. Gekoppelte views können den State verarbeiten.
 Jedes model.state feuert ein state.mystate event
 
 States:
- - starting		Default state
+ - none		Default state
  - ready		State after init was done
  - syncing		On sending a request
  - progress		On doing a long job

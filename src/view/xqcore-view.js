@@ -764,6 +764,8 @@
      * @param  {Object} $el   Form element
      */
     View.prototype.formSetup = function(model, $el) {
+        var self = this;
+
         this.ready(function() {
             var errClassName = 'xq-invalid',
                 disabledClass = 'xq-disabled';
@@ -798,13 +800,14 @@
                 }
             };
 
-            var submitHandler = function() {
-                var $form = $(this);
+            var submitHandler = function(e) {
+                e.preventDefault();
+                var data = self.serializeForm(e.target);
                 self.emit('form.submit', data);
             };
 
             this.addEvent(':input', 'blur', blurHandler);
-            this.addEvent(':form', 'submit', submitHandler);
+            this.addEvent('form', 'submit', submitHandler);
         });
     };
 
@@ -850,7 +853,7 @@
     };
 
     /**
-     * Register a DOM event listerner for a given element. The DOM element mustnt exists a this time. (Using jQuery.deleget() on the this.$el element)
+     * Register a DOM event listerner for a given element. The DOM element mustnt exists at this time. (Using jQuery.deleget() on the this.$el element)
      * @param {String}   selector A selector to the item that should trigger the event
      * @param {String}   events   A string of on ore more Javascript event handler. Use a space separated list for mor then one event. E.g: 'click mousedown'
      * @param {Function} callback Callback function to be called when event is triggered
@@ -861,6 +864,10 @@
             selector: selector,
             callback: callback
         });
+
+        if (this.$el) {
+            this.$el.delegate(selector, events, callback);
+        }
     };
 
     XQCore.View = View;

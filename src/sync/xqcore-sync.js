@@ -193,18 +193,13 @@
 	 * Save a model if it's valid
 	 */
 	Sync.prototype.save = function(data, callback) {
-		var self = this;
-
 		if (typeof data === 'function') {
 			callback = data;
 			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.get();
 		}
 
 		if (this.isValid()) {
-			this.sendPOST(data, function(err, result) {
-				self.state(err ? 'error' : 'saved');
-				callback(err, result);
-			});
+			this.sendPOST(data, callback);
 		}
 		else {
 			if (typeof callback === 'function') {
@@ -219,37 +214,44 @@
 	 * Update a model if it's valid
 	 */
 	Sync.prototype.update = function(data, callback) {
-		var self = this;
-
 		if (typeof data === 'function') {
 			callback = data;
 			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.get();
 		}
 
 		if (this.isValid()) {
-			this.sendPUT(data, function(err, result) {
-				self.state(err ? 'error' : 'saved');
-				callback(err, result);
-			});
+			this.sendPUT(data, callback);
 		}
 		else {
 			if (typeof callback === 'function') {
 				callback({
-					msg: 'Model isn\'t valid. Cancle update'
+					msg: 'Model isn\'t valid. Cancel update'
 				});
 			}
 		}
 	};
 
 	/**
-	 * To be called when model is valid and data were seted.
+	 * To be called  when a form was submited in a coupled model
+	 *
+	 * This method merges submited form data with model.
+	 * If validation doesen't fail, update or save methode have to be called.
+	 * It calls update if data.id is not undefined, otherwise it calls save
+	 * Override this function if this behavior isn't desired 
+	 * 
 	 * @method sync
 	 * @override
-	 * @param  {string} syncType Sync type (set, item, append, prepend, insert, remove)
 	 * @param  {Any} data     data
 	 */
-	Sync.prototype.sync = function(syncType, data) {
-		
+	Sync.prototype.sync = function(data) {
+		if (this.set(data, { extend: true })) {
+			if (data.id === undefined || data.id === null) {
+				this.save(data);
+				return;
+			}
+
+			this.update(data);
+		}
 	};
 
 	XQCore.Sync = Sync;

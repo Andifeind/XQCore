@@ -212,6 +212,9 @@
                 if (typeof this.sync === 'function' && options.sync === true) {
                     this.sync('set', newData);
                 }
+                else {
+                    this.emit('data.replace', newData, oldData);
+                }
             }
             else if (setItem){
                 if (typeof this.sync === 'function' && options.sync === true) {

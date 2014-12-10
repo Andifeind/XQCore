@@ -58,6 +58,11 @@
 			url = this.server;
 		}
 
+		if (method === 'GET' && Array.isArray(data)) {
+			url = url.replace(/\/$/, '') + '/' + data.join('/');
+			data = null;
+		}
+
 		//Handle onSend
 		if (typeof this.onSend === 'function') {
 			data = this.onSend.call(this, data);

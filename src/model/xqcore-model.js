@@ -313,7 +313,7 @@
         else {
             for (var k in keys) {
                 if (keys.hasOwnProperty(k)) {
-                    var item = keys[k];
+                    var item = data[k];
                     if (typeof item === 'object') {
                         out[k] = this.getByKeys(item, data[k]);
                     }

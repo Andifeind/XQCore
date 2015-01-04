@@ -617,21 +617,21 @@ describe('XQCore Model', function() {
 			validationOneStub.restore();
 		});
 
-		it('Should call sync method with replace mode', function() {
+		it('Should call sync method with set mode', function() {
 			var syncStub = sinon.stub();
 			model.sync = syncStub;
 
-			model.set({a: 'aa'});
+			model.set({a: 'aa'}, { sync: true });
 
 			expect(syncStub).was.calledOnce();
-			expect(syncStub).was.calledWith('replace', {a:'aa'});
+			expect(syncStub).was.calledWith('set', {a:'aa'});
 		});
 
 		it('Should call sync method with item mode', function() {
 			var syncStub = sinon.stub();
 			model.sync = syncStub;
 
-			model.set('a', 'aa');
+			model.set('a', 'aa', {sync: true});
 
 			expect(syncStub).was.calledOnce();
 			expect(syncStub).was.calledWith('item', 'a', 'aa');
@@ -663,7 +663,7 @@ describe('XQCore Model', function() {
 			model.sync = syncStub;
 			model.schema = { a: 'Number' };
 
-			model.set({a: 'aa'});
+			model.set({a: 'aa'}, {sync: true});
 
 			expect(validationStub).was.calledOnce();
 			expect(syncStub).was.notCalled();
@@ -677,7 +677,7 @@ describe('XQCore Model', function() {
 			model.sync = syncStub;
 			model.schema = { a: 'Number' };
 
-			model.set('a', 'aa');
+			model.set('a', 'aa', {sync: true});
 
 			expect(validationStub).was.calledOnce();
 			expect(syncStub).was.notCalled();
@@ -887,7 +887,7 @@ describe('XQCore Model', function() {
 			model.sync = syncStub;
 
 			model.properties = { listing: [] };
-			model.append('listing', {a: 'aa'});
+			model.append('listing', {a: 'aa'}, {sync: true });
 
 			expect(syncStub).was.calledOnce();
 			expect(syncStub).was.calledWith('append', 'listing', {a:'aa'});
@@ -1035,7 +1035,7 @@ describe('XQCore Model', function() {
 			model.sync = syncStub;
 
 			model.properties = { listing: [] };
-			model.prepend('listing', {a: 'aa'});
+			model.prepend('listing', {a: 'aa'}, {sync: true });
 
 			expect(syncStub).was.calledOnce();
 			expect(syncStub).was.calledWith('prepend', 'listing', {a:'aa'});
@@ -1209,7 +1209,7 @@ describe('XQCore Model', function() {
 			model.sync = syncStub;
 
 			model.properties = { listing: [] };
-			model.insert('listing', 1, {a: 'aa'});
+			model.insert('listing', 1, {a: 'aa'}, {sync: true });
 
 			expect(syncStub).was.calledOnce();
 			expect(syncStub).was.calledWith('insert', 'listing', 1, {a:'aa'});
@@ -1367,7 +1367,7 @@ describe('XQCore Model', function() {
 			model.sync = syncStub;
 
 			model.properties = { listing: [] };
-			model.remove('listing', 1);
+			model.remove('listing', 1, {sync: true });
 
 			expect(syncStub).was.calledOnce();
 			expect(syncStub).was.calledWith('remove', 'listing', 1);
@@ -1593,7 +1593,7 @@ describe('XQCore Model', function() {
 
 			expect(testModel.has('a')).to.be(true);
 			expect(testModel.has('b')).to.be(true);
-			expect(testModel.has('c')).to.be(true);
+			expect(testModel.has('c')).to.be(false);
 			expect(testModel.has('z')).to.be(false);
 		});
 
@@ -1613,7 +1613,7 @@ describe('XQCore Model', function() {
 
 			expect(testModel.has('a')).to.be(true);
 			expect(testModel.has('b')).to.be(true);
-			expect(testModel.has('c')).to.be(true);
+			expect(testModel.has('c')).to.be(false);
 			expect(testModel.has('c.d.f')).to.be(false);
 			expect(testModel.has('d.e.f')).to.be(true);
 			expect(testModel.has('z')).to.be(false);
@@ -1734,7 +1734,7 @@ describe('XQCore Model', function() {
 				{name: 'Barney', surname: 'Gumble'},
 				{name: 'Carl', surname: 'Carlson'},
 				{name: 'Lenny', surname: 'Leonard'}
-			]);
+			], { replace: true });
 
 			var sorted = test.sortBy({surname: 1, name: 1});
 			expect(sorted).to.be.an(Array);
@@ -1763,7 +1763,7 @@ describe('XQCore Model', function() {
 				{name: 'Barney', surname: 'Gumble'},
 				{name: 'Carl', surname: 'Carlson'},
 				{name: 'Lenny', surname: 'Leonard'}
-			]);
+			], { replace: true });
 
 			var sorted = test.sortBy({surname: -1, name: -1});
 			expect(sorted).to.be.an(Array);
@@ -1792,7 +1792,7 @@ describe('XQCore Model', function() {
 				{name: 'Barney', surname: 'Gumble'},
 				{name: 'Carl', surname: 'Carlson'},
 				{name: 'Lenny', surname: 'Leonard'}
-			]);
+			], { replace: true });
 
 			var sorted = test.sortBy({surname: 1, name: -1});
 			expect(sorted).to.be.an(Array);
@@ -1814,7 +1814,7 @@ describe('XQCore Model', function() {
 			test.set([
 				{name: 'Homer', surname: 'Simpson'},
 				{name: 'Lenny', surname: 'Leonard'}
-			]);
+			], { replace: true });
 
 			test.once('data.change', function() {
 				done();
@@ -2009,7 +2009,7 @@ describe('XQCore Model', function() {
 			var err = test.validateOne({ type: 'number' }, '1').error;
 
 			expect(err).to.be.an('object');
-			expect(err.msg).to.equal('Property type is a string, but a number is required');
+			expect(err.msg).to.equal('Property type is not a valid number');
 			expect(err.errCode).to.equal(21);
 		});
 

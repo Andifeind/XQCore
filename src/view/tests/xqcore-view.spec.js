@@ -1100,28 +1100,32 @@ describe('XQCore View', function() {
         });
 
         it('Should setup a form', function() {
-            var blurStub = sinon.stub($.fn, 'blur');
+            var addEventStub = sinon.stub(view, 'addEvent');
             
+            view.isReady = true;
             view.formSetup(model);
 
-            expect(blurStub).was.calledOnce();
-            expect(blurStub).was.calledWith(sinon.match.func);
+            expect(addEventStub).was.calledTwice();
+            expect(addEventStub).was.calledWith(':input', 'blur', sinon.match.func);
 
-            blurStub.restore();
+            addEventStub.restore();
         });
 
         it('Should remove invalid class when blur event is thrown', function() {
             var removeClassStub = sinon.stub($.fn, 'removeClass');
             var addClassStub = sinon.stub($.fn, 'addClass');
-            var blurStub = sinon.stub($.fn, 'blur');
+            var blurStub = sinon.stub(view, 'addEvent');
             var validateOneStub = sinon.stub(model, 'validateOne');
             
+            view.isReady = true;
+
             validateOneStub.returns({
                 isValid: false
             });
             
+            var input = view.$el.find('input').get(0);
+            blurStub.withArgs(':input', 'blur', sinon.match.func).yieldsOn(input);
             view.formSetup(model);
-            blurStub.yield();
 
             expect(removeClassStub).was.calledOnce();
             expect(removeClassStub).was.calledWith('xq-invalid');

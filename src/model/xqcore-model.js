@@ -170,6 +170,7 @@
                 options.noValidation = true;
                 validateResult = this.validateOne(this.schema[key], value);
                 if (validateResult.isValid === false) {
+                    validateResult.error = validateResult.error || {};
                     validateResult.error.property = key;
                     this.warn('Validation error in model.set of property', key, validateResult);
                     if (options.silent !== true) {
@@ -315,7 +316,7 @@
                 if (keys.hasOwnProperty(k)) {
                     var item = data[k];
                     if (typeof item === 'object') {
-                        out[k] = this.getByKeys(item, data[k]);
+                        out[k] = this.getByKeys(keys[k], data[k]);
                     }
                     else {
                         out[k] = data[k];
@@ -340,7 +341,7 @@
 
         key = key.split('.');
         for (var i = 0, len = key.length; i < len; i++) {
-            if (typeof obj === 'object' && (key[i] in obj)) {
+            if (typeof obj === 'object' && obj.hasOwnProperty(key[i])) {
                 obj = obj[key[i]];
                 continue;
             }
@@ -626,6 +627,10 @@
 
         var data = XQCore.undotify(path, this.properties),
             order;
+
+        if (!data) {
+            return [];
+        }
 
         data.sort(function(a, b) {
             order = -1;
@@ -938,11 +943,12 @@
             }
         },
         'number': function(value, schema) {
+
             if (schema.convert && typeof(value) === 'string') {
                 value = parseInt(value, 10);
             }
 
-            if (isNaN(value)) {
+            if ('number' !== typeof value || isNaN(value)) {
                 return {
                     msg: 'Property type is not a valid number',
                     errCode: 21

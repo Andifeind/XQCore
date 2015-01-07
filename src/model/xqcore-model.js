@@ -38,6 +38,13 @@
             conf = {};
         }
 
+        if (typeof conf === 'function') {
+            conf.call(this, this);
+        }
+        else {
+            XQCore.extend(this, conf);
+        }
+
         this.__state = 'starting';
         this.__unfiltered = {};
 
@@ -50,29 +57,6 @@
         this._isValid = false;
         this.properties = {};
         this.schema = conf.schema;
-    };
-
-
-    XQCore.extend(Model.prototype, new XQCore.Event(), new XQCore.Logger());
-
-    if (XQCore.Sync) {
-        XQCore.extend(Model.prototype, XQCore.Sync.prototype);
-    }
-
-    Model.prototype.init = function() {
-        var self = this,
-            conf = this.conf;
-
-        if (typeof conf === 'function') {
-            conf.call(this, self);
-        }
-        else {
-            XQCore.extend(this, conf);
-        }
-
-        if (this.debug) {
-            XQCore._dump[this.name] = this;
-        }
 
         //Add default values
         if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
@@ -85,6 +69,36 @@
 
         this._isValid = !this.schema;
         this.state('ready');
+    };
+
+
+    XQCore.extend(Model.prototype, new XQCore.Event(), new XQCore.Logger());
+
+    if (XQCore.Sync) {
+        XQCore.extend(Model.prototype, XQCore.Sync.prototype);
+    }
+
+    Model.inherit = function(name, options) {
+        if (typeof name === 'object') {
+            options = name;
+            name = undefined;
+        }
+
+        var Proto = function() {
+            XQCore.Model.call(this, name, options);
+        };
+
+        XQCore.extend(Proto.prototype, XQCore.Model.prototype);
+        return Proto;
+    };
+
+    /**
+     * Init
+     * @deprecated v0.10.0
+     * @method init
+     */
+    Model.prototype.init = function() {
+        console.warn('Model.init is deprecated since v0.10.0');
     };
 
     /**

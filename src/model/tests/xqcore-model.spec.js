@@ -73,6 +73,18 @@ describe('XQCore Model', function() {
 		});
 	});
 
+	describe.only('inherit', function() {
+		it('Should return a prototype inherited by Model', function() {
+			var Model = XQCore.Model.inherit();
+
+            expect(Model).to.be.a('function');
+            expect(new Model()).to.be.a(Model);
+            expect(new Model()).to.be.a(XQCore.Event);
+            expect(new Model()).to.be.a(Model);
+            expect(new Model()).not.to.be.equal(new Model());
+		});
+	});
+
 	describe('get', function() {
 		var model,
 			modelData;

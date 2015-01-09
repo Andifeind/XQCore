@@ -56,7 +56,6 @@
         this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
         this._isValid = false;
         this.properties = {};
-        this.schema = conf.schema;
 
         //Add default values
         if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
@@ -88,7 +87,8 @@
             XQCore.Model.call(this, name, options);
         };
 
-        XQCore.extend(Proto.prototype, XQCore.Model.prototype);
+        Proto.prototype = Object.create(XQCore.Model.prototype);
+        Proto.prototype.constructor = Proto;
         return Proto;
     };
 

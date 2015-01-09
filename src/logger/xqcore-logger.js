@@ -112,6 +112,21 @@
 		return timer;
 	};
 
+	// --- new methods
+
+	Logger.prototype.dev = function() {
+		var args;
+
+		if (this.debug) {
+			args = Array.prototype.slice.call(arguments);
+			args.unshift('[' + this.name + ']');
+			console.debug.apply(console, args);
+		}
+	};
+
+	Logger.prototype.req = Logger.prototype.log;
+	Logger.prototype.res = Logger.prototype.log;
+
 	Logger.prototype.__scope = {
 		getHumanTime: getHumanTime
 	};

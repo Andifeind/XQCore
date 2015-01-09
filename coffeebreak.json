@@ -18,7 +18,8 @@
         "src/tmpl/xqcore-tmpl.js",
         "src/utils/xqcore-utils.js",
         "src/view/xqcore-view.js",
-        "src/list/xqcore-list.js"
+        "src/list/xqcore-list.js",
+        "src/synclist/xqcore-synclist.js"
     ],
 	"watch": "src/**/*.js",
 	"tests": "src/**/*.spec.js"

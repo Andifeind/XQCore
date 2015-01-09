@@ -9,7 +9,6 @@ describe('XQCore Model', function() {
 			model = new XQCore.Model('Test II', initFunc);
 
 			expect(model).to.be.a(XQCore.Model);
-			model.init();
 			expect(initFunc).was.called();
 		});
 
@@ -32,17 +31,16 @@ describe('XQCore Model', function() {
 		});
 
 		it('Should set default data', function() {
+			var changeStub = sinon.stub();
+			var validationStub = sinon.stub(XQCore.Model.prototype, 'validate');
+			var setSpy = sinon.spy(XQCore.Model.prototype, 'set');
+
 			var model = new XQCore.Model('test', function(self) {
 				self.schema = { name: { type: 'string', required: true }};
 				self.defaults = {name: 'Andi'};
 			});
 
-			var changeStub = sinon.stub();
-			var validationStub = sinon.stub(model, 'validate');
-			var setSpy = sinon.spy(model, 'set');
-
 			model.on('data.change', changeStub);
-			model.init();
 
 			expect(validationStub).was.notCalled();
 			expect(model.properties).to.eql({name: 'Andi'});
@@ -66,22 +64,37 @@ describe('XQCore Model', function() {
 			var model = new XQCore.Model('Test', function(self) {
 				self.fetch = fetchStub;
 			});
-			model.init();
 			model.fetch();
 
 			expect(fetchStub).was.called();
 		});
 	});
 
-	describe.only('inherit', function() {
+	describe('inherit', function() {
 		it('Should return a prototype inherited by Model', function() {
-			var Model = XQCore.Model.inherit();
+			var Model = XQCore.Model.inherit('test', {
+            	title: { type: 'string' }
+            });
+
+            var model = new Model();
+            expect(model.name).to.eql('testModel');
+            expect(model).not.to.be.equal({
+            	title: { type: 'string' }
+            });
+		});
+
+		it('Should apply arguments to the constructor of the inherited class', function() {
+			var Model = XQCore.Model.inherit('test', {
+				schema: {
+					title: { type: 'sting' }
+				}
+			});
 
             expect(Model).to.be.a('function');
-            expect(new Model()).to.be.a(Model);
-            expect(new Model()).to.be.a(XQCore.Event);
-            expect(new Model()).to.be.a(Model);
-            expect(new Model()).not.to.be.equal(new Model());
+            var model1 = new Model();
+            var model2 = new Model();
+            expect(model1).to.be.a(XQCore.Model);
+            expect(model1).not.to.be.equal(model2);
 		});
 	});
 
@@ -772,7 +785,6 @@ describe('XQCore Model', function() {
 
 		beforeEach(function() {
 			model = new XQCore.Model('test');
-			model.init();
 		});
 
 		it('Should append data to a subset', function() {
@@ -921,7 +933,6 @@ describe('XQCore Model', function() {
 
 		beforeEach(function() {
 			model = new XQCore.Model('test');
-			model.init();
 		});
 
 		it('Should prepend data to a subset', function() {
@@ -1069,7 +1080,6 @@ describe('XQCore Model', function() {
 
 		beforeEach(function() {
 			model = new XQCore.Model('test');
-			model.init();
 		});
 
 		it('Should insert data to a subset', function() {
@@ -1243,7 +1253,6 @@ describe('XQCore Model', function() {
 
 		beforeEach(function() {
 			model = new XQCore.Model('test');
-			model.init();
 		});
 
 		it('Should remove data to a subset', function() {
@@ -1401,7 +1410,6 @@ describe('XQCore Model', function() {
 
 		beforeEach(function() {
 			model = new XQCore.Model('filtertest');
-			model.init();
 		});
 
 		it('Should register a filter method to models prototype', function() {
@@ -1437,7 +1445,6 @@ describe('XQCore Model', function() {
 
 		beforeEach(function() {
 			model = new XQCore.Model('filtertest');
-			model.init();
 
 			testData = [
 				{ name: 'Andi' },
@@ -1528,7 +1535,6 @@ describe('XQCore Model', function() {
 
 		beforeEach(function() {
 			model = new XQCore.Model('filtertest');
-			model.init();
 
 			testData = [
 				{ name: 'Andi' },
@@ -1563,20 +1569,20 @@ describe('XQCore Model', function() {
 	describe('state', function() {
 		it('Should set a state', function() {
 			var model = new XQCore.Model();
-			expect(model.__state).to.eql('starting');
-
-			model.state('ready');
 			expect(model.__state).to.eql('ready');
+
+			model.state('loading');
+			expect(model.__state).to.eql('loading');
 		});
 	});
 
 	describe('getState', function() {
 		it('Should get a state', function() {
 			var model = new XQCore.Model();
-			expect(model.getState()).to.eql('starting');
-
-			model.__state = 'ready';
 			expect(model.getState()).to.eql('ready');
+
+			model.__state = 'loading';
+			expect(model.getState()).to.eql('loading');
 		});
 	});
 
@@ -1957,8 +1963,6 @@ describe('XQCore Model', function() {
 					number: { type: 'number' }
 				};
 			});
-
-			model.init();
 		});
 
 		it('Should validate on model item', function() {

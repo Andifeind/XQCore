@@ -34,7 +34,7 @@
 		console.log('Connect to socket server ', url, 'using options:', options);
 
 		this.sockJS.onopen = function() {
-			console.log('Connection was successful!');
+			console.log('Connection was successfull!');
 			if (typeof callback === 'function') {
 				callback();
 			}

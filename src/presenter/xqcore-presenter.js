@@ -430,10 +430,10 @@
         }, conf.modelEvents);
 
         var listEventConf = XQCore.extend({
-            'data.push': 'render',
-            'data.unshift': 'render',
-            'data.pop': 'render',
-            'data.shift': 'render',
+            'item.push': 'render',
+            'item.unshift': 'render',
+            'item.pop': 'render',
+            'item.shift': 'render',
             'state.change': 'stateChanged'
         }, conf.listEvents);
 
@@ -520,17 +520,19 @@
             list.on(listener, fn);
         };
 
-        var registerViewListener = function(listener, func) {
-            var fn = function(arg, arg2) {
-                model[func](arg, arg2, view.name);
-            };
-
-            fn.fnType = 'coupled-view-listener';
-            fn.fnParent = model;
-            view.on(listener, fn);
-        };
+        var registerViewListener;
 
         if (model) {
+            registerViewListener = function(listener, func) {
+                var fn = function(arg, arg2) {
+                    model[func](arg, arg2, view.name);
+                };
+
+                fn.fnType = 'coupled-view-listener';
+                fn.fnParent = model;
+                view.on(listener, fn);
+        };
+
             for (key in modelEventConf) {
                 if (modelEventConf.hasOwnProperty(key)) {
                     registerModelListener(key, modelEventConf[key]);
@@ -539,6 +541,16 @@
         }
 
         if (list) {
+            registerViewListener = function(listener, func) {
+                var fn = function(arg, arg2) {
+                    list[func](arg, arg2, view.name);
+                };
+
+                fn.fnType = 'coupled-view-listener';
+                fn.fnParent = list;
+                view.on(listener, fn);
+        };
+
             for (key in listEventConf) {
                 if (listEventConf.hasOwnProperty(key)) {
                     registerListListener(key, listEventConf[key]);

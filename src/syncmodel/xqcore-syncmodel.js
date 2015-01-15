@@ -13,7 +13,7 @@
 		conf = conf || {};
 
 		this.server = conf.server || location.protocol + '//' + location.hostname;
-		this.port = conf.port || 9999;
+		this.port = conf.port || XQCore.socketPort;
 		this.path = conf.path || 'xqsocket/' + name;
 		this.syncEnabled = false;
 	};

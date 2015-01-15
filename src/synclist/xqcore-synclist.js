@@ -35,10 +35,11 @@
         XQCore.List.call(this, name, conf);
 
         this.server = this.server || location.protocol + '//' + location.hostname;
-        this.port = this.port || 9999;
+        this.port = this.port || XQCore.socketPort;
         this.path = this.path || 'xqsocket/' + this.name.toLowerCase();
         this.syncEnabled = false;
         this.connectToSocket();
+        this.registerListener();
     };
 
     SyncList.prototype = Object.create(XQCore.List.prototype);
@@ -61,34 +62,44 @@
      * Register a sync list at the socket server
      * @param  {Boolean} enableSync Enables/Disables the initial sync. Defaults to false
      */
-    SyncList.prototype.register = function(enableSync) {
+    SyncList.prototype.registerListener = function(enableSync) {
+        var self = this;
         if (typeof enableSync === 'boolean') {
             this.syncEnabled = enableSync;
         }
 
-        this.dev('Register synclist at server:', this.name);
-        this.socket.emit('synclist.register', {
-            name: this.name
-        });
+        this.socket.ready(function() {
+            console.log('Register synclist listener');
+            self.dev('Register synclist at server:', self.name);
 
-        var opts = {
-            noSync: true
-        };
-        
-        this.socket.on('synclist.push', function(data) {
-            this.push(data, opts);
-        });
-        
-        this.socket.on('synclist.unshift', function(data) {
-            this.push(data, opts);
-        });
-        
-        this.socket.on('synclist.pop', function() {
-            this.push(opts);
-        });
-        
-        this.socket.on('synclist.shift', function() {
-            this.push(opts);
+            var opts = {
+                noSync: true
+            };
+            
+            self.socket.on('synclist.push', function(data) {
+                self.push(data, opts);
+            });
+            
+            self.socket.on('synclist.unshift', function(data) {
+                self.push(data, opts);
+            });
+            
+            self.socket.on('synclist.pop', function() {
+                self.push(opts);
+            });
+            
+            self.socket.on('synclist.shift', function() {
+                self.push(opts);
+            });
+            
+            self.socket.on('synclist.init', function(data) {
+                console.log('Got initial data:', data);
+                self.push(data, opts);
+            });
+
+            self.socket.emit('synclist.register', {
+                name: self.name
+            });
         });
     };
 
@@ -120,6 +131,10 @@
 
         var args = Array.prototype.slice.call(arguments);
         this.emitRemote('syncmodel.change', args);
+    };
+
+    SyncList.prototype.fetchList = function() {
+        this.emitRemote('synclist.fetch');
     };
 
     XQCore.SyncList = SyncList;

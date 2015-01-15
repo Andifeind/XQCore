@@ -1,6 +1,6 @@
 {
   "name": "xqcore",
-  "version": "0.10.0-2",
+  "version": "0.10.0-14",
   "description": "Model View Presenter Javascript Framework",
   "main": "build/xqcore.js",
   "dependencies": {},

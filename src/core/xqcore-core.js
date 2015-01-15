@@ -45,7 +45,8 @@ var XQCore;
 		objectIdPattern: /^[a-zA-Z0-9]{24}$/,
 		templateEngine: 'firetpl',
 		viewsDir: './views/',
-		viewExt: '.fire'
+		viewExt: '.fire',
+		socketPort: 9889
 	};
 
 	//XQCore helper functions

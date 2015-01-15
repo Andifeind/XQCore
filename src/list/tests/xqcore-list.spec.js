@@ -11,7 +11,7 @@ describe('XQCore List', function() {
         });
 
         it('Should be a function', function() {
-            expect(XQCore.List).to.be.a('function');    
+            expect(XQCore.List).to.be.a('function');
         });
 
         it('Should be an instance of XQCore.List', function() {

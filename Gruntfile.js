@@ -179,7 +179,6 @@ module.exports = function(grunt) {
         'jshint:files',
         'clean:build',
         'concat:build',
-        'concat:minimal',
         'uglify',
         'doc',
         'component-build',

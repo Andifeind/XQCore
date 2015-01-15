@@ -315,6 +315,12 @@
         return model;
     };
 
+    List.prototype.toArray = function() {
+        return this.items.map(function(model) {
+            return model.properties;
+        });
+    };
+
     /**
      * Create module
      */

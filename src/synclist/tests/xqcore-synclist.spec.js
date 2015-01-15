@@ -1,4 +1,4 @@
-describe.only('SyncList', function() {
+describe('SyncList', function() {
     'use strict';
     
     describe('instance', function() {
@@ -9,7 +9,7 @@ describe.only('SyncList', function() {
         });
 
         after(function() {
-             connectStub.restore();   
+             connectStub.restore();
         });
 
         it('Should be a SyncList prototype', function() {
@@ -42,7 +42,7 @@ describe.only('SyncList', function() {
         });
 
         afterEach(function() {
-             connectStub.restore();   
+             connectStub.restore();
         });
 
         it('Should connect to a socket server', function() {
@@ -82,8 +82,8 @@ describe.only('SyncList', function() {
         });
 
         afterEach(function() {
-             connectStub.restore();   
-             emitStub.restore();   
+             connectStub.restore();
+             emitStub.restore();
         });
 
         it('Should register a synclist on the socket server', function() {
@@ -130,8 +130,8 @@ describe.only('SyncList', function() {
         });
 
         afterEach(function() {
-             connectStub.restore();   
-             emitStub.restore();   
+             connectStub.restore();
+             emitStub.restore();
         });
 
         it('Should unregister a synclist on the socket server', function() {
@@ -176,7 +176,7 @@ describe.only('SyncList', function() {
         });
 
         afterEach(function() {
-             connectStub.restore();   
+             connectStub.restore();
         });
 
         it('Should send a socket call to the server', function() {

@@ -11,7 +11,20 @@
  *     server: 'http://socket.xqcore.com'
  * });
  *
+ * This call connects to a socket server
+ * http://socket.xqcore.com/xqsocket/mylist
+ *
+ * A <code>synclist.register</code> event will be fiered to the socket server
+ * These data will be send:
+ * <code class="json">
+ * {
+ *     name: this.name
+ * }
+ *
+ * Registers a few listeners:
+ * synclist.push, synclist.shift, synclist.pop, synclist.unshift
  * 
+ * </code>
  */
 (function(XQCore, undefined) {
     'use strict';

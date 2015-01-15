@@ -415,6 +415,7 @@
     Presenter.prototype.couple = function(conf) {
         var view = conf.view,
             model = conf.model,
+            list = conf.list,
             key;
 
         var modelEventConf = XQCore.extend({
@@ -428,6 +429,14 @@
             'state.change': 'stateChanged'
         }, conf.modelEvents);
 
+        var listEventConf = XQCore.extend({
+            'data.push': 'render',
+            'data.unshift': 'render',
+            'data.pop': 'render',
+            'data.shift': 'render',
+            'state.change': 'stateChanged'
+        }, conf.listEvents);
+
         var viewEventConf = XQCore.extend({
             'form.submit': 'sync'
         }, conf.viewEvents);
@@ -437,27 +446,54 @@
             return;
         }
 
-        if (!model instanceof XQCore.Model) {
+        if (model && !model instanceof XQCore.Model) {
             this.error('Can\'t couple model with model! Model isn\'t a XQCore.Model');
             return;
         }
 
-        this.log('Couple view ', view.name, 'with model', model.name);
+        if (list && !list instanceof XQCore.List) {
+            this.error('Can\'t couple list with list! List isn\'t a XQCore.List');
+            return;
+        }
+
+        if (model) {
+            this.log('Couple view ', view.name, 'with model', model.name);
+        }
+
+        if (list) {
+            this.log('Couple view ', view.name, 'with list', list.name);
+        }
 
         if (!view.__coupledWith) {
             view.__coupledWith = [];
         }
 
-        if (!model.__coupledWith) {
+        if (model && !model.__coupledWith) {
             model.__coupledWith = [];
         }
 
-        if (!view.__coupledWith.some(function(m) { return (m === model); })) {
-            view.__coupledWith.push(model);
+        if (list && !list.__coupledWith) {
+            list.__coupledWith = [];
         }
-        
-        if (!model.__coupledWith.some(function(v) { return (v === view); })) {
-            model.__coupledWith.push(view);
+
+        if (model) {
+            if (!view.__coupledWith.some(function(m) { return (m === model); })) {
+                view.__coupledWith.push(model);
+            }
+            
+            if (!model.__coupledWith.some(function(v) { return (v === view); })) {
+                model.__coupledWith.push(view);
+            }
+        }
+
+        if (list) {
+            if (!view.__coupledWith.some(function(m) { return (m === list); })) {
+                view.__coupledWith.push(list);
+            }
+            
+            if (!list.__coupledWith.some(function(v) { return (v === view); })) {
+                list.__coupledWith.push(view);
+            }
         }
 
         var registerModelListener = function(listener, func) {
@@ -472,6 +508,18 @@
             model.on(listener, fn);
         };
 
+        var registerListListener = function(listener, func) {
+            var fn = function() {
+                var args = Array.prototype.slice.call(arguments);
+                args.push(list.name, listener);
+                view[func].apply(view, args);
+            };
+
+            fn.fnType = 'coupled-list-listener';
+            fn.fnParent = view;
+            list.on(listener, fn);
+        };
+
         var registerViewListener = function(listener, func) {
             var fn = function(arg, arg2) {
                 model[func](arg, arg2, view.name);
@@ -482,9 +530,19 @@
             view.on(listener, fn);
         };
 
-        for (key in modelEventConf) {
-            if (modelEventConf.hasOwnProperty(key)) {
-                registerModelListener(key, modelEventConf[key]);
+        if (model) {
+            for (key in modelEventConf) {
+                if (modelEventConf.hasOwnProperty(key)) {
+                    registerModelListener(key, modelEventConf[key]);
+                }
+            }
+        }
+
+        if (list) {
+            for (key in listEventConf) {
+                if (listEventConf.hasOwnProperty(key)) {
+                    registerListListener(key, listEventConf[key]);
+                }
             }
         }
 
@@ -495,7 +553,13 @@
         }
 
         //Initial view render with current model data
-        view.render(model.properties);
+        if (model) {
+            view.render(model.properties);
+        }
+
+        if (list) {
+            view.render(list.toArray());
+        }
 
         if (conf.forms) {
             view.formSetup(model);

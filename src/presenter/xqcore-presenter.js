@@ -430,10 +430,10 @@
         }, conf.modelEvents);
 
         var listEventConf = XQCore.extend({
-            'item.push': 'render',
-            'item.unshift': 'render',
-            'item.pop': 'render',
-            'item.shift': 'render',
+            'item.push': 'xrender',
+            'item.unshift': 'xrender',
+            'item.pop': 'xrender',
+            'item.shift': 'xrender',
             'state.change': 'stateChanged'
         }, conf.listEvents);
 
@@ -510,9 +510,14 @@
 
         var registerListListener = function(listener, func) {
             var fn = function() {
-                var args = Array.prototype.slice.call(arguments);
-                args.push(list.name, listener);
-                view[func].apply(view, args);
+                if (func === 'xrender') {
+                    view.render(list.toArray());
+                }
+                else {
+                    var args = Array.prototype.slice.call(arguments);
+                    args.push(list.name, listener);
+                    view[func].apply(view, args);
+                }
             };
 
             fn.fnType = 'coupled-list-listener';

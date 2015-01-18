@@ -26,7 +26,12 @@ describe('SyncList', function() {
 
         it('Should connect to a socket server', function() {
             var syncList;
-            var connectToSocketStub = sinon.stub(XQCore.SyncList.prototype, 'connectToSocket');
+            var connectToSocketStub = sinon.stub(XQCore.SyncList.prototype, 'connectToSocket', function() {
+                this.socket = {
+                    on: sinon.stub(),
+                    emit: sinon.stub()
+                };
+            });
             
             syncList = new XQCore.SyncList();
             expect(connectToSocketStub).was.calledOnce();
@@ -87,8 +92,6 @@ describe('SyncList', function() {
         });
 
         it('Should register a synclist on the socket server', function() {
-            syncList.register();
-
             expect(emitStub).was.calledOnce();
             expect(emitStub).was.calledWith('synclist.register', {
                 name: 'testList'
@@ -108,11 +111,12 @@ describe('SyncList', function() {
             var onStub = sinon.stub(syncList.socket, 'on');
             syncList.register();
             
-            expect(onStub).was.callCount(4);
+            expect(onStub).was.callCount(5);
             expect(onStub).was.calledWith('synclist.push', sinon.match.func);
             expect(onStub).was.calledWith('synclist.unshift', sinon.match.func);
             expect(onStub).was.calledWith('synclist.pop', sinon.match.func);
             expect(onStub).was.calledWith('synclist.shift', sinon.match.func);
+            expect(onStub).was.calledWith('synclist.init', sinon.match.func);
 
             onStub.restore();
         });
@@ -126,7 +130,9 @@ describe('SyncList', function() {
         beforeEach(function() {
             connectStub = sinon.stub(XQCore.Socket.prototype, 'connect');
             emitStub = sinon.stub(XQCore.Socket.prototype, 'emit');
-            syncList = new XQCore.SyncList('test');
+            syncList = new XQCore.SyncList('test', {
+                noAutoRegister: true
+            });
         });
 
         afterEach(function() {

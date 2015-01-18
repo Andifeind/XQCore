@@ -237,7 +237,7 @@
 	};
 
 	/**
-	 * To be called  when a form was submited in a coupled model
+	 * To be called when a form was submited in a coupled model
 	 *
 	 * This method merges submited form data with model.
 	 * If validation doesen't fail, update or save methode have to be called.
@@ -248,7 +248,7 @@
 	 * @override
 	 * @param  {Any} data     data
 	 */
-	Sync.prototype.sync = function(data) {
+	Sync.prototype.submit = function(data) {
 		if (this.set(data, { extend: true })) {
 			if (data.id === undefined || data.id === null) {
 				this.save(data);

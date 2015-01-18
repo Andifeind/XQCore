@@ -34,6 +34,13 @@
          */
         this.debug = XQCore.debug;
 
+        /**
+         * Stores models properties
+         * @type {Object}
+         * @property properties
+         */
+        this.properties = {};
+
         if (conf === undefined) {
             conf = {};
         }
@@ -55,7 +62,6 @@
 
         this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
         this._isValid = false;
-        this.properties = {};
 
         //Add default values
         if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
@@ -642,7 +648,8 @@
         var data = XQCore.undotify(path, this.properties),
             order;
 
-        if (!data) {
+        if (!Array.isArray(data)) {
+            this.warn('Could not sort data of type', typeof data);
             return [];
         }
 

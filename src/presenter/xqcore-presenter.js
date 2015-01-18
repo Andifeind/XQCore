@@ -434,11 +434,11 @@
             'item.unshift': 'xrender',
             'item.pop': 'xrender',
             'item.shift': 'xrender',
-            'state.change': 'stateChanged'
+            'state.change': 'stateChange'
         }, conf.listEvents);
 
         var viewEventConf = XQCore.extend({
-            'form.submit': 'sync'
+            'form.submit': 'submit'
         }, conf.viewEvents);
 
         if (!view instanceof XQCore.View) {

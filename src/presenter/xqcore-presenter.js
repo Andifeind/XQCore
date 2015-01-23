@@ -426,7 +426,7 @@
             'data.insert': 'insert',
             'data.remove': 'remove',
             'validation.error': 'validationFailed',
-            'state.change': 'stateChanged'
+            'state.change': 'onStateChange'
         }, conf.modelEvents);
 
         var listEventConf = XQCore.extend({
@@ -434,7 +434,7 @@
             'item.unshift': 'xrender',
             'item.pop': 'xrender',
             'item.shift': 'xrender',
-            'state.change': 'stateChange'
+            'state.change': 'onStateChange'
         }, conf.listEvents);
 
         var viewEventConf = XQCore.extend({

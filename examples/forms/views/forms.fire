@@ -1,20 +1,23 @@
-div class="formExample"
-    h1 "XQCore forms example"
-    form
-        dl
-            dt "Title:"
-            dd
-                input type="text" size="40" name="title"
-        dl
-            dt "Type:"
-            dd
-                input type="text" size="40" name="type"
-        dl
-            dt "Description:"
-            dd
-                textarea name="description" cols="60" rows="10"
-        div class="formSubmit"
-            button type="reset"
-                "Reset"
-            button type="submit"
-                "Submit"
+h1 "XQCore forms example"
+div class="dc-alert-error"
+    "Some fields are invalid!"
+div class="dc-alert-success"
+    "Form has been submitted!"
+form
+    dl
+        dt "Title:"
+        dd
+            input type="text" size="40" name="title"
+    dl
+        dt "Type:"
+        dd
+            input type="text" size="40" name="type"
+    dl
+        dt "Description:"
+        dd
+            textarea name="description" cols="60" rows="10"
+    div class="formSubmit"
+        button type="reset"
+            "Reset"
+        button type="submit"
+            "Submit"

@@ -1,5 +1,5 @@
 /*global $:false, FireTPL:false */
-describe('XQCore View', function() {
+describe.only('XQCore View', function() {
     'use strict';
 
     beforeEach(function() {
@@ -21,7 +21,7 @@ describe('XQCore View', function() {
             expect(view.name).to.equal('TestView');
         });
 
-        it('Should get a presener name from conf object', function() {
+        it('Should get a view name from conf object', function() {
             var view = new XQCore.View({
                 name: 'Test'
             });
@@ -34,8 +34,12 @@ describe('XQCore View', function() {
             expect(view.name).to.equal('NamelessView');
         });
 
-        it('Should replace a view in it\'s container', function() {
-            
+        it('Should get a view name from conf object with init func', function() {
+            var view = new XQCore.View(function (self) {
+                self.name = 'Test';
+            });
+
+            expect(view.name).to.equal('TestView');
         });
     });
 
@@ -101,197 +105,252 @@ describe('XQCore View', function() {
         });
     });
 
-    describe.skip('parse', function() {
-        var view,
-            $el;
+    describe('ready', function() {
+        it('Should call functions if state is ready', function() {
+            var fn = sinon.stub();
+            var view = new XQCore.View('test');
 
-        before(function() {
-            view = new XQCore.View();
-            view.template = function(data,scopes) {
+            view.isReady = false;
+            view.ready(fn);
+            expect(fn).was.notCalled();
 
-            var h=new FireTPL.Runtime();
+            //Set ready state
+            view.__setReadyState();
+            expect(fn).was.calledOnce();
+            expect(view.__readyCallbacks).to.have.length(0);
+        });
 
-            scopes=scopes||{};
-                var root, parent;
-                root=data;
-                parent=data;
-                
-                scopes.scope002=function(data,parent){
-                        var s='';
-                        var c=data;
-                        var r=h.exec('if',c,parent,root,function(data){
-                                var s='';
-                                s+='<img data-src="'+data.image+'">';
-                                return s;
+        it('Should call functions immediately because state is ready', function() {
+            var fn = sinon.stub();
+            var view = new XQCore.View('test');
 
-                        });
-                        s+=r;
-                        return s;
-                                
-                };
-                scopes.scope001=function(data,parent){
-                        var s='';
-                        s+=h.exec('each',data,parent,root,function(data){
-                                var s='';
-                                s+='<li><span data-id="'+data.name+'" on="click:click">';
-                                s+=scopes.scope002(data.image,data);
-                                s+='<span class="name">'+data.name+'</span><span class="type">'+root.type+'</span></span></li>';
-                                return s;
+            view.isReady = false;
+            view.ready(fn);
+            expect(fn).was.notCalled();
 
-                        });
-                        return s;
+            //Set ready state
+            view.__setReadyState();
+            expect(fn).was.calledOnce();
+            expect(view.__readyCallbacks).to.have.length(0);
+        });
+    });
 
-                };
-                var s='';
-                //s+='<div><h1>'+data.title+'</h1><ul>';
-                s+='<div><h1><scope path="title"></scope></h1><ul>';
-                //s+=scopes.scope001(data.listing,data);
-                s+='<scope id="scope001" path="listing"></scope>';
-                s+='</ul></div>';
-
-            return s;
+    describe('__createViewElement', function() {
+        var view;
+        beforeEach(function() {
+            var View = function() {
 
             };
 
-            view.template = FireTPL.compile(
-                'div\n' +
-                '    h1 $title\n' +
-                '    div\n' +
-                '        :if $listing\n' +
-                '            ul\n' +
-                '                :each $listing\n' +
-                '                    li\n' +
-                '                        span data-id="$name" onClick="click"\n' +
-                '                            :if $image\n' +
-                '                                img data-src="$image"\n' +
-                '                        span class="name"\n' +
-                '                            $name\n' +
-                '                        span class="type"\n' +
-                '                            $parent.type\n', {
-                type: 'fire',
-                scopeTags: true
+            View.prototype = XQCore.View.prototype;
+            view = new View();
+        });
+
+        it('Should create a view element. Element type based on container element type', function() {
+            var tag = view.__createViewElement();
+
+            expect(tag).to.be.a(Element);
+            expect(tag).to.be.a(HTMLDivElement);
+        });
+
+        it('Should create a section element when parent is a body element', function() {
+            view.ct = { tagName: 'BODY' };
+            var tag = view.__createViewElement();
+
+            expect(tag).to.be.a(Element);
+            expect(tag.tagName).to.eql('SECTION');
+        });
+
+        it('Should create a tbody element when parent is a table element', function() {
+            view.ct = { tagName: 'TABLE' };
+            var tag = view.__createViewElement();
+
+            expect(tag).to.be.a(Element);
+            expect(tag.tagName).to.eql('TBODY');
+        });
+
+        it('Should create a li element when parent is a ul element', function() {
+            view.ct = { tagName: 'UL' };
+            var tag = view.__createViewElement();
+
+            expect(tag).to.be.a(Element);
+            expect(tag.tagName).to.eql('LI');
+        });
+
+        it('Should create a div element when parent tag type any other element', function() {
+            view.ct = { tagName: 'ANYOTHER' };
+            var tag = view.__createViewElement();
+
+            expect(tag).to.be.a(Element);
+            expect(tag.tagName).to.eql('DIV');
+        });
+
+        it('Should create a element based on the tag option', function() {
+            view.ct = { tagName: 'SECTION' };
+            view.tag = 'div';
+            var tag = view.__createViewElement();
+
+            expect(tag).to.be.a(Element);
+            expect(tag.tagName).to.eql('DIV');
+        });
+    });
+
+    describe('__createView', function() {
+        it('Should create a view', function(done) {
+            var view = new XQCore.View(function() {
+
+            });
+
+            view.ready(function() {
+                expect(view.ct).to.be.a(Element);
+                expect(view.el).to.be.a(Element);
+                expect(view.$ct).to.be.a($);
+                expect(view.$el).to.be.a($);
+                expect(view.el.parentNode).to.be(document.body);
+                done();
             });
         });
 
+        it('Should set predefined class names', function(done) {
+            var view = new XQCore.View('test', function(self) {
+                self.className = 'test1 test2';
+            });
 
-        afterEach(function() {
-            
+            view.ready(function() {
+                expect(view.el.className).to.eql('xq-view xq-test-view test1 test2');
+                done();
+            });
         });
 
-        it('Should replace all scope tags with a dom fragment', function() {
-            var data = {
-                title: 'Parser Test',
-                type: 'test',
-                listing: [{
-                    image: 'img3.png',
-                    name: 'Take three'
-                }, {
-                    image: 'img4.png',
-                    name: 'Take four'
-                }, {
-                    image: 'img5.png',
-                    name: 'Take five'
-                }]
-            };
+        it('Should set an id attribute', function(done) {
+            var view = new XQCore.View('test', function(self) {
+                self.id = 'test1';
+            });
 
-            var html = view.parse(view.template, data);
-            // console.log('HTML', html.get(0).outerHTML);
-            expect(html.get(0).outerHTML).to.eql(
-                '<div><h1>Parser Test</h1><div><ul><li><span data-id=\"Take three\" on=\"click:click\">' +
-                '<img data-src=\"img3.png\"></span><span class=\"name\">Take three</span>' +
-                '<span class=\"type\">test</span></li><li>' +
-                '<span data-id=\"Take four\" on=\"click:click\"><img data-src=\"img4.png\"></span>' +
-                '<span class=\"name\">Take four</span><span class=\"type\">test</span></li><li>' +
-                '<span data-id=\"Take five\" on=\"click:click\"><img data-src=\"img5.png\"></span>' +
-                '<span class=\"name\">Take five</span><span class=\"type\">test</span>' +
-                '</li></ul></div></div>');
-            $el = html;
-
-            expect(view.template.scopes).to.be.an('object');
-            expect(view.template.scopes.scope001).to.be.a('function');
-            expect(view.template.scopes.scope002).to.be.a('function');
-            
-            expect(view.template.scopeStore).to.be.an('object');
-            
-            expect(view.template.scopeStore.title).to.be.an('array');
-            // expect(view.template.scopeStore.title[0]).to.be.an('object');
-            // expect(view.template.scopeStore.title[0].value).to.be.an('object');
-            // expect(view.template.scopeStore.title[0].id).to.be.an('undefined');
-
-            // expect(view.template.scopeStore.listing).to.be.an('array');
-            // expect(view.template.scopeStore.listing[0]).to.be.an('object');
-            // expect(view.template.scopeStore.listing[0].value).to.be.an('object');
-            // expect(view.template.scopeStore.listing[0].id).to.eql('scope001');
-            
-            // expect(view.template).to.be.a('function');
+            view.ready(function() {
+                expect(view.el.id).to.eql('test1');
+                expect(view.el.getAttribute('id')).to.eql('test1');
+                done();
+            });
         });
 
-        it.skip('Should change the title property', function() {
-            //Change title over scopeStore
-            $($.parseHTML('Changed title!')).replaceAll(view.template.scopeStore.title[0].value);
-            expect($el.get(0).outerHTML).to.eql('<div><h1>Changed title!</h1><ul><li><span data-id=\"Take three\" on=\"click:click\"><img data-src=\"img3.png\"><span class=\"name\">Take three</span><span class=\"type\">test</span></span></li><li><span data-id=\"Take four\" on=\"click:click\"><img data-src=\"img4.png\"><span class=\"name\">Take four</span><span class=\"type\">test</span></span></li><li><span data-id=\"Take five\" on=\"click:click\"><img data-src=\"img5.png\"><span class=\"name\">Take five</span><span class=\"type\">test</span></span></li></ul></div>');
+        it('Should set the view hidden', function(done) {
+            var view = new XQCore.View('test', function(self) {
+                self.hidden = true;
+            });
+
+            view.ready(function() {
+                expect(view.el.className).to.contain('xq-hidden');
+                expect(view.el.style.display).to.eql('none');
+                done();
+            });
         });
     });
 
     describe('render', function() {
-        var view,
-            presenter,
-            renderSpy,
-            injectStub;
+        var container,
+            view;
 
         beforeEach(function() {
-            view = new XQCore.View();
-            presenter = new XQCore.Presenter();
+            container = document.createElement('div');
+            
+            view = new XQCore.View('test', function(self) {
+                self.container = container;
+                self.template = function(data) {
+                    return '<span>' + data.a + '</span>';
+                };
+            });
         });
 
-        it('Should render a view', function() {
-            var data = { a: 'AA' };
+        it('Should render a view', function(done) {
+             var data = { a: 'AA' };
 
-            renderSpy = sinon.spy(view, 'render');
-            injectStub = sinon.stub(view, 'inject');
-
-            view.init(presenter);
-            view.render(data);
-
-            expect(injectStub).was.called();
-            expect(renderSpy).was.called();
-            expect(renderSpy).was.calledWith(data);
-
-
-            renderSpy.restore();
-            injectStub.restore();
+             view.ready(function() {
+                view.render(data);
+                expect(view.ct.innerHTML).to.eql('<div class="xq-view xq-test-view"><span>AA</span></div>');
+                done();
+             });
         });
 
-        it('Should re-render a view', function() {
-            var data = { a: 'AA' };
+        it('Should re-render a view', function(done) {
+             var data = { a: 'AA' };
 
-            var container = document.createElement('div');
-            view.container = container;
-            view.template = 'div $a';
-            view.init(presenter);
-            view.render({});
+             view.ready(function() {
+                view.render(data);
+                expect(view.ct.innerHTML).to.eql('<div class="xq-view xq-test-view"><span>AA</span></div>');
+                view.render({ a: 'BB'});
+                expect(view.ct.innerHTML).to.eql('<div class="xq-view xq-test-view"><span>BB</span></div>');
+                done();
+             });
+        });
 
-            var ct = view.ct,
-                $ct = view.$ct,
-                el = view.el,
-                $el = view.$el;
+        it('Should emit a content.change event', function(done) {
+            var onChangeCb = sinon.stub();
 
-            expect(view.$ct.html()).to.eql('<div class="xq-view xq-view-namelessview">undefined</div>');
-            expect(view.$el.html()).to.eql('undefined');
+            view.on('content.change', onChangeCb);
 
-            view.render(data);
+            view.ready(function() {
+                view.render({ a: 'AA'});
+                expect(view.ct.innerHTML).to.eql('<div class="xq-view xq-test-view"><span>AA</span></div>');
+                expect(onChangeCb).was.calledOnce();
+                expect(onChangeCb).was.calledWith({ a: 'AA'});
+                done();
+            });
+        });
 
-            expect(view.$ct.html()).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$el.html()).to.eql('AA');
+        it('Should render a view without any data', function(done) {
+            var onChangeCb = sinon.stub();
+            view.on('content.change', onChangeCb);
 
-            expect(ct).to.equal(view.ct);
-            expect($ct).to.equal(view.$ct);
-            expect(el).not.to.equal(view.el);
-            expect($el).not.to.equal(view.$el);
+            view.ready(function() {
+                view.render(undefined);
+                expect(view.ct.innerHTML).to.eql('<div class="xq-view xq-test-view"><span>undefined</span></div>');
+                expect(onChangeCb).was.calledOnce();
+                expect(onChangeCb).was.calledWith(undefined);
+                done();
+            });
         });
     });
 
-    describe('parse using scopetags', function() {
+    describe('onStateChange', function() {
+        var container,
+            view;
+
+        beforeEach(function() {
+            container = document.createElement('div');
+            
+            view = new XQCore.View('test', function(self) {
+                self.container = container;
+                self.template = function(data) {
+                    return '<span>Test view</span>';
+                };
+
+            });
+        });
+
+        it('Should set the state of the coupled model or list as a view class', function(done) {
+            view.ready(function() {
+                view.render();
+                view.onStateChange('test1');
+                expect(view.el.className).to.contain('xq-state-test1');
+                done();
+            });
+        });
+
+        it('Should replace an old state with a new one', function(done) {
+            view.ready(function() {
+                view.render();
+                view.onStateChange('test1');
+                expect(view.el.className).to.contain('xq-state-test1');
+                view.onStateChange('test2');
+                expect(view.el.className).not.to.contain('xq-state-test1');
+                expect(view.el.className).to.contain('xq-state-test2');
+                done();
+            });
+        });
+    });
+
+    describe.skip('parse using scopetags', function() {
         var view,
             presenter,
             simpleTmpl,
@@ -419,7 +478,7 @@ describe('XQCore View', function() {
         });
     });
 
-    describe('render and inject', function() {
+    describe.skip('render and inject', function() {
         var presenter,
             view,
             view2,
@@ -1051,37 +1110,7 @@ describe('XQCore View', function() {
         });
     });
 
-    describe('ready', function() {
-        it('Should call functions if state is ready', function() {
-            var fn = sinon.stub();
-            var view = new XQCore.View('test');
-
-            view.isReady = false;
-            view.ready(fn);
-            expect(fn).was.notCalled();
-
-            //Set ready state
-            view.__setReadyState();
-            expect(fn).was.calledOnce();
-            expect(view.__setReadyState).to.have.length(0);
-        });
-
-        it('Should call functions immediately because state is ready', function() {
-            var fn = sinon.stub();
-            var view = new XQCore.View('test');
-
-            view.isReady = false;
-            view.ready(fn);
-            expect(fn).was.notCalled();
-
-            //Set ready state
-            view.__setReadyState();
-            expect(fn).was.calledOnce();
-            expect(view.__setReadyState).to.have.length(0);
-        });
-    });
-
-    describe('formSetup', function() {
+    describe.skip('formSetup', function() {
         var view,
             model;
 
@@ -1146,7 +1175,7 @@ describe('XQCore View', function() {
         });
     });
 
-    describe('onSubmit', function() {
+    describe.skip('onSubmit', function() {
         it('Should change form data on submiting a form', function() {
             var submitStub = sinon.stub();
             var $form = $($.parseHTML('<form on="submit"><input type="hidden" name="test" value="aa"></form>'));
@@ -1169,7 +1198,7 @@ describe('XQCore View', function() {
         });
     });
 
-    describe('destroy', function() {
+    describe.skip('destroy', function() {
         it('Should destroy a view', function() {
             var presenter = new XQCore.Presenter();
             var view = new XQCore.View();

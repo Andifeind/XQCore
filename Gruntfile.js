@@ -180,7 +180,7 @@ module.exports = function(grunt) {
         'clean:build',
         'concat:build',
         'uglify',
-        'doc',
+        //'doc',
         'component-build',
         'bumpup:prerelease'
     ]);

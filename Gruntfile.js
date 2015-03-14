@@ -116,16 +116,6 @@ module.exports = function(grunt) {
                 'webdocs/build/xqcore-minimal.min.js'
             ]
         },
-        doxit: {
-            dest: {
-                options: {
-                    beautifyCode: true
-                },
-                files: {
-                    'docs/': ['src/**/*.js']
-                }
-            }
-        },
         less: {
             dist: {
                 options: {
@@ -165,14 +155,12 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-available-tasks');
     grunt.loadNpmTasks('grunt-bumpup');
-    grunt.loadNpmTasks('grunt-doxit');
     // grunt.loadNpmTasks('grunt-simple-dox');
     grunt.loadNpmTasks('grunt-version');
 
     // grunt.loadNpmTasks('grunt-contrib-bump');
     
     grunt.registerTask('default', ['availabletasks']);
-    grunt.registerTask('doc', 'doxit');
     grunt.registerTask('test', 'xqcoretest');
     grunt.registerTask('build', [
         'less',
@@ -180,7 +168,6 @@ module.exports = function(grunt) {
         'clean:build',
         'concat:build',
         'uglify',
-        //'doc',
         'component-build',
         'bumpup:prerelease'
     ]);

@@ -7,7 +7,7 @@
 (function(XQCore, undefined) {
     'use strict';
 
-    var $ = XQCore.include('jquery');
+    var $ = XQCore.require('jquery');
 
     /**
      * XQCore.View
@@ -18,12 +18,13 @@
      * 
      * @param {object} conf View configuration
      */
-    var View = function(name, initFunc) {
-        var conf;
-
-        if (typeof arguments[0] === 'object') {
+    var View = function(name, conf) {
+        if (typeof arguments[0] === 'object' || typeof arguments[0] === 'function') {
             conf = name;
-            name = conf.name;
+            name = null;
+        }
+        else if (typeof arguments[0] === 'string') {
+            this.name = name;
         }
         
         /**
@@ -34,13 +35,6 @@
         this.debug = XQCore.debug;
 
         /**
-         * Set presenter name
-         * @public
-         * @type {String}
-         */
-        this.name = (name ? name.replace(/View$/, '') : 'Nameless') + 'View';
-
-        /**
          * Sets the container element
          * @property container
          * @type Selector
@@ -49,13 +43,42 @@
         this.container = 'body';
 
         /**
-         * Set the view element tag
+         * Set the view element tag. If no tag are set, a tag dependent from its parent type will be created
+         *
+         * Tag types dependent from parent:
+         * 
+         * | parent  | view tag |
+         * ----------------------
+         * | body    | section  |
+         * | section | section  |
+         * | ul      | li       |
+         * | table   | tbody    |
+         * | tbody   | tr       |
+         * | tr      | td       |
+         * | *       | div      |
+         * ----------------------
          *
          * @property tag
          * @type {String}
-         * @default 'div'
+         * @default '<parent dependent>'
          */
-        this.tag = 'div';
+        this.tag = undefined;
+
+        /**
+         * Defines css class name(s) of the view element
+         *
+         * @property {string}
+         * @default undefined
+         */
+        this.className = undefined;
+
+        /**
+         * Sets an id attribute
+         *
+         * @property {string}
+         * @default undefined
+         */
+        this.id = undefined;
 
         /**
          * Set the insert mode
@@ -76,14 +99,6 @@
         this.autoInject = true;
 
         /**
-         * Set initFunc
-         *
-         * @method initFunc
-         * @protected
-         */
-        this.initFunc = initFunc;
-
-        /**
          * Holds the domReady state
          *
          * @property __domReady
@@ -100,14 +115,23 @@
          */
         this.__viewEvents = [];
 
+        var self = this;
 
-        /* ++++++++++ old stuff +++++++++++++ */
+        if (typeof conf === 'function') {
+            conf.call(this, self);
+        }
+        else {
+            XQCore.extend(this, conf);
+        }
 
-        conf = conf || {
-            events: null
-        };
+        /**
+         * Set presenter name
+         * @public
+         * @type {String}
+         */
+        this.name = (this.name ? this.name.replace(/View$/, '') : 'Nameless') + 'View';
 
-        this.conf = conf;
+        this.__createView();
     };
 
     XQCore.extend(View.prototype, new XQCore.Event(), new XQCore.Logger());
@@ -123,20 +147,12 @@
         var self = this,
             conf = this.conf;
 
-
-        if (typeof this.initFunc === 'function') {
-            this.initFunc.call(this, self);
-        }
-
         if (typeof presenter !== 'object') {
             throw new Error('No presenter was set in view.init()');
         }
 
-        //Register view at presenter
-        this.presenter = presenter;
-
         $(function() {
-
+            self.presenter = presenter;
             if (self.container.length > 0) {
                 window.addEventListener('resize', function(e) {
                     self.resize(e);
@@ -145,90 +161,11 @@
                 self.log('Initialize view with conf:', conf);
                 self.log('  ... using Presenter:', self.presenter.name);
                 self.log('  ... using Container:', self.container);
-
-                //Deprecated code, July 13, 2014
-                //Send events to presenter
-                // if (this.events) {
-                //     console.warn('View.events is deprecated since XQCore 0.8.0');
-                //     Object.keys(this.events).forEach(function(key) {
-                //         var spacePos = key.indexOf(' '),
-                //             eventFunc = this.events[key],
-                //             eventName = key.substr(0, spacePos),
-                //             selector = key.substr(spacePos + 1) || this.container,
-                //             self = this,
-                //             eventDest;
-
-                //         if (typeof eventFunc === 'function') {
-                //             eventDest = this;
-                //         }
-                //         else if (eventFunc.indexOf('view:') === 0) {
-                //             eventFunc = this[eventFunc.substr(5)];
-                //             eventDest = this;
-                //         }
-                //         else if (typeof this.presenter.events[this.events[key]] === 'function') {
-                //             eventFunc = this.presenter.events[this.events[key]];
-                //             eventDest = this.presenter;
-                //         }
-                //         else {
-                //             var eventFuncStr = eventFunc;
-                //             eventFunc = function(e, tag, data) {
-                //                 this.triggerEvent(eventFuncStr, e, tag, data);
-                //             }.bind(this);
-                //             eventDest = this;
-                //         }
-
-                //         if (eventFunc && eventName) {
-
-                //             if (typeof eventFunc === 'function') {
-                //                 //Register event listener
-                //                 this.container.delegate(selector, eventName, function(e) {
-                //                     var formData = null,
-                //                         tagData = null;
-
-                //                     if (e.type === 'submit') {
-                //                         formData = XQCore.Util.serializeForm(e.currentTarget);
-                //                         formData = self.onSubmit(formData, e.currentTarget);
-                //                     }
-                //                     else if (e.type === 'keydown' || e.type === 'keyup' || e.type === 'keypress') {
-                //                         formData = $(e.currentTarget).val();
-                //                     }
-
-                //                     tagData = $.extend($(e.currentTarget).data(), {
-                //                         itemIndex: getItemIndex.call(self, e.currentTarget)
-                //                     });
-
-                //                     eventFunc.call(eventDest, e, tagData, formData);
-                //                 }.bind(this));
-                //                 this.log('Register Event:', eventName, 'on selector', selector, 'with callback', eventFunc);
-                //             }
-                //             else {
-                //                 this.warn('Event handler callback not defined in Presenter:', this.events[key]);
-                //             }
-                //         }
-                //         else {
-                //             this.warn('Incorect event configuration', key);
-                //         }
-                //     }, this);
-                // }
-
-                // custom init
-                if (typeof self.customInit === 'function') {
-                    self.customInit.call(self);
-                }
             }
             else {
                 self.error('Can\'t initialize View, Container not found!', self.container);
             }
-
-            //Set DOM ready state
-            self.__domReady = true;
-            if (self.__initialData) {
-                self.render(self.__initialData);
-                delete self.__initialData;
-            }
-            
         });
-
     };
 
     View.prototype.show = function() {
@@ -306,58 +243,6 @@
     };
 
     /**
-     * Triggers a view event to the presenter
-     *
-     * @method triggerEvent
-     * @deprecated July 13, 2014
-     *
-     * @param {String} eventName Event of the triggered event
-     * @param {Object} e EventObject
-     * @param {Object} tag Tag data
-     * @param {Object} data Event data
-     */
-    View.prototype.triggerEvent = function(eventName, e, tag, data) {
-        console.warn('View.triggerEvent is deprecated since XQCore 0.8.0');
-
-        // if (this.presenter.events[eventName]) {
-        //     this.presenter.events[eventName].call(this.presenter, e, tag, data);
-        // }
-        // else {
-        //     if (e) {
-        //         e.preventDefault();
-        //         e.stopPropagation();
-        //     }
-            
-        //     if (this.__coupledWith) {
-        //         this.__coupledWith.forEach(function(m) {
-        //             if (typeof m[eventName] === 'function') {
-        //                 this.log('Autotrigger to model:', eventName, data);
-        //                 m[eventName](data);
-        //             }
-        //             else {
-        //                 this.warn('Autotrigger to model failed! Function doesn\'t exists:', eventName, data);
-        //             }
-        //         }.bind(this));
-        //     }
-        // }
-    };
-
-    /**
-     * Navigate to a given route
-     *
-     * @method navigateTo
-     * @deprecated
-     *
-     * @param {String} route Route url
-     * @param {Object} data Data object
-     * @param {Boolean} replace Replace current history entry with route
-     */
-    View.prototype.navigateTo = function(route, data, replace) {
-        console.warn('View.navigateTo is deprecated since XQCore 0.8.0');
-        this.presenter.navigateTo(route, data, replace);
-    };
-
-    /**
      * If a validation failed (Automaticly called in a coupled view)
      *
      * @method validationFailed
@@ -372,16 +257,23 @@
     };
 
     /**
-     * Recive a state.change event from a coupled model
+     * To be called when a state.change event from a coupled model was revived
      *
      * @param {String} state Model state
+     * @override
      */
-    View.prototype.stateChanged = function(state) {
-        
+    View.prototype.onStateChange = function(state) {
+        var classNames = this.el.className.split(' ');
+        classNames = classNames.filter(function(cssClass) {
+            return !/^xq-state-/.test(cssClass);
+        });
+
+        classNames.push('xq-state-' + state);
+        this.el.className = classNames.join(' ');
     };
 
     /**
-     * Wait til view is ready
+     * Wait till view is ready
      *
      * @method ready
      * @param {Function} callback Callback
@@ -407,45 +299,9 @@
             this.__readyCallbacks.forEach(function(fn) {
                 fn.call(self);
             });
+            this.__readyCallbacks = [];
         }
     };
-
-    /**
-     * Gets the index of a subSelector item
-     * This function must binded to the view
-     *
-     * @param  {Object} el Start element.
-     *
-     * @return {Number}    index of the element or null
-     */
-    //Deprecated July 13, 2014
-    // var getItemIndex = function(el) {
-    //     var index = null,
-    //         container = $(this.container).get(0),
-    //         curEl = $(el),
-    //         nextEl = curEl.parent(),
-    //         subSelector = $(this.subSelector).get(0),
-    //         d = 0;
-
-    //     if (this.subSelector) {
-    //         do {
-    //             if (nextEl.get(0) === subSelector) {
-    //                 return $(curEl).index();
-    //             }
-    //             curEl = curEl.parent();
-    //             nextEl = curEl.parent();
-
-    //             if (++d > 100) {
-    //                 console.error('Break loop!');
-    //                 break;
-    //             }
-    //         } while(curEl.length && curEl.get(0) !== container);
-    //     }
-
-    //     return index;
-    // };
-
-    /* +---------- new since v0.7.0 ----------+ */
 
     /**
      * Inject element into the DOM
@@ -454,30 +310,12 @@
      * @method inject
      */
     View.prototype.inject = function() {
-        this.$ct = this.$ct || $(this.container);
-
-        if (this.$el.parent().get(0) === this.$ct.get(0)) {
+        if (this.el.parentNode === this.ct) {
             return;
         }
 
         this.log('Inject view into container', this.$ct);
 
-        this.el = this.$el.get(0);
-        this.$el.addClass('xq-view xq-view-' + this.name.toLowerCase());
-        this.ct = this.$ct.get(0);
-
-        if (this.hidden === true) {
-            this.$el.hide();
-        }
-
-        if (this.id) {
-            this.$el.attr('id', this.id);
-        }
-
-        if (this.className) {
-            this.$el.addClass(this.className);
-        }
-        
         if (this.mode === 'replace') {
             this.$ct.contents().detach();
             this.$ct.append(this.$el);
@@ -593,16 +431,9 @@
             return;
         }
 
-        var $newEl,
-            html,
-            isInitialRender = false;
+        var html;
 
-        //Initial render and injection
-        if (!this.$el) {
-            isInitialRender = true;
-        }
-
-        this.log('Render view template', this.template, 'with data:', data);
+        this.log('Render view template with data:', data);
 
         var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
         this.scopes = {};
@@ -615,27 +446,7 @@
             this.error('View render error!', err);
         }
 
-        html = $.parseHTML(html);
-        $newEl = $(html);
-
-
-        if (isInitialRender) {
-            this.$el = $newEl;
-            
-            if (this.autoInject) {
-                this.inject();
-            }
-            //Set ready state
-            this.__setReadyState();
-        }
-        else {
-            this.$el.replaceWith($newEl);
-            this.$el = $newEl;
-            this.el = $newEl.get(0);
-            this.$el.addClass('xq-view xq-view-' + this.name.toLowerCase());
-        }
-
-        this.registerListener(this.$el);
+        this.el.innerHTML = html;
         this.emit('content.change', data);
     };
 
@@ -658,6 +469,7 @@
                         e.preventDefault();
                         data = self.serializeForm(e.target);
                         data = self.onSubmit(data, e.target);
+                        self.emit(ev[1], data, e);
                         self.presenter.emit(ev[1], data, e);
                     };
                 }
@@ -665,6 +477,7 @@
                     listenerFunc = function(e) {
                         e.preventDefault();
                         var value = e.currentTarget.value || '';
+                        self.emit(ev[1], value, data, e);
                         self.presenter.emit(ev[1], value, data, e);
                     };
                 }
@@ -868,6 +681,94 @@
         if (this.$el) {
             this.$el.delegate(selector, events, callback);
         }
+    };
+
+
+    /**
+     * Defines a container -> view tag type mapping
+     * 
+     * @private true
+     * @type {Object}
+     */
+    View.prototype.__viewTagTypes = {
+        '*': 'div',
+        'body': 'section',
+        'section': 'section',
+        'ul': 'li',
+        'table': 'tbody',
+        'tbody': 'tr',
+        'tr': 'td'
+    };
+
+    /**
+     * Creates new view element, based on *tag* option
+     * 
+     * @private true
+     * @return {object} Returns a DOM element
+     */
+    View.prototype.__createViewElement = function() {
+        if (this.tag) {
+            return document.createElement(this.tag);
+        }
+
+        var parentTag = this.ct ? this.ct.tagName.toLowerCase() : '*',
+            viewTag = this.__viewTagTypes['*'];
+
+        if (this.__viewTagTypes[parentTag]) {
+            viewTag = this.__viewTagTypes[parentTag];
+        }
+
+        return document.createElement(viewTag);
+    };
+
+    /**
+     * Creates a view and registers event listeners as soon as DOM is ready.
+     *
+     * @private true
+     */
+    View.prototype.__createView = function() {
+        var self = this,
+            classNames = [];
+
+        $(function() {
+            //Create view element
+            self.$ct = self.$ct || $(self.container);
+            self.ct = self.$ct.get(0);
+            
+            self.el = self.__createViewElement();
+            self.$el = $(self.el);
+            classNames.push('xq-view xq-' + self.name.replace(/View$/, '-view').toLowerCase());
+
+            if (self.id) {
+                self.el.setAttribute('id', self.id);
+            }
+
+            if (self.className) {
+                classNames.push(self.className);
+            }
+            
+            if (self.hidden === true) {
+                classNames.push('xq-hidden');
+                self.$el.hide();
+            }
+
+            self.el.className = classNames.join(' ');
+
+            //Set DOM ready state
+            self.__domReady = true;
+            if (self.__initialData) {
+                self.render(self.__initialData);
+                delete self.__initialData;
+            }
+
+            if (self.autoInject) {
+                self.inject();
+            }
+
+            //Set ready state
+            self.__setReadyState();
+            self.registerListener(self.$el);
+        });
     };
 
     XQCore.View = View;

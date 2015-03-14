@@ -1,5 +1,3 @@
-/*global SockJS:false */
-
 /**
  * XQCore.Socket module
  * @module XQCore.Socket
@@ -8,6 +6,8 @@
  */
 (function(XQCore, undefined) {
 	'use strict';
+
+	var SockJS = XQCore.require('sockjs');
 
 	var Socket = function() {
 		this.__isReady = false;

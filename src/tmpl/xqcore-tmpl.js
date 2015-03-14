@@ -27,7 +27,7 @@
 					throw new Error('FireTPL runtime is being used. Please preload the ' + viewName + 'View');
 				}
 				else {
-					var tmpl = FireTPL.loadFile(XQCore.viewsDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
+					var tmpl = FireTPL.readFile(XQCore.viewsDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
 					return FireTPL.compile(tmpl);
 				}
 			}

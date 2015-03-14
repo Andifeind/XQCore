@@ -30,7 +30,13 @@
     'use strict';
     var SyncList;
 
+    
     SyncList = function(name, conf) {
+        /**
+         * @property {Boolean} noAutoRegister Disables auto registration. SyncList.register() must be called manually to register the list at the socket server.
+         */
+        this.noAutoRegister = false;
+
         //Call XQCore.List constructor
         XQCore.List.call(this, name, conf);
 
@@ -39,7 +45,9 @@
         this.path = this.path || 'xqsocket/' + this.name.toLowerCase();
         this.syncEnabled = false;
         this.connectToSocket();
-        this.registerListener();
+        if (!this.noAutoRegister) {
+            this.register();
+        }
     };
 
     SyncList.prototype = Object.create(XQCore.List.prototype);
@@ -59,47 +67,45 @@
     };
 
     /**
-     * Register a sync list at the socket server
+     * Register a sync list at the socket server. This action is called automatically except the noAutoRegister option is set.
      * @param  {Boolean} enableSync Enables/Disables the initial sync. Defaults to false
      */
-    SyncList.prototype.registerListener = function(enableSync) {
+    SyncList.prototype.register = function(enableSync) {
         var self = this;
         if (typeof enableSync === 'boolean') {
             this.syncEnabled = enableSync;
         }
 
-        this.socket.ready(function() {
-            console.log('Register synclist listener');
-            self.dev('Register synclist at server:', self.name);
+        console.log('Register synclist listener');
+        self.dev('Register synclist at server:', self.name);
 
-            var opts = {
-                noSync: true
-            };
-            
-            self.socket.on('synclist.push', function(data) {
-                self.push(data, opts);
-            });
-            
-            self.socket.on('synclist.unshift', function(data) {
-                self.push(data, opts);
-            });
-            
-            self.socket.on('synclist.pop', function() {
-                self.push(opts);
-            });
-            
-            self.socket.on('synclist.shift', function() {
-                self.push(opts);
-            });
-            
-            self.socket.on('synclist.init', function(data) {
-                console.log('Got initial data:', data);
-                self.push(data, opts);
-            });
+        var opts = {
+            noSync: true
+        };
+        
+        self.socket.on('synclist.push', function(data) {
+            self.push(data, opts);
+        });
+        
+        self.socket.on('synclist.unshift', function(data) {
+            self.push(data, opts);
+        });
+        
+        self.socket.on('synclist.pop', function() {
+            self.push(opts);
+        });
+        
+        self.socket.on('synclist.shift', function() {
+            self.push(opts);
+        });
+        
+        self.socket.on('synclist.init', function(data) {
+            console.log('Got initial data:', data);
+            self.push(data, opts);
+        });
 
-            self.socket.emit('synclist.register', {
-                name: self.name
-            });
+        self.socket.emit('synclist.register', {
+            name: self.name
         });
     };
 

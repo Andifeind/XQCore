@@ -6,7 +6,7 @@
 (function(XQCore, undefined) {
     'use strict';
 
-    var $ = XQCore.include('jquery');
+    var $ = XQCore.require('jquery');
 
     /**
      * XQCore.Presenter base class
@@ -426,7 +426,7 @@
             'data.insert': 'insert',
             'data.remove': 'remove',
             'validation.error': 'validationFailed',
-            'state.change': 'stateChanged'
+            'state.change': 'onStateChange'
         }, conf.modelEvents);
 
         var listEventConf = XQCore.extend({
@@ -434,11 +434,11 @@
             'item.unshift': 'xrender',
             'item.pop': 'xrender',
             'item.shift': 'xrender',
-            'state.change': 'stateChanged'
+            'state.change': 'onStateChange'
         }, conf.listEvents);
 
         var viewEventConf = XQCore.extend({
-            'form.submit': 'sync'
+            'form.submit': 'submit'
         }, conf.viewEvents);
 
         if (!view instanceof XQCore.View) {

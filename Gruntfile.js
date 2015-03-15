@@ -57,11 +57,6 @@ module.exports = function(grunt) {
                 files: {
                     'build/xqcore.min.js': ['build/xqcore.js']
                 }
-            },
-            minimal: {
-                files: {
-                    'build/xqcore-minimal.min.js': ['build/xqcore-minimal.js']
-                }
             }
         },
         copy: {

@@ -92,8 +92,8 @@ var XQCore;
             win: 'fireTpl',
         },
         sockjs: {
-            cjs: 'sockjs',
-            amd: 'sockjs',
+            cjs: 'xqcore/lib/sockjs.js',
+            amd: 'xqcore/lib/sockjs.js',
             win: 'SockJS',
         }
     };
@@ -105,7 +105,7 @@ var XQCore;
      * @return {Any}            Returns the module
      */
     XQCore.require = function(moduleName) {
-        var loadMechanism = 'window';
+        var loadMechanism = 'win';
         if (typeof module !== 'undefined' && module.exports && typeof require === 'function') {
             loadMechanism = 'cjs';
         }
@@ -114,8 +114,10 @@ var XQCore;
         }
 
         if (XQCore.modules[moduleName][loadMechanism]) {
-            loadMechanism = XQCore.modules[moduleName][loadMechanism];
+            moduleName = XQCore.modules[moduleName][loadMechanism];
         }
+
+        console.log('Load', loadMechanism, moduleName);
 
         try {
             if (loadMechanism === 'cjs' || loadMechanism === 'amd') {
@@ -127,10 +129,6 @@ var XQCore;
                 }
             }
             
-            if (XQCore.modules[moduleName].win) {
-                return window[XQCore.modules[moduleName].win];
-            }
-
             return window[moduleName];
         }
         catch(err) {

@@ -1,5 +1,9 @@
 describe('XQCore.Socket', function() {
 	'use strict';
+
+	var libs = {
+		SockJS: XQCore.require('sockjs')
+	};
 	
 	beforeEach(function() {
 
@@ -26,7 +30,7 @@ describe('XQCore.Socket', function() {
 
 		beforeEach(function() {
 			socket = new XQCore.Socket();
-			SockJSStub = sinon.stub(window, 'SockJS');
+			SockJSStub = sinon.stub(libs, 'SockJS');
 		});
 
 		afterEach(function() {

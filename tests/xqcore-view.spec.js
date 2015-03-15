@@ -1,5 +1,5 @@
 /*global $:false, FireTPL:false */
-describe.only('XQCore View', function() {
+describe('XQCore View', function() {
     'use strict';
 
     beforeEach(function() {

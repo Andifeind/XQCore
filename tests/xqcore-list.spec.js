@@ -773,6 +773,157 @@ describe('XQCore List', function() {
         });
     });
 
+    describe('findOne', function() {
+        var list, model1, model2, model3;
+
+        beforeEach(function() {
+            list = new XQCore.List();
+            model1 = new XQCore.Model();
+            model1.set({
+                a: 'AA',
+                b: 'BB'
+            });
+
+            model2 = new XQCore.Model();
+            model2.set({
+                a: 'CC',
+                b: 'DD'
+            });
+
+            model3 = new XQCore.Model();
+            model3.set({
+                a: 'EE',
+                b: 'FF'
+            });
+
+            list.push([model1, model2, model3]);
+        });
+
+        it('Should search for an item', function() {
+            var res = list.findOne({
+                a: 'CC'
+            });
+
+            expect(res).to.eql(model2);
+        });
+
+        it('Shouldn\'t search any item', function() {
+            var res = list.findOne({
+                a: 'GG'
+            });
+
+            expect(res).to.eql(null);
+        });
+    });
+
+    describe('find', function() {
+        var list, model1, model2, model3;
+
+        beforeEach(function() {
+            list = new XQCore.List();
+            model1 = new XQCore.Model();
+            model1.set({
+                a: 'AA',
+                b: 'BB',
+                c: 'XX'
+            });
+
+            model2 = new XQCore.Model();
+            model2.set({
+                a: 'CC',
+                b: 'DD',
+                c: 'YY'
+            });
+
+            model3 = new XQCore.Model();
+            model3.set({
+                a: 'EE',
+                b: 'FF',
+                c: 'XX'
+            });
+
+            list.push([model1, model2, model3]);
+        });
+
+        it('Should search for items', function() {
+            var res = list.find({
+                c: 'XX'
+            });
+
+            expect(res).to.eql([model1, model3]);
+        });
+
+        it('Shouldn\'t search any items', function() {
+            var res = list.find({
+                c: 'WW'
+            });
+
+            expect(res).to.eql([]);
+        });
+    });
+
+    describe('update', function() {
+        var list, model1, model2, model3;
+
+        beforeEach(function() {
+            list = new XQCore.List();
+            model1 = new XQCore.Model();
+            model1.set({
+                id: 1,
+                a: 'AA',
+                b: 'BB'
+            });
+
+            model2 = new XQCore.Model();
+            model2.set({
+                id: 2,
+                a: 'CC',
+                b: 'DD'
+            });
+
+            model3 = new XQCore.Model();
+            model3.set({
+                id: 3,
+                a: 'EE',
+                b: 'FF'
+            });
+
+            list.push([model1, model2, model3]);
+        });
+
+        it('Should update an existing item', function() {
+            list.update({
+                id: 1
+            }, {
+                id: 2,
+                a: 'GG',
+                b: 'HH'
+            });
+
+            expect(model2.properties).to.eql({
+                id: 2,
+                a: 'GG',
+                b: 'HH'
+            });
+        });
+
+        it('Should update an not existing item', function() {
+            list.update({
+                id: 1
+            }, {
+                id: 4,
+                a: 'GG',
+                b: 'HH'
+            });
+
+            expect(list.items[3].properties).to.eql({
+                id: 4,
+                a: 'GG',
+                b: 'HH'
+            });
+        });
+    });
+
     describe('filter', function() {
         it.skip('Should filter items and reduce the list', function() {
 
@@ -787,12 +938,6 @@ describe('XQCore List', function() {
 
     describe('each', function() {
         it.skip('Should execute a callback on each item of the list', function() {
-
-        });
-    });
-
-    describe('one', function() {
-        it.skip('Should tests wheter one item in the list pass the test', function() {
 
         });
     });
@@ -838,5 +983,4 @@ describe('XQCore List', function() {
 
         });
     });
-
 });

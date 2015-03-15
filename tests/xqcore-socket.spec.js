@@ -1,17 +1,5 @@
-describe('XQCore.Socket', function() {
+describe.only('XQCore.Socket', function() {
 	'use strict';
-
-	var libs = {
-		SockJS: XQCore.require('sockjs')
-	};
-	
-	beforeEach(function() {
-
-	});
-
-	afterEach(function() {
-
-	});
 
 	describe('constructor', function() {
 		it('Should be a XQCore.Socket object', function() {
@@ -24,17 +12,12 @@ describe('XQCore.Socket', function() {
 		});
 	});
 
-	describe('connect', function() {
+	describe.skip('connect', function() {
 		var socket,
 			SockJSStub;
 
 		beforeEach(function() {
 			socket = new XQCore.Socket();
-			SockJSStub = sinon.stub(libs, 'SockJS');
-		});
-
-		afterEach(function() {
-			SockJSStub.restore();
 		});
 
 		it('Should connect to a socket server', function() {
@@ -83,22 +66,15 @@ describe('XQCore.Socket', function() {
 	});
 
 	describe('emit', function() {
-		var socket,
-			SockJSStub;
+		var socket;
 
 		beforeEach(function() {
 			socket = new XQCore.Socket();
-			SockJSStub = sinon.stub(window, 'SockJS');
 
 			socket.connect();
-			socket.sockJS.send = sinon.stub();
 
 			//Make socket ready
 			socket.sockJS.onopen();
-		});
-
-		afterEach(function() {
-			SockJSStub.restore();
 		});
 
 		it('Should emit a message to the socket server', function() {
@@ -106,7 +82,16 @@ describe('XQCore.Socket', function() {
 			expect(socket.sockJS.send).was.calledOnce();
 			expect(socket.sockJS.send).was.calledWith(JSON.stringify({
 				eventName: 'test',
-				data: {a:'test'}
+				args: [{a:'test'}]
+			}));
+		});
+
+		it('Should emit a message to the socket server with to args', function() {
+			socket.emit('test', {a:'test'}, {b:'test'});
+			expect(socket.sockJS.send).was.calledOnce();
+			expect(socket.sockJS.send).was.calledWith(JSON.stringify({
+				eventName: 'test',
+				args: [{a:'test'},{b:'test'}]
 			}));
 		});
 	});
@@ -138,12 +123,28 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test'}
+					args: [{a:'test'}]
 				})
 			});
 
 			expect(onStub).was.calledOnce();
 			expect(onStub).was.calledWith({a: 'test'});
+		});
+
+		it('Should listen for an incoming socket message with two args', function() {
+			var onStub = sinon.stub();
+			socket.on('test', onStub);
+
+			//Emit a incoming socket message
+			socket.sockJS.onmessage({
+				data: JSON.stringify({
+					eventName: 'test',
+					args: [{a:'test'},{b:'test'}]
+				})
+			});
+
+			expect(onStub).was.calledOnce();
+			expect(onStub).was.calledWith({a: 'test'},{b: 'test'});
 		});
 
 		it('Should listen for multiple socket messages', function() {
@@ -154,14 +155,14 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test'}
+					args: [{a:'test'}]
 				})
 			});
 
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test2'}
+					args: [{a:'test2'}]
 				})
 			});
 
@@ -181,14 +182,14 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test'}
+					args: [{a:'test'}]
 				})
 			});
 
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test2',
-					data: {a:'test2'}
+					args: [{a:'test2'}]
 				})
 			});
 
@@ -226,7 +227,7 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test'}
+					args: [{a:'test'}]
 				})
 			});
 
@@ -242,14 +243,14 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test'}
+					args: [{a:'test'}]
 				})
 			});
 
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test2'}
+					args: [{a:'test2'}]
 				})
 			});
 
@@ -268,14 +269,14 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test'}
+					args: [{a:'test'}]
 				})
 			});
 
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test2',
-					data: {a:'test2'}
+					args: [{a:'test2'}]
 				})
 			});
 
@@ -314,7 +315,7 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test'}
+					args: [{a:'test'}]
 				})
 			});
 
@@ -329,7 +330,7 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test'}
+					args: [{a:'test'}]
 				})
 			});
 
@@ -338,7 +339,7 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test2'}
+					args: [{a:'test2'}]
 				})
 			});
 
@@ -358,14 +359,14 @@ describe('XQCore.Socket', function() {
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test',
-					data: {a:'test'}
+					args: [{a:'test'}]
 				})
 			});
 
 			socket.sockJS.onmessage({
 				data: JSON.stringify({
 					eventName: 'test2',
-					data: {a:'test2'}
+					args: [{a:'test2'}]
 				})
 			});
 

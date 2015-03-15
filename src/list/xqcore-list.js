@@ -315,10 +315,175 @@
         return model;
     };
 
+    /**
+     * Updates a list item or pushs it to the end
+     * You can pass a XQCore.Model or a plain data object.
+     * A data object will be converted into a XQCore.Model.
+     * The model must be valid to be added to the list.
+     * 
+     * @param {Object|Array} data Model instance or a plain data object. Add multiple models by using an array of items
+     * @param {Object} options Options object
+     * {
+     *     silent: true,    //Disable event emitting
+     *     noSync: true     //Don't call sync method
+     * }
+     *
+     * @fires item.update
+     * Fires an item.update event if item was succesfully updated. Othwewise fires an item.push event
+     *
+     * @returns {Boolean} Returns true if validation was succesfully and all items were added
+     */
+    List.prototype.update = function(select, data, options) {
+        var models = [],
+            model,
+            item,
+            self = this;
+
+        options = options || {};
+
+        if (!Array.isArray(data)) {
+            data = [data];
+        }
+
+        for (var i = 0, len = data.length; i < len; i++) {
+            item = data[i];
+        
+            if (item instanceof XQCore.Model) {
+                model = item;
+            }
+            else {
+                model = new this.model('ListItem');
+                model.set(item);
+            }
+
+            if (model.isValid()) {
+                models.push(model);
+            }
+            else {
+                return false;
+            }
+        }
+
+        //No validation error has been ocured.
+        var keys = Object.keys(select);
+
+        console.log('KEYS', keys);
+
+        models.forEach(function(newItem) {
+            newItem = newItem.properties;
+            console.log('NEW', newItem);
+            var query = {};
+            keys.forEach(function(key) {
+                query[key] = newItem[key];
+            });
+
+            console.log('QUERY', query);
+            var res = self.findOne(query);
+            if (res) {
+                res.set(newItem);
+             
+                if (!options.silent) {
+                    self.emit('item.update', select, newItem);
+                }
+
+                if (!options.noSync) {
+                    if (typeof self.sync === 'function') {
+                        self.sync('update', select, newItem);
+                    }
+                }
+            }
+            else {
+                self.push(newItem);
+            }
+        });
+
+        return true;
+    };
+
     List.prototype.toArray = function() {
         return this.items.map(function(model) {
             return model.properties;
         });
+    };
+
+    /**
+     * Search through list items and returns the first matching item
+     *
+     * @method findOne
+     * @param {Object} searchfor Searching for object
+     * @return {Object} Returns the first matched item or null. The returning item is a XQCore.Model object
+     */
+    List.prototype.findOne = function(query) {
+        var parent;
+
+        parent = this.items;
+        
+        if (parent) {
+            for (var i = 0; i < parent.length; i++) {
+                var prop = parent[i],
+                    matching;
+
+                for (var p in query) {
+                    if (query.hasOwnProperty(p)) {
+                        if (prop.properties[p] && prop.properties[p] === query[p]) {
+                            matching = true;
+                            break;
+                        }
+                        else {
+                            matching = false;
+                        }
+                    }
+                }
+
+                if (matching === true) {
+                    return prop;
+                }
+
+            }
+        }
+
+        return null;
+    };
+
+    /**
+     * Search through list items and returns all matching items
+     *
+     * @method find
+     * @param {Object} searchfor Searching for object
+     * @return {Object} Returns all matched item or an empty array.
+     * The returning value is an array of XQCore.Model objects
+     */
+    List.prototype.find = function(query) {
+        var parent,
+            res = [];
+
+        parent = this.items;
+        
+        if (parent) {
+            for (var i = 0; i < parent.length; i++) {
+                var prop = parent[i],
+                    matching;
+
+                for (var p in query) {
+                    if (query.hasOwnProperty(p)) {
+                        if (prop.properties[p] && prop.properties[p] === query[p]) {
+                            matching = true;
+                            break;
+                        }
+                        else {
+                            matching = false;
+                        }
+                    }
+                }
+
+                if (matching === true) {
+                    res.push(prop);
+                }
+
+            }
+        }
+
+        return res;
     };
 
     /**

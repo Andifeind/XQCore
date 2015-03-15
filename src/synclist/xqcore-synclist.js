@@ -99,6 +99,10 @@
             self.push(opts);
         });
         
+        self.socket.on('synclist.update', function(query, data) {
+            self.update(query, data, opts);
+        });
+        
         self.socket.on('synclist.init', function(data) {
             console.log('Got initial data:', data);
             self.push(data, opts);
@@ -119,6 +123,7 @@
         this.socket.off('synclist.unshift');
         this.socket.off('synclist.pop');
         this.socket.off('synclist.shift');
+        this.socket.off('synclist.update');
     };
 
     /**

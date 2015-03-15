@@ -54,6 +54,11 @@ var XQCore;
     XQCore.isEmptyObject = jQuery.isEmptyObject;
     XQCore.isPlainObject = jQuery.isPlainObject;
     XQCore.isFunction = jQuery.isFunction;
+
+    /**
+     * Module storage
+     */
+    XQCore.__moduleCache = {};
     
     /**
      * Checks for a valid ObjectId
@@ -64,16 +69,6 @@ var XQCore;
      */
     XQCore.isObjectId = function(value) {
         return this.objectIdPattern.test(value);
-    };
-
-    XQCore._dump = {};
-    XQCore.dump = function(componentName) {
-        if (XQCore._dump[componentName]) {
-            console.log('[XQCore dump]', componentName, XQCore._dump[componentName]);
-            return XQCore._dump[componentName];
-        }
-
-        return false;
     };
 
     /**
@@ -105,6 +100,10 @@ var XQCore;
      * @return {Any}            Returns the module
      */
     XQCore.require = function(moduleName) {
+        if (XQCore.__moduleCache[moduleName]) {
+            return XQCore.__moduleCache[moduleName];
+        }
+
         var loadMechanism = 'win';
         if (typeof module !== 'undefined' && module.exports && typeof require === 'function') {
             loadMechanism = 'cjs';

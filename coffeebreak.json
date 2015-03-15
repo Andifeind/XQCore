@@ -19,7 +19,9 @@
         "src/utils/xqcore-utils.js",
         "src/view/xqcore-view.js",
         "src/list/xqcore-list.js",
-        "src/synclist/xqcore-synclist.js"
+        "src/synclist/xqcore-synclist.js",
+
+        "tests/test-setup.js"
     ],
 	"watch": "src/**/*.js",
 	"tests": "tests/**/*.spec.js"

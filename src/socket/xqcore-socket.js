@@ -30,8 +30,8 @@
 		var self = this;
 
 
-		this.sockJS = new SockJS(url, null, options);
 		console.log('Connect to socket server ', url, 'using options:', options);
+		this.sockJS = new SockJS(url, null, options);
 
 		this.sockJS.onopen = function() {
 			console.log('Connection was successfull!');

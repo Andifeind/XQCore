@@ -52,8 +52,11 @@
 				console.error('Could\'t parse socket message!', e.data);
 			}
 
-			console.log('Got message', msg.eventName, msg.data);
-			self.__eventEmitter.emit(msg.eventName, msg.data);
+			console.log('Got message', msg.eventName, 'with args:', msg.args);
+			console.log('RAW', e);
+			var args = msg.args || [];
+			args.unshift(msg.eventName);
+			self.__eventEmitter.emit.apply(self.__eventEmitter, args);
 		};
 
 		this.sockJS.onclose = function() {
@@ -69,11 +72,13 @@
 	Socket.prototype.emit = function(eventName, data) {
 		var self = this;
 
+		var args = Array.prototype.slice.call(arguments, 1);
+
 		this.ready(function() {
-			console.log('Send message ', eventName, data);
+			console.log('Send message ', eventName, args);
 			self.sockJS.send(JSON.stringify({
 				eventName: eventName,
-				data: data
+				args: args
 			}));
 		});
 	};

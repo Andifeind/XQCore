@@ -70,6 +70,7 @@ describe.only('XQCore.Socket', function() {
 
 		beforeEach(function() {
 			socket = new XQCore.Socket();
+			socket.setReady();
 
 			socket.connect();
 
@@ -97,22 +98,12 @@ describe.only('XQCore.Socket', function() {
 	});
 
 	describe('on', function() {
-		var socket,
-			SockJSStub;
+		var socket;
 
 		beforeEach(function() {
 			socket = new XQCore.Socket();
-			SockJSStub = sinon.stub(window, 'SockJS');
-
 			socket.connect();
-			socket.sockJS.send = sinon.stub();
-
-			//Make socket ready
-			socket.sockJS.onopen();
-		});
-
-		afterEach(function() {
-			SockJSStub.restore();
+			socket.setReady();
 		});
 
 		it('Should listen for an incoming socket message', function() {

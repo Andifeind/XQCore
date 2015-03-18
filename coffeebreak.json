@@ -6,6 +6,7 @@
     ],
     "files": [
         "src/core/xqcore-core.js",
+        "tests/test-setup.js",
         "src/cache/xqcore-cache.js",
         "src/event/xqcore-event.js",
         "src/logger/xqcore-logger.js",
@@ -19,9 +20,7 @@
         "src/utils/xqcore-utils.js",
         "src/view/xqcore-view.js",
         "src/list/xqcore-list.js",
-        "src/synclist/xqcore-synclist.js",
-
-        "tests/test-setup.js"
+        "src/synclist/xqcore-synclist.js"
     ],
 	"watch": "src/**/*.js",
 	"tests": "tests/**/*.spec.js"

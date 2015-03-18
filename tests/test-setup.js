@@ -1,12 +1,10 @@
 'use strict';
 
-console.log('MOCK! -------------------------');
 var methods = ['onopen', 'onmessage', 'onclose', 'send'];
 var SockJSMock = function() {
-    console.log('Init Mock');
     methods.forEach(function(fn) {
         this[fn] = sinon.stub();
-    });
+    }.bind(this));
 };
 
 methods.forEach(function(fn) {

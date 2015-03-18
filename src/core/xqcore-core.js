@@ -101,6 +101,7 @@ var XQCore;
      */
     XQCore.require = function(moduleName) {
         if (XQCore.__moduleCache[moduleName]) {
+            console.log('Load from module cache', moduleName, XQCore.__moduleCache[moduleName].prototype.send);
             return XQCore.__moduleCache[moduleName];
         }
 

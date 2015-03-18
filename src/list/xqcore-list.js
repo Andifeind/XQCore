@@ -58,13 +58,6 @@
             conf = {};
         }
 
-        if (typeof conf === 'function') {
-            conf.call(this, self);
-        }
-        else {
-            XQCore.extend(this, conf);
-        }
-
         this.__unfiltered = {};
 
         this.name = (name ? name.replace(/List$/, '') : 'Nameless') + 'List';
@@ -82,6 +75,13 @@
          */
         if (!this.model) {
             this.model = XQCore.Model;
+        }
+
+        if (typeof conf === 'function') {
+            conf.call(this, self);
+        }
+        else {
+            XQCore.extend(this, conf);
         }
         
         this.state('ready');
@@ -484,6 +484,20 @@
         }
 
         return res;
+    };
+
+    List.prototype.each = function(initial, fn) {
+        if (typeof initial === 'function') {
+            fn = initial;
+            initial = null;
+        }
+
+        var data = initial;
+        for (var i = 0, len = this.items.length; i < len; i++) {
+            data = fn(data, this.items[i].properties);
+        }
+
+        return data;
     };
 
     /**

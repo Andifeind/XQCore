@@ -924,6 +924,67 @@ describe('XQCore List', function() {
         });
     });
 
+    describe.only('each', function() {
+        var list, model1, model2, model3;
+
+        beforeEach(function() {
+            list = new XQCore.List();
+            model1 = new XQCore.Model();
+            model1.set({
+                id: 1,
+                a: 'AA',
+                b: 'BB'
+            });
+
+            model2 = new XQCore.Model();
+            model2.set({
+                id: 2,
+                a: 'CC',
+                b: 'DD'
+            });
+
+            model3 = new XQCore.Model();
+            model3.set({
+                id: 3,
+                a: 'EE',
+                b: 'FF'
+            });
+
+            list.push([model1, model2, model3]);
+        });
+
+        it('Should execute a callback on each item of the list', function() {
+            var counter = 0;
+            list.each(function() {
+                counter++;
+            });
+
+            expect(counter).to.eql(3);
+        });
+
+        it('Should execute a callback on each item of the list, using initial arg', function() {
+            var counter = 0;
+            var fn = function(data, item) {
+                counter++;
+                data.str += item.a;
+                return data;
+            };
+
+            var fnSpy = sinon.spy(fn);
+            var initial = {
+                str: ''
+            };
+            
+            var res = list.each(initial, fnSpy);
+
+            expect(counter).to.eql(3);
+
+            expect(res).to.eql({
+                str: 'AACCEE'
+            });
+        });
+    });
+
     describe('filter', function() {
         it.skip('Should filter items and reduce the list', function() {
 
@@ -932,12 +993,6 @@ describe('XQCore List', function() {
 
     describe('sort', function() {
         it.skip('Should sort all items of the lists', function() {
-
-        });
-    });
-
-    describe('each', function() {
-        it.skip('Should execute a callback on each item of the list', function() {
 
         });
     });

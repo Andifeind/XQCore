@@ -1,4 +1,4 @@
-describe.only('XQCore.Socket', function() {
+describe('XQCore.Socket', function() {
 	'use strict';
 
 	describe('constructor', function() {

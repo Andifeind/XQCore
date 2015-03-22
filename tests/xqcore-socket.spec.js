@@ -12,9 +12,8 @@ describe('XQCore.Socket', function() {
 		});
 	});
 
-	describe.skip('connect', function() {
-		var socket,
-			SockJSStub;
+	describe('connect', function() {
+		var socket;
 
 		beforeEach(function() {
 			socket = new XQCore.Socket();
@@ -25,8 +24,8 @@ describe('XQCore.Socket', function() {
 				opts = {a: 'aa'};
 
 			socket.connect(url, opts);
-			expect(SockJSStub).was.calledOnce();
-			expect(SockJSStub).was.calledWith(url, null, opts);
+			expect(socket.sockJS.__constructor).was.calledOnce();
+			expect(socket.sockJS.__constructor).was.calledWith(url, null, opts);
 		});
 
 		it('Should set ready state on connection was successful', function() {

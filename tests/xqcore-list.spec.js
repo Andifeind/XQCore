@@ -924,7 +924,7 @@ describe('XQCore List', function() {
         });
     });
 
-    describe.only('each', function() {
+    describe('each', function() {
         var list, model1, model2, model3;
 
         beforeEach(function() {

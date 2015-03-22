@@ -111,11 +111,12 @@ describe('SyncList', function() {
             var onStub = sinon.stub(syncList.socket, 'on');
             syncList.register();
             
-            expect(onStub).was.callCount(5);
+            expect(onStub).was.callCount(6);
             expect(onStub).was.calledWith('synclist.push', sinon.match.func);
             expect(onStub).was.calledWith('synclist.unshift', sinon.match.func);
             expect(onStub).was.calledWith('synclist.pop', sinon.match.func);
             expect(onStub).was.calledWith('synclist.shift', sinon.match.func);
+            expect(onStub).was.calledWith('synclist.update', sinon.match.func);
             expect(onStub).was.calledWith('synclist.init', sinon.match.func);
 
             onStub.restore();
@@ -162,11 +163,12 @@ describe('SyncList', function() {
             var offStub = sinon.stub(syncList.socket, 'off');
             syncList.unregister();
             
-            expect(offStub).was.callCount(4);
+            expect(offStub).was.callCount(5);
             expect(offStub).was.calledWith('synclist.push');
             expect(offStub).was.calledWith('synclist.unshift');
             expect(offStub).was.calledWith('synclist.pop');
             expect(offStub).was.calledWith('synclist.shift');
+            expect(offStub).was.calledWith('synclist.update');
 
             offStub.restore();
         });

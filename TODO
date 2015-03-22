@@ -35,8 +35,6 @@ Docu:
 		- Sync
 	- View
 	- Event
-	- Logger
-	- Socket
 	- SyncModel
 	- Template Engines
 	- Utils
@@ -92,9 +90,9 @@ o Document Modules
    o Document Model
    o Document View
    o Document Event
-   o Document Logger
+   ✔ Document Logger
    o Document Router
-   o Document Socket
+   ✔ Document Socket
    o Document Sync
    o Document Syncmodel
    o Document Tmpl
@@ -105,7 +103,7 @@ o Fix skiped tests
    ✔ Model tests
    o View tests
    o Event tests
-   o Logger tests
+   ✔ Logger tests
    o Router tests
    o Socket tests
    o Sync tests
@@ -118,7 +116,7 @@ o Increase code coverage
    ✔ Model coverage more than 80%
    o View coverage more than 80%
    o Event coverage more than 80%
-   o Logger coverage more than 80%
+   ✔ Logger coverage more than 80%
    o Router coverage more than 80%
    o Socket coverage more than 80%
    o Sync coverage more than 80%

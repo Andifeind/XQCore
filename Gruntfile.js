@@ -31,8 +31,8 @@ module.exports = function(grunt) {
             build: {
                 src: [
                     'src/core/xqcore-core.js',
+                    'src/xqcore-logger.js',
                     'src/event/xqcore-event.js',
-                    'src/logger/xqcore-logger.js',
                     'src/presenter/xqcore-presenter.js',
                     'src/sync/xqcore-sync.js',
                     'src/model/xqcore-model.js',
@@ -41,7 +41,7 @@ module.exports = function(grunt) {
                     'src/view/xqcore-view.js',
                     'src/utils/xqcore-utils.js',
                     'src/router/xqcore-router.js',
-                    'src/socket/xqcore-socket.js',
+                    'src/xqcore-socket.js',
                     'src/syncmodel/xqcore-syncmodel.js',
                     'src/list/xqcore-list.js',
                     'src/synclist/xqcore-synclist.js'

@@ -101,7 +101,6 @@ var XQCore;
      */
     XQCore.require = function(moduleName) {
         if (XQCore.__moduleCache[moduleName]) {
-            console.log('Load from module cache', moduleName, XQCore.__moduleCache[moduleName].prototype.send);
             return XQCore.__moduleCache[moduleName];
         }
 
@@ -116,8 +115,6 @@ var XQCore;
         if (XQCore.modules[moduleName][loadMechanism]) {
             moduleName = XQCore.modules[moduleName][loadMechanism];
         }
-
-        console.log('Load', loadMechanism, moduleName);
 
         try {
             if (loadMechanism === 'cjs' || loadMechanism === 'amd') {
@@ -148,6 +145,22 @@ var XQCore;
 
         return navigator.language;
     };
+
+    /**
+     * Defines a glovally log level
+     *
+     * XQCore has 5 log levels
+     *
+     * 0 = off
+     * 1 = error
+     * 2 = warning
+     * 3 = info
+     * 4 = debug
+     * 5 = trace
+     * 
+     * @property {String} logLevel
+     */
+    XQCore.logLevel = 1;
 
     return XQCore;
 }));

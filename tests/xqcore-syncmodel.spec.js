@@ -69,7 +69,7 @@ describe('XQCore.SyncModel', function() {
         });
     });
 
-    describe('connect', function() {
+    describe.skip('connect', function() {
         it('Should connect to a socket server', function() {
             var sockJSStub = sinon.stub(window, 'SockJS');
             

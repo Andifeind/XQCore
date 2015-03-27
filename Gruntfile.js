@@ -30,7 +30,7 @@ module.exports = function(grunt) {
             },
             build: {
                 src: [
-                    'src/core/xqcore-core.js',
+                    'src/xqcore-core.js',
                     'src/xqcore-logger.js',
                     'src/event/xqcore-event.js',
                     'src/presenter/xqcore-presenter.js',

@@ -37,20 +37,93 @@ var XQCore;
      * @type {Object}
      */
     XQCore = {
+        /**
+         * Contains the current XQCore version
+         * @property {String} version
+         */
         version: '<%= pkg.version %>',
+        
+        /**
+         * Defines a default route
+         * @property {String} defaultRoute
+         */
         defaultRoute: 'index',
+
+        /**
+         * Enables html5 routing support
+         * @property {Boolean} html5Routes
+         * @default false
+         */
         html5Routes: false,
+
+        /**
+         * Sets a hashbang for routing. This value is added to each route if html5Routes is set to false
+         * @property {String} hashBang
+         */
         hashBang: '#!',
+
+        //TODO Check whether we need this property
         callerEvent: 'callerEvent',
+
+        //TODO Do we need this?
         objectIdPattern: /^[a-zA-Z0-9]{24}$/,
+
+        /**
+         * Sets the default template engine
+         * @property {String} templateEngine
+         * @default firetpl
+         */
         templateEngine: 'firetpl',
+
+        /**
+         * Sets a views directory
+         * @property {String} viewsDir
+         */
         viewsDir: './views/',
+
+        /**
+         * Set the file extension for views
+         * @property {String} viewExt
+         */
         viewExt: '.fire',
+
+        /**
+         * Defines a default socket port
+         * @property {Number} socketPort
+         * @default 9889
+         */
         socketPort: 9889
     };
 
-    //XQCore helper functions
+    
+    /**
+     * Merges the properties from one or more objects together into a target object
+     * Its simply an alias for jQuery.extend. Use this method for frontend/backend shared modules.
+     * 
+     * @method extend
+     * @param {Boolean} [deep] If true, a deep merge is using
+     * @param {Object} target Target object. This object will be extended with new properties
+     * @param {Object} [object1] Object to merge
+     * @param {Object} [objectN] Object to merge
+     * @return {Object} Returns the merged target object
+     * @example {js}
+     * var target = {
+     *     a: 'A1',
+     *     b: 'B1'
+     * }
+     *
+     * var obj1 = {
+     *     b: 'B2',
+     *     c: 'C2'
+     * }
+     *
+     * extend(target, obj1);
+     * //Returns {a: 'A1', b: 'B2', c: 'C2'}
+     *  
+     */
     XQCore.extend = jQuery.extend;
+
+
     XQCore.isEmptyObject = jQuery.isEmptyObject;
     XQCore.isPlainObject = jQuery.isPlainObject;
     XQCore.isFunction = jQuery.isFunction;
@@ -133,10 +206,21 @@ var XQCore;
         }
     };
 
+    /**
+     * Set a local for the current session
+     * 
+     * @method setLocale
+     * @param  {String}  locale Local string
+     */
     XQCore.setLocale = function(locale) {
-        localStorage.setItem('xqcore.locale', 'locale');
+        localStorage.setItem('xqcore.locale', locale);
     };
 
+    /**
+     * Returns a local string
+     * @method getLocale
+     * @return {[type]}  [description]
+     */
     XQCore.getLocale = function() {
         var locale = localStorage.getItem('xqcore.locale');
         if (locale) {
@@ -162,6 +246,7 @@ var XQCore;
      */
     XQCore.logLevel = 1;
 
+    //--
     return XQCore;
 }));
 

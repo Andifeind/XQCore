@@ -5,7 +5,7 @@
         "lib/firetpl.js"
     ],
     "files": [
-        "src/core/xqcore-core.js",
+        "src/xqcore-core.js",
         "tests/test-setup.js",
         "src/xqcore-logger.js",
         "src/cache/xqcore-cache.js",

@@ -8,23 +8,10 @@ v0.8.0
 	- Event logging
 
 
-TODO v1.0.0
-
-- Remove .bind()
-
 Tests:
 	- Comparsion with other frameworks
 	- Green unit tests
 	- Tests for all components
-
-Examples:
-	- Project Setup
-	- Presenter
-	- Model
-	- View
-	- Routing
-	- Sync
-	- Forms
 
 Docu:
 	- Main
@@ -41,22 +28,12 @@ Docu:
 	- Config
 	- CLI
 
-Presenter
-	- DONE - Events
-	- DONE - Register routings
 Model
-	- DONE - More add/update functions
     - groupBy method ( Example: devopts browserListingModel )
     - mapReduce method
     - distinct method ( Make an array unique )
-View
-	- DONE - Form validation - (We use model validation)
 Routing
 	- PopStateEvent not supportet in old browsers (e.g <= Android 4)
-
-EventEmitter
-
-Async Lib
 
 XQArray ( Extended Array Object )
 
@@ -142,3 +119,19 @@ o Add tests to build progress
 
 o Publish on github
 o Publish XQNode on github
+
+
+User Guide
+----------
+
+o Including
+o Core features
+o Logging
+o Components (Presenter, Lists, Models and Views)
+o Using routes
+o Our first presenter
+o Say Hello, using views (FireTPL, HBS)
+o List or model?
+o Events
+o Using Forms
+o Stay syncron

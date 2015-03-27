@@ -1,9 +1,11 @@
 /**
  * XQCore EventEmitter
  *
+ * This module brings a node.js like event emitter support to XQCore.
  * Based on EventEmitter v4.2.5 by Oliver Caldwell
  * http://git.io/ee
  *
+ * @module XQCore.Event
  */
 (function(XQCore, undefined) {
 	'use strict';

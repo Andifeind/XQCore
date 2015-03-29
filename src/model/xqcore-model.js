@@ -385,7 +385,7 @@
         this.properties = XQCore.extend({}, this.defaults);
         this.state('starting');
         if (removeListener) {
-            this.removeAllListeners();
+            this.removeEvent();
         }
         else {
             this.emit('data.reset', oldData);

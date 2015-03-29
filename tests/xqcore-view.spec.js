@@ -2,14 +2,6 @@
 describe('XQCore View', function() {
     'use strict';
 
-    beforeEach(function() {
-        
-    });
-
-    afterEach(function() {
-        
-    });
-
     describe('constructor', function() {
         it('Should initialize a view', function() {
             var view = new XQCore.View();
@@ -478,340 +470,71 @@ describe('XQCore View', function() {
         });
     });
 
-    describe.skip('render and inject', function() {
+    describe('render and inject', function() {
         var presenter,
-            view,
-            view2,
-            $ct,
             template;
 
         beforeEach(function() {
             presenter = new XQCore.Presenter();
-            view = new XQCore.View();
-            view2 = new XQCore.View();
-            template = 'div $a';
-            $ct = $($.parseHTML('<section></section>'));
+            template = 'div $a\n';
         });
 
         it('Should render and inject a view (replace)', function() {
             var data = { a: 'AA' };
 
-            view.container = $ct;
-            view.mode = 'replace';
-            view.template = template;
+            var view = new XQCore.View('test', function(self) {
+                self.container = $.parseHTML('<section><section class="xq-view xq-old-view">OLD</section></section>');
+                self.mode = 'replace';
+                self.template = template;
+            });
 
             view.init(presenter);
             view.render(data);
 
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div></section>');
+            expect(view.$el.get(0).outerHTML).to.eql('<section class="xq-view xq-test-view"><div>AA</div></section>');
+            expect(view.$ct.get(0).outerHTML).to.eql('<section><section class="xq-view xq-test-view"><div>AA</div></section></section>');
         });
 
         it('Should render and inject a view (append)', function() {
             var data = { a: 'AA' };
 
-            view.container = $ct;
-            view.mode = 'append';
-            view.template = template;
+            var view = new XQCore.View('test', function(self) {
+                self.container = $.parseHTML('<section><section class="xq-view xq-old-view">OLD</section></section>');
+                self.mode = 'append';
+                self.template = template;
+            });
 
             view.init(presenter);
             view.render(data);
 
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div></section>');
+            expect(view.$el.get(0).outerHTML).to.eql('<section class="xq-view xq-test-view"><div>AA</div></section>');
+            expect(view.$ct.get(0).outerHTML).to.eql(
+                '<section>' +
+                '<section class="xq-view xq-old-view">OLD</section>' +
+                '<section class="xq-view xq-test-view"><div>AA</div></section>' +
+                '</section>'
+            );
         });
 
         it('Should render and inject a view (prepend)', function() {
             var data = { a: 'AA' };
 
-            view.container = $ct;
-            view.mode = 'prepend';
-            view.template = template;
+            var view = new XQCore.View('test', function(self) {
+                self.container = $.parseHTML('<section><section class="xq-view xq-old-view">OLD</section></section>');
+                self.mode = 'prepend';
+                self.template = template;
+            });
 
             view.init(presenter);
             view.render(data);
 
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div></section>');
-        });
-
-        it('Should render and inject two views (replace)', function() {
-            var data = { a: 'AA' },
-                data2 = { a: 'BB' };
-
-            view.container = $ct;
-            view.mode = 'replace';
-            view.template = template;
-
-            view2.container = $ct;
-            view2.mode = 'replace';
-            view2.template = template;
-
-            view.init(presenter);
-            view2.init(presenter);
-
-            view.render(data);
-            view2.render(data2);
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view2.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">BB</div>');
-            
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">BB</div></section>');
-        });
-
-        it('Should render and inject two views (append)', function() {
-            var data = { a: 'AA' },
-                data2 = { a: 'BB' };
-
-            view.container = $ct;
-            view.mode = 'append';
-            view.template = template;
-
-            view2.container = $ct;
-            view2.mode = 'append';
-            view2.template = template;
-
-            view.init(presenter);
-            view2.init(presenter);
-
-            view.render(data);
-            view2.render(data2);
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view2.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">BB</div>');
-            
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div><div class="xq-view xq-view-namelessview">BB</div></section>');
-        });
-
-        it('Should render and inject two views (prepend)', function() {
-            var data = { a: 'AA' },
-                data2 = { a: 'BB' };
-
-            view.container = $ct;
-            view.mode = 'prepend';
-            view.template = template;
-
-            view2.container = $ct;
-            view2.mode = 'prepend';
-            view2.template = template;
-
-            view.init(presenter);
-            view2.init(presenter);
-
-            view.render(data);
-            view2.render(data2);
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view2.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">BB</div>');
-            
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">BB</div><div class="xq-view xq-view-namelessview">AA</div></section>');
-        });
-
-        it('Should render and inject two views using .inject() (replace)', function() {
-            var data = { a: 'AA' },
-                data2 = { a: 'BB' };
-
-            view.container = $ct;
-            view.mode = 'replace';
-            view.template = template;
-            view.autoInject = false;
-
-            view2.container = $ct;
-            view2.mode = 'replace';
-            view2.template = template;
-
-            view.init(presenter);
-            view2.init(presenter);
-            
-            view.render(data);
-            view2.render(data2);
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div>AA</div>');
-            expect(view2.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">BB</div>');
-            
-            expect(view2.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">BB</div></section>');
-        });
-
-        it('Should render and inject two views using .inject() (append)', function() {
-            var data = { a: 'AA' },
-                data2 = { a: 'BB' };
-
-            view.container = $ct;
-            view.mode = 'append';
-            view.template = template;
-            view.autoInject = false;
-
-            view2.container = $ct;
-            view2.mode = 'append';
-            view2.template = template;
-
-            view.init(presenter);
-            view2.init(presenter);
-
-            view.render(data);
-            view2.render(data2);
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div>AA</div>');
-            expect(view2.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">BB</div>');
-            
-            expect(view2.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">BB</div></section>');
-        });
-
-        it('Should render and inject two views using .inject() (prepend)', function() {
-            var data = { a: 'AA' },
-                data2 = { a: 'BB' };
-
-            view.container = $ct;
-            view.mode = 'prepend';
-            view.template = template;
-            view.autoInject = false;
-
-            view2.container = $ct;
-            view2.mode = 'prepend';
-            view2.template = template;
-
-            view.init(presenter);
-            view2.init(presenter);
-
-            view.render(data);
-            view2.render(data2);
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div>AA</div>');
-            expect(view2.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">BB</div>');
-            
-            expect(view2.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">BB</div></section>');
-        });
-
-        it('Should never inject a view twice (replace)', function() {
-            var data = { a: 'AA' };
-
-            var injectSpy = sinon.spy(view, 'inject');
-            
-
-            view.container = $ct;
-            view.mode = 'replace';
-            view.template = template;
-
-            view.init(presenter);
-            view.render(data);
-            view.inject();
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div></section>');
-            
-            expect(injectSpy).was.calledTwice();
-            injectSpy.restore();
-        });
-
-        it('Should never inject a view twice (append)', function() {
-            var data = { a: 'AA' };
-
-            var injectSpy = sinon.spy(view, 'inject');
-            
-
-            view.container = $ct;
-            view.mode = 'append';
-            view.template = template;
-
-            view.init(presenter);
-            view.render(data);
-            view.inject();
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div></section>');
-            
-            expect(injectSpy).was.calledTwice();
-            injectSpy.restore();
-        });
-
-        it('Should never inject a view twice (prepend)', function() {
-            var data = { a: 'AA' };
-
-            var injectSpy = sinon.spy(view, 'inject');
-            
-
-            view.container = $ct;
-            view.mode = 'prepend';
-            view.template = template;
-
-            view.init(presenter);
-            view.render(data);
-            view.inject();
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div></section>');
-            
-            expect(injectSpy).was.calledTwice();
-            injectSpy.restore();
-        });
-
-        it('Should never inject a view twice, autoInject is disabled (replace)', function() {
-            var data = { a: 'AA' };
-
-            var injectSpy = sinon.spy(view, 'inject');
-            
-
-            view.container = $ct;
-            view.mode = 'replace';
-            view.template = template;
-            view.autoInject = false;
-
-            view.init(presenter);
-            view.render(data);
-            view.inject();
-            view.inject();
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div></section>');
-            
-            expect(injectSpy).was.calledTwice();
-            injectSpy.restore();
-        });
-
-        it('Should never inject a view twice, autoInject is disabled (append)', function() {
-            var data = { a: 'AA' };
-
-            var injectSpy = sinon.spy(view, 'inject');
-            
-
-            view.container = $ct;
-            view.mode = 'append';
-            view.template = template;
-            view.autoInject = false;
-
-            view.init(presenter);
-            view.render(data);
-            view.inject();
-            view.inject();
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div></section>');
-            
-            expect(injectSpy).was.calledTwice();
-            injectSpy.restore();
-        });
-
-        it('Should never inject a view twice, autoInject is disabled (prepend)', function() {
-            var data = { a: 'AA' };
-
-            var injectSpy = sinon.spy(view, 'inject');
-            
-
-            view.container = $ct;
-            view.mode = 'prepend';
-            view.template = template;
-            view.autoInject = false;
-
-            view.init(presenter);
-            view.render(data);
-            view.inject();
-            view.inject();
-
-            expect(view.$el.get(0).outerHTML).to.eql('<div class="xq-view xq-view-namelessview">AA</div>');
-            expect(view.$ct.get(0).outerHTML).to.eql('<section><div class="xq-view xq-view-namelessview">AA</div></section>');
-            
-            expect(injectSpy).was.calledTwice();
-            injectSpy.restore();
+            expect(view.$el.get(0).outerHTML).to.eql('<section class="xq-view xq-test-view"><div>AA</div></section>');
+            expect(view.$ct.get(0).outerHTML).to.eql(
+                '<section>' +
+                '<section class="xq-view xq-test-view"><div>AA</div></section>' +
+                '<section class="xq-view xq-old-view">OLD</section>' +
+                '</section>'
+            );
         });
     });
 

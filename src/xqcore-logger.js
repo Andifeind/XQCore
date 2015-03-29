@@ -15,8 +15,8 @@
 
     /**
      * XQCore Logger is a logging module to log messages, warnings, errors to the browser console
-     *
-     * @module XQCore.Logger
+     * 
+     * @constructor
      * @param {String} name Logger name (Optional)
      * 
      * @example {js}

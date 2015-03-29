@@ -6,16 +6,45 @@ describe('XQCore.Event', function() {
 
         beforeEach(function() {
             ee = new XQCore.Event();
-                    
         });
 
         it('Should register event listener', function() {
             var fn = sinon.stub();
             ee.on('test', fn);
 
-            expect(ee._events).to.be.an('array');
-            expect(ee._events).to.have.length(1);
-            expect(ee._events[0]).to.equal(fn);
+            expect(ee._events.test).to.be.an('array');
+            expect(ee._events.test).to.have.length(1);
+            expect(ee._events.test[0].listener).to.equal(fn);
+        });
+
+        it('Should register multiple event listener', function() {
+            var fn = sinon.stub();
+            var fn2 = sinon.stub();
+            var fn3 = sinon.stub();
+            ee.on('test', fn);
+            ee.on('test', fn2);
+            ee.on('test', fn3);
+
+            expect(ee._events.test).to.be.an('array');
+            expect(ee._events.test).to.have.length(3);
+            expect(ee._events.test[0].listener).to.equal(fn);
+            expect(ee._events.test[1].listener).to.equal(fn2);
+            expect(ee._events.test[2].listener).to.equal(fn3);
+        });
+
+        it('Should register multiple event listeners of different types', function() {
+            var fn = sinon.stub();
+            var fn2 = sinon.stub();
+            var fn3 = sinon.stub();
+            ee.on('test', fn);
+            ee.on('test.bla', fn2);
+            ee.on('test.blubb', fn3);
+
+            expect(ee._events.test).to.be.an('array');
+            expect(ee._events.test).to.have.length(1);
+            expect(ee._events.test[0].listener).to.equal(fn);
+            expect(ee._events['test.bla'][0].listener).to.equal(fn2);
+            expect(ee._events['test.blubb'][0].listener).to.equal(fn3);
         });
     });
 
@@ -24,62 +53,110 @@ describe('XQCore.Event', function() {
 
         beforeEach(function() {
             ee = new XQCore.Event();
-            var ee2 = new XQCore.Event();
-            var cbSpy = sinon.spy();
-            var cbSpy2 = sinon.spy();
         });
 
         it('Should emit an event', function() {
+            var fn = sinon.stub();
+            ee.on('test', fn);
+            ee.emit('test', { data: 'aa'});
+
+            expect(fn).was.calledOnce();
+            expect(fn).was.calledWith({data: 'aa'});
+        });
+
+        it('Should emit an event twice', function() {
+            var fn = sinon.stub();
+            ee.on('test', fn);
+            ee.emit('test', { data: 'aa'});
+
+            expect(fn).was.calledOnce();
+            expect(fn).was.calledWith({data: 'aa'});
+
+            ee.emit('test', { data: 'bb'});
             
+            expect(fn).was.calledTwice();
+            expect(fn).was.calledWith({data: 'aa'});
+            expect(fn).was.calledWith({data: 'bb'});
+        });
+
+        it('Should emit an unregistered event', function() {
+            var fn = sinon.stub();
+            ee.on('test', fn);
+            ee.emit('test.bla', { data: 'aa'});
+
+            expect(fn).was.notCalled();
         });
     });
 
-    beforeEach(function() {
+    describe('once', function() {
+        var ee;
 
+        beforeEach(function() {
+            ee = new XQCore.Event();
+        });
+
+        it('Should register an event listener only once', function() {
+            var fn = sinon.stub();
+            ee.once('test', fn);
+
+            expect(ee._events.test).to.be.an('array');
+            expect(ee._events.test).to.have.length(1);
+            expect(ee._events.test[0].listener).to.equal(fn);
+
+            ee.emit('test', 'aa');
+            expect(fn).was.calledOnce();
+            expect(fn).was.calledWith('aa');
+
+            expect(ee._events.test).to.have.length(0);
+
+            ee.emit('test', 'aa');
+            expect(fn).was.calledOnce();
+        });
     });
 
-    afterEach(function() {
+    describe('off', function() {
+        var ee;
 
+        beforeEach(function() {
+            ee = new XQCore.Event();
+        });
+
+        it('Should unregister an event listener', function() {
+            var fn = sinon.stub();
+            ee.on('test', fn);
+
+            expect(ee._events.test).to.be.an('array');
+            expect(ee._events.test).to.have.length(1);
+            expect(ee._events.test[0].listener).to.equal(fn);
+
+            ee.emit('test', 'aa');
+            expect(fn).was.calledOnce();
+            expect(fn).was.calledWith('aa');
+
+            ee.off('test', fn);
+            expect(ee._events.test).to.have.length(0);
+
+            ee.emit('test', 'aa');
+            expect(fn).was.calledOnce();
+        });
+
+        it('Should unregister all event listeners of an event name', function() {
+            var fn = sinon.stub();
+            ee.on('test', fn);
+
+            expect(ee._events.test).to.be.an('array');
+            expect(ee._events.test).to.have.length(1);
+            expect(ee._events.test[0].listener).to.equal(fn);
+
+            ee.emit('test', 'aa');
+            expect(fn).was.calledOnce();
+            expect(fn).was.calledWith('aa');
+
+            ee.off('test');
+            expect(ee._events.test).to.be(undefined);
+
+            ee.emit('test', 'aa');
+            expect(fn).was.calledOnce();
+        });
     });
-
-    it('Should register an event listener', function() {
-        var ee = new XQCore.Event();
-        var cbSpy = sinon.spy();
-        ee.on('test', cbSpy);
-        ee.emit('test', 1, { a: 'AA'});
-
-        expect(cbSpy).was.calledOnce();
-        expect(cbSpy).was.calledWith(1, { a: 'AA' });
-    });
-
-    it('Should register multiple event listener', function() {
-        var ee = new XQCore.Event();
-        var ee2 = new XQCore.Event();
-        var cbSpy = sinon.spy();
-        var cbSpy2 = sinon.spy();
-        
-        ee.on('test', cbSpy);
-        ee2.on('test', cbSpy2);
-        
-        ee.emit('test', 1, { a: 'AA'});
-        ee2.emit('test', 2, { b: 'BB'});
-
-        expect(cbSpy).was.calledOnce();
-        expect(cbSpy2).was.calledOnce();
-        expect(cbSpy).was.calledWith(1, { a: 'AA' });
-        expect(cbSpy2).was.calledWith(2, { b: 'BB' });
-    });
-
-    it('Should unregister an event listener', function() {
-        var ee = new XQCore.Event();
-        var cbSpy = sinon.spy();
-        ee.on('test', cbSpy);
-        ee.emit('test', 1, { a: 'AA'});
-        ee.off('test', cbSpy);
-        ee.emit('test', 1, { a: 'AA'});
-
-        expect(cbSpy).was.calledOnce();
-        expect(cbSpy).was.calledWith(1, { a: 'AA' });
-    });
-
 });

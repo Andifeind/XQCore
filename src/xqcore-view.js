@@ -7,7 +7,8 @@
 (function(XQCore, undefined) {
     'use strict';
 
-    var $ = XQCore.require('jquery');
+    var $ = XQCore.require('jquery'),
+        log;
 
     /**
      * XQCore.View
@@ -26,13 +27,13 @@
         else if (typeof arguments[0] === 'string') {
             this.name = name;
         }
-        
+
         /**
-         * Enable debug mode
-         * @public
-         * @type {Boolean}
+         * Logger instance
+         * @ignore
+         * @type {Object}
          */
-        this.debug = XQCore.debug;
+        log = new XQCore.Logger(this.name + 'View');
 
         /**
          * Sets the container element
@@ -359,14 +360,9 @@
         }
 
         var parseScope = function(html, data, parent) {
-            console.log('\nParse scope\n-------------------\n', html, '\n');
             html = $.parseHTML(html);
             var $scopeEl = $(html);
             var els = $scopeEl.find('scope');
-
-            console.log('Found %s scopes', els.length);
-            console.log('Path', parent);
-            console.log('Data: ', (Array.isArray(data) ? 'array' : typeof(data)), data);
 
             var counter = {};
 
@@ -376,7 +372,6 @@
                     content;
 
                 var dataPath = parent ? parent + '.' + path : path;
-                console.log('Scope:', path, scopeId);
 
                 var templateData = data;
                 if (Array.isArray(data)) {
@@ -388,7 +383,6 @@
                 if (scopeId) {
                     console.log('Call scope with:', data[path], data, path);
                     var scopeHTML = template.scopes[scopeId](data[path], data);
-                    // console.log('ScopeHTML', scopeHTML);
                     content.value = scopeHTML ? parseScope(scopeHTML, data[path], dataPath) : document.createTextNode('');
                     content.id = scopeId;
                 }
@@ -399,13 +393,9 @@
                 template.scopeStore[dataPath] = template.scopeStore[dataPath] || [];
                 template.scopeStore[dataPath].push(content);
 
-                // console.log('EL', $(this).get(0).outerHTML);
-                // console.log('Content:', $(content.value).get(0).outerHTML);
                 $(this).replaceWith($(content.value));
-                // console.log('REPLACETD', $newEl.get(0).outerHTML);
             });
 
-            console.log('\nEnd of parse scope\n-------------------\n', $scopeEl.get(0).outerHTML, '\n\n');
             return $scopeEl;
         };
 
@@ -510,9 +500,7 @@
             XQCore.dedotify(formData, item.name, item.value);
         });
 
-        if (this.debug) {
-            console.log('XQCore - Serialize form:', formSelector, formData);
-        }
+        log.info('Serialize form', formSelector, formData);
 
         return formData;
     };
@@ -547,7 +535,7 @@
     };
 
     View.prototype.update = function(path, data) {
-        console.warn('XQCore doesn`t support update event yet');
+        log.warn('XQCore doesn`t support update events yet');
     };
 
     View.prototype.append = function(path, data) {
@@ -662,7 +650,7 @@
             }
         }
 
-        console.log('View has been destroyed', this.name);
+        log.info('View ' + this.name + ' has been destroyed');
     };
 
     /**

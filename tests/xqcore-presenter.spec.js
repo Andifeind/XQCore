@@ -4,44 +4,42 @@ describe('XQCore Presenter', function() {
 	describe('initialize', function() {
 		it('Should initialize a presenter', function() {
 			var presenter,
-				initFunc = sinon.spy();
+				initFunc = sinon.stub();
 
-			presenter = new XQCore.Presenter('Test I', {
-				init: initFunc
-			});
+			presenter = new XQCore.Presenter('Test I', initFunc);
 
 			expect(presenter).to.be.a(XQCore.Presenter);
-			presenter.init();
-			expect(initFunc).was.called();
+			expect(presenter.name).to.eql('Test I');
+			expect(initFunc).was.calledOnce();
 		});
 
-		it('Should initialize a presenter in the scope way', function() {
+		it('Should call init func with instance and logger as args', function() {
 			var presenter,
-				initFunc = sinon.spy();
+				initFunc = sinon.stub();
 
-			presenter = new XQCore.Presenter('Test II', initFunc);
+			presenter = new XQCore.Presenter('Test I', initFunc);
 
 			expect(presenter).to.be.a(XQCore.Presenter);
-			presenter.init();
-			expect(initFunc).was.called();
-		});
-
-		it('Should get a presenter name from first arg', function() {
-			var presenter = new XQCore.Presenter('Test');
-			expect(presenter.name).to.equal('TestPresenter');
-		});
-
-		it('Should get a presener name from conf object', function() {
-			var presenter = new XQCore.Presenter({
-				name: 'Test'
-			});
-
-			expect(presenter.name).to.equal('TestPresenter');
+			expect(presenter.name).to.eql('Test I');
+			expect(initFunc.firstCall.args[0]).to.equal(presenter);
+			expect(initFunc.firstCall.args[1]).to.be.a(XQCore.Logger);
+			expect(initFunc.firstCall.args[1].loggerName).to.eql('Test IPresenter');
 		});
 
 		it('Should set a default presenter name', function() {
 			var presenter = new XQCore.Presenter();
-			expect(presenter.name).to.equal('NamelessPresenter');
+			expect(presenter.name).to.equal('Nameless');
+		});
+
+		it('Should change a log level', function() {
+			var logger;
+			var presenter;
+			presenter = new XQCore.Presenter('Test', function(self, log) {
+				log.logLevel = -1;
+				logger = log;
+			});
+
+			expect(logger.logLevel).to.eql(-1);
 		});
 	});
 
@@ -211,20 +209,18 @@ describe('XQCore Presenter', function() {
 			var presenter = new XQCore.Presenter('Test', function(self) {
 				var view = self.initView('TestI');
 				expect(view).to.be.a(XQCore.View);
-				expect(presenter.__views.TestI).to.be.ok();
 			});
 
-			presenter.init();
+			expect(presenter.__views.TestI).to.be.ok();
 		});
 
 		it('Should init view', function() {
 			var initStub = sinon.stub(XQCore.View.prototype, 'init');
 			
-			var presenter = new XQCore.Presenter('Test', function(self) {
+			var presenter;
+			presenter = new XQCore.Presenter('Test', function(self) {
 				self.initView('TestView');
 			});
-
-			presenter.init();
 
 			expect(initStub).was.calledOnce();
 			initStub.restore();

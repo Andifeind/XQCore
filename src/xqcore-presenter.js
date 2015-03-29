@@ -1,12 +1,16 @@
 /**
  * XQCore Presenter
  *
+ * A presenter controlls your models, lists and views.
+ * It renders views as long as any data had been changed.
+ *
  * @module XQCore.Presenter
  */
 (function(XQCore, undefined) {
     'use strict';
 
-    var $ = XQCore.require('jquery');
+    var $ = XQCore.require('jquery'),
+        log;
 
     /**
      * XQCore.Presenter base class
@@ -17,14 +21,37 @@
      * @uses XQCore.Logger
      * @uses XQCore.Event
      *
-     * @param {Object} conf Presenter extend object
+     * @param {String} name Presenter name
+     * @param {Function} fn Init callback and presenter scope method. To be called during the instantiating progress
      */
-    var Presenter = function(name, conf) {
+    var Presenter = function(name, fn) {
+        var self = this;
 
-        if (typeof arguments[0] === 'object') {
-            conf = name;
-            name = conf.name;
+        if (typeof arguments[0] === 'function') {
+            fn = name;
+            name = null;
         }
+
+        /**
+         * Set presenter name
+         * @public
+         * @type {String}
+         */
+        this.name = name || 'Nameless';
+
+        /**
+         * Router instance
+         * @private
+         * @type {Object}
+         */
+        this.__Router = new XQCore.Router();
+
+        /**
+         * Logger instance
+         * @ignore
+         * @type {Object}
+         */
+        log = new XQCore.Logger(this.name + 'Presenter');
         
         /**
          * Stores registered views
@@ -32,158 +59,9 @@
          * @type {Object}
          */
         this.__views = {};
-        
-        /**
-         * Enable debug mode
-         * @public
-         * @type {Boolean}
-         */
-        this.debug = XQCore.debug;
 
-        /**
-         * Set presenter name
-         * @public
-         * @type {String}
-         */
-        this.name = (name ? name.replace(/Presenter$/, '') : 'Nameless') + 'Presenter';
-
-        /* ++++++++++ old stuff +++++++++++++ */
-
-        /**
-         * Stores registered routes
-         * @type {Array}
-         * @protected
-         */
-        this.routes = [];
-        
-        conf = conf || {};
-
-        this.conf = conf;
-
-        /**
-         * Points to the last shown view
-         *
-         * @deprecated  sinve v0.8.1
-         * @property {Object} lastShownView Points to the last shown view
-         */
-        // this.lastShownView = null;
-
-        //Deprecated sinve v0.8.1
-        // this.registeredViews = [];
-        // this.registeredModels = [];
-        // this.fireViewInit = function(view) {
-        //     var allReady = true;
-        //     this.registeredViews.forEach(function(item) {
-        //         if (view === item.view) {
-        //             item.isReady = true;
-        //         }
-
-        //         if (item.isReady === false) {
-        //             allReady = false;
-        //         }
-        //     });
-
-        //     this.viewInit(view);
-
-        //     if (allReady === true) {
-        //         this.emit('views.ready');
-        //     }
-        // };
-
-        /**
-         * @deprecated since v0.8.1
-         */
-        this.registerView = function(view) {
-            this.warn('presenter.registerView was deprecated since XQCore 0.7.0');
-
-            // var i;
-            // if (view instanceof Array) {
-            //     for (i = 0; i < view.length; i++) {
-            //         this.registeredViews.push({
-            //             view: view[i],
-            //             isReady: false
-            //         });
-            //     }
-            // }
-            // else {
-            //     this.registeredViews.push({
-            //         view: view,
-            //         isReady: false
-            //     });
-            // }
-        };
-
-        /**
-         * @deprecated since v0.8.1
-         */
-        this.registerModel = function(model) {
-            this.warn('presenter.registerModel was deprecated since XQCore 0.7.0');
-
-            // var i;
-            // if (model instanceof Array) {
-            //     for (i = 0; i < model.length; i++) {
-            //         this.registeredModels.push({
-            //             model: model[i],
-            //             isReady: false
-            //         });
-            //     }
-            // }
-            // else {
-            //     this.registeredModels.push({
-            //         model: model,
-            //         isReady: false
-            //     });
-            // }
-        };
-
-        
-        this.__Router = new XQCore.Router();
-    };
-
-
-    XQCore.extend(Presenter.prototype, new XQCore.Event(), new XQCore.Logger());
-
-    /**
-     * Listen View events
-     *
-     * @deprecated  since v0.8.1
-     * @property {Array} events Observed view events
-     */
-    Presenter.prototype.events = {};
-
-    /**
-     * Initialize a presenter
-     *
-     * @method init
-     */
-    Presenter.prototype.init = function() {
-        var self = this,
-            conf = this.conf;
-
-        if (typeof conf === 'function') {
-            conf.call(this, self);
-        }
-        else {
-            XQCore.extend(this, conf);
-        }
-
-        //Setup popstate listener
-        if (conf.routes) {
-
-            //Add routes
-            Object.keys(conf.routes).forEach(function(route) {
-                var callback = self.routes[route];
-                if (typeof callback === 'string') {
-                    callback = self[callback];
-                }
-
-                if (typeof callback === 'function') {
-                    self.__Router.addRoute(route, callback);
-                }
-                else {
-                    self.warn('Router callback isn\'t a function', callback, 'of route', route);
-                }
-            });
+        if (typeof fn === 'function') {
+            fn.call(this, self, log);
         }
 
         if (XQCore.html5Routes) {
@@ -210,44 +88,20 @@
             }
 
             $(function() {
-                self.log('Trigger route', route, data);
+                log.info('Trigger route', route, data);
                 route.fn.call(self, route.params);
             });
         }
-
-        // custom init function
-        if (typeof conf.init === 'function') {
-            conf.init.call(this);
-        }
-
-        //Deprecated code since v0.8.1
-        // //Initialize views
-        // if (views instanceof Array) {
-        //  for (i = 0; i < views.length; i++) {
-        //      this.registerView(views[i]);
-        //  }
-        // }
-        // else if (views) {
-        //  this.registerView(views);
-        // }
-
-        // this.registeredViews.forEach(function(view) {
-        //  view.view.init(self);
-        // });
-
-        // this.registeredModels.forEach(function(model) {
-        //  model.model.init(self);
-        // });
     };
 
-    /**
-     * Calling on view init
-     *
-     * @deprecated  since v0.8.1
-     * @param {object} view The initializing view
-     */
-    Presenter.prototype.viewInit = function(view) {
+    XQCore.extend(Presenter.prototype, new XQCore.Event());
 
+    /**
+     * Initialize a presenter
+     *
+     * @method init
+     */
+    Presenter.prototype.init = function() {
     };
 
     /**
@@ -347,38 +201,6 @@
         return this.__views[viewName] || null;
     };
 
-
-    /**
-     * Show a view if it's not visible and update the history state
-     *
-     * @method showView
-     *
-     * @param  {String} viewName The name of the view
-     * @param  {Object} data Data it's neede to showing the view
-     *
-     */
-    Presenter.prototype.showView = function(viewName, data) {
-        console.log('Presenter.showView was deprecated since v0.8.1');
-        // var view = this.getView(viewName + 'View');
-        // if (!view) {
-        //     this.warn('View not defined!', viewName);
-        //     return;
-        // }
-
-        // this.log('Show view:', viewName, data);
-        // this.log('Hide view:', this.lastShownView);
-
-        // if (this.lastShownView !== view) {
-        //     if (this.lastShownView && typeof this.lastShownView.hide === 'function') {
-        //         this.lastShownView.hide();
-        //         view.show();
-        //     }
-        //     else {
-        //         view.show(true);
-        //     }
-        // }
-    };
-
     /**
      * Returns the current hash
      *
@@ -442,26 +264,26 @@
         }, conf.viewEvents);
 
         if (!view instanceof XQCore.View) {
-            this.error('Can\'t couple view with model! View isn\'t a XQCore.View');
+            log.error('Can\'t couple view with model! View isn\'t a XQCore.View');
             return;
         }
 
         if (model && !model instanceof XQCore.Model) {
-            this.error('Can\'t couple model with model! Model isn\'t a XQCore.Model');
+            log.error('Can\'t couple model with model! Model isn\'t a XQCore.Model');
             return;
         }
 
         if (list && !list instanceof XQCore.List) {
-            this.error('Can\'t couple list with list! List isn\'t a XQCore.List');
+            log.error('Can\'t couple list with list! List isn\'t a XQCore.List');
             return;
         }
 
         if (model) {
-            this.log('Couple view ', view.name, 'with model', model.name);
+            log.info('Couple view ', view.name, 'with model', model.name);
         }
 
         if (list) {
-            this.log('Couple view ', view.name, 'with list', list.name);
+            log.info('Couple view ', view.name, 'with list', list.name);
         }
 
         if (!view.__coupledWith) {
@@ -640,14 +462,7 @@
     Presenter.prototype.initView = function(viewName, container, options) {
         options = options || {};
 
-        // if (this.__views[viewName]) {
-        //     this.warn('View allready registered!', viewName);
-        //     return;
-        // }
-
-        if (this.debug) {
-            this.log('Init view', viewName);
-        }
+        log.info('Init view ' + viewName);
 
         var view = new XQCore.View(viewName, function(self) {
             self.template = XQCore.Tmpl.getTemplate(viewName);
@@ -658,13 +473,14 @@
                 self.autoInject = false;
             }
         });
+
         this.__views[viewName] = view;
         view.init(this);
         return view;
     };
 
     /**
-     * Register a route listen
+     * Register a route listener
      *
      * @public
      * @method route
@@ -680,19 +496,19 @@
 
         if (typeof callback === 'function') {
             if (typeof route === 'string') {
-                this.log('Register route', route, 'with callback', callback);
+                log.info('Register route', route, 'with callback', callback);
                 this.__Router.addRoute(route, callback);
             }
             else if (Array.isArray(route)) {
                 route.forEach(function(r) {
-                    self.log('Register route', r, 'with callback', callback);
+                    log.info('Register route', r, 'with callback', callback);
                     self.__Router.addRoute(r, callback);
                 });
             }
 
         }
         else {
-            this.warn('Router callback isn\'t a function', callback, 'of route', route);
+            log.warn('Router callback isn\'t a function', callback, 'of route', route);
         }
     };
 

@@ -1,6 +1,8 @@
 /**
  * XQCore View module
  *
+ * A view renders a .fire or .hbs template and injects the result into the dom.
+ *
  * @module XQCore.View
  * @returns {object} Returns a XQCore.View prototype object
  */
@@ -15,7 +17,6 @@
      *
      * @class XQCore.View
      * @constructor
-     *
      * 
      * @param {object} conf View configuration
      */
@@ -126,48 +127,30 @@
         }
 
         /**
-         * Set presenter name
+         * Set view name
          * @public
          * @type {String}
          */
         this.name = (this.name ? this.name.replace(/View$/, '') : 'Nameless') + 'View';
 
         this.__createView();
-    };
-
-    XQCore.extend(View.prototype, new XQCore.Event(), new XQCore.Logger());
-
-    /**
-     * Init function
-     *
-     * @method init
-     *
-     * @param  {Object} presenter Views presenter object
-     */
-    View.prototype.init = function(presenter) {
-        var self = this,
-            conf = this.conf;
-
-        if (typeof presenter !== 'object') {
-            throw new Error('No presenter was set in view.init()');
-        }
 
         $(function() {
-            self.presenter = presenter;
             if (self.container.length > 0) {
                 window.addEventListener('resize', function(e) {
                     self.resize(e);
                 }, false);
 
-                self.log('Initialize view with conf:', conf);
-                self.log('  ... using Presenter:', self.presenter.name);
-                self.log('  ... using Container:', self.container);
+                log.info('Initialize view ' + this.name, ' with conf:', conf);
+                log.info(' ... using Container:', self.container);
             }
             else {
-                self.error('Can\'t initialize View, Container not found!', self.container);
+                log.error('Can\'t initialize View, Container not found!', self.container);
             }
         });
     };
+
+    XQCore.extend(View.prototype, new XQCore.Event());
 
     View.prototype.show = function() {
         this.$el.show();
@@ -178,7 +161,7 @@
     };
 
     View.prototype.renderHTML = function(template, data) {
-        this.log('Render view html snipet', template, 'with data:', data);
+        log.log('Render html snippet', template, 'with data:', data);
         template = typeof template === 'function' ? template : XQCore.Tmpl.compile(template);
         return template(data);
     };
@@ -244,7 +227,7 @@
     };
 
     /**
-     * If a validation failed (Automaticly called in a coupled view)
+     * If a validation failed (Automatically called in a coupled view)
      *
      * @method validationFailed
      * @param {Object} err Validation error object
@@ -315,7 +298,7 @@
             return;
         }
 
-        this.log('Inject view into container', this.$ct);
+        log.info('Inject view into container', this.$ct);
 
         if (this.mode === 'replace') {
             this.$ct.contents().detach();
@@ -328,7 +311,7 @@
             this.$ct.prepend(this.$el);
         }
         else {
-            throw new Error('Unknow insert mode in view.init()');
+            throw new Error('Unknown insert mode in view constructor');
         }
 
     };
@@ -347,7 +330,6 @@
         var html,
             $newEl;
 
-        console.log('SCOPES', template);
         template.scopeStore = {};
         template.scopes = __scopes || {};
 
@@ -381,7 +363,6 @@
 
                 content = {};
                 if (scopeId) {
-                    console.log('Call scope with:', data[path], data, path);
                     var scopeHTML = template.scopes[scopeId](data[path], data);
                     content.value = scopeHTML ? parseScope(scopeHTML, data[path], dataPath) : document.createTextNode('');
                     content.id = scopeId;
@@ -423,7 +404,7 @@
 
         var html;
 
-        this.log('Render view template with data:', data);
+        log.info('Render view template of view ' + this.name, 'with data:', data);
 
         var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
         this.scopes = {};
@@ -460,7 +441,7 @@
                         data = self.serializeForm(e.target);
                         data = self.onSubmit(data, e.target);
                         self.emit(ev[1], data, e);
-                        self.presenter.emit(ev[1], data, e);
+                        // self.presenter.emit(ev[1], data, e);
                     };
                 }
                 else {
@@ -468,7 +449,7 @@
                         e.preventDefault();
                         var value = e.currentTarget.value || '';
                         self.emit(ev[1], value, data, e);
-                        self.presenter.emit(ev[1], value, data, e);
+                        // self.presenter.emit(ev[1], value, data, e);
                     };
                 }
 
@@ -500,7 +481,7 @@
             XQCore.dedotify(formData, item.name, item.value);
         });
 
-        log.info('Serialize form', formSelector, formData);
+        log.info('Serialize form of view ' + this.name, 'form selector:', formSelector, 'form data:', formData);
 
         return formData;
     };

@@ -234,17 +234,31 @@
      *   route String routename
      * }
      */
-    Presenter.prototype.couple = function(conf) {
-        var view = conf.view,
-            model = conf.model,
-            list = conf.list,
+    Presenter.prototype.couple = function(view, model, conf) {
+        var list = null,
             key;
 
+        conf = conf || {};
+
+        if (!view instanceof XQCore.View) {
+            log.error('First arg is not a valid view in ' + this.name + ' presenter.couple()!');
+        }
+
+        if (!model instanceof XQCore.Model || !model instanceof XQCore.List) {
+            log.error('Second arg is not a valid model or list in ' + this.name + ' presenter.couple()!');
+        }
+        
+        if (model instanceof XQCore.List) {
+            list = model;
+            model = null;
+        }
+
+        //Old
         var modelEventConf = XQCore.extend({
             'data.replace': 'render',
-            'data.item': 'update',
-            'data.append': 'append',
-            'data.prepend': 'prepend',
+            'data.item': 'xrender',
+            'data.append': 'xrender',
+            'data.prepend': 'xrender',
             'data.insert': 'insert',
             'data.remove': 'remove',
             'validation.error': 'validationFailed',
@@ -320,9 +334,14 @@
 
         var registerModelListener = function(listener, func) {
             var fn = function() {
-                var args = Array.prototype.slice.call(arguments);
-                args.push(model.name, listener);
-                view[func].apply(view, args);
+                if (func === 'xrender') {
+                    view.render(model.get());
+                }
+                else {
+                    var args = Array.prototype.slice.call(arguments);
+                    args.push(model.name, listener);
+                    view[func].apply(view, args);
+                }
             };
 
             fn.fnType = 'coupled-model-listener';
@@ -358,7 +377,7 @@
                 fn.fnType = 'coupled-view-listener';
                 fn.fnParent = model;
                 view.on(listener, fn);
-        };
+            };
 
             for (key in modelEventConf) {
                 if (modelEventConf.hasOwnProperty(key)) {
@@ -376,7 +395,7 @@
                 fn.fnType = 'coupled-view-listener';
                 fn.fnParent = list;
                 view.on(listener, fn);
-        };
+            };
 
             for (key in listEventConf) {
                 if (listEventConf.hasOwnProperty(key)) {
@@ -462,8 +481,6 @@
     Presenter.prototype.initView = function(viewName, container, options) {
         options = options || {};
 
-        log.info('Init view ' + viewName);
-
         var view = new XQCore.View(viewName, function(self) {
             self.template = XQCore.Tmpl.getTemplate(viewName);
             self.mode = options.mode || 'replace';
@@ -475,7 +492,6 @@
         });
 
         this.__views[viewName] = view;
-        view.init(this);
         return view;
     };
 

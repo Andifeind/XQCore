@@ -46,7 +46,7 @@ module.exports = function(grunt) {
                     'src/list/xqcore-list.js',
                     'src/synclist/xqcore-synclist.js'
                 ],
-                dest: 'build/xqcore.js'
+                dest: 'xqcore.js'
             }
         },
         uglify: {
@@ -55,7 +55,7 @@ module.exports = function(grunt) {
             },
             build: {
                 files: {
-                    'build/xqcore.min.js': ['build/xqcore.js']
+                    'xqcore.min.js': ['xqcore.js']
                 }
             }
         },
@@ -68,13 +68,13 @@ module.exports = function(grunt) {
                 },
                 files: [
                     {
-                        src: ['build/xqcore.js'],
+                        src: ['xqcore.js'],
                         dest: '../component-builds/xqcore/xqcore.js'
                     }, {
                         src: ['component.json'],
                         dest: '../component-builds/xqcore/',
                     }, {
-                        src: ['build/xqcore.css'],
+                        src: ['xqcore.css'],
                         dest: '../component-builds/xqcore/xqcore.css'
                     }
                 ]
@@ -97,19 +97,11 @@ module.exports = function(grunt) {
                 },
                 files: [
                     {
-                        src: ['build/xqcore.css'],
+                        src: ['xqcore.css'],
                         dest: '../component-builds/xqcore/xqcore.css'
                     }
                 ]
             },
-        },
-        clean: {
-            build: [
-                'webdocs/build/xqcore.js',
-                'webdocs/build/xqcore.min.js',
-                'webdocs/build/xqcore-minimal.js',
-                'webdocs/build/xqcore-minimal.min.js'
-            ]
         },
         less: {
             dist: {
@@ -117,7 +109,7 @@ module.exports = function(grunt) {
                     paths: 'less/'
                 },
                 files: {
-                    'build/xqcore.css': 'less/main.less'
+                    'xqcore.css': 'less/main.less'
                 }
             }
         },
@@ -139,8 +131,6 @@ module.exports = function(grunt) {
         }
     });
 
-    // grunt.loadTasks('./modules/grunt-xqcoretest');
-    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -150,17 +140,13 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-available-tasks');
     grunt.loadNpmTasks('grunt-bumpup');
-    // grunt.loadNpmTasks('grunt-simple-dox');
     grunt.loadNpmTasks('grunt-version');
-
-    // grunt.loadNpmTasks('grunt-contrib-bump');
     
     grunt.registerTask('default', ['availabletasks']);
     grunt.registerTask('test', 'xqcoretest');
     grunt.registerTask('build', [
         'less',
         'jshint:files',
-        'clean:build',
         'concat:build',
         'uglify',
         'component-build',

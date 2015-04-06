@@ -69,6 +69,13 @@
         this.items = [];
 
         /**
+         * Sets a maxlength of items
+         * @property {Number} maxlength
+         * @default null
+         */
+        this.maxLength = null;
+
+        /**
          * Sets the Model to be used to create new models in push and unshift methods.
 
          * @property {Object} model
@@ -169,6 +176,10 @@
 
         //No validation error has been ocured.
         var length = this.items.push.apply(this.items, models);
+
+        if (this.maxLength && this.items.length > this.maxLength) {
+            this.items.splice(0, this.items.length - this.maxLength);
+        }
 
         if (!options.silent) {
             this.emit('item.push', length - models.length, models.length);

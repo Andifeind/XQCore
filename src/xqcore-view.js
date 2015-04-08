@@ -402,6 +402,10 @@
             return;
         }
 
+        if (this.autoInject) {
+            this.inject();
+        }
+
         var html;
 
         log.info('Render view template of view ' + this.name, 'with data:', data);
@@ -730,9 +734,9 @@
                 delete self.__initialData;
             }
 
-            if (self.autoInject) {
-                self.inject();
-            }
+            // if (self.autoInject) {
+            //     self.inject();
+            // }
 
             //Set ready state
             self.__setReadyState();

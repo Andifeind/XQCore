@@ -437,7 +437,7 @@
     Presenter.prototype.__onPopstate = function(data) {
         var self = this;
 
-        self.log('popstate event recived', data, self);
+        log.info('popstate event recived', data, self);
 
         var route = XQCore.defaultRoute;
         if (XQCore.html5Routes) {
@@ -457,7 +457,7 @@
                 data[XQCore.callerEvent] = 'popstate';
             }
 
-            self.log('Trigger route', route, data);
+            log.info('Trigger route', route, data);
 
             route.fn.call(self, data);
         }

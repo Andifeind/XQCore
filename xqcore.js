@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.11.1-29
+ * XQCore - +0.11.1-32
  * 
  * Model View Presenter Javascript Framework
  *
@@ -41,7 +41,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-29',
+        version: '0.11.1-32',
         
         /**
          * Defines a default route
@@ -1379,7 +1379,7 @@ var XQCore;
     Presenter.prototype.__onPopstate = function(data) {
         var self = this;
 
-        self.log('popstate event recived', data, self);
+        log.info('popstate event recived', data, self);
 
         var route = XQCore.defaultRoute;
         if (XQCore.html5Routes) {
@@ -1399,7 +1399,7 @@ var XQCore;
                 data[XQCore.callerEvent] = 'popstate';
             }
 
-            self.log('Trigger route', route, data);
+            log.info('Trigger route', route, data);
 
             route.fn.call(self, data);
         }
@@ -3251,6 +3251,10 @@ var XQCore;
             return;
         }
 
+        if (this.autoInject) {
+            this.inject();
+        }
+
         var html;
 
         log.info('Render view template of view ' + this.name, 'with data:', data);
@@ -3579,9 +3583,9 @@ var XQCore;
                 delete self.__initialData;
             }
 
-            if (self.autoInject) {
-                self.inject();
-            }
+            // if (self.autoInject) {
+            //     self.inject();
+            // }
 
             //Set ready state
             self.__setReadyState();
@@ -4225,6 +4229,13 @@ var XQCore;
          * @property {Array} items
          */
         this.items = [];
+
+        /**
+         * Sets a maxlength of items
+         * @property {Number} maxlength
+         * @default null
+         */
+        this.maxLength = null;
 
         /**
          * Sets the Model to be used to create new models in push and unshift methods.

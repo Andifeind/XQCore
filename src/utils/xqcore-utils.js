@@ -68,4 +68,22 @@
 		return newObj;
 	};
 
+	/**
+	 * Creates a unique id
+	 *
+	 * @param {Number} len (Optional) String length. Defaults to 7
+	 * @returns {String} Unique string
+	 */
+	XQCore.uid = function(len) {
+		len = len || 7;
+		var str = '';
+
+		while (str.length < len) {
+			var part = Math.random().toString(36).substr(2);
+			str += part;
+		}
+
+		return str.substr(0, len);
+	};
+
 })(XQCore);

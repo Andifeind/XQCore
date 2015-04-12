@@ -10,7 +10,7 @@
 (function(XQCore, undefined) {
 	'use strict';
 
-    var log = new XQCore.Logger('Socket');
+    var log = new XQCore.Logger('Event');
 
     /**
      * Class for managing events.

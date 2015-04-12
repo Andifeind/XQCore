@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.11.1-32
+ * XQCore - +0.11.1-33
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-04-06
+ * Creation Date: 2015-04-11
  */
 
 /*global XQCore:true */
@@ -41,7 +41,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-32',
+        version: '0.11.1-33',
         
         /**
          * Defines a default route
@@ -3665,6 +3665,24 @@ var XQCore;
 		obj = value;
 
 		return newObj;
+	};
+
+	/**
+	 * Creates a unique id
+	 *
+	 * @param {Number} len (Optional) String length. Defaults to 7
+	 * @returns {String} Unique string
+	 */
+	XQCore.uid = function(len) {
+		len = len || 7;
+		var str = '';
+
+		while (str.length < len) {
+			var part = Math.random().toString(36).substr(2);
+			str += part;
+		}
+
+		return str.substr(0, len);
 	};
 
 })(XQCore);

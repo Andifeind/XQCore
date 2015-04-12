@@ -64,4 +64,55 @@ describe('Utils', function() {
 			});
 		});
 	});
+
+	describe.only('uid', function() {
+		it('Should return a unique string', function() {
+			var uid = XQCore.uid();
+			expect(uid).to.match(/^[a-zA-Z0-9]{7}$/);
+		});
+
+		it('Should return a unique string with a length of 10 chars', function() {
+			var uid = XQCore.uid();
+			expect(uid).to.match(/^[a-zA-Z0-9]{7}$/);
+		});
+
+		it('Should return a unique string with a length of 33 chars', function() {
+			var uid = XQCore.uid(33);
+			expect(uid).to.match(/^[a-zA-Z0-9]{33}$/);
+		});
+
+		it('Should return a unique string with a length of 100 chars', function() {
+			var uid = XQCore.uid(100);
+			expect(uid).to.match(/^[a-zA-Z0-9]{100}$/);
+		});
+
+		it('Should check 300000 uid\'s', function() {
+			var uid = XQCore.uid();
+			for (var i = 0; i < 300000; i++) {
+				uid = XQCore.uid();
+				if (!/^[a-zA-Z0-9]{7}$/.test(uid)) {
+					this.fail('Unvalid uid! ' + uid);
+				}
+			}
+
+			expect(i).to.eql(300000);
+		});
+
+		it('Should check the uniqueness of 10000 uid\'s', function() {
+			var len = 10000;
+			var uid = XQCore.uid();
+			var arr = [];
+			for (var i = 0; i < len; i++) {
+				uid = XQCore.uid();
+				if (arr.indexOf(uid) === -1) {
+					arr.push(uid);
+				}
+				else {
+					this.fail('Not unique');
+				}
+			}
+
+			expect(arr).to.have.length(len);
+		});
+	});
 });

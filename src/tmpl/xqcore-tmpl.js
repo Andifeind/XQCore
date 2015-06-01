@@ -28,7 +28,9 @@
 				}
 				else {
 					var tmpl = FireTPL.readFile(XQCore.viewsDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
-					return FireTPL.compile(tmpl);
+					return FireTPL.compile(tmpl, {
+						eventTags: true
+					});
 				}
 			}
 		}

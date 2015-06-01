@@ -411,6 +411,43 @@
         return true;
     };
 
+    /**
+     * Clear the whole list
+     * @param  {Object} options Options object
+     * {
+     *     silent: true,    //Disable event emitting
+     *     noSync: true     //Don't call sync method
+     * }
+     *
+     * @fires item.clear
+     * Fires an item.clear event if item was succesfully cleared. It will not fire any events on an empty list
+     *
+     * @returns {Number} Returns the amount of removed items
+     */
+    List.prototype.clear = function(options) {
+        options = options || {};
+
+        if (this.items.length === 0) {
+            return 0;
+        }
+        
+        var oldValue = this.toArray();
+
+        this.items = [];
+
+        if (!options.silent) {
+            this.emit('item.clear', oldValue);
+        }
+
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('clear', oldValue);
+            }
+        }
+
+        return oldValue.length;
+    };
+
     List.prototype.toArray = function() {
         return this.items.map(function(model) {
             return model.properties;

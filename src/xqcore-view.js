@@ -450,8 +450,22 @@
                 }
                 else {
                     listenerFunc = function(e) {
-                        e.preventDefault();
-                        var value = e.currentTarget.value || '';
+                        var value;
+
+                        if (e.originalEvent instanceof KeyboardEvent) {
+                            value = {
+                                key: e.key,
+                                code: e.keyCode,
+                                alt: e.altKey,
+                                ctrl: e.ctrlKey,
+                                meta: e.metaKey,
+                                shift: e.shiftKey
+                            };
+                        } else {
+                            e.preventDefault();
+                            value = e.currentTarget.value || '';
+                        }
+
                         self.emit(ev[1], value, data, e);
                         // self.presenter.emit(ev[1], value, data, e);
                     };

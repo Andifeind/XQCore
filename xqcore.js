@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.11.1-33
+ * XQCore - +0.11.1-39
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-04-11
+ * Creation Date: 2015-05-31
  */
 
 /*global XQCore:true */
@@ -41,7 +41,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-33',
+        version: '0.11.1-39',
         
         /**
          * Defines a default route
@@ -502,7 +502,7 @@ var XQCore;
 (function(XQCore, undefined) {
 	'use strict';
 
-    var log = new XQCore.Logger('Socket');
+    var log = new XQCore.Logger('Event');
 
     /**
      * Class for managing events.
@@ -2838,7 +2838,9 @@ var XQCore;
 				}
 				else {
 					var tmpl = FireTPL.readFile(XQCore.viewsDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
-					return FireTPL.compile(tmpl);
+					return FireTPL.compile(tmpl, {
+						eventTags: true
+					});
 				}
 			}
 		}
@@ -3299,8 +3301,22 @@ var XQCore;
                 }
                 else {
                     listenerFunc = function(e) {
-                        e.preventDefault();
-                        var value = e.currentTarget.value || '';
+                        var value;
+
+                        if (e.originalEvent instanceof KeyboardEvent) {
+                            value = {
+                                key: e.key,
+                                code: e.keyCode,
+                                alt: e.altKey,
+                                ctrl: e.ctrlKey,
+                                meta: e.metaKey,
+                                shift: e.shiftKey
+                            };
+                        } else {
+                            e.preventDefault();
+                            value = e.currentTarget.value || '';
+                        }
+
                         self.emit(ev[1], value, data, e);
                         // self.presenter.emit(ev[1], value, data, e);
                     };
@@ -4589,6 +4605,43 @@ var XQCore;
         });
 
         return true;
+    };
+
+    /**
+     * Clear the whole list
+     * @param  {Object} options Options object
+     * {
+     *     silent: true,    //Disable event emitting
+     *     noSync: true     //Don't call sync method
+     * }
+     *
+     * @fires item.clear
+     * Fires an item.clear event if item was succesfully cleared. It will not fire any events on an empty list
+     *
+     * @returns {Number} Returns the amount of removed items
+     */
+    List.prototype.clear = function(options) {
+        options = options || {};
+
+        if (this.items.length === 0) {
+            return 0;
+        }
+        
+        var oldValue = this.toArray();
+
+        this.items = [];
+
+        if (!options.silent) {
+            this.emit('item.clear', oldValue);
+        }
+
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('clear', oldValue);
+            }
+        }
+
+        return oldValue.length;
     };
 
     List.prototype.toArray = function() {

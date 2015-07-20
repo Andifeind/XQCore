@@ -65,7 +65,7 @@ describe('Utils', function() {
 		});
 	});
 
-	describe.only('uid', function() {
+	describe('uid', function() {
 		it('Should return a unique string', function() {
 			var uid = XQCore.uid();
 			expect(uid).to.match(/^[a-zA-Z0-9]{7}$/);

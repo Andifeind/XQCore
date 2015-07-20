@@ -164,6 +164,7 @@
             else {
                 model = new this.model('ListItem');
                 model.set(item);
+                console.log('Model', model.get());
             }
 
             if (model.isValid()) {

@@ -67,8 +67,7 @@
         if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
             this.set(this.defaults, {
                 silent: true,
-                noValidation: true,
-                extend: true
+                noValidation: true
             });
         }
 
@@ -83,6 +82,13 @@
         XQCore.extend(Model.prototype, XQCore.Sync.prototype);
     }
 
+    /**
+     * Inherits a model prototype
+     * @method inherit
+     * @param  {String} name    model name
+     * @param  {Object} options Model properties
+     * @return {Object}         Returns a XQCore.Model prototype
+     */
     Model.inherit = function(name, options) {
         if (typeof name === 'object') {
             options = name;

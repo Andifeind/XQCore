@@ -707,6 +707,24 @@ describe('XQCore Model', function() {
             expect(validationStub).was.calledOnce();
             expect(syncStub).was.notCalled();
         });
+
+        it.only('Should set default values of a model with a schema', function() {
+            model.schema = {
+                name: { type: 'string', required: true },
+                foo: { type: 'string', default: 'test' },
+                bar: { type: 'number', default: 123 },
+            };
+
+            model.set({
+                name: 'Test'
+            });
+
+            expect(model.get()).to.eql({
+                name: 'Test',
+                foo: 'test',
+                bar: 123
+            });
+        });
     });
 
     describe('set with custom validation', function() {

@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.11.1-39
+ * XQCore - +0.11.1-40
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-05-31
+ * Creation Date: 2015-07-14
  */
 
 /*global XQCore:true */
@@ -41,7 +41,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-39',
+        version: '0.11.1-40',
         
         /**
          * Defines a default route
@@ -1810,8 +1810,7 @@ var XQCore;
         if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
             this.set(this.defaults, {
                 silent: true,
-                noValidation: true,
-                extend: true
+                noValidation: true
             });
         }
 
@@ -4360,6 +4359,7 @@ var XQCore;
             else {
                 model = new this.model('ListItem');
                 model.set(item);
+                console.log('Model', model.get());
             }
 
             if (model.isValid()) {

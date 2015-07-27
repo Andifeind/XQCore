@@ -98,6 +98,28 @@
     XQCore.extend(List.prototype, new XQCore.Event(), new XQCore.Logger());
 
     /**
+     * Inherits a list prototype
+     * @method inherit
+     * @param  {String} name    list name
+     * @param  {Object} options Model properties
+     * @return {Object}         Returns a XQCore.Model prototype
+     */
+    List.inherit = function(name, options) {
+        if (typeof name === 'object') {
+            options = name;
+            name = undefined;
+        }
+
+        var Proto = function() {
+            XQCore.List.call(this, name, options);
+        };
+
+        Proto.prototype = Object.create(XQCore.List.prototype);
+        Proto.prototype.constructor = Proto;
+        return Proto;
+    };
+
+    /**
      * Contains the length of the list
      * @property length
      * @type {Number}

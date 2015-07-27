@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.11.1-40
+ * XQCore - +0.11.1-43
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-07-14
+ * Creation Date: 2015-07-26
  */
 
 /*global XQCore:true */
@@ -41,7 +41,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-40',
+        version: '0.11.1-43',
         
         /**
          * Defines a default route
@@ -1825,6 +1825,13 @@ var XQCore;
         XQCore.extend(Model.prototype, XQCore.Sync.prototype);
     }
 
+    /**
+     * Inherits a model prototype
+     * @method inherit
+     * @param  {String} name    model name
+     * @param  {Object} options Model properties
+     * @return {Object}         Returns a XQCore.Model prototype
+     */
     Model.inherit = function(name, options) {
         if (typeof name === 'object') {
             options = name;
@@ -4291,6 +4298,28 @@ var XQCore;
 
 
     XQCore.extend(List.prototype, new XQCore.Event(), new XQCore.Logger());
+
+    /**
+     * Inherits a list prototype
+     * @method inherit
+     * @param  {String} name    list name
+     * @param  {Object} options Model properties
+     * @return {Object}         Returns a XQCore.Model prototype
+     */
+    List.inherit = function(name, options) {
+        if (typeof name === 'object') {
+            options = name;
+            name = undefined;
+        }
+
+        var Proto = function() {
+            XQCore.List.call(this, name, options);
+        };
+
+        Proto.prototype = Object.create(XQCore.List.prototype);
+        Proto.prototype.constructor = Proto;
+        return Proto;
+    };
 
     /**
      * Contains the length of the list

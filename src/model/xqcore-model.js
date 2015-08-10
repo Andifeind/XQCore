@@ -273,7 +273,7 @@
 
         var data;
 
-        if (typeof key === options && key !== null) {
+        if (typeof key === 'object' && arguments.length === 1) {
             options = key;
             key = null;
         }

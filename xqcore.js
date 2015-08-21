@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.11.1-43
+ * XQCore - +0.11.1-64
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-07-26
+ * Creation Date: 2015-08-21
  */
 
 /*global XQCore:true */
@@ -41,7 +41,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-43',
+        version: '0.11.1-64',
         
         /**
          * Defines a default route
@@ -1212,6 +1212,7 @@ var XQCore;
             'item.unshift': 'xrender',
             'item.pop': 'xrender',
             'item.shift': 'xrender',
+            'item.update': 'xrender',
             'state.change': 'onStateChange'
         }, conf.listEvents);
 
@@ -1422,9 +1423,14 @@ var XQCore;
      */
     Presenter.prototype.initView = function(viewName, container, options) {
         options = options || {};
+        var tmplOptions = {};
+
+        if (options.viewDir) {
+            tmplOptions.viewDir = options.viewDir;
+        }
 
         var view = new XQCore.View(viewName, function(self) {
-            self.template = XQCore.Tmpl.getTemplate(viewName);
+            self.template = XQCore.Tmpl.getTemplate(viewName, tmplOptions);
             self.mode = options.mode || 'replace';
             self.container = container || 'body';
             self.hidden = !!options.hidden;
@@ -2016,7 +2022,7 @@ var XQCore;
 
         var data;
 
-        if (typeof key === options && key !== null) {
+        if (typeof key === 'object' && arguments.length === 1) {
             options = key;
             key = null;
         }
@@ -2833,7 +2839,8 @@ var XQCore;
 	XQCore.Tmpl = {
 		type: XQCore.templateEngine,
 		compile: TemplateEngine.compile,
-		getTemplate: function(viewName) {
+		getTemplate: function(viewName, options) {
+			options = options || {};
 			if (XQCore.templateEngine === 'firetpl') {
 				var FireTPL = TemplateEngine;
 				if (FireTPL.templateCache && FireTPL.templateCache[viewName]) {
@@ -2843,9 +2850,10 @@ var XQCore;
 					throw new Error('FireTPL runtime is being used. Please preload the ' + viewName + 'View');
 				}
 				else {
-					var tmpl = FireTPL.readFile(XQCore.viewsDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
+					var viewDir = options.viewDir || XQCore.viewsDir;
+					var tmpl = FireTPL.readFile(viewDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
 					return FireTPL.compile(tmpl, {
-						eventTags: true
+						eventAttrs: true
 					});
 				}
 			}
@@ -3280,9 +3288,12 @@ var XQCore;
 
         this.el.innerHTML = html;
         this.emit('content.change', data);
+
+        this.registerListener(this.$el);
     };
 
     View.prototype.registerListener = function($el) {
+        console.log('REG LISTENER');
         var self = this;
 
         $el.find('[on]').addBack('[on]').each(function() {
@@ -3291,6 +3302,7 @@ var XQCore;
             var data = $(this).data();
             var listenerFunc;
             $cur.removeAttr('on');
+            console.log(' ... NEW LISTENER', events);
 
             events = events.split(';');
             events.forEach(function(ev) {
@@ -4388,7 +4400,6 @@ var XQCore;
             else {
                 model = new this.model('ListItem');
                 model.set(item);
-                console.log('Model', model.get());
             }
 
             if (model.isValid()) {
@@ -4570,10 +4581,7 @@ var XQCore;
      * @returns {Boolean} Returns true if validation was succesfully and all items were added
      */
     List.prototype.update = function(select, data, options) {
-        var models = [],
-            model,
-            item,
-            self = this;
+        var item;
 
         options = options || {};
 
@@ -4584,54 +4592,22 @@ var XQCore;
         for (var i = 0, len = data.length; i < len; i++) {
             item = data[i];
         
-            if (item instanceof XQCore.Model) {
-                model = item;
-            }
-            else {
-                model = new this.model('ListItem');
-                model.set(item);
-            }
+            var updateItem = this.findOne(select);
 
-            if (model.isValid()) {
-                models.push(model);
-            }
-            else {
-                return false;
+            if (updateItem) {
+                updateItem.set(item, { noSync: true });
             }
         }
 
-        //No validation error has been ocured.
-        var keys = Object.keys(select);
+        if (!options.silent) {
+            this.emit('item.update');
+        }
 
-        console.log('KEYS', keys);
-
-        models.forEach(function(newItem) {
-            newItem = newItem.properties;
-            console.log('NEW', newItem);
-            var query = {};
-            keys.forEach(function(key) {
-                query[key] = newItem[key];
-            });
-
-            console.log('QUERY', query);
-            var res = self.findOne(query);
-            if (res) {
-                res.set(newItem);
-             
-                if (!options.silent) {
-                    self.emit('item.update', select, newItem);
-                }
-
-                if (!options.noSync) {
-                    if (typeof self.sync === 'function') {
-                        self.sync('update', select, newItem);
-                    }
-                }
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('update', select, data);
             }
-            else {
-                self.push(newItem);
-            }
-        });
+        }
 
         return true;
     };
@@ -4690,7 +4666,7 @@ var XQCore;
         var parent;
 
         parent = this.items;
-        
+
         if (parent) {
             for (var i = 0; i < parent.length; i++) {
                 var prop = parent[i],
@@ -4711,7 +4687,6 @@ var XQCore;
                 if (matching === true) {
                     return prop;
                 }
-
             }
         }
 
@@ -4885,7 +4860,7 @@ var XQCore;
         });
         
         self.socket.on('synclist.init', function(data) {
-            console.log('Got initial data:', data);
+            console.log('Got initial data request:', data);
             self.push(data, opts);
         });
 

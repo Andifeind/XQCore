@@ -104,7 +104,7 @@
         });
         
         self.socket.on('synclist.init', function(data) {
-            console.log('Got initial data:', data);
+            console.log('Got initial data request:', data);
             self.push(data, opts);
         });
 

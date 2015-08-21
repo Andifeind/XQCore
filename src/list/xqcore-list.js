@@ -186,7 +186,6 @@
             else {
                 model = new this.model('ListItem');
                 model.set(item);
-                console.log('Model', model.get());
             }
 
             if (model.isValid()) {
@@ -368,10 +367,7 @@
      * @returns {Boolean} Returns true if validation was succesfully and all items were added
      */
     List.prototype.update = function(select, data, options) {
-        var models = [],
-            model,
-            item,
-            self = this;
+        var item;
 
         options = options || {};
 
@@ -382,54 +378,22 @@
         for (var i = 0, len = data.length; i < len; i++) {
             item = data[i];
         
-            if (item instanceof XQCore.Model) {
-                model = item;
-            }
-            else {
-                model = new this.model('ListItem');
-                model.set(item);
-            }
+            var updateItem = this.findOne(select);
 
-            if (model.isValid()) {
-                models.push(model);
-            }
-            else {
-                return false;
+            if (updateItem) {
+                updateItem.set(item, { noSync: true });
             }
         }
 
-        //No validation error has been ocured.
-        var keys = Object.keys(select);
+        if (!options.silent) {
+            this.emit('item.update');
+        }
 
-        console.log('KEYS', keys);
-
-        models.forEach(function(newItem) {
-            newItem = newItem.properties;
-            console.log('NEW', newItem);
-            var query = {};
-            keys.forEach(function(key) {
-                query[key] = newItem[key];
-            });
-
-            console.log('QUERY', query);
-            var res = self.findOne(query);
-            if (res) {
-                res.set(newItem);
-             
-                if (!options.silent) {
-                    self.emit('item.update', select, newItem);
-                }
-
-                if (!options.noSync) {
-                    if (typeof self.sync === 'function') {
-                        self.sync('update', select, newItem);
-                    }
-                }
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('update', select, data);
             }
-            else {
-                self.push(newItem);
-            }
-        });
+        }
 
         return true;
     };
@@ -488,7 +452,7 @@
         var parent;
 
         parent = this.items;
-        
+
         if (parent) {
             for (var i = 0; i < parent.length; i++) {
                 var prop = parent[i],
@@ -509,7 +473,6 @@
                 if (matching === true) {
                     return prop;
                 }
-
             }
         }
 

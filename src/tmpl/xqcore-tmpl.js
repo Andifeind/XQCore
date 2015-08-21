@@ -17,7 +17,8 @@
 	XQCore.Tmpl = {
 		type: XQCore.templateEngine,
 		compile: TemplateEngine.compile,
-		getTemplate: function(viewName) {
+		getTemplate: function(viewName, options) {
+			options = options || {};
 			if (XQCore.templateEngine === 'firetpl') {
 				var FireTPL = TemplateEngine;
 				if (FireTPL.templateCache && FireTPL.templateCache[viewName]) {
@@ -27,9 +28,10 @@
 					throw new Error('FireTPL runtime is being used. Please preload the ' + viewName + 'View');
 				}
 				else {
-					var tmpl = FireTPL.readFile(XQCore.viewsDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
+					var viewDir = options.viewDir || XQCore.viewsDir;
+					var tmpl = FireTPL.readFile(viewDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
 					return FireTPL.compile(tmpl, {
-						eventTags: true
+						eventAttrs: true
 					});
 				}
 			}

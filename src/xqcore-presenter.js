@@ -270,6 +270,7 @@
             'item.unshift': 'xrender',
             'item.pop': 'xrender',
             'item.shift': 'xrender',
+            'item.update': 'xrender',
             'state.change': 'onStateChange'
         }, conf.listEvents);
 
@@ -480,9 +481,14 @@
      */
     Presenter.prototype.initView = function(viewName, container, options) {
         options = options || {};
+        var tmplOptions = {};
+
+        if (options.viewDir) {
+            tmplOptions.viewDir = options.viewDir;
+        }
 
         var view = new XQCore.View(viewName, function(self) {
-            self.template = XQCore.Tmpl.getTemplate(viewName);
+            self.template = XQCore.Tmpl.getTemplate(viewName, tmplOptions);
             self.mode = options.mode || 'replace';
             self.container = container || 'body';
             self.hidden = !!options.hidden;

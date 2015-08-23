@@ -1,6 +1,9 @@
 /**
- *  @requires XQCore.Model
- *  @requires XQCore.Socket
+ * XQCore Syncronniced module module
+ *
+ * @module XQCore.SyncModel
+ * @requires XQCore.Model
+ * @requires XQCore.Socket
  */
 (function(XQCore, undefined) {
     'use strict';

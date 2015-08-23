@@ -1,3 +1,8 @@
+/**
+ * Cache module
+ *
+ * @module XQCore.Cache
+ */
 (function(XQCore, undefined) {
 	'use strict';
 

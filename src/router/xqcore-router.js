@@ -4,11 +4,12 @@
  *
  * @author Andi Heinkelein - noname-media.com
  * @copyright Andi Heinkelein - noname-media.com
- * @package XQCore
  *
  * Based on router.js v0.2.0
  * Copyright Aaron Blohowiak and TJ Holowaychuk 2011.
  * https://github.com/aaronblohowiak/routes.js
+ * 
+ * @module XQCore.Router
  */
 (function(XQCore, undefined) {
 	'use strict';
@@ -19,7 +20,7 @@
 	 * A string or RegExp should be passed,
 	 * will return { re, src, keys} obj
 	 *
-	 * @param  {String / RegExp} path
+	 * @param  {String|RegExp} path
 	 * @return {Object}
 	 */
 	var Route = function(path) {

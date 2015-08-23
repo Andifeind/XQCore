@@ -1,5 +1,6 @@
 /**
  * XQCore socket module handles socket connections to a socket server
+ * 
  * @module XQCore.Socket
  * @requires XQCore.Logger
  * @requires sockJS-client

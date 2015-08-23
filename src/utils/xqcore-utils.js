@@ -1,5 +1,7 @@
 /**
  * Extends XQCore with some usefull functions
+ *
+ * @module  XQCore.Utils
  */
 (function(XQCore, undefined) {
 	'use strict';

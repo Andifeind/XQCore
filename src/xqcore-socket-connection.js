@@ -1,4 +1,11 @@
-/*glovbal XQCore:false */
+/**
+ * Socket connection
+ * Creates a socket connection to a socket server. Only one connection is used per server/port combination.
+ *
+ * @module XQCore.SocketConnection
+ */
+
+/*global XQCore:false */
 (function(XQCore) {
     'use strict';
 

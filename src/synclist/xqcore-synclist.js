@@ -1,6 +1,7 @@
 /**
  * XQCore.SyncList - Syncronized list
- * 
+ *
+ * @module  XQCore.SyncList
  * @requires XQCore.List
  * @requires XQCore.Socket
  *

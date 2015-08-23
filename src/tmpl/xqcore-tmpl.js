@@ -1,3 +1,9 @@
+/**
+ * Template module
+ *
+ * @module XQCore.Tmpl
+ */
+
 /*global define:false */
 (function (root, factory) {
 	'use strict';

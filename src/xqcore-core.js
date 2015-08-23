@@ -1,3 +1,8 @@
+/**
+ * XQCore core module
+ * @module XQCore
+ */
+
 /*!
  * XQCore - +<%= pkg.version %>
  * 
@@ -10,9 +15,11 @@
  * Author Andi Heinkelein
  *
  * Creation Date: <%= grunt.template.today("yyyy-mm-dd") %>
+ * 
  */
 
 /*global XQCore:true */
+
 var XQCore;
 
 (function (root, factory) {
@@ -33,7 +40,6 @@ var XQCore;
      * XQCore main object
      *
      * @package XQcore
-     * @module  XQCore
      * @type {Object}
      */
     XQCore = {
@@ -98,7 +104,7 @@ var XQCore;
     
     /**
      * Merges the properties from one or more objects together into a target object
-     * Its simply an alias for jQuery.extend. Use this method for frontend/backend shared modules.
+     * Its simply an alias for jQuery.extend.
      * 
      * @method extend
      * @param {Boolean} [deep] If true, a deep merge is using
@@ -168,7 +174,7 @@ var XQCore;
 
     
     /**
-     * Import a mudule name, uses current used module load or load from window
+     * Import a module name, uses current used module load or load from window
      * @param  {String} moduleName Module name
      * @return {Any}            Returns the module
      */
@@ -231,7 +237,7 @@ var XQCore;
     };
 
     /**
-     * Defines a glovally log level
+     * Defines a global log level
      *
      * XQCore has 5 log levels
      *

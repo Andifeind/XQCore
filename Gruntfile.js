@@ -41,6 +41,7 @@ module.exports = function(grunt) {
                     'src/xqcore-view.js',
                     'src/utils/xqcore-utils.js',
                     'src/router/xqcore-router.js',
+                    'src/xqcore-socket-connection.js',
                     'src/xqcore-socket.js',
                     'src/syncmodel/xqcore-syncmodel.js',
                     'src/list/xqcore-list.js',

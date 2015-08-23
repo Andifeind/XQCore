@@ -42,7 +42,8 @@
 
         this.server = this.server || location.protocol + '//' + location.hostname;
         this.port = this.port || XQCore.socketPort;
-        this.path = this.path || 'xqsocket/' + this.name.toLowerCase();
+        this.path = this.path || 'xqsocket';
+        this.channel = this.channel || this.name.toLowerCase();
         this.syncEnabled = false;
         this.connectToSocket();
         if (!this.noAutoRegister) {
@@ -53,6 +54,28 @@
     SyncList.prototype = Object.create(XQCore.List.prototype);
     SyncList.prototype.constructor = SyncList;
 
+
+    /**
+     * Inherits a sync model prototype
+     * @method inherit
+     * @param  {String} name    model name
+     * @param  {Object} options SyncList properties
+     * @return {Object}         Returns a XQCore.SyncList prototype
+     */
+    SyncList.inherit = function(name, options) {
+        if (typeof name === 'object') {
+            options = name;
+            name = undefined;
+        }
+
+        var Proto = function() {
+            XQCore.SyncList.call(this, name, options);
+        };
+
+        Proto.prototype = Object.create(XQCore.SyncList.prototype);
+        Proto.prototype.constructor = Proto;
+        return Proto;
+    };
     /**
      * Connect to a socket server
      *
@@ -61,8 +84,8 @@
     SyncList.prototype.connectToSocket = function() {
         var socketServer = this.server + ':' + this.port + '/' + this.path;
         if (!this.socket) {
-            this.socket = new XQCore.Socket();
-            this.socket.connect(socketServer);
+            this.dev('Connect to socket:', socketServer);
+            this.socket = new XQCore.Socket(socketServer, this.channel);
         }
     };
 
@@ -76,7 +99,6 @@
             this.syncEnabled = enableSync;
         }
 
-        console.log('Register synclist listener');
         self.dev('Register synclist at server:', self.name);
 
         var opts = {
@@ -108,14 +130,14 @@
             self.push(data, opts);
         });
 
-        self.socket.emit('synclist.register', {
+        self.socket.send('synclist.register', {
             name: self.name
         });
     };
 
     SyncList.prototype.unregister = function() {
         this.dev('Unregister synclist at server:', this.name);
-        this.socket.emit('synclist.unregister', {
+        this.socket.send('synclist.unregister', {
             name: this.name
         });
 
@@ -124,24 +146,26 @@
         this.socket.off('synclist.pop');
         this.socket.off('synclist.shift');
         this.socket.off('synclist.update');
+        this.socket.off('synclist.init');
     };
 
     /**
-     * Send a socket emit to the server
+     * Send a socket message to the server
      * @param  {String} eventName Event name
      * @param  {Object} data      Data object
      */
     SyncList.prototype.emitRemote = function(eventName, data) {
-        this.socket.emit(eventName, data);
+        this.socket.send(eventName, data);
     };
 
-    SyncList.prototype.sync = function() {
+    SyncList.prototype.sync = function(method) {
         if (!this.syncEnabled) {
             return;
         }
 
-        var args = Array.prototype.slice.call(arguments);
-        this.emitRemote('syncmodel.change', args);
+        var args = Array.prototype.slice.call(arguments, 1);
+        args.unshift('syncmodel.' + method);
+        this.emitRemote.apply(this, args);
     };
 
     SyncList.prototype.fetchList = function() {

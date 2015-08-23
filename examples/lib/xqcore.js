@@ -1,1 +1,1 @@
-../../build/xqcore.js
+../../xqcore.js

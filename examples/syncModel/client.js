@@ -7,15 +7,9 @@ $(function() {
 		port: 8888
 	});
 
-	model1.init();
-	model1.register(true);
-
 	var model2 = new XQCore.SyncModel('model2', {
 		port: 8888
 	});
-
-	model2.init();
-	model2.register(true);
 
 	console.log('Model1', model1);
 	console.log('Model1', model2);

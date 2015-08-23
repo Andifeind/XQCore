@@ -236,7 +236,7 @@
         this.properties = newData;
         if (options.silent !== true) {
             if (setAll) {
-                if (typeof this.sync === 'function' && options.sync === true) {
+                if (!options.noSync && typeof this.sync === 'function') {
                     this.sync('set', newData);
                 }
                 else {
@@ -244,7 +244,7 @@
                 }
             }
             else if (setItem){
-                if (typeof this.sync === 'function' && options.sync === true) {
+                if (!options.noSync && typeof this.sync === 'function') {
                     this.sync('item', key, value);
                 }
                 
@@ -427,7 +427,7 @@
         }
 
         if (options.silent !== true) {
-            if (typeof this.sync === 'function' && options.sync === true) {
+            if (!options.noSync && typeof this.sync === 'function') {
                 this.sync('append', path, data);
             }
 
@@ -463,7 +463,7 @@
         }
 
         if (options.silent !== true) {
-            if (typeof this.sync === 'function' && options.sync === true) {
+            if (!options.noSync && typeof this.sync === 'function') {
                 this.sync('prepend', path, data);
             }
 
@@ -501,8 +501,8 @@
         }
 
         if (options.silent !== true) {
-            if (typeof this.sync === 'function' && options.sync === true) {
-                this.sync('insert', path, 1, data);
+            if (!options.noSync && typeof this.sync === 'function') {
+                this.sync('insert', path, index, data);
             }
 
             this.emit('data.insert', path, index, data);
@@ -536,7 +536,7 @@
         }
 
         if (removed && options.silent !== true) {
-            if (typeof this.sync === 'function' && options.sync === true) {
+            if (!options.noSync && typeof this.sync === 'function') {
                 this.sync('remove', path, index);
             }
 

@@ -115,3 +115,9 @@ Form Submit | setData => set  |  validation.error
 Form Submit | setData => set  |  data.change
                               |  data.replace
                               |  -> sync()
+
+
+
+Sync Events       Sync method        Sync event
+---------------------------------------------------
+data.change

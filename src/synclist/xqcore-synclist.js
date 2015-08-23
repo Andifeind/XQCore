@@ -125,6 +125,10 @@
             self.update(query, data, opts);
         });
         
+        self.socket.on('synclist.clear', function() {
+            self.clear(opts);
+        });
+        
         self.socket.on('synclist.init', function(data) {
             console.log('Got initial data request:', data);
             self.push(data, opts);
@@ -146,6 +150,7 @@
         this.socket.off('synclist.pop');
         this.socket.off('synclist.shift');
         this.socket.off('synclist.update');
+        this.socket.off('synclist.clear');
         this.socket.off('synclist.init');
     };
 

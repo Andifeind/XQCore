@@ -1,5 +1,5 @@
 /*!
- * XQCore - +0.11.1-107
+ * XQCore - +0.11.1-110
  * 
  * Model View Presenter Javascript Framework
  *
@@ -41,7 +41,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-107',
+        version: '0.11.1-110',
         
         /**
          * Defines a default route
@@ -2129,24 +2129,44 @@ var XQCore;
     };
 
     /**
-     * Remove all data from model
+     * Removes all data from model
      *
      * @method reset
-     * @chainable
+     * @param  {Object} options Options object
+     * {
+     *     removeListener: true,    //Remove all event listener
+     *     silent: true,            //Disable event emitting
+     *     noSync: true             //Don't call sync method
+     * }
+     *
+     * @fires data.reset
+     * Fires a data.reset event if model was succesfully reseted.
+     *
+     * @returns {Object} Returns removed data
+     *
      */
-    Model.prototype.reset = function(removeListener) {
+    Model.prototype.reset = function(options) {
+        options = options || {};
+
         this.log('Reset model');
         var oldData = this.get();
         this.properties = XQCore.extend({}, this.defaults);
         this.state('starting');
-        if (removeListener) {
+        if (options.removeListener) {
             this.removeEvent();
         }
-        else {
+        
+        if (!options.silent) {
             this.emit('data.reset', oldData);
         }
+
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('reset', oldData);
+            }
+        }
         
-        return this;
+        return oldData;
     };
 
     /**
@@ -4279,6 +4299,10 @@ var XQCore;
             self.remove(path, index, data, opts);
         });
 
+        self.socket.on('syncmodel.reset', function() {
+            self.reset(opts);
+        });
+
         self.socket.on('syncmodel.init', function(data) {
             console.log('Got initial data request:', data);
             self.set(data, opts);
@@ -4301,6 +4325,7 @@ var XQCore;
         this.socket.off('syncmodel.prepend');
         this.socket.off('syncmodel.insert');
         this.socket.off('syncmodel.remove');
+        this.socket.off('syncmodel.reset');
         this.socket.off('syncmodel.init');
     };
 
@@ -4730,7 +4755,7 @@ var XQCore;
     };
 
     /**
-     * Clear the whole list
+     * Clears the whole list
      * @param  {Object} options Options object
      * {
      *     silent: true,    //Disable event emitting
@@ -4998,6 +5023,10 @@ var XQCore;
             self.update(query, data, opts);
         });
         
+        self.socket.on('synclist.clear', function() {
+            self.clear(opts);
+        });
+        
         self.socket.on('synclist.init', function(data) {
             console.log('Got initial data request:', data);
             self.push(data, opts);
@@ -5019,6 +5048,7 @@ var XQCore;
         this.socket.off('synclist.pop');
         this.socket.off('synclist.shift');
         this.socket.off('synclist.update');
+        this.socket.off('synclist.clear');
         this.socket.off('synclist.init');
     };
 

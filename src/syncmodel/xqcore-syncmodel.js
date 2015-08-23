@@ -100,6 +100,10 @@
             self.remove(path, index, data, opts);
         });
 
+        self.socket.on('syncmodel.reset', function() {
+            self.reset(opts);
+        });
+
         self.socket.on('syncmodel.init', function(data) {
             console.log('Got initial data request:', data);
             self.set(data, opts);
@@ -122,6 +126,7 @@
         this.socket.off('syncmodel.prepend');
         this.socket.off('syncmodel.insert');
         this.socket.off('syncmodel.remove');
+        this.socket.off('syncmodel.reset');
         this.socket.off('syncmodel.init');
     };
 

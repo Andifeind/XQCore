@@ -399,7 +399,7 @@
     };
 
     /**
-     * Clear the whole list
+     * Clears the whole list
      * @param  {Object} options Options object
      * {
      *     silent: true,    //Disable event emitting

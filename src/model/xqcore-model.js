@@ -380,24 +380,44 @@
     };
 
     /**
-     * Remove all data from model
+     * Removes all data from model
      *
      * @method reset
-     * @chainable
+     * @param  {Object} options Options object
+     * {
+     *     removeListener: true,    //Remove all event listener
+     *     silent: true,            //Disable event emitting
+     *     noSync: true             //Don't call sync method
+     * }
+     *
+     * @fires data.reset
+     * Fires a data.reset event if model was succesfully reseted.
+     *
+     * @returns {Object} Returns removed data
+     *
      */
-    Model.prototype.reset = function(removeListener) {
+    Model.prototype.reset = function(options) {
+        options = options || {};
+
         this.log('Reset model');
         var oldData = this.get();
         this.properties = XQCore.extend({}, this.defaults);
         this.state('starting');
-        if (removeListener) {
+        if (options.removeListener) {
             this.removeEvent();
         }
-        else {
+        
+        if (!options.silent) {
             this.emit('data.reset', oldData);
         }
+
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('reset', oldData);
+            }
+        }
         
-        return this;
+        return oldData;
     };
 
     /**

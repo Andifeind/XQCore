@@ -1,5 +1,10 @@
+/**
+ * XQCore core module
+ * @module XQCore
+ */
+
 /*!
- * XQCore - +0.11.1-110
+ * XQCore - +0.11.1-112
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,10 +14,12 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-08-23
+ * Creation Date: 2015-08-29
+ * 
  */
 
 /*global XQCore:true */
+
 var XQCore;
 
 (function (root, factory) {
@@ -33,7 +40,6 @@ var XQCore;
      * XQCore main object
      *
      * @package XQcore
-     * @module  XQCore
      * @type {Object}
      */
     XQCore = {
@@ -41,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-110',
+        version: '0.11.1-112',
         
         /**
          * Defines a default route
@@ -98,7 +104,7 @@ var XQCore;
     
     /**
      * Merges the properties from one or more objects together into a target object
-     * Its simply an alias for jQuery.extend. Use this method for frontend/backend shared modules.
+     * Its simply an alias for jQuery.extend.
      * 
      * @method extend
      * @param {Boolean} [deep] If true, a deep merge is using
@@ -168,7 +174,7 @@ var XQCore;
 
     
     /**
-     * Import a mudule name, uses current used module load or load from window
+     * Import a module name, uses current used module load or load from window
      * @param  {String} moduleName Module name
      * @return {Any}            Returns the module
      */
@@ -231,7 +237,7 @@ var XQCore;
     };
 
     /**
-     * Defines a glovally log level
+     * Defines a global log level
      *
      * XQCore has 5 log levels
      *
@@ -2840,6 +2846,12 @@ var XQCore;
     XQCore.Model = Model;
 })(XQCore);
 
+/**
+ * Template module
+ *
+ * @module XQCore.Tmpl
+ */
+
 /*global define:false */
 (function (root, factory) {
 	'use strict';
@@ -3653,6 +3665,8 @@ var XQCore;
 
 /**
  * Extends XQCore with some usefull functions
+ *
+ * @module  XQCore.Utils
  */
 (function(XQCore, undefined) {
 	'use strict';
@@ -3740,17 +3754,55 @@ var XQCore;
 	};
 
 })(XQCore);
+/**
+ * Extends XQCore with some usefull functions
+ *
+ * @group  XQCore.Utils
+ */
+(function(XQCore, undefined) {
+    'use strict';
+
+    /**
+     * Returns one or all queries
+     * Converts all numberic items to a Number
+     *
+     * @method getQuery
+     * @param  {String} name Query name
+     * @return {Object|String}      Returns all queries or one value.
+     */
+    XQCore.getQuery = function(name) {
+        if (!XQCore.__query) {
+            XQCore.__query = {};
+            location.search.substr(1).split('&').forEach(function(q) {
+                q = q.split('=');
+                if (q && q[0]) {
+                    var val = encodeURI(q[1]);
+                    XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
+                }
+            });
+        }
+
+        if (name) {
+            return XQCore.__query[name];
+        }
+        else {
+            return XQCore.__query;
+        }
+    };
+
+})(XQCore);
 /*jshint -W014 */
 /**
  * XQCore Router API
  *
  * @author Andi Heinkelein - noname-media.com
  * @copyright Andi Heinkelein - noname-media.com
- * @package XQCore
  *
  * Based on router.js v0.2.0
  * Copyright Aaron Blohowiak and TJ Holowaychuk 2011.
  * https://github.com/aaronblohowiak/routes.js
+ * 
+ * @module XQCore.Router
  */
 (function(XQCore, undefined) {
 	'use strict';
@@ -3761,7 +3813,7 @@ var XQCore;
 	 * A string or RegExp should be passed,
 	 * will return { re, src, keys} obj
 	 *
-	 * @param  {String / RegExp} path
+	 * @param  {String|RegExp} path
 	 * @return {Object}
 	 */
 	var Route = function(path) {
@@ -3951,12 +4003,19 @@ var XQCore;
 	XQCore.Router = Router;
 
 })(XQCore);
-/*glovbal XQCore:false */
+/**
+ * Socket connection
+ * Creates a socket connection to a socket server. Only one connection is used per server/port combination.
+ *
+ * @module XQCore.SocketConnection
+ */
+
+/*global XQCore:false */
 (function(XQCore) {
     'use strict';
 
     var log = new XQCore.Logger('SocketConnection');
-    log.logLevel = 5;
+    // log.logLevel = 5;
 
     var SockJS = XQCore.require('sockjs');
     var instances = {};
@@ -4146,6 +4205,7 @@ var XQCore;
 })(XQCore);
 /**
  * XQCore socket module handles socket connections to a socket server
+ * 
  * @module XQCore.Socket
  * @requires XQCore.Logger
  * @requires sockJS-client
@@ -4198,8 +4258,11 @@ var XQCore;
 
 })(XQCore);
 /**
- *  @requires XQCore.Model
- *  @requires XQCore.Socket
+ * XQCore Syncronniced module module
+ *
+ * @module XQCore.SyncModel
+ * @requires XQCore.Model
+ * @requires XQCore.Socket
  */
 (function(XQCore, undefined) {
     'use strict';
@@ -4898,7 +4961,8 @@ var XQCore;
 
 /**
  * XQCore.SyncList - Syncronized list
- * 
+ *
+ * @module  XQCore.SyncList
  * @requires XQCore.List
  * @requires XQCore.Socket
  *

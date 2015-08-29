@@ -10,7 +10,7 @@
     'use strict';
 
     var log = new XQCore.Logger('SocketConnection');
-    log.logLevel = 5;
+    // log.logLevel = 5;
 
     var SockJS = XQCore.require('sockjs');
     var instances = {};

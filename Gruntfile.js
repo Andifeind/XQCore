@@ -40,6 +40,7 @@ module.exports = function(grunt) {
                     'src/tmpl/xqcore-tmpl.js',
                     'src/xqcore-view.js',
                     'src/utils/xqcore-utils.js',
+                    'src/xqcore-utils-browser.js',
                     'src/router/xqcore-router.js',
                     'src/xqcore-socket-connection.js',
                     'src/xqcore-socket.js',

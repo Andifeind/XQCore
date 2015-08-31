@@ -10,7 +10,7 @@
     'use strict';
 
     var log = new XQCore.Logger('SocketConnection');
-    // log.logLevel = 5;
+    log.logLevel = 5;
 
     var SockJS = XQCore.require('sockjs');
     var instances = {};
@@ -53,6 +53,18 @@
         this.conn = null;
 
         this.connect(url);
+
+        /**
+         * Reconnect if connection gets lost
+         * @property {Boolean} autoReconnect
+         */
+        this.autoReconnect = true;
+
+        /**
+         * Defines a reconnection interval
+         * @type {Number}
+         */
+        this.reconnectionInterval = 1500;
     };
 
     /**
@@ -62,15 +74,17 @@
     SocketConnection.prototype.connect = function(url) {
         var self = this;
 
-        if (!this.conn) {
+        if (!this.conn || this.connectionState === 'disconnected') {
             log.info('Connect to socket server ', url);
             this.conn = new SockJS(url, null, {
                 debug: log.logLevel >= 4
             });
 
+            this.connectionState = 'connecting';
             this.conn.onopen = function() {
                 log.info('Connection was successful!');
                 self.setReady();
+                self.connectionState = 'connected';
             };
 
             this.conn.onmessage = function(e) {
@@ -99,10 +113,20 @@
             };
 
             this.conn.onclose = function(err) {
+                self.connectionState = 'disconnected';
                 self.unsetReady();
                 log.warn('Connection to ' + url + ' closed!', err);
-                //TODO reconnect
+                
+                if (self.autoReconnect) {
+                    log.info('Try to reconnect to ' + url);
+
+                    setTimeout(function() {
+                        self.connect(url);
+                    }, self.reconnectionInterval);
+                }
             };
+
+            console.log('CONN', this.conn);
         }
     };
 

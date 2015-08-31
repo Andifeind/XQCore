@@ -465,6 +465,21 @@
                                 meta: e.metaKey,
                                 shift: e.shiftKey
                             };
+                        }
+                        else if (e.originalEvent instanceof MouseEvent) {
+                            e.preventDefault();
+                            value = {
+                                button: e.button,
+                                alt: e.altKey,
+                                ctrl: e.ctrlKey,
+                                meta: e.metaKey,
+                                shift: e.shiftKey
+                            };
+
+                            if (e.type === 'click' && e.currentTarget.href) {
+                                value.href = e.currentTarget.href;
+                            }
+
                         } else {
                             e.preventDefault();
                             value = e.currentTarget.value || '';

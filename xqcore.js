@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-112
+ * XQCore - +0.11.1-121
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-08-29
+ * Creation Date: 2015-08-30
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-112',
+        version: '0.11.1-121',
         
         /**
          * Defines a default route
@@ -3362,6 +3362,21 @@ var XQCore;
                                 meta: e.metaKey,
                                 shift: e.shiftKey
                             };
+                        }
+                        else if (e.originalEvent instanceof MouseEvent) {
+                            e.preventDefault();
+                            value = {
+                                button: e.button,
+                                alt: e.altKey,
+                                ctrl: e.ctrlKey,
+                                meta: e.metaKey,
+                                shift: e.shiftKey
+                            };
+
+                            if (e.type === 'click' && e.currentTarget.href) {
+                                value.href = e.currentTarget.href;
+                            }
+
                         } else {
                             e.preventDefault();
                             value = e.currentTarget.value || '';
@@ -4015,7 +4030,7 @@ var XQCore;
     'use strict';
 
     var log = new XQCore.Logger('SocketConnection');
-    // log.logLevel = 5;
+    log.logLevel = 5;
 
     var SockJS = XQCore.require('sockjs');
     var instances = {};
@@ -4058,6 +4073,18 @@ var XQCore;
         this.conn = null;
 
         this.connect(url);
+
+        /**
+         * Reconnect if connection gets lost
+         * @property {Boolean} autoReconnect
+         */
+        this.autoReconnect = true;
+
+        /**
+         * Defines a reconnection interval
+         * @type {Number}
+         */
+        this.reconnectionInterval = 1500;
     };
 
     /**
@@ -4067,15 +4094,17 @@ var XQCore;
     SocketConnection.prototype.connect = function(url) {
         var self = this;
 
-        if (!this.conn) {
+        if (!this.conn || this.connectionState === 'disconnected') {
             log.info('Connect to socket server ', url);
             this.conn = new SockJS(url, null, {
                 debug: log.logLevel >= 4
             });
 
+            this.connectionState = 'connecting';
             this.conn.onopen = function() {
                 log.info('Connection was successful!');
                 self.setReady();
+                self.connectionState = 'connected';
             };
 
             this.conn.onmessage = function(e) {
@@ -4104,10 +4133,20 @@ var XQCore;
             };
 
             this.conn.onclose = function(err) {
+                self.connectionState = 'disconnected';
                 self.unsetReady();
                 log.warn('Connection to ' + url + ' closed!', err);
-                //TODO reconnect
+                
+                if (self.autoReconnect) {
+                    log.info('Try to reconnect to ' + url);
+
+                    setTimeout(function() {
+                        self.connect(url);
+                    }, self.reconnectionInterval);
+                }
             };
+
+            console.log('CONN', this.conn);
         }
     };
 

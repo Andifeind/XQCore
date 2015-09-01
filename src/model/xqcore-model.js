@@ -95,7 +95,22 @@
             name = undefined;
         }
 
-        var Proto = function() {
+        var Proto = function(_name, _options) {
+            if (_name) {
+                if (typeof _name === 'string') {
+                    name = _name;
+                }
+                else {
+                    _options = _name;
+                }
+
+                if (typeof _options === 'function') {
+                    _options.call(this, this);
+                }
+                else if (typeof _options === 'object') {
+                    XQCore.extend(this, _options);
+                }
+            }
             XQCore.Model.call(this, name, options);
         };
 

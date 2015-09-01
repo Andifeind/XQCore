@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-121
+ * XQCore - +0.11.1-122
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-08-30
+ * Creation Date: 2015-09-01
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-121',
+        version: '0.11.1-122',
         
         /**
          * Defines a default route
@@ -1850,7 +1850,22 @@ var XQCore;
             name = undefined;
         }
 
-        var Proto = function() {
+        var Proto = function(_name, _options) {
+            if (_name) {
+                if (typeof _name === 'string') {
+                    name = _name;
+                }
+                else {
+                    _options = _name;
+                }
+
+                if (typeof _options === 'function') {
+                    _options.call(this, this);
+                }
+                else if (typeof _options === 'object') {
+                    XQCore.extend(this, _options);
+                }
+            }
             XQCore.Model.call(this, name, options);
         };
 

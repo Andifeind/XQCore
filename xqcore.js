@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-122
+ * XQCore - +0.11.1-125
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-09-01
+ * Creation Date: 2015-09-03
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-122',
+        version: '0.11.1-125',
         
         /**
          * Defines a default route
@@ -1037,7 +1037,7 @@ var XQCore;
 
             $(function() {
                 log.info('Trigger route', route, data);
-                route.fn.call(self, route.params);
+                route.fn.call(self, route.params, route.splats);
             });
         }
     };
@@ -1402,6 +1402,10 @@ var XQCore;
         route = self.__Router.match(route);
         if (route) {
             data = data || route.params;
+            console.log('ROUTES', route);
+            if (route.splats) {
+                data.splats = route.splats;
+            }
             if (XQCore.callerEvent) {
                 data[XQCore.callerEvent] = 'popstate';
             }

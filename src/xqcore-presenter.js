@@ -89,7 +89,7 @@
 
             $(function() {
                 log.info('Trigger route', route, data);
-                route.fn.call(self, route.params);
+                route.fn.call(self, route.params, route.splats);
             });
         }
     };
@@ -454,6 +454,10 @@
         route = self.__Router.match(route);
         if (route) {
             data = data || route.params;
+            console.log('ROUTES', route);
+            if (route.splats) {
+                data.splats = route.splats;
+            }
             if (XQCore.callerEvent) {
                 data[XQCore.callerEvent] = 'popstate';
             }

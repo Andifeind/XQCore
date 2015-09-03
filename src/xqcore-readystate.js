@@ -8,9 +8,9 @@
  * @module XQCore.ReadyState
  */
 (function(XQCore) {
-
     var ReadyState = function() {
-
+        this.__isReady = false;
+        this.__readyFuncs = [];
     };
 
     /**
@@ -24,10 +24,6 @@
             fn.call(this);
         }
         else {
-            if (!this.__readyFuncs) {
-                this.__readyFuncs = [];
-            }
-
             this.__readyFuncs.push(fn);
         }
     };

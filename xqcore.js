@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-125
+ * XQCore - +0.11.1-140
  * 
  * Model View Presenter Javascript Framework
  *
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-125',
+        version: '0.11.1-140',
         
         /**
          * Defines a default route
@@ -257,6 +257,97 @@ var XQCore;
 }));
 
 
+/**
+ * Extends XQCore with some usefull functions
+ *
+ * @module  XQCore.Utils
+ */
+(function(XQCore, undefined) {
+    'use strict';
+
+    XQCore.undotify = function(path, obj) {
+        if(path) {
+            path = path.split('.');
+            path.forEach(function(key) {
+                obj = obj ? obj[key] : undefined;
+            });
+        }
+
+        return obj;
+    };
+
+    /**
+     * Creates a object from an dotified key and a value
+     *
+     * @public
+     * @method dedotify
+     * 
+     * @param {Object} obj Add new value to obj. This param is optional.
+     * @param {String} key The dotified key
+     * @param {Any} value The value
+     *
+     * @returns {Object} Returns the extended object if obj was set otherwis a new object will be returned
+     */
+    XQCore.dedotify = function(obj, key, value) {
+
+        if (typeof obj === 'string') {
+            value = key;
+            key = obj;
+            obj = {};
+        }
+
+        var newObj = obj;
+
+        if(key) {
+            key = key.split('.');
+            var len = key.length;
+            key.forEach(function(k, i) {
+                if (i === len - 1) {
+                    if (/\[\]$/.test(k)) {
+                        k = k.substr(0, k.length - 2);
+                        if (!obj[k]) {
+                            obj[k] = [];
+                        }
+                        obj[k].push(value);
+                        return;
+                    }
+
+                    obj[k] = value;
+                    return;
+                }
+
+                if (!obj[k]) {
+                    obj[k] = {};
+                }
+
+                obj = obj[k];
+            });
+        }
+
+        obj = value;
+
+        return newObj;
+    };
+
+    /**
+     * Creates a unique id
+     *
+     * @param {Number} len (Optional) String length. Defaults to 7
+     * @returns {String} Unique string
+     */
+    XQCore.uid = function(len) {
+        len = len || 7;
+        var str = '';
+
+        while (str.length < len) {
+            var part = Math.random().toString(36).substr(2);
+            str += part;
+        }
+
+        return str.substr(0, len);
+    };
+    
+})(XQCore);
 /**
  * XQCore Logger module
  *
@@ -946,6 +1037,67 @@ var XQCore;
 
 })(XQCore);
 
+'use strict';
+
+/**
+ * XQCore.ReadyState module
+ * 
+ * Holds a function call until a state becomes ready
+ * 
+ * @module XQCore.ReadyState
+ */
+(function(XQCore) {
+    var ReadyState = function() {
+        this.__isReady = false;
+        this.__readyFuncs = [];
+    };
+
+    /**
+     * Wait till view is ready
+     *
+     * @method ready
+     * @param {Function} fn FUnction to be called if state becomes ready
+     */
+    ReadyState.prototype.ready = function(fn) {
+        if (this.__isReady) {
+            fn.call(this);
+        }
+        else {
+            this.__readyFuncs.push(fn);
+        }
+    };
+
+    /**
+     * Sets a state ready and calls all retained functions
+     * 
+     * @method setReady
+     */
+    ReadyState.prototype.setReady = function() {
+        var self = this;
+
+        this.__isReady = true;
+        
+        if (this.__readyFuncs) {
+            this.__readyFuncs.forEach(function(fn) {
+                fn.call(self);
+            });
+            this.__readyFuncs = [];
+        }
+    };
+
+    /**
+     * Unsets a ready state
+     * 
+     * @method unsetReady
+     */
+    ReadyState.prototype.unsetReady = function() {
+        this.__isReady = false;
+    };
+
+    XQCore.ReadyState = ReadyState;
+
+})(XQCore);
+
 /**
  * XQCore Presenter
  *
@@ -1412,7 +1564,7 @@ var XQCore;
 
             log.info('Trigger route', route, data);
 
-            route.fn.call(self, data);
+            route.fn.call(self, data, route.splats);
         }
     };
 
@@ -1504,6 +1656,13 @@ var XQCore;
 	var $ = XQCore.require('jquery');
 
 	var Sync = function() {
+		/**
+		 * Sets a server URI
+		 *
+		 * This URI is used by all send methods as default server URI
+		 * @property {String} server
+		 */
+		this.server = null;
 
 	};
 
@@ -1646,40 +1805,6 @@ var XQCore;
 	};
 
 	/**
-	 * Check if model is ready and call func or wait for ready state
-	 */
-	Sync.prototype.ready = function(func) {
-		var self = this;
-		
-		if (func === true) {
-			//Call ready funcs
-			if (Array.isArray(this.__callbacksOnReady)) {
-				this.log('Trigger ready state');
-				this.__callbacksOnReady.forEach(function(func) {
-					func.call(self);
-				});
-			}
-
-			this.__isReady = true;
-			delete this.__callbacksOnReady;
-		}
-		else if (typeof func === 'function') {
-			if (this.__isReady === true) {
-				func();
-			}
-			else {
-				if (!this.__callbacksOnReady) {
-					this.__callbacksOnReady = [];
-				}
-				this.__callbacksOnReady.push(func);
-			}
-		}
-		else {
-			this.warn('arg0 isn\'t a callback in model.ready()!');
-		}
-	};
-
-	/**
 	 * Fetch data from server
 	 *
 	 * @param {Object} query MongoDB query 
@@ -1781,6 +1906,9 @@ var XQCore;
      * @param {Object} conf Model extend object
      */
     Model = function(name, conf) {
+        //Call XQCore.ReadyState constructor
+        XQCore.ReadyState.call(this);
+
         if (typeof arguments[0] === 'object') {
             conf = name;
             name = conf.name;
@@ -1832,14 +1960,20 @@ var XQCore;
 
         this._isValid = !this.schema;
         this.state('ready');
+
+        console.log('PROTO', this);
     };
 
+
+    //Extend with ready state
+    XQCore.extend(Model.prototype, XQCore.ReadyState.prototype);
 
     XQCore.extend(Model.prototype, new XQCore.Event(), new XQCore.Logger());
 
     if (XQCore.Sync) {
         XQCore.extend(Model.prototype, XQCore.Sync.prototype);
     }
+
 
     /**
      * Inherits a model prototype
@@ -2043,7 +2177,9 @@ var XQCore;
      * @return {Object}     model dataset
      */
     Model.prototype.get = function(key, options) {
-        options = options || {};
+        if (options === undefined) {
+            options = {};
+        }
 
         var data;
 
@@ -2067,6 +2203,22 @@ var XQCore;
             }
 
             return this.properties;
+        }
+        else if (typeof key === 'string' && typeof options === 'number') {
+            var index = options;
+            if (arguments.length === 3) {
+                options = arguments[2];
+            }
+
+            var item = this.get(key);
+
+            if (options.copy === true) {
+                if (typeof item[index] === 'object') {
+                    return XQCore.extend({}, item[index]);
+                }
+            }
+
+            return item[index];
         }
         else {
             if (options.copy === true) {
@@ -3700,97 +3852,6 @@ var XQCore;
 /**
  * Extends XQCore with some usefull functions
  *
- * @module  XQCore.Utils
- */
-(function(XQCore, undefined) {
-	'use strict';
-
-	XQCore.undotify = function(path, obj) {
-		if(path) {
-			path = path.split('.');
-			path.forEach(function(key) {
-				obj = obj ? obj[key] : undefined;
-			});
-		}
-
-		return obj;
-	};
-
-	/**
-	 * Creates a object from an dotified key and a value
-	 *
-	 * @public
-	 * @method dedotify
-	 * 
-	 * @param {Object} obj Add new value to obj. This param is optional.
-	 * @param {String} key The dotified key
-	 * @param {Any} value The value
-	 *
-	 * @returns {Object} Returns the extended object if obj was set otherwis a new object will be returned
-	 */
-	XQCore.dedotify = function(obj, key, value) {
-
-		if (typeof obj === 'string') {
-			value = key;
-			key = obj;
-			obj = {};
-		}
-
-		var newObj = obj;
-
-		if(key) {
-			key = key.split('.');
-			var len = key.length;
-			key.forEach(function(k, i) {
-				if (i === len - 1) {
-					if (/\[\]$/.test(k)) {
-						k = k.substr(0, k.length - 2);
-						if (!obj[k]) {
-							obj[k] = [];
-						}
-						obj[k].push(value);
-						return;
-					}
-
-					obj[k] = value;
-					return;
-				}
-
-				if (!obj[k]) {
-					obj[k] = {};
-				}
-
-				obj = obj[k];
-			});
-		}
-
-		obj = value;
-
-		return newObj;
-	};
-
-	/**
-	 * Creates a unique id
-	 *
-	 * @param {Number} len (Optional) String length. Defaults to 7
-	 * @returns {String} Unique string
-	 */
-	XQCore.uid = function(len) {
-		len = len || 7;
-		var str = '';
-
-		while (str.length < len) {
-			var part = Math.random().toString(36).substr(2);
-			str += part;
-		}
-
-		return str.substr(0, len);
-	};
-
-})(XQCore);
-/**
- * Extends XQCore with some usefull functions
- *
  * @group  XQCore.Utils
  */
 (function(XQCore, undefined) {
@@ -4517,6 +4578,9 @@ var XQCore;
      * @param {Object} conf List extend object
      */
     List = function(name, conf) {
+        //Call XQCore.ReadyState constructor
+        XQCore.ReadyState.call(this);
+
         var self = this;
 
         if (typeof arguments[0] === 'object') {
@@ -4571,6 +4635,8 @@ var XQCore;
         this.state('ready');
     };
 
+    //Extend with ready state
+    XQCore.extend(List.prototype, XQCore.ReadyState.prototype);
 
     XQCore.extend(List.prototype, new XQCore.Event(), new XQCore.Logger());
 

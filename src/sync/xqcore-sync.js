@@ -9,6 +9,13 @@
 	var $ = XQCore.require('jquery');
 
 	var Sync = function() {
+		/**
+		 * Sets a server URI
+		 *
+		 * This URI is used by all send methods as default server URI
+		 * @property {String} server
+		 */
+		this.server = null;
 
 	};
 
@@ -148,40 +155,6 @@
 	 */
 	Sync.prototype.sendDELETE = function(url, data, callback) {
 		this.send('DELETE', url, data, callback);
-	};
-
-	/**
-	 * Check if model is ready and call func or wait for ready state
-	 */
-	Sync.prototype.ready = function(func) {
-		var self = this;
-		
-		if (func === true) {
-			//Call ready funcs
-			if (Array.isArray(this.__callbacksOnReady)) {
-				this.log('Trigger ready state');
-				this.__callbacksOnReady.forEach(function(func) {
-					func.call(self);
-				});
-			}
-
-			this.__isReady = true;
-			delete this.__callbacksOnReady;
-		}
-		else if (typeof func === 'function') {
-			if (this.__isReady === true) {
-				func();
-			}
-			else {
-				if (!this.__callbacksOnReady) {
-					this.__callbacksOnReady = [];
-				}
-				this.__callbacksOnReady.push(func);
-			}
-		}
-		else {
-			this.warn('arg0 isn\'t a callback in model.ready()!');
-		}
 	};
 
 	/**

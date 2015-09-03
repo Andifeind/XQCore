@@ -22,6 +22,9 @@
      * @param {Object} conf Model extend object
      */
     Model = function(name, conf) {
+        //Call XQCore.ReadyState constructor
+        XQCore.ReadyState.call(this);
+
         if (typeof arguments[0] === 'object') {
             conf = name;
             name = conf.name;
@@ -73,14 +76,20 @@
 
         this._isValid = !this.schema;
         this.state('ready');
+
+        console.log('PROTO', this);
     };
 
+
+    //Extend with ready state
+    XQCore.extend(Model.prototype, XQCore.ReadyState.prototype);
 
     XQCore.extend(Model.prototype, new XQCore.Event(), new XQCore.Logger());
 
     if (XQCore.Sync) {
         XQCore.extend(Model.prototype, XQCore.Sync.prototype);
     }
+
 
     /**
      * Inherits a model prototype
@@ -284,7 +293,9 @@
      * @return {Object}     model dataset
      */
     Model.prototype.get = function(key, options) {
-        options = options || {};
+        if (options === undefined) {
+            options = {};
+        }
 
         var data;
 
@@ -308,6 +319,22 @@
             }
 
             return this.properties;
+        }
+        else if (typeof key === 'string' && typeof options === 'number') {
+            var index = options;
+            if (arguments.length === 3) {
+                options = arguments[2];
+            }
+
+            var item = this.get(key);
+
+            if (options.copy === true) {
+                if (typeof item[index] === 'object') {
+                    return XQCore.extend({}, item[index]);
+                }
+            }
+
+            return item[index];
         }
         else {
             if (options.copy === true) {

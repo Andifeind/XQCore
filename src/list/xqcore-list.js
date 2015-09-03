@@ -40,6 +40,9 @@
      * @param {Object} conf List extend object
      */
     List = function(name, conf) {
+        //Call XQCore.ReadyState constructor
+        XQCore.ReadyState.call(this);
+
         var self = this;
 
         if (typeof arguments[0] === 'object') {
@@ -94,6 +97,8 @@
         this.state('ready');
     };
 
+    //Extend with ready state
+    XQCore.extend(List.prototype, XQCore.ReadyState.prototype);
 
     XQCore.extend(List.prototype, new XQCore.Event(), new XQCore.Logger());
 

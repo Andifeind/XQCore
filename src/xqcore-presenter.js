@@ -464,7 +464,7 @@
 
             log.info('Trigger route', route, data);
 
-            route.fn.call(self, data);
+            route.fn.call(self, data, route.splats);
         }
     };
 

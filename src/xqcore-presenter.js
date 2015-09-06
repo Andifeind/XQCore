@@ -111,14 +111,14 @@
      * @param {String} url Page URL (Optional) defaults to the curent URL
      */
     Presenter.prototype.pushState = function(data, url) {
-        // this.log('Check State', data, history.state, XQCore.compare(data, history.state));
+        // log.info('Check State', data, history.state, XQCore.compare(data, history.state));
         // if (XQCore.compare(data, history.state)) {
         //     this.warn('Abborting history.pushState because data are equale to current history state');
         // }
         var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
         url = hash + url;
         history.pushState(data, '', url || null);
-        this.log('Update history with pushState', data, url);
+        log.info('Update history with pushState', data, url);
     };
 
     /**
@@ -134,7 +134,7 @@
         var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
         url = hash + url;
         history.replaceState(data, '', url || null);
-        this.log('Update history with replaceState', data, url);
+        log.info('Update history with replaceState', data, url);
     };
 
     /**
@@ -150,7 +150,7 @@
      * @param {Object} options Options
      */
     Presenter.prototype.navigateTo = function(route, data, options) {
-        this.log('Navigate to route: ', route, data, options);
+        log.info('Navigate to route: ', route, data, options);
 
         options = options || {};
 

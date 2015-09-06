@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-140
+ * XQCore - +0.11.1-141
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-09-03
+ * Creation Date: 2015-09-06
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-140',
+        version: '0.11.1-141',
         
         /**
          * Defines a default route
@@ -1211,14 +1211,14 @@ var XQCore;
      * @param {String} url Page URL (Optional) defaults to the curent URL
      */
     Presenter.prototype.pushState = function(data, url) {
-        // this.log('Check State', data, history.state, XQCore.compare(data, history.state));
+        // log.info('Check State', data, history.state, XQCore.compare(data, history.state));
         // if (XQCore.compare(data, history.state)) {
         //     this.warn('Abborting history.pushState because data are equale to current history state');
         // }
         var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
         url = hash + url;
         history.pushState(data, '', url || null);
-        this.log('Update history with pushState', data, url);
+        log.info('Update history with pushState', data, url);
     };
 
     /**
@@ -1234,7 +1234,7 @@ var XQCore;
         var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
         url = hash + url;
         history.replaceState(data, '', url || null);
-        this.log('Update history with replaceState', data, url);
+        log.info('Update history with replaceState', data, url);
     };
 
     /**
@@ -1250,7 +1250,7 @@ var XQCore;
      * @param {Object} options Options
      */
     Presenter.prototype.navigateTo = function(route, data, options) {
-        this.log('Navigate to route: ', route, data, options);
+        log.info('Navigate to route: ', route, data, options);
 
         options = options || {};
 

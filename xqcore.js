@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-141
+ * XQCore - +0.11.1-142
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-09-06
+ * Creation Date: 2015-09-08
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-141',
+        version: '0.11.1-142',
         
         /**
          * Defines a default route
@@ -1254,7 +1254,6 @@ var XQCore;
 
         options = options || {};
 
-        /*global PopStateEvent:false */
         if (XQCore.html5Routes) {
             if (options.replace) {
                 this.replaceState(data, route);
@@ -1262,13 +1261,15 @@ var XQCore;
                 this.pushState(data, route);
             }
             
-            var evt = new PopStateEvent('popstate', {
-                bubbles: false,
-                cancelable: false,
-                state: null
-            });
+            //Trigger popstate handler
+            this.__onPopstate();
+            // var evt = new PopStateEvent('popstate', {
+            //     bubbles: false,
+            //     cancelable: false,
+            //     state: null
+            // });
 
-            window.dispatchEvent(evt);
+            // window.dispatchEvent(evt);
         }
         else {
             var hashRoute = XQCore.hashBang + route;

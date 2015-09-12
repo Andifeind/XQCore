@@ -154,7 +154,6 @@
 
         options = options || {};
 
-        /*global PopStateEvent:false */
         if (XQCore.html5Routes) {
             if (options.replace) {
                 this.replaceState(data, route);
@@ -162,13 +161,15 @@
                 this.pushState(data, route);
             }
             
-            var evt = new PopStateEvent('popstate', {
-                bubbles: false,
-                cancelable: false,
-                state: null
-            });
+            //Trigger popstate handler
+            this.__onPopstate();
+            // var evt = new PopStateEvent('popstate', {
+            //     bubbles: false,
+            //     cancelable: false,
+            //     state: null
+            // });
 
-            window.dispatchEvent(evt);
+            // window.dispatchEvent(evt);
         }
         else {
             var hashRoute = XQCore.hashBang + route;

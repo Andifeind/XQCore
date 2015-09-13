@@ -98,7 +98,13 @@ var XQCore;
          * @property {Number} socketPort
          * @default 9889
          */
-        socketPort: 9889
+        socketPort: 9889,
+
+        /**
+         * Sets max length of event listener
+         * @property {Number} eventListenerMaxLength=1328
+         */
+        eventListenerMaxLength: 1328
     };
 
     

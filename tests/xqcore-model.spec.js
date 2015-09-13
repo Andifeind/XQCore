@@ -9,7 +9,7 @@ describe('XQCore Model', function() {
             model = new XQCore.Model('Test II', initFunc);
 
             expect(model).to.be.a(XQCore.Model);
-            expect(initFunc).was.called();
+            expect(initFunc).to.be.called();
         });
 
         it('Should get a model name from first arg', function() {
@@ -42,16 +42,15 @@ describe('XQCore Model', function() {
 
             model.on('data.change', changeStub);
 
-            expect(validationStub).was.notCalled();
+            expect(validationStub).to.be.notCalled();
             expect(model.properties).to.eql({name: 'Andi'});
-            expect(changeStub).was.notCalled();
-            expect(setSpy).was.calledOnce();
-            expect(setSpy).was.calledWith({
+            expect(changeStub).to.be.notCalled();
+            expect(setSpy).to.be.calledOnce();
+            expect(setSpy).to.be.calledWith({
                 name: 'Andi'
             }, {
                 silent: true,
-                noValidation: true,
-                extend: true
+                noValidation: true
             });
 
 
@@ -66,7 +65,7 @@ describe('XQCore Model', function() {
             });
             model.fetch();
 
-            expect(fetchStub).was.called();
+            expect(fetchStub).to.be.called();
         });
     });
 
@@ -403,9 +402,9 @@ describe('XQCore Model', function() {
             expect(model.properties).to.be.an('object');
             expect(model.properties).to.eql(modelData);
 
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.replace', model.properties, {});
-            expect(emitStub).was.calledWith('data.change', model.properties, {});
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.replace', model.properties, {});
+            expect(emitStub).to.be.calledWith('data.change', model.properties, {});
 
             emitStub.restore();
         });
@@ -420,9 +419,9 @@ describe('XQCore Model', function() {
                 profession: 'Developer'
             }));
 
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.item', 'profession', 'Developer');
-            expect(emitStub).was.calledWith('data.change', model.properties, modelData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.item', 'profession', 'Developer');
+            expect(emitStub).to.be.calledWith('data.change', model.properties, modelData);
 
             emitStub.restore();
         });
@@ -439,9 +438,9 @@ describe('XQCore Model', function() {
                 }
             }));
 
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.item', 'profession.name', 'Developer');
-            expect(emitStub).was.calledWith('data.change', model.properties, modelData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.item', 'profession.name', 'Developer');
+            expect(emitStub).to.be.calledWith('data.change', model.properties, modelData);
 
             emitStub.restore();
         });
@@ -453,7 +452,7 @@ describe('XQCore Model', function() {
             expect(model.properties).to.be.an('object');
             expect(model.properties).to.eql(modelData);
 
-            expect(emitStub).was.notCalled();
+            expect(emitStub).to.be.notCalled();
 
             emitStub.restore();
         });
@@ -468,7 +467,7 @@ describe('XQCore Model', function() {
                 profession: 'Developer'
             }));
 
-            expect(emitStub).was.notCalled();
+            expect(emitStub).to.be.notCalled();
 
             emitStub.restore();
         });
@@ -485,7 +484,7 @@ describe('XQCore Model', function() {
                 }
             }));
 
-            expect(emitStub).was.notCalled();
+            expect(emitStub).to.be.notCalled();
 
             emitStub.restore();
         });
@@ -499,8 +498,8 @@ describe('XQCore Model', function() {
             expect(model.properties).to.be.an('object');
             expect(model.properties).to.eql({});
 
-            expect(validationStub).was.called();
-            expect(validationStub).was.calledWith(modelData);
+            expect(validationStub).to.be.called();
+            expect(validationStub).to.be.calledWith(modelData);
 
             validationStub.restore();
         });
@@ -514,8 +513,8 @@ describe('XQCore Model', function() {
             expect(model.properties).to.be.an('object');
             expect(model.properties).to.eql(modelData);
 
-            expect(validationStub).was.called();
-            expect(validationStub).was.calledWith(modelData);
+            expect(validationStub).to.be.called();
+            expect(validationStub).to.be.calledWith(modelData);
 
             validationStub.restore();
         });
@@ -530,8 +529,8 @@ describe('XQCore Model', function() {
             expect(model.properties).to.be.an('object');
             expect(model.properties).to.eql(modelData);
 
-            expect(validationStub).was.called();
-            expect(validationStub).was.calledWith(XQCore.extend({}, modelData, {
+            expect(validationStub).to.be.called();
+            expect(validationStub).to.be.calledWith(XQCore.extend({}, modelData, {
                 profession: 'Developer'
             }));
 
@@ -550,8 +549,8 @@ describe('XQCore Model', function() {
                 profession: 'Developer'
             }));
 
-            expect(validationStub).was.called();
-            expect(validationStub).was.calledWith(XQCore.extend({}, modelData, {
+            expect(validationStub).to.be.called();
+            expect(validationStub).to.be.calledWith(XQCore.extend({}, modelData, {
                 profession: 'Developer'
             }));
 
@@ -568,8 +567,8 @@ describe('XQCore Model', function() {
             expect(model.properties).to.be.an('object');
             expect(model.properties).to.eql(modelData);
 
-            expect(validationStub).was.called();
-            expect(validationStub).was.calledWith(XQCore.extend({}, modelData, {
+            expect(validationStub).to.be.called();
+            expect(validationStub).to.be.calledWith(XQCore.extend({}, modelData, {
                 profession: {
                     name: 'Developer'
                 }
@@ -592,8 +591,8 @@ describe('XQCore Model', function() {
                 }
             }));
 
-            expect(validationStub).was.called();
-            expect(validationStub).was.calledWith(XQCore.extend({}, modelData, {
+            expect(validationStub).to.be.called();
+            expect(validationStub).to.be.calledWith(XQCore.extend({}, modelData, {
                 profession: {
                     name: 'Developer'
                 }
@@ -613,9 +612,9 @@ describe('XQCore Model', function() {
             expect(model.properties).to.be.an('object');
             expect(model.properties).to.eql(modelData);
 
-            expect(validationStub).was.notCalled();
-            expect(validationOneStub).was.called();
-            expect(validationOneStub).was.calledWith({ type: 'String' }, 'Developer');
+            expect(validationStub).to.be.notCalled();
+            expect(validationOneStub).to.be.called();
+            expect(validationOneStub).to.be.calledWith({ type: 'String' }, 'Developer');
 
             validationStub.restore();
             validationOneStub.restore();
@@ -634,9 +633,9 @@ describe('XQCore Model', function() {
                 profession: 'Developer'
             }));
 
-            expect(validationStub).was.notCalled();
-            expect(validationOneStub).was.called();
-            expect(validationOneStub).was.calledWith({ type: 'String' }, 'Developer');
+            expect(validationStub).to.be.notCalled();
+            expect(validationOneStub).to.be.called();
+            expect(validationOneStub).to.be.calledWith({ type: 'String' }, 'Developer');
 
             validationStub.restore();
             validationOneStub.restore();
@@ -646,38 +645,38 @@ describe('XQCore Model', function() {
             var syncStub = sinon.stub();
             model.sync = syncStub;
 
-            model.set({a: 'aa'}, { sync: true });
+            model.set({a: 'aa'}, { noSync: false });
 
-            expect(syncStub).was.calledOnce();
-            expect(syncStub).was.calledWith('set', {a:'aa'});
+            expect(syncStub).to.be.calledOnce();
+            expect(syncStub).to.be.calledWith('set', {a:'aa'});
         });
 
         it('Should call sync method with item mode', function() {
             var syncStub = sinon.stub();
             model.sync = syncStub;
 
-            model.set('a', 'aa', {sync: true});
+            model.set('a', 'aa', {noSync: false});
 
-            expect(syncStub).was.calledOnce();
-            expect(syncStub).was.calledWith('item', 'a', 'aa');
+            expect(syncStub).to.be.calledOnce();
+            expect(syncStub).to.be.calledWith('item', 'a', 'aa');
         });
 
         it('Should not call sync method when sync option is false', function() {
             var syncStub = sinon.stub();
             model.sync = syncStub;
 
-            model.set({a: 'aa'}, { sync: false });
+            model.set({a: 'aa'}, { noSync: true });
 
-            expect(syncStub).was.notCalled();
+            expect(syncStub).to.be.notCalled();
         });
 
         it('Should not call sync method when sync option is false', function() {
             var syncStub = sinon.stub();
             model.sync = syncStub;
 
-            model.set('a', 'aa', { sync: false });
+            model.set('a', 'aa', { noSync: true });
 
-            expect(syncStub).was.notCalled();
+            expect(syncStub).to.be.notCalled();
         });
 
         it('Should not call sync method when validation fails', function() {
@@ -688,10 +687,10 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
             model.schema = { a: 'Number' };
 
-            model.set({a: 'aa'}, {sync: true});
+            model.set({a: 'aa'}, {noSync: false});
 
-            expect(validationStub).was.calledOnce();
-            expect(syncStub).was.notCalled();
+            expect(validationStub).to.be.calledOnce();
+            expect(syncStub).to.be.notCalled();
         });
 
         it('Should not call sync method when validation fails', function() {
@@ -702,13 +701,13 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
             model.schema = { a: 'Number' };
 
-            model.set('a', 'aa', {sync: true});
+            model.set('a', 'aa', {noSync: false});
 
-            expect(validationStub).was.calledOnce();
-            expect(syncStub).was.notCalled();
+            expect(validationStub).to.be.calledOnce();
+            expect(syncStub).to.be.notCalled();
         });
 
-        it.only('Should set default values of a model with a schema', function() {
+        it('Should set default values of a model with a schema', function() {
             model.schema = {
                 name: { type: 'string', required: true },
                 foo: { type: 'string', default: 'test' },
@@ -757,10 +756,10 @@ describe('XQCore Model', function() {
             expect(model.properties).to.be.an('object');
             expect(model.properties).to.eql(modelData);
 
-            expect(validationStub).was.notCalled();
-            expect(validationOneStub).was.notCalled();
-            expect(customValidationStub).was.called();
-            expect(customValidationStub).was.calledWith(XQCore.extend({}, modelData, {
+            expect(validationStub).to.be.notCalled();
+            expect(validationOneStub).to.be.notCalled();
+            expect(customValidationStub).to.be.called();
+            expect(customValidationStub).to.be.calledWith(XQCore.extend({}, modelData, {
                 profession: 'Developer'
             }));
 
@@ -784,10 +783,10 @@ describe('XQCore Model', function() {
                 profession: 'Developer'
             }));
 
-            expect(validationStub).was.notCalled();
-            expect(validationOneStub).was.notCalled();
-            expect(customValidationStub).was.called();
-            expect(customValidationStub).was.calledWith(XQCore.extend({}, modelData, {
+            expect(validationStub).to.be.notCalled();
+            expect(validationOneStub).to.be.notCalled();
+            expect(customValidationStub).to.be.called();
+            expect(customValidationStub).to.be.calledWith(XQCore.extend({}, modelData, {
                 profession: 'Developer'
             }));
 
@@ -825,9 +824,9 @@ describe('XQCore Model', function() {
             };
 
             model.append('listing', {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.append', 'listing', {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.append', 'listing', {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
 
@@ -858,9 +857,9 @@ describe('XQCore Model', function() {
             };
 
             model.append('listing.data', {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.append', 'listing.data', {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.append', 'listing.data', {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
 
@@ -883,9 +882,9 @@ describe('XQCore Model', function() {
             ];
 
             model.append(null, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.append', null, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.append', null, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
 
@@ -902,9 +901,9 @@ describe('XQCore Model', function() {
 
             model.append(null, {name: 'DDD', value: '4'});
 
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.append', null, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.append', null, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
 
             emitStub.restore();
@@ -916,9 +915,9 @@ describe('XQCore Model', function() {
             
             model.properties = { listing: {} };
             model.append('listing', {name: 'DDD', value: '4'});
-            expect(errorStub).was.called();
-            expect(errorStub).was.calledWithMatch(/Model.append requires an array./);
-            expect(emitStub).was.notCalled();
+            expect(errorStub).to.be.called();
+            expect(errorStub).to.be.calledWithMatch(/Model.append requires an array./);
+            expect(emitStub).to.be.notCalled();
 
             emitStub.restore();
             errorStub.restore();
@@ -929,10 +928,10 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.append('listing', {a: 'aa'}, {sync: true });
+            model.append('listing', {a: 'aa'}, { noSync: false });
 
-            expect(syncStub).was.calledOnce();
-            expect(syncStub).was.calledWith('append', 'listing', {a:'aa'});
+            expect(syncStub).to.be.calledOnce();
+            expect(syncStub).to.be.calledWith('append', 'listing', {a:'aa'});
         });
 
         it('Should not call sync method when sync option is false', function() {
@@ -940,9 +939,9 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.append('listing', {a: 'aa'}, { sync: false });
+            model.append('listing', {a: 'aa'}, { noSync: true });
 
-            expect(syncStub).was.notCalled();
+            expect(syncStub).to.be.notCalled();
         });
     });
 
@@ -971,9 +970,9 @@ describe('XQCore Model', function() {
             };
 
             model.prepend('listing', {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.prepend', 'listing', {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.prepend', 'listing', {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
 
@@ -1004,9 +1003,9 @@ describe('XQCore Model', function() {
             };
 
             model.prepend('listing.data', {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.prepend', 'listing.data', {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.prepend', 'listing.data', {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
             
             expect(model.properties).to.eql(finalData);
 
@@ -1029,9 +1028,9 @@ describe('XQCore Model', function() {
             ];
 
             model.prepend(null, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.prepend', null, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.prepend', null, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
             
             expect(model.properties).to.eql(finalData);
@@ -1049,9 +1048,9 @@ describe('XQCore Model', function() {
 
             model.prepend(null, {name: 'DDD', value: '4'});
 
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.prepend', null, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.prepend', null, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
 
             emitStub.restore();
@@ -1063,9 +1062,9 @@ describe('XQCore Model', function() {
             
             model.properties = { listing: {} };
             model.prepend('listing', {name: 'DDD', value: '4'});
-            expect(errorStub).was.called();
-            expect(errorStub).was.calledWithMatch(/Model.prepend requires an array./);
-            expect(emitStub).was.notCalled();
+            expect(errorStub).to.be.called();
+            expect(errorStub).to.be.calledWithMatch(/Model.prepend requires an array./);
+            expect(emitStub).to.be.notCalled();
 
             emitStub.restore();
             errorStub.restore();
@@ -1076,10 +1075,10 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.prepend('listing', {a: 'aa'}, {sync: true });
+            model.prepend('listing', {a: 'aa'}, {noSync: false });
 
-            expect(syncStub).was.calledOnce();
-            expect(syncStub).was.calledWith('prepend', 'listing', {a:'aa'});
+            expect(syncStub).to.be.calledOnce();
+            expect(syncStub).to.be.calledWith('prepend', 'listing', {a:'aa'});
         });
 
         it('Should not call sync method when sync option is false', function() {
@@ -1087,9 +1086,9 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.prepend('listing', {a: 'aa'}, { sync: false });
+            model.prepend('listing', {a: 'aa'}, { noSync: true });
 
-            expect(syncStub).was.notCalled();
+            expect(syncStub).to.be.notCalled();
         });
     });
 
@@ -1118,9 +1117,9 @@ describe('XQCore Model', function() {
             };
 
             model.insert('listing', 1, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.insert', 'listing', 1, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.insert', 'listing', 1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
 
@@ -1151,9 +1150,9 @@ describe('XQCore Model', function() {
             };
 
             model.insert('listing.data', 1, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.insert', 'listing.data', 1, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.insert', 'listing.data', 1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
             
             expect(model.properties).to.eql(finalData);
 
@@ -1176,9 +1175,9 @@ describe('XQCore Model', function() {
             ];
 
             model.insert(null, 1, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.insert', null, 1, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.insert', null, 1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
             
             expect(model.properties).to.eql(finalData);
@@ -1205,7 +1204,7 @@ describe('XQCore Model', function() {
                 silent: true
             });
 
-            expect(emitStub).was.notCalled();
+            expect(emitStub).to.be.notCalled();
             expect(model.properties).to.eql(finalData);
 
             emitStub.restore();
@@ -1221,9 +1220,9 @@ describe('XQCore Model', function() {
 
             model.insert(null, 1, {name: 'DDD', value: '4'});
 
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.insert', null, 1, {name: 'DDD', value: '4'});
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.insert', null, 1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
 
             emitStub.restore();
@@ -1236,9 +1235,9 @@ describe('XQCore Model', function() {
             
             model.properties = { listing: {} };
             model.insert('listing', 1, {name: 'DDD', value: '4'});
-            expect(errorStub).was.called();
-            expect(errorStub).was.calledWithMatch(/Model.insert requires an array./);
-            expect(emitStub).was.notCalled();
+            expect(errorStub).to.be.called();
+            expect(errorStub).to.be.calledWithMatch(/Model.insert requires an array./);
+            expect(emitStub).to.be.notCalled();
 
             emitStub.restore();
             errorStub.restore();
@@ -1249,10 +1248,10 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.insert('listing', 1, {a: 'aa'}, {sync: true });
+            model.insert('listing', 1, {a: 'aa'}, {noSync: false });
 
-            expect(syncStub).was.calledOnce();
-            expect(syncStub).was.calledWith('insert', 'listing', 1, {a:'aa'});
+            expect(syncStub).to.be.calledOnce();
+            expect(syncStub).to.be.calledWith('insert', 'listing', 1, {a:'aa'});
         });
 
         it('Should not call sync method when sync option is false', function() {
@@ -1260,9 +1259,9 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.insert('listing', 1, {a: 'aa'}, { sync: false });
+            model.insert('listing', 1, {a: 'aa'}, { noSync: true });
 
-            expect(syncStub).was.notCalled();
+            expect(syncStub).to.be.notCalled();
         });
     });
 
@@ -1289,9 +1288,9 @@ describe('XQCore Model', function() {
             };
 
             model.remove('listing', 1);
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.remove', 'listing', 1, { name: 'BBB', value: '2' });
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.remove', 'listing', 1, { name: 'BBB', value: '2' });
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
 
@@ -1320,9 +1319,9 @@ describe('XQCore Model', function() {
             };
 
             model.remove('listing.data', 1);
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.remove', 'listing.data', 1, { name: 'BBB', value: '2' });
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.remove', 'listing.data', 1, { name: 'BBB', value: '2' });
+            expect(emitStub).to.be.calledWith('data.change', finalData);
             
             expect(model.properties).to.eql(finalData);
 
@@ -1343,9 +1342,9 @@ describe('XQCore Model', function() {
             ];
 
             model.remove(null, 1);
-            expect(emitStub).was.calledTwice();
-            expect(emitStub).was.calledWith('data.remove', null, 1, { name: 'BBB', value: '2' });
-            expect(emitStub).was.calledWith('data.change', finalData);
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.remove', null, 1, { name: 'BBB', value: '2' });
+            expect(emitStub).to.be.calledWith('data.change', finalData);
 
             
             expect(model.properties).to.eql(finalData);
@@ -1370,7 +1369,7 @@ describe('XQCore Model', function() {
                 silent: true
             });
 
-            expect(emitStub).was.notCalled();
+            expect(emitStub).to.be.notCalled();
             expect(model.properties).to.eql(finalData);
 
             emitStub.restore();
@@ -1382,7 +1381,7 @@ describe('XQCore Model', function() {
 
             model.remove('listing', 1);
 
-            expect(emitStub).was.notCalled();
+            expect(emitStub).to.be.notCalled();
             emitStub.restore();
         });
 
@@ -1393,9 +1392,9 @@ describe('XQCore Model', function() {
             
             model.properties = { listing: {} };
             model.remove('listing', 1);
-            expect(errorStub).was.called();
-            expect(errorStub).was.calledWithMatch(/Model.remove requires an array./);
-            expect(emitStub).was.notCalled();
+            expect(errorStub).to.be.called();
+            expect(errorStub).to.be.calledWithMatch(/Model.remove requires an array./);
+            expect(emitStub).to.be.notCalled();
 
             emitStub.restore();
             errorStub.restore();
@@ -1406,10 +1405,10 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.remove('listing', 1, {sync: true });
+            model.remove('listing', 1, {noSync: false });
 
-            expect(syncStub).was.calledOnce();
-            expect(syncStub).was.calledWith('remove', 'listing', 1);
+            expect(syncStub).to.be.calledOnce();
+            expect(syncStub).to.be.calledWith('remove', 'listing', 1);
         });
 
         it('Should not call sync method when sync option is false', function() {
@@ -1417,9 +1416,9 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.remove('listing', 1, { sync: false });
+            model.remove('listing', 1, { noSync: true });
 
-            expect(syncStub).was.notCalled();
+            expect(syncStub).to.be.notCalled();
         });
     });
 
@@ -1689,8 +1688,8 @@ describe('XQCore Model', function() {
             model.on('data.reset', cb);
             model.reset();
 
-            expect(cb).was.calledOnce();
-            expect(cb).was.calledWith({ a : 'b' });
+            expect(cb).to.be.calledOnce();
+            expect(cb).to.be.calledWith({ a : 'b' });
         });
 
         it('Should remove data and all registered event listeners', function() {
@@ -1700,10 +1699,30 @@ describe('XQCore Model', function() {
             var cb = sinon.stub();
             model.on('data.reset', cb);
 
-            model.reset(true);
-            expect(model._events).to.be(undefined);
+            model.reset({
+                removeListener: true
+            });
 
-            expect(cb).was.notCalled();
+            expect(model.__events).to.eql({});
+
+            expect(cb).to.be.calledOnce();
+        });
+
+        it('Should remove data and all registered event listeners', function() {
+            var model = new XQCore.Model();
+            model.set({ a : 'b' });
+
+            var cb = sinon.stub();
+            model.on('data.reset', cb);
+
+            model.reset({
+                removeListener: true,
+                silent: true
+            });
+            
+            expect(model.__events).to.eql({});
+
+            expect(cb).to.be.notCalled();
         });
     });
 
@@ -1967,7 +1986,7 @@ describe('XQCore Model', function() {
 
 
             expect(test.isValid()).to.be(true);
-            expect(errStub).was.callCount(0);
+            expect(errStub).to.be.callCount(0);
         });
     });
 

@@ -11,7 +11,7 @@
 
     var log = new XQCore.Logger('SocketConnection');
 
-    var SockJS = XQCore.require('sockjs');
+    // var SockJS = XQCore.require('sockjs');
     var instances = {};
 
     /**
@@ -75,9 +75,7 @@
 
         if (!this.conn || this.connectionState === 'disconnected') {
             log.info('Connect to socket server ', url);
-            this.conn = new SockJS(url, null, {
-                debug: log.logLevel >= 4
-            });
+            this.conn = {};
 
             this.connectionState = 'connecting';
             this.conn.onopen = function() {
@@ -124,6 +122,8 @@
                     }, self.reconnectionInterval);
                 }
             };
+
+            console.log('CONN', this.conn);
         }
     };
 

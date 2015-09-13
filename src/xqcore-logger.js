@@ -62,9 +62,6 @@
         var args;
         if (this.logLevel >= 3) {
             args = Array.prototype.slice.call(arguments);
-            if (this.logLevel === 3) {
-                args = [args[0]];
-            }
 
             if (this.loggerName) {
                 args.unshift('[' + this.loggerName + ']');
@@ -153,9 +150,6 @@
         var args;
         if (this.logLevel >= 4) {
             args = Array.prototype.slice.call(arguments);
-            if (this.logLevel === 4) {
-                args = [args[0]];
-            }
 
             if (this.loggerName) {
                 args.unshift('[' + this.loggerName + ']');

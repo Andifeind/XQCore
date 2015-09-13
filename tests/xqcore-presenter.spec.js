@@ -10,7 +10,7 @@ describe('XQCore Presenter', function() {
 
             expect(presenter).to.be.a(XQCore.Presenter);
             expect(presenter.name).to.eql('Test I');
-            expect(initFunc).was.calledOnce();
+            expect(initFunc).to.be.calledOnce();
         });
 
         it('Should call init func with instance and logger as args', function() {
@@ -82,8 +82,8 @@ describe('XQCore Presenter', function() {
                 data: 'changed'
             });
 
-            expect(renderStub).was.called();
-            expect(renderStub).was.calledWith({
+            expect(renderStub).to.be.called();
+            expect(renderStub).to.be.calledWith({
                 data: 'changed'
             });
         });
@@ -95,8 +95,8 @@ describe('XQCore Presenter', function() {
 
             presenter.couple(view, model);
 
-            expect(renderStub).was.calledOnce();
-            expect(renderStub).was.calledWith({
+            expect(renderStub).to.be.calledOnce();
+            expect(renderStub).to.be.calledWith({
                 data: 'initial'
             });
         });
@@ -110,8 +110,8 @@ describe('XQCore Presenter', function() {
                 data: 'changed'
             });
 
-            expect(renderStub).was.calledTwice();
-            expect(renderStub).was.calledWith({
+            expect(renderStub).to.be.calledTwice();
+            expect(renderStub).to.be.calledWith({
                 data: 'changed'
             });
         });
@@ -123,9 +123,9 @@ describe('XQCore Presenter', function() {
                 data: 'changed'
             });
 
-            expect(renderStub).was.calledOnce();
-            expect(appendStub).was.calledOnce();
-            expect(appendStub).was.calledWith('listing', {
+            expect(renderStub).to.be.calledOnce();
+            expect(appendStub).to.be.calledOnce();
+            expect(appendStub).to.be.calledWith('listing', {
                 data: 'changed'
             });
         });
@@ -137,9 +137,9 @@ describe('XQCore Presenter', function() {
                 data: 'changed'
             });
 
-            expect(renderStub).was.calledOnce();
-            expect(prependStub).was.calledOnce();
-            expect(prependStub).was.calledWith('listing', {
+            expect(renderStub).to.be.calledOnce();
+            expect(prependStub).to.be.calledOnce();
+            expect(prependStub).to.be.calledWith('listing', {
                 data: 'changed'
             });
         });
@@ -151,9 +151,9 @@ describe('XQCore Presenter', function() {
                 data: 'changed'
             });
 
-            expect(renderStub).was.calledOnce();
-            expect(insertStub).was.calledOnce();
-            expect(insertStub).was.calledWith('listing', 0, {
+            expect(renderStub).to.be.calledOnce();
+            expect(insertStub).to.be.calledOnce();
+            expect(insertStub).to.be.calledWith('listing', 0, {
                 data: 'changed'
             });
         });
@@ -164,9 +164,9 @@ describe('XQCore Presenter', function() {
             model.set({ listing: [ { name: 'AAA' }]}, { silent: true });
             model.remove('listing', 0);
 
-            expect(renderStub).was.calledOnce();
-            expect(removeStub).was.calledOnce();
-            expect(removeStub).was.calledWith('listing', 0, {
+            expect(renderStub).to.be.calledOnce();
+            expect(removeStub).to.be.calledOnce();
+            expect(removeStub).to.be.calledWith('listing', 0, {
                 name: 'AAA'
             });
         });

@@ -99,6 +99,7 @@ describe('Utils', function() {
 		});
 
 		it('Should check the uniqueness of 10000 uid\'s', function() {
+			this.timeout = 1000000;
 			var len = 10000;
 			var uid = XQCore.uid();
 			var arr = [];

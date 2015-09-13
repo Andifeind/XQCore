@@ -428,7 +428,6 @@
     };
 
     View.prototype.registerListener = function($el) {
-        console.log('REG LISTENER');
         var self = this;
 
         $el.find('[on]').addBack('[on]').each(function() {
@@ -437,7 +436,6 @@
             var data = $(this).data();
             var listenerFunc;
             $cur.removeAttr('on');
-            console.log(' ... NEW LISTENER', events);
 
             events = events.split(';');
             events.forEach(function(ev) {

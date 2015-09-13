@@ -76,8 +76,6 @@
 
         this._isValid = !this.schema;
         this.state('ready');
-
-        console.log('PROTO', this);
     };
 
 
@@ -179,7 +177,7 @@
      *   noValidation: <Boolean> Don't validate
      *   validateOne: <Boolean> Only if setting one item, validate the item only
      *   replace: <Boolean> Replace all date with new data
-     *   sync: <Boolean> Calles sync method if validations succeeds. Default: false
+     *   noSync: <Boolean> Do not call sync method. Default: false
      * }
      *
      * @method set
@@ -445,14 +443,14 @@
         var oldData = this.get();
         this.properties = XQCore.extend({}, this.defaults);
         this.state('starting');
-        if (options.removeListener) {
-            this.removeEvent();
-        }
-        
         if (!options.silent) {
             this.emit('data.reset', oldData);
         }
 
+        if (options.removeListener) {
+            this.clearEvents();
+        }
+        
         if (!options.noSync) {
             if (typeof this.sync === 'function') {
                 this.sync('reset', oldData);

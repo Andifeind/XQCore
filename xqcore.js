@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-142
+ * XQCore - +0.11.1-144
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-09-08
+ * Creation Date: 2015-09-12
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-142',
+        version: '0.11.1-144',
         
         /**
          * Defines a default route
@@ -347,6 +347,43 @@ var XQCore;
         return str.substr(0, len);
     };
     
+})(XQCore);
+/**
+ * Extends XQCore with some usefull functions
+ *
+ * @group  XQCore.Utils
+ */
+(function(XQCore, undefined) {
+    'use strict';
+
+    /**
+     * Returns one or all queries
+     * Converts all numberic items to a Number
+     *
+     * @method getQuery
+     * @param  {String} name Query name
+     * @return {Object|String}      Returns all queries or one value.
+     */
+    XQCore.getQuery = function(name) {
+        if (!XQCore.__query) {
+            XQCore.__query = {};
+            location.search.substr(1).split('&').forEach(function(q) {
+                q = q.split('=');
+                if (q && q[0]) {
+                    var val = encodeURI(q[1]);
+                    XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
+                }
+            });
+        }
+
+        if (name) {
+            return XQCore.__query[name];
+        }
+        else {
+            return XQCore.__query;
+        }
+    };
+
 })(XQCore);
 /**
  * XQCore Logger module
@@ -1961,8 +1998,6 @@ var XQCore;
 
         this._isValid = !this.schema;
         this.state('ready');
-
-        console.log('PROTO', this);
     };
 
 
@@ -3850,43 +3885,6 @@ var XQCore;
 
 })(XQCore);
 
-/**
- * Extends XQCore with some usefull functions
- *
- * @group  XQCore.Utils
- */
-(function(XQCore, undefined) {
-    'use strict';
-
-    /**
-     * Returns one or all queries
-     * Converts all numberic items to a Number
-     *
-     * @method getQuery
-     * @param  {String} name Query name
-     * @return {Object|String}      Returns all queries or one value.
-     */
-    XQCore.getQuery = function(name) {
-        if (!XQCore.__query) {
-            XQCore.__query = {};
-            location.search.substr(1).split('&').forEach(function(q) {
-                q = q.split('=');
-                if (q && q[0]) {
-                    var val = encodeURI(q[1]);
-                    XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
-                }
-            });
-        }
-
-        if (name) {
-            return XQCore.__query[name];
-        }
-        else {
-            return XQCore.__query;
-        }
-    };
-
-})(XQCore);
 /*jshint -W014 */
 /**
  * XQCore Router API
@@ -4111,7 +4109,6 @@ var XQCore;
     'use strict';
 
     var log = new XQCore.Logger('SocketConnection');
-    log.logLevel = 5;
 
     var SockJS = XQCore.require('sockjs');
     var instances = {};

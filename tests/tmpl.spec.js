@@ -13,7 +13,7 @@ describe('Tmpl', function() {
 				XQCore.Tmpl.getTemplate('test');
 			}).to.throwError(/FireTPL runtime is being used./);
 
-			expect(getTemplateSpy).was.called();
+			expect(getTemplateSpy).to.be.called();
 
 			FireTPL.loadFile = FireTPL._loadFile;
 			getTemplateSpy.restore();

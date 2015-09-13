@@ -21,8 +21,8 @@ describe('XQCore Logger', function() {
             log.log('Test log');
             logStub.restore();
 
-            expect(logStub).was.calledOnce();
-            expect(logStub).was.calledWith('Test log');
+            expect(logStub).to.be.calledOnce();
+            expect(logStub).to.be.calledWith('Test log');
         });
 
         it('Should write a log message if logLevel is to low', function() {
@@ -33,7 +33,7 @@ describe('XQCore Logger', function() {
             log.log('Test log');
             logStub.restore();
 
-            expect(logStub).was.notCalled();
+            expect(logStub).to.be.notCalled();
         });
 
         it('Should write a log message, append module name', function() {
@@ -44,23 +44,11 @@ describe('XQCore Logger', function() {
             log.log('Test log');
             logStub.restore();
 
-            expect(logStub).was.calledOnce();
-            expect(logStub).was.calledWith('[test]', 'Test log');
+            expect(logStub).to.be.calledOnce();
+            expect(logStub).to.be.calledWith('[test]', 'Test log');
         });
 
-        it('Should write a log message, using only first arg with log level INFO', function() {
-            var log = new XQCore.Logger('test');
-            log.logLevel = 3;
-            
-            var logStub = sinon.stub(console, 'log');
-            log.log('Test log', {test: 'Test'});
-            logStub.restore();
-
-            expect(logStub).was.calledOnce();
-            expect(logStub).was.calledWith('[test]', 'Test log', undefined);
-        });
-
-        it('Should write a log message, using all args with log level DEBUG', function() {
+        it('Should write a log message, using all args', function() {
             var log = new XQCore.Logger('test');
             log.logLevel = 4;
             
@@ -68,8 +56,8 @@ describe('XQCore Logger', function() {
             log.log('Test log', {test: 'Test'});
             logStub.restore();
 
-            expect(logStub).was.calledOnce();
-            expect(logStub).was.calledWith('[test]', 'Test log', {test: 'Test'});
+            expect(logStub).to.be.calledOnce();
+            expect(logStub).to.be.calledWith('[test]', 'Test log', {test: 'Test'});
         });
     });
 
@@ -82,8 +70,8 @@ describe('XQCore Logger', function() {
             log.info('Test log');
             infoStub.restore();
 
-            expect(infoStub).was.calledOnce();
-            expect(infoStub).was.calledWith('Test log');
+            expect(infoStub).to.be.calledOnce();
+            expect(infoStub).to.be.calledWith('Test log');
         });
 
         it('Should write a log message if logLevel is to low', function() {
@@ -94,7 +82,7 @@ describe('XQCore Logger', function() {
             log.info('Test log');
             infoStub.restore();
 
-            expect(infoStub).was.notCalled();
+            expect(infoStub).to.be.notCalled();
         });
 
         it('Should write a log message, append module name', function() {
@@ -105,23 +93,11 @@ describe('XQCore Logger', function() {
             log.info('Test log');
             infoStub.restore();
 
-            expect(infoStub).was.calledOnce();
-            expect(infoStub).was.calledWith('[test]', 'Test log');
+            expect(infoStub).to.be.calledOnce();
+            expect(infoStub).to.be.calledWith('[test]', 'Test log');
         });
 
-        it('Should write a log message, using only first arg with log level INFO', function() {
-            var log = new XQCore.Logger('test');
-            log.logLevel = 3;
-            
-            var infoStub = sinon.stub(console, 'log');
-            log.info('Test log', {test: 'Test'});
-            infoStub.restore();
-
-            expect(infoStub).was.calledOnce();
-            expect(infoStub).was.calledWith('[test]', 'Test log', undefined);
-        });
-
-        it('Should write a log message, using all args with log level DEBUG', function() {
+        it('Should write a log message, using all args', function() {
             var log = new XQCore.Logger('test');
             log.logLevel = 4;
             
@@ -129,8 +105,8 @@ describe('XQCore Logger', function() {
             log.info('Test log', {test: 'Test'});
             infoStub.restore();
 
-            expect(infoStub).was.calledOnce();
-            expect(infoStub).was.calledWith('[test]', 'Test log', {test: 'Test'});
+            expect(infoStub).to.be.calledOnce();
+            expect(infoStub).to.be.calledWith('[test]', 'Test log', {test: 'Test'});
         });
     });
 
@@ -143,8 +119,8 @@ describe('XQCore Logger', function() {
             log.warn('Test log');
             warnStub.restore();
 
-            expect(warnStub).was.calledOnce();
-            expect(warnStub).was.calledWith('Test log');
+            expect(warnStub).to.be.calledOnce();
+            expect(warnStub).to.be.calledWith('Test log');
         });
 
         it('Should not write a log message if logLevel is to low', function() {
@@ -155,7 +131,7 @@ describe('XQCore Logger', function() {
             log.warn('Test log');
             warnStub.restore();
 
-            expect(warnStub).was.notCalled();
+            expect(warnStub).to.be.notCalled();
         });
 
         it('Should write a log message, append module name', function() {
@@ -166,8 +142,8 @@ describe('XQCore Logger', function() {
             log.warn('Test log');
             warnStub.restore();
 
-            expect(warnStub).was.calledOnce();
-            expect(warnStub).was.calledWith('[test]', 'Test log');
+            expect(warnStub).to.be.calledOnce();
+            expect(warnStub).to.be.calledWith('[test]', 'Test log');
         });
 
         it('Should write a log message, using all args', function() {
@@ -178,8 +154,8 @@ describe('XQCore Logger', function() {
             log.warn('Test log', {test: 'Test'});
             warnStub.restore();
 
-            expect(warnStub).was.calledOnce();
-            expect(warnStub).was.calledWith('[test]', 'Test log', {test: 'Test'});
+            expect(warnStub).to.be.calledOnce();
+            expect(warnStub).to.be.calledWith('[test]', 'Test log', {test: 'Test'});
         });
     });
 
@@ -192,8 +168,8 @@ describe('XQCore Logger', function() {
             log.error('Test log');
             errorStub.restore();
 
-            expect(errorStub).was.calledOnce();
-            expect(errorStub).was.calledWith('Test log');
+            expect(errorStub).to.be.calledOnce();
+            expect(errorStub).to.be.calledWith('Test log');
         });
 
         it('Should not write a log message if logLevel is to low', function() {
@@ -204,7 +180,7 @@ describe('XQCore Logger', function() {
             log.error('Test log');
             errorStub.restore();
 
-            expect(errorStub).was.notCalled();
+            expect(errorStub).to.be.notCalled();
         });
 
         it('Should write a log message, append module name', function() {
@@ -215,8 +191,8 @@ describe('XQCore Logger', function() {
             log.error('Test log');
             errorStub.restore();
 
-            expect(errorStub).was.calledOnce();
-            expect(errorStub).was.calledWith('[test]', 'Test log');
+            expect(errorStub).to.be.calledOnce();
+            expect(errorStub).to.be.calledWith('[test]', 'Test log');
         });
 
         it('Should write a log message, using all args', function() {
@@ -227,8 +203,8 @@ describe('XQCore Logger', function() {
             log.error('Test log', {test: 'Test'});
             errorStub.restore();
 
-            expect(errorStub).was.calledOnce();
-            expect(errorStub).was.calledWith('[test]', 'Test log', {test: 'Test'});
+            expect(errorStub).to.be.calledOnce();
+            expect(errorStub).to.be.calledWith('[test]', 'Test log', {test: 'Test'});
         });
     });
 
@@ -241,8 +217,8 @@ describe('XQCore Logger', function() {
             log.debug('Test log');
             debugStub.restore();
 
-            expect(debugStub).was.calledOnce();
-            expect(debugStub).was.calledWith('Test log');
+            expect(debugStub).to.be.calledOnce();
+            expect(debugStub).to.be.calledWith('Test log');
         });
 
         it('Should not write a log message if logLevel is to low', function() {
@@ -253,7 +229,7 @@ describe('XQCore Logger', function() {
             log.debug('Test log');
             debugStub.restore();
 
-            expect(debugStub).was.notCalled();
+            expect(debugStub).to.be.notCalled();
         });
 
         it('Should write a log message, append module name', function() {
@@ -264,20 +240,8 @@ describe('XQCore Logger', function() {
             log.debug('Test log');
             debugStub.restore();
 
-            expect(debugStub).was.calledOnce();
-            expect(debugStub).was.calledWith('[test]', 'Test log');
-        });
-
-        it('Should write a debug message, using only first arg with log level DEBUG', function() {
-            var log = new XQCore.Logger('test');
-            log.logLevel = 4;
-            
-            var debugStub = sinon.stub(console, 'debug');
-            log.debug('Test log', {test: 'Test'});
-            debugStub.restore();
-
-            expect(debugStub).was.calledOnce();
-            expect(debugStub).was.calledWith('[test]', 'Test log', undefined);
+            expect(debugStub).to.be.calledOnce();
+            expect(debugStub).to.be.calledWith('[test]', 'Test log');
         });
 
         it('Should write a log message, using all args', function() {
@@ -288,8 +252,8 @@ describe('XQCore Logger', function() {
             log.debug('Test log', {test: 'Test'});
             debugStub.restore();
 
-            expect(debugStub).was.calledOnce();
-            expect(debugStub).was.calledWith('[test]', 'Test log', {test: 'Test'});
+            expect(debugStub).to.be.calledOnce();
+            expect(debugStub).to.be.calledWith('[test]', 'Test log', {test: 'Test'});
         });
     });
 
@@ -319,11 +283,19 @@ describe('XQCore Logger', function() {
         it('Should stop a timer and logs the resultto the console', function() {
             var timer;
 
+            var nowStub = sinon.stub(Date, 'now');
+            nowStub.onFirstCall().returns(100);
+            nowStub.onSecondCall().returns(105);
+            
+
             var logStub = sinon.stub(log, 'log');
             timer = log.timer('test2');
             timer.end();
-            expect(logStub).was.calledTwice();
-            expect(logStub).was.calledWith('Timer test2 finished after 0ms');
+            
+            expect(logStub).to.be.calledTwice();
+            expect(logStub).to.be.calledWith('Timer test2 finished after 5ms');
+            
+            nowStub.restore();
             logStub.restore();
         });
     });

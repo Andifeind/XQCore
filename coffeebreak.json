@@ -2,26 +2,29 @@
 	"project": "XQCore",
 	"browser": true,
     "libs": [
-        "lib/firetpl.js"
+        "lib/firetpl.js",
+        "tests/mocks/sockjs.mock.js"
     ],
     "files": [
         "src/xqcore-core.js",
+        "src/utils/xqcore-utils.js",
+        "src/xqcore-utils-browser.js",
         "tests/test-setup.js",
         "src/xqcore-logger.js",
-        "src/cache/xqcore-cache.js",
         "src/xqcore-event.js",
+        "src/xqcore-readystate.js",
         "src/model/xqcore-model.js",
         "src/xqcore-presenter.js",
         "src/router/xqcore-router.js",
+        "src/xqcore-socket-connection.js",
         "src/xqcore-socket.js",
         "src/sync/xqcore-sync.js",
         "src/syncmodel/xqcore-syncmodel.js",
         "src/tmpl/xqcore-tmpl.js",
-        "src/utils/xqcore-utils.js",
         "src/xqcore-view.js",
         "src/list/xqcore-list.js",
         "src/synclist/xqcore-synclist.js"
     ],
 	"watch": "src/**/*.js",
-	"tests": "tests/**/*.spec.js"
+	"tests": "tests/*.spec.js"
 }

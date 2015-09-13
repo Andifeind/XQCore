@@ -32,6 +32,7 @@ module.exports = function(grunt) {
                 src: [
                     'src/xqcore-core.js',
                     'src/utils/xqcore-utils.js',
+                    'src/xqcore-utils-browser.js',
                     'src/xqcore-logger.js',
                     'src/xqcore-event.js',
                     'src/xqcore-readystate.js',

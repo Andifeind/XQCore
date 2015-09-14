@@ -15,7 +15,7 @@
         "src/xqcore-readystate.js",
         "src/model/xqcore-model.js",
         "src/xqcore-presenter.js",
-        "src/router/xqcore-router.js",
+        "src/xqcore-router.js",
         "src/xqcore-socket-connection.js",
         "src/xqcore-socket.js",
         "src/sync/xqcore-sync.js",

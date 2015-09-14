@@ -33,5 +33,6 @@
 	"laxbreak": true,
 	"browser": true,
 	"node": true,
-	"devel": false
+	"devel": false,
+	"nonstandard": true
 }

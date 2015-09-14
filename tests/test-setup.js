@@ -15,4 +15,4 @@ methods.forEach(function(fn) {
 });
 
 XQCore.__moduleCache.sockjs = SockJSMock;
-XQCore.logLevel = 2; //WARN
+XQCore.logLevel = 1; //Error

@@ -1,81 +1,194 @@
-describe('XQCore Router', function() {
-	'use strict';
+describe.only('XQCore Router', function() {
+    'use strict';
 
-	var router, func;
+    describe('instance', function() {
+        it('Should be a Router class', function() {
+            expect(XQCore.Router).to.be.a('function');
+        });
 
-	beforeEach(function() {
-		func = sinon.spy();
-		router = new XQCore.Router();
-		// console.log('Router', router);
-		router.addRoute('/test/xx/*', func);
-		router.addRoute('/test/gg/:id?', func);
-		router.addRoute('/test/aaa/:id', func);
-		router.addRoute('/test/:id/bla/:num', func);
-		router.addRoute('/test/:id', func);
-		router.addRoute('/test', func);
-	});
+        it('Should have a addRoute method', function() {
+            expect(XQCore.Router.prototype.addRoute).to.be.a('function');
+        });
 
-	afterEach(function() {
+        it('Should have a removeRoute method', function() {
+            expect(XQCore.Router.prototype.removeRoute).to.be.a('function');
+        });
 
-	});
+        it('Should have a router object', function() {
+            var router = new XQCore.Router(false);
+            expect(router.routes).to.be.an('array');
+        });
+    });
 
-	it('Should add and match some basic routes', function() {
-		var route;
+    describe('addRoute', function() {
+        var router;
 
-		route = router.match('/test');
-		expect(route).to.be.an(Object);
-		expect(route.fn).to.equal(func);
+        beforeEach(function() {
+            router = new XQCore.Router({ noListener: true });    
+        });
+        
+        it('Should add new routes', function() {
+            var fn = sinon.stub();
+            router.addRoute('/test', fn);
 
-		route = router.match('/test/23');
-		expect(route).to.be.an(Object);
-		expect(route.fn).to.equal(func);
-		expect(route.params.id).to.equal('23');
+            expect(router.routes).to.be.an('array');
+            expect(router.routes).to.have.length(1);
 
-		route = router.match('/test/aaa/33');
-		expect(route).to.be.an(Object);
-		expect(route.fn).to.equal(func);
-		expect(route.params.id).to.equal('33');
+            expect(router.routes[0].fn).to.equal(fn);
+        });
+        
+        it('Should add multiple routes', function() {
+            var fn = sinon.stub(),
+                fn2 = sinon.stub(),
+                fn3 = sinon.stub();
 
-		route = router.match('/test/55/bla/5677');
-		expect(route).to.be.an(Object);
-		expect(route.fn).to.equal(func);
-		expect(route.params.id).to.equal('55');
-		expect(route.params.num).to.equal('5677');
-	});
+            router
+                .addRoute('/test/:foo/:bar', fn)
+                .addRoute('/test/:foo', fn2)
+                .addRoute('/test', fn3);
 
-	it('Should add and match routes with optional parameter', function() {
-		var route;
+            expect(router.routes).to.be.an('array');
+            expect(router.routes).to.have.length(3);
 
-		route = router.match('/test/gg/44/bla/blub');
-		expect(route).to.be(undefined);
+            expect(router.routes[0].fn).to.equal(fn);
+            expect(router.routes[1].fn).to.equal(fn2);
+            expect(router.routes[2].fn).to.equal(fn3);
+        });
+    });
 
-		route = router.match('/test/gg/44');
-		expect(route).to.be.an(Object);
-		expect(route.fn).to.equal(func);
-		expect(route.params.id).to.equal('44');
+    describe('removeRoute', function() {
+        var router;
 
-		route = router.match('/test/gg/');
-		expect(route).to.be.an(Object);
-		expect(route.fn).to.equal(func);
-		expect(route.params.id).to.be(undefined);
-	});
+        beforeEach(function() {
+            router = new XQCore.Router({ noListener: true });    
+        });
 
-	it('Should add and match some splat routes', function() {
-		var route;
+        it('Should remove a route', function() {
+            var fn = sinon.stub(),
+                fn2 = sinon.stub(),
+                fn3 = sinon.stub();
 
-		route = router.match('/test/xx');
-		expect(route).to.be.an(Object);
-		expect(route.fn).to.equal(func);
-		expect(route.splats[0]).to.be(undefined);
+            router
+                .addRoute('/test/:foo/:bar', fn)
+                .addRoute('/test/:foo', fn2)
+                .addRoute('/test', fn3);
 
-		route = router.match('/test/xx/');
-		expect(route).to.be.an(Object);
-		expect(route.fn).to.equal(func);
-		expect(route.splats[0]).to.be(undefined);
+            expect(router.routes).to.be.an('array');
+            expect(router.routes).to.have.length(3);
 
-		route = router.match('/test/xx/aa');
-		expect(route).to.be.an(Object);
-		expect(route.fn).to.equal(func);
-		expect(route.splats[0]).to.equal('aa');
-	});
+            router.removeRoute('/test/:foo');
+            
+            expect(router.routes).to.have.length(2);
+            expect(router.routes[0].fn).to.equal(fn);
+            expect(router.routes[1].fn).to.equal(fn3);
+        });
+
+        it('Should remove a non existing route', function() {
+            var fn = sinon.stub(),
+                fn2 = sinon.stub(),
+                fn3 = sinon.stub();
+
+            router
+                .addRoute('/test/:foo/:bar', fn)
+                .addRoute('/test/:foo', fn2)
+                .addRoute('/test', fn3);
+
+            expect(router.routes).to.be.an('array');
+            expect(router.routes).to.have.length(3);
+
+            router.removeRoute('/bla/:foo');
+            
+            expect(router.routes).to.have.length(3);
+        });
+    });
+
+    describe('callRoute', function() {
+        var router;
+
+        beforeEach(function() {
+            router = new XQCore.Router({ noListener: true });    
+        });
+
+        it('Should call a route', function() {
+            var fn = sinon.stub(),
+                fn2 = sinon.stub(),
+                fn3 = sinon.stub();
+
+            router
+                .addRoute('/test/:foo/:bar', fn)
+                .addRoute('/test/:foo', fn2)
+                .addRoute('/test', fn3);
+
+            router.callRoute('/test');
+
+            expect(fn3).to.be.calledOnce();
+            expect(fn3).to.be.calledWith({});
+            expect(fn3.getCall(0).thisValue).to.be.equal(router);
+        });
+
+        it('Should routes with optional params', function() {
+            var fn = sinon.stub(),
+                fn2 = sinon.stub(),
+                fn3 = sinon.stub();
+
+            router
+                .addRoute('/test/:foo/:bar', fn)
+                .addRoute('/test/:foo?', fn2)
+                .addRoute('/test', fn3);
+
+            router.callRoute('/test/');
+            router.callRoute('/test/blubb');
+
+            expect(fn2).to.be.calledTwice();
+            expect(fn2).to.be.calledWith({ foo: undefined});
+            expect(fn2).to.be.calledWith({ foo: 'blubb'});
+            expect(fn2.getCall(0).thisValue).to.be.equal(router);
+        });
+    });
+
+    describe('registerListener', function() {
+        it('Should register a popstate event', function() {
+            XQCore.html5Routes = true;
+            var router = new XQCore.Router({ noListener: true });
+            var fn = sinon.stub();
+
+            router.addRoute('/test/:foo/:bar', fn);
+
+            var getPathStub = sinon.stub(router, 'getPath');
+            //Simulating a push state event
+            getPathStub.returns('/test/bla/blubb');
+
+            router.onPopStateHandler({});
+
+            expect(fn).to.be.calledOnce();
+            expect(fn).to.be.calledWith({
+                foo: 'bla',
+                bar: 'blubb'
+            });
+
+            getPathStub.restore();
+        });
+
+        it('Should register a hashchange event', function() {
+            XQCore.html5Routes = false;
+            var router = new XQCore.Router({ noListener: true });
+            var fn = sinon.stub();
+
+            router.addRoute('/test/:foo/:bar', fn);
+
+            var getPathStub = sinon.stub(router, 'getPath');
+            //Simulating a push state event
+            getPathStub.returns('/test/bla/blubb');
+
+            router.onPopStateHandler({});
+
+            expect(fn).to.be.calledOnce();
+            expect(fn).to.be.calledWith({
+                foo: 'bla',
+                bar: 'blubb'
+            });
+            
+            getPathStub.restore();
+        });
+    });
 });

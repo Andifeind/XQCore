@@ -63,6 +63,12 @@ var XQCore;
         html5Routes: false,
 
         /**
+         * Defines a base path of your projewt
+         * @type {String}
+         */
+        basePath: '',
+
+        /**
          * Sets a hashbang for routing. This value is added to each route if html5Routes is set to false
          * @property {String} hashBang
          */

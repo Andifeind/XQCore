@@ -44,7 +44,7 @@
          * @private
          * @type {Object}
          */
-        this.router = new XQCore.Router();
+        this.router = XQCore.Router.getInstance();
 
         /**
          * Logger instance

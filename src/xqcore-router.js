@@ -9,7 +9,7 @@
  *
  * @example
  *
- * var router = new XQCore.Router();
+ * var router = XQCore.Router.getInstance(); //Returns a singelton
  * router.addRoute('/index', function() {
  *     // index route was called
  * });
@@ -148,6 +148,20 @@
         }
     };
 
+    var instance;
+
+    /**
+     * Returns a singelton instance of XQCore.Router
+     * @return {[type]} [description]
+     */
+    Router.getInstance = function() {
+        if (!instance) {
+            instance = new XQCore.Router();
+        }
+
+        return instance;
+    };
+
     Router.prototype.registerListener = function() {
         if (XQCore.html5Routes) {
             console.log('DEFINE');
@@ -262,6 +276,10 @@
      */
     Router.prototype.callRoute = function(path, options) {
         options = options || {};
+
+        if (path === undefined) {
+            throw new Error('XQCore.Router error! Path is undefined in callRoute()!');
+        }
 
         var route = this.match(path);
 

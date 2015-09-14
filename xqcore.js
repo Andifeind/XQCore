@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-148
+ * XQCore - +0.11.1-150
  * 
  * Model View Presenter Javascript Framework
  *
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-148',
+        version: '0.11.1-150',
         
         /**
          * Defines a default route
@@ -934,7 +934,7 @@ var XQCore;
          * @private
          * @type {Object}
          */
-        this.router = new XQCore.Router();
+        this.router = XQCore.Router.getInstance();
 
         /**
          * Logger instance
@@ -3576,7 +3576,7 @@ var XQCore;
  *
  * @example
  *
- * var router = new XQCore.Router();
+ * var router = XQCore.Router.getInstance(); //Returns a singelton
  * router.addRoute('/index', function() {
  *     // index route was called
  * });
@@ -3715,6 +3715,20 @@ var XQCore;
         }
     };
 
+    var instance;
+
+    /**
+     * Returns a singelton instance of XQCore.Router
+     * @return {[type]} [description]
+     */
+    Router.getInstance = function() {
+        if (!instance) {
+            instance = new XQCore.Router();
+        }
+
+        return instance;
+    };
+
     Router.prototype.registerListener = function() {
         if (XQCore.html5Routes) {
             console.log('DEFINE');
@@ -3829,6 +3843,10 @@ var XQCore;
      */
     Router.prototype.callRoute = function(path, options) {
         options = options || {};
+
+        if (path === undefined) {
+            throw new Error('Path is undefined in Router.callRoute!');
+        }
 
         var route = this.match(path);
 

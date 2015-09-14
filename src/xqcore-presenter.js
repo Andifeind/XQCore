@@ -44,7 +44,7 @@
          * @private
          * @type {Object}
          */
-        this.__Router = new XQCore.Router();
+        this.router = new XQCore.Router();
 
         /**
          * Logger instance
@@ -64,34 +64,10 @@
             fn.call(this, self, log);
         }
 
-        if (XQCore.html5Routes) {
-            window.addEventListener('popstate', function(e) {
-                self.__onPopstate(e.state);
-            }, false);
-        }
-        else {
-            window.addEventListener('hashchange', function(e) {
-                self.__onPopstate(e.state);
-            }, false);
-        }
-
-        var route = XQCore.defaultRoute;
-        if (/^#![a-zA-Z0-9]+/.test(self.getHash())) {
-            route = self.getHash().substr(2);
-        }
-
-        route = self.__Router.match(route);
-        if (route) {
-            var data = route.params;
-            if (XQCore.callerEvent) {
-                data[XQCore.callerEvent] = 'pageload';
-            }
-
-            $(function() {
-                log.info('Trigger route', route, data);
-                route.fn.call(self, route.params, route.splats);
-            });
-        }
+        $(function() {
+            //Call current page
+            self.router.callRoute(self.router.getPath());
+        });
     };
 
     XQCore.extend(Presenter.prototype, new XQCore.Event());
@@ -107,10 +83,10 @@
     /**
      * Add a history item to the browser history
      *
-     * @param {Object} data Data object
      * @param {String} url Page URL (Optional) defaults to the curent URL
+     * @param {Object} data Data object
      */
-    Presenter.prototype.pushState = function(data, url) {
+    Presenter.prototype.pushState = function(url, data) {
         // log.info('Check State', data, history.state, XQCore.compare(data, history.state));
         // if (XQCore.compare(data, history.state)) {
         //     this.warn('Abborting history.pushState because data are equale to current history state');
@@ -118,23 +94,20 @@
         var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
         url = hash + url;
         history.pushState(data, '', url || null);
-        log.info('Update history with pushState', data, url);
+        log.info('Update history with pushState. New URL: ' + data, url);
     };
 
     /**
      * Add a history item to the browser history
      *
-     * @param {Object} data Data object
      * @param {String} url Page URL (Optional) defaults to the current URL
+     * @param {Object} data Data object
      */
-    Presenter.prototype.replaceState = function(data, url) {
-        // if (data === history.state) {
-        //     this.warn('Abborting history.replaceState because data are equale to current history state');
-        // }
+    Presenter.prototype.replaceState = function(url, data) {
         var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
         url = hash + url;
         history.replaceState(data, '', url || null);
-        log.info('Update history with replaceState', data, url);
+        log.info('Update history with replaceState. New URL: ' + data, url);
     };
 
     /**
@@ -142,44 +115,15 @@
      *
      * Options: {
      *  replace: <Boolean> Replace current history entry with route (Only when html5 routes are enabled)
-     *  trigger: <Boolean> Set this to false to surpress a route change when new route equals to old route
+     *  noPush: <Boolean> Set this to false to surpress a route change when new route equals to old route
      * }
      *
      * @param {String} route Route url
-     * @param {Object} data Data object
      * @param {Object} options Options
      */
-    Presenter.prototype.navigateTo = function(route, data, options) {
-        log.info('Navigate to route: ', route, data, options);
-
+    Presenter.prototype.navigateTo = function(route, options) {
         options = options || {};
-
-        if (XQCore.html5Routes) {
-            if (options.replace) {
-                this.replaceState(data, route);
-            } else {
-                this.pushState(data, route);
-            }
-            
-            //Trigger popstate handler
-            this.__onPopstate();
-            // var evt = new PopStateEvent('popstate', {
-            //     bubbles: false,
-            //     cancelable: false,
-            //     state: null
-            // });
-
-            // window.dispatchEvent(evt);
-        }
-        else {
-            var hashRoute = XQCore.hashBang + route;
-            if (options.trigger !== false && location.hash === hashRoute) {
-                this.__onPopstate();
-                return;
-            }
-
-            location.hash = hashRoute;
-        }
+        this.router.callRoute(route, options);
     };
 
     /**
@@ -428,47 +372,6 @@
         return this;
     };
 
-
-    /**
-     * PopstateEvent
-     *
-     * @method __onPopstate
-     * @param {Object} data Event data
-     * @private
-     */
-    Presenter.prototype.__onPopstate = function(data) {
-        var self = this;
-
-        log.info('popstate event recived', data, self);
-
-        var route = XQCore.defaultRoute;
-        if (XQCore.html5Routes) {
-            var pattern = new RegExp('^' + self.root);
-            route = self.getPathname().replace(pattern, '');
-        }
-        else {
-            if (/^#!\S+/.test(this.getHash())) {
-                route = self.getHash().substr(2);
-            }
-        }
-
-        route = self.__Router.match(route);
-        if (route) {
-            data = data || route.params;
-            console.log('ROUTES', route);
-            if (route.splats) {
-                data.splats = route.splats;
-            }
-            if (XQCore.callerEvent) {
-                data[XQCore.callerEvent] = 'popstate';
-            }
-
-            log.info('Trigger route', route, data);
-
-            route.fn.call(self, data, route.splats);
-        }
-    };
-
     /**
      * Initialize a new view into the presenter scope
      *
@@ -503,6 +406,14 @@
         });
 
         this.__views[viewName] = view;
+
+        var self = this;
+        if (XQCore.html5Routes) {
+            view.on('xqcore.navigate', function(url) {
+                self.router.callRoute(url);
+            });
+        }
+
         return view;
     };
 
@@ -523,13 +434,13 @@
 
         if (typeof callback === 'function') {
             if (typeof route === 'string') {
-                log.info('Register route', route, 'with callback', callback);
-                this.__Router.addRoute(route, callback);
+                log.info('Register new route:', route, 'using fn as callback:', callback);
+                this.router.addRoute(route, callback);
             }
             else if (Array.isArray(route)) {
                 route.forEach(function(r) {
-                    log.info('Register route', r, 'with callback', callback);
-                    self.__Router.addRoute(r, callback);
+                    log.info('Register new route:', route, 'using fn as callback:', callback);
+                    self.router.addRoute(r, callback);
                 });
             }
 

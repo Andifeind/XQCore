@@ -159,13 +159,15 @@
     };
 
     Router.prototype.onPopStateHandler = function(e) {
-        var path = this.getPath(!!XQCore.html5Routes);
-        this.callRoute(path);
+        var path = this.getPath();
+        this.callRoute(path, {
+            noPush: true
+        });
     };
 
-    Router.prototype.getPath = function(html5) {
+    Router.prototype.getPath = function() {
         var path;
-        if (html5) {
+        if (XQCore.html5Routes) {
             path = location.pathname;
             return path.replace(new RegExp('^' + XQCore.basePath), '');
         }
@@ -190,8 +192,8 @@
         }
         
         if (!fn) {
-            throw new Error(' route ' + path.toString() + ' requires a callback');  
-        } 
+            throw new Error(' route ' + path.toString() + ' requires a callback');
+        }
 
         if (this.routeMap[path]) {
             throw new Error('path is already defined: ' + path);
@@ -247,15 +249,32 @@
     /**
      * Calls a route
      *
+     * Options:
+     * --------
+     * **noRoute** Doesn't add a push state item
+     * **replace** Add a replace state item
+     * 
+     *
      * @method callRoute
      * @param  {String} path Route path
+     * @param {Object} [options] Set options for route call
+     * 
      */
-    Router.prototype.callRoute = function(path) {
+    Router.prototype.callRoute = function(path, options) {
+        options = options || {};
+
         var route = this.match(path);
 
         if (!route) {
             log.warn('Could not call any route! No route were found! Called path: ' + path);
             return;
+        }
+
+        if (XQCore.html5Routes && !options.noPush && !options.replace) {
+            history.pushState(null, '', path);
+        }
+        else if (XQCore.html5Routes && options.replace) {
+            history.replaceState(null, '', path);
         }
 
         route.fn.call(this, route.params, route.splats);

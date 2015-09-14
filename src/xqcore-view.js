@@ -772,6 +772,24 @@
             //Set ready state
             self.__setReadyState();
             self.registerListener(self.$el);
+
+            //Register view listener
+            if (XQCore.html5Routes) {
+                self.$el.on('click', 'a', function(e) {
+                    if (/^http(s)?:\/\//.test(e.href)) {
+                        return;
+                    }
+
+                    if (!/^\/?[a-z]/.test(e.href)) {
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    self.emit('xqcore.navigate', e.href);
+                });
+            }
         });
     };
 

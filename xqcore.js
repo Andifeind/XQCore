@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-144
+ * XQCore - +0.11.1-148
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-09-12
+ * Creation Date: 2015-09-14
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-144',
+        version: '0.11.1-148',
         
         /**
          * Defines a default route
@@ -61,6 +61,12 @@ var XQCore;
          * @default false
          */
         html5Routes: false,
+
+        /**
+         * Defines a base path of your projewt
+         * @type {String}
+         */
+        basePath: '',
 
         /**
          * Sets a hashbang for routing. This value is added to each route if html5Routes is set to false
@@ -98,7 +104,13 @@ var XQCore;
          * @property {Number} socketPort
          * @default 9889
          */
-        socketPort: 9889
+        socketPort: 9889,
+
+        /**
+         * Sets max length of event listener
+         * @property {Number} eventListenerMaxLength=1328
+         */
+        eventListenerMaxLength: 1328
     };
 
     
@@ -449,9 +461,6 @@ var XQCore;
         var args;
         if (this.logLevel >= 3) {
             args = Array.prototype.slice.call(arguments);
-            if (this.logLevel === 3) {
-                args = [args[0]];
-            }
 
             if (this.loggerName) {
                 args.unshift('[' + this.loggerName + ']');
@@ -540,9 +549,6 @@ var XQCore;
         var args;
         if (this.logLevel >= 4) {
             args = Array.prototype.slice.call(arguments);
-            if (this.logLevel === 4) {
-                args = [args[0]];
-            }
 
             if (this.loggerName) {
                 args.unshift('[' + this.loggerName + ']');
@@ -627,11 +633,27 @@ var XQCore;
 /**
  * XQCore EventEmitter
  *
- * This module brings a node.js like event emitter support to XQCore.
- * Based on EventEmitter v4.2.11 by Oliver Caldwell
- * http://git.io/ee
+ * A powerfull event emitter
  *
  * @module XQCore.Event
+ *
+ * @example {js}
+ * var ee = new XQCore.Event();
+ * ee.on('echo', function(msg) {
+ *     console.log('Msg:', msg);
+ * });
+ *
+ * //Emit an event
+ * ee.emit('echo', 'Hello World!');
+ *
+ * @example {js}
+ * var MyModule = function() {
+ *     //Call Event constructor
+ *     XQCore.Event.call(this);
+ * };
+ *
+ * //Extend MyModule with event emitter methods
+ * XQCore.extend(MyModule.prototype, XQCore.Event.prototype);
  */
 (function(XQCore, undefined) {
 	'use strict';
@@ -639,435 +661,166 @@ var XQCore;
     var log = new XQCore.Logger('Event');
 
     /**
-     * Class for managing events.
-     * Can be extended to provide event functionality in other classes.
+     * An EventListener represents a single event.
      *
-     * @class EventEmitter Manages event registering and emitting.
+     * Each event registration is an instance of EventListener
+     *
+     * @constructor
+     * @method  EventListener
      */
-    function EventEmitter() {}
+    var EventListener = function(ee, event, fn) {
+        this.fn = fn;
+        this.calls = 0;
+        this.once = false;
 
-    // Shortcuts to improve speed and size
-    var proto = EventEmitter.prototype;
+        /**
+         * Removes this event listener
+         * @method  remove
+         * @return {Boolean} Returns true if event was removed
+         */
+        this.remove = function() {
+            this.ee.off(event, fn);
+        };
+    };
+
+    
 
     /**
-     * Finds the index of the listener for the event in its storage array.
+     * Event emitter constructor
      *
-     * @private
-     * @ignore
-     * @param {Function[]} listeners Array of listeners to search through.
-     * @param {Function} listener Method to look for.
-     * @return {Number} Index of the specified listener, -1 if not found
+     * @constructor
+     * @method  EventEmitter
      */
-    function indexOfListener(listeners, listener) {
-        var i = listeners.length;
-        while (i--) {
-            if (listeners[i].listener === listener) {
-                return i;
-            }
+    var EventEmitter = function() {
+        this.__events = {};
+        this.__logger = log;
+        
+        /**
+         * Sets max length of event listeners
+         * @property {Number} maxLength
+         */
+        this.maxLength = XQCore.eventListenerMaxLength;
+    };
+
+    /**
+     * Registers an event listener
+     * @method on
+     * @param  {String}   event Event name
+     * @param  {Function} fn    Event function
+     * @return {Object}         Returns an EventListener instance
+     */
+    EventEmitter.prototype.on = function(event, fn) {
+        var listener = new EventListener(this, event, fn);
+        if (!this.__events[event]) {
+            this.__events[event] = [];
         }
 
-        return -1;
-    }
-
-    /**
-     * Returns the listener array for the specified event.
-     * Will initialise the event object and listener arrays if required.
-     * Will return an object if you use a regex search. The object contains keys for each matched event. So /ba[rz]/ might return an object containing bar and baz. But only if you have either defined them with defineEvent or added some listeners to them.
-     * Each property in the object response is an array of listener functions.
-     *
-     * @ignore
-     * @param {String|RegExp} evt Name of the event to return the listeners from.
-     * @return {Function[]|Object} All listener functions for the event.
-     */
-    proto.getListeners = function getListeners(evt) {
-        var events = this._getEvents();
-        var response;
-        var key;
-
-        // Return a concatenated array of all matching events if
-        // the selector is a regular expression.
-        if (evt instanceof RegExp) {
-            response = {};
-            for (key in events) {
-                if (events.hasOwnProperty(key) && evt.test(key)) {
-                    response[key] = events[key];
-                }
-            }
+        this.__events[event].push(listener);
+        if (this.__events[event].length > this.maxLength) {
+            log.warn('Listener max length was exceeded!', 'List:', event, 'Length:', this.__events[event].length);
         }
         else {
-            response = events[evt] || (events[evt] = []);
+            log.info('Register new `' + event + '` event');
         }
 
-        return response;
+        return listener;
     };
 
     /**
-     * Takes a list of listener objects and flattens it into a list of listener functions.
-     *
-     * @ignore
-     * @param {Object[]} listeners Raw listener objects.
-     * @return {Function[]} Just the listener functions.
-     */
-    proto.flattenListeners = function flattenListeners(listeners) {
-        var flatListeners = [];
-        var i;
-
-        for (i = 0; i < listeners.length; i += 1) {
-            flatListeners.push(listeners[i].listener);
-        }
-
-        return flatListeners;
-    };
-
-    /**
-     * Fetches the requested listeners via getListeners but will always return the results inside an object. This is mainly for internal use but others may find it useful.
-     *
-     * @ignore
-     * @param {String|RegExp} evt Name of the event to return the listeners from.
-     * @return {Object} All listener functions for an event in an object.
-     */
-    proto.getListenersAsObject = function getListenersAsObject(evt) {
-        var listeners = this.getListeners(evt);
-        var response;
-
-        if (listeners instanceof Array) {
-            response = {};
-            response[evt] = listeners;
-        }
-
-        return response || listeners;
-    };
-
-    /**
-     * Adds a listener function to the specified event.
-     * The listener will not be added if it is a duplicate.
-     * If the listener returns true then it will be removed after it is called.
-     * If you pass a regular expression as the event name then the listener will be added to all events that match it.
-     *
-     * @method on
-     * @param {String|RegExp} evt Name of the event to attach the listener to.
-     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
-     * @return {Object} Current instance of EventEmitter for chaining.
-     */
-    proto.on = function on(evt, listener) {
-        var listeners = this.getListenersAsObject(evt);
-        var listenerIsWrapped = typeof listener === 'object';
-        var key;
-
-        for (key in listeners) {
-            if (listeners.hasOwnProperty(key) && indexOfListener(listeners[key], listener) === -1) {
-                listeners[key].push(listenerIsWrapped ? listener : {
-                    listener: listener,
-                    once: false
-                });
-            }
-        }
-
-        log.debug('Register "' + evt + '" as an event listener. Total listener length of this type is: ' + listeners[key].length);
-
-        return this;
-    };
-
-    /**
-     * Adds an event that will be
-     * automatically removed after its first execution.
+     * Registers an once event listener. This listener is called only once a time.
      *
      * @method once
-     * @param {String|RegExp} evt Name of the event to attach the listener to.
-     * @param {Function} listener Method to be called when the event is emitted. If the function returns true then it will be removed after calling.
-     * @return {Object} Current instance of EventEmitter for chaining.
+     * @param  {event}  event  Event name
+     * @param  {Function} fn    Event function
+     * @return {Object}         Returns an EventListener instance
      */
-    proto.once = function once(evt, listener) {
-        return this.on(evt, {
-            listener: listener,
-            once: true
-        });
+    EventEmitter.prototype.once = function(event, fn) {
+        var args = Array.prototype.slice.call(arguments);
+        var listener = this.on.apply(this, args);
+        listener.once = true;
+        return listener;
     };
 
     /**
-     * Defines an event name. This is required if you want to use a regex to add a listener to multiple events at once. If you don't do this then how do you expect it to know what event to add to? Should it just add to every possible match for a regex? No. That is scary and bad.
-     * You need to tell it what event names should be matched by a regex.
-     *
-     * @ignore
-     * @param {String} evt Name of the event to create.
-     * @return {Object} Current instance of EventEmitter for chaining.
+     * Emits an event
+     * @method emit
+     * @param  {String} event Event name
+     * @param  {Any} data  Event data, you can use multiple args here
+     * @return {Number}    Returns the number of emited events
      */
-    proto.defineEvent = function defineEvent(evt) {
-        this.getListeners(evt);
-        return this;
-    };
-
-    /**
-     * Uses defineEvent to define multiple events.
-     *
-     * @ignore
-     * @param {String[]} evts An array of event names to define.
-     * @return {Object} Current instance of EventEmitter for chaining.
-     */
-    proto.defineEvents = function defineEvents(evts) {
-        for (var i = 0; i < evts.length; i += 1) {
-            this.defineEvent(evts[i]);
+    EventEmitter.prototype.emit = function(event, data) {
+        if (!this.__events[event]) {
+            log.info('Emit `' + event + '` event failed! No listener of this type are registered');
+            return 0;
         }
-        return this;
+
+        var args = Array.prototype.slice.call(arguments, 1),
+            len = this.__events[event].length;
+
+        for (var i = 0; i < len; i++) {
+            var listener = this.__events[event][i];
+            listener.fn.apply(this, args);
+            listener.calls++;
+            if (listener.once === true) {
+                this.__events[event].splice(i, 1);
+            }
+        }
+
+        if (len) {
+            log.info('Emit `' + event + '` event to', len, 'listener');
+            log.debug(' ... emit data:', data);
+        }
+
+        return len;
     };
 
     /**
-     * Removes a listener function from the specified event.
-     * When passed a regular expression as the event name, it will remove the listener from all events that match it.
+     * Unregisters events
      *
      * @method off
-     * @param {String|RegExp} evt Name of the event to remove the listener from.
-     * @param {Function} listener Method to remove from the event.
-     * @return {Object} Current instance of EventEmitter for chaining.
+     * @param  {String}  event  Event name
+     * @param  {Function}  [fn]  Event function. If this property is set only that function will be removed. Otherwis all events of this name will be removed
+     * @return {Number} Returns the number of removed events
      */
-    proto.off = function off(evt, listener) {
-        var listeners = this.getListenersAsObject(evt);
-        var index;
-        var key;
-        var len = 0;
+    EventEmitter.prototype.off = function(event, fn) {
+        var removed = 0;
 
-        if (arguments.length === 1) {
-            this.removeEvent(evt);
-            return this;
+        if (!this.__events[event]) {
+            log.info('Unregister events failed! No `' + event + '` events were found!');
+            return 0;
         }
 
-        for (key in listeners) {
-            if (listeners.hasOwnProperty(key)) {
-                index = indexOfListener(listeners[key], listener);
-
-                if (index !== -1) {
-                    var removed = listeners[key].splice(index, 1);
-                    len = removed.length;
-                }
-            }
-        }
-
-        log.debug('Remove an event listener of type "' + evt + '". Length of removed listeners is: ' + len);
-
-        return this;
-    };
-
-    /**
-     * Adds listeners in bulk using the manipulateListeners method.
-     * If you pass an object as the second argument you can add to multiple events at once. The object should contain key value pairs of events and listeners or listener arrays. You can also pass it an event name and an array of listeners to be added.
-     * You can also pass it a regular expression to add the array of listeners to all events that match it.
-     * Yeah, this function does quite a bit. That's probably a bad thing.
-     *
-     * @ignore
-     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add to multiple events at once.
-     * @param {Function[]} [listeners] An optional array of listener functions to add.
-     * @return {Object} Current instance of EventEmitter for chaining.
-     */
-    proto.addListeners = function addListeners(evt, listeners) {
-        // Pass through to manipulateListeners
-        return this.manipulateListeners(false, evt, listeners);
-    };
-
-    /**
-     * Removes listeners in bulk using the manipulateListeners method.
-     * If you pass an object as the second argument you can remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
-     * You can also pass it an event name and an array of listeners to be removed.
-     * You can also pass it a regular expression to remove the listeners from all events that match it.
-     *
-     * @ignore
-     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to remove from multiple events at once.
-     * @param {Function[]} [listeners] An optional array of listener functions to remove.
-     * @return {Object} Current instance of EventEmitter for chaining.
-     */
-    proto.removeListeners = function removeListeners(evt, listeners) {
-        // Pass through to manipulateListeners
-        return this.manipulateListeners(true, evt, listeners);
-    };
-
-    /**
-     * Edits listeners in bulk. The addListeners and removeListeners methods both use this to do their job. You should really use those instead, this is a little lower level.
-     * The first argument will determine if the listeners are removed (true) or added (false).
-     * If you pass an object as the second argument you can add/remove from multiple events at once. The object should contain key value pairs of events and listeners or listener arrays.
-     * You can also pass it an event name and an array of listeners to be added/removed.
-     * You can also pass it a regular expression to manipulate the listeners of all events that match it.
-     *
-     * @ignore
-     * @param {Boolean} remove True if you want to remove listeners, false if you want to add.
-     * @param {String|Object|RegExp} evt An event name if you will pass an array of listeners next. An object if you wish to add/remove from multiple events at once.
-     * @param {Function[]} [listeners] An optional array of listener functions to add/remove.
-     * @return {Object} Current instance of EventEmitter for chaining.
-     */
-    proto.manipulateListeners = function manipulateListeners(remove, evt, listeners) {
-        var i;
-        var value;
-        var single = remove ? this.removeListener : this.addListener;
-        var multiple = remove ? this.removeListeners : this.addListeners;
-
-        // If evt is an object then pass each of its properties to this method
-        if (typeof evt === 'object' && !(evt instanceof RegExp)) {
-            for (i in evt) {
-                if (evt.hasOwnProperty(i) && (value = evt[i])) {
-                    // Pass the single listener straight through to the singular method
-                    if (typeof value === 'function') {
-                        single.call(this, i, value);
-                    }
-                    else {
-                        // Otherwise pass back to the multiple function
-                        multiple.call(this, i, value);
+        if (fn) {
+            var len = this.__events[event].length;
+            for (var i = 0; i < len; i++) {
+                var listener = this.__events[event][i];
+                if (listener && listener.fn === fn) {
+                    this.__events[event].splice(i, 1);
+                    removed++;
+                    //Do not break at this point, to remove duplicated events
+                    
+                    if (this.__events[event].length === 0) {
+                        delete this.__events[event];
                     }
                 }
             }
         }
         else {
-            // So evt must be a string
-            // And listeners must be an array of listeners
-            // Loop over it and pass each one to the multiple method
-            i = listeners.length;
-            while (i--) {
-                single.call(this, evt, listeners[i]);
-            }
+            removed = this.__events[event].length;
+            delete this.__events[event];
         }
 
-        return this;
+        log.info('Unregister `' + event + '` events!', 'Removed ' + removed + ' listener');
+        return removed;
     };
 
     /**
-     * Removes all listeners from a specified event.
-     * If you do not specify an event then all listeners will be removed.
-     * That means every event will be emptied.
-     * You can also pass a regex to remove all events that match it.
-     *
-     * @ignore
-     * @param {String|RegExp} [evt] Optional name of the event to remove all listeners for. Will remove from every event if not passed.
-     * @return {Object} Current instance of EventEmitter for chaining.
+     * Removes all registered events
+     * @method clear
+     * @return {Number} Returns the number of removed events
      */
-    proto.removeEvent = function removeEvent(evt) {
-        var type = typeof evt;
-        var events = this._getEvents();
-        var key;
-        var len;
-
-        // Remove different things depending on the state of evt
-        if (type === 'string') {
-            // Remove all listeners for the specified event
-            delete events[evt];
-        }
-        else if (evt instanceof RegExp) {
-            // Remove all events matching the regex.
-            for (key in events) {
-                if (events.hasOwnProperty(key) && evt.test(key)) {
-                    len = events[key].length;
-                    delete events[key];
-                }
-            }
-        }
-        else {
-            // Remove all listeners in all events
-            delete this._events;
-        }
-
-        log.debug('Remove an event listener of type "' + evt + '". Length of removed listeners is: ' + len);
-        
-        return this;
-    };
-
-    /**
-     * Emits an event of your choice.
-     * When emitted, every listener attached to that event will be executed.
-     * If you pass the optional argument array then those arguments will be passed to every listener upon execution.
-     * Because it uses `apply`, your array of arguments will be passed as if you wrote them out separately.
-     * So they will not arrive within the array on the other side, they will be separate.
-     * You can also pass a regular expression to emit to all events that match it.
-     *
-     * @ignore
-     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
-     * @param {Array} [args] Optional array of arguments to be passed to each listener.
-     * @return {Object} Current instance of EventEmitter for chaining.
-     */
-    proto.emitEvent = function emitEvent(evt, args) {
-        var listeners = this.getListenersAsObject(evt);
-        var listener;
-        var i;
-        var key;
-        var response;
-
-        for (key in listeners) {
-            if (listeners.hasOwnProperty(key)) {
-                i = listeners[key].length;
-
-                while (i--) {
-                    // If the listener returns true then it shall be removed from the event
-                    // The function is executed either with a basic call or an apply if there is an args array
-                    listener = listeners[key][i];
-
-                    if (listener.once === true) {
-                        this.off(evt, listener.listener);
-                    }
-
-                    response = listener.listener.apply(this, args || []);
-
-                    if (response === this._getOnceReturnValue()) {
-                        this.off(evt, listener.listener);
-                    }
-                }
-            }
-        }
-
-        log.debug('Emit an event of type "' + evt + '"', 'Args array:', args);
-
-        return this;
-    };
-
-    /**
-     * Subtly different from emitEvent in that it will pass its arguments on to the listeners, as opposed to taking a single array of arguments to pass on.
-     * As with emitEvent, you can pass a regex in place of the event name to emit to all events that match it.
-     *
-     * @method emit
-     * @param {String|RegExp} evt Name of the event to emit and execute listeners for.
-     * @param {...*} Optional additional arguments to be passed to each listener.
-     * @return {Object} Current instance of EventEmitter for chaining.
-     */
-    proto.emit = function emit(evt) {
-        var args = Array.prototype.slice.call(arguments, 1);
-        return this.emitEvent(evt, args);
-    };
-
-    /**
-     * Sets the current value to check against when executing listeners. If a
-     * listeners return value matches the one set here then it will be removed
-     * after execution. This value defaults to true.
-     *
-     * @ignore
-     * @param {*} value The new value to check for when executing listeners.
-     * @return {Object} Current instance of EventEmitter for chaining.
-     */
-    proto.setOnceReturnValue = function setOnceReturnValue(value) {
-        this._onceReturnValue = value;
-        return this;
-    };
-
-    /**
-     * Fetches the current value to check against when executing listeners. If
-     * the listeners return value matches this one then it should be removed
-     * automatically. It will return true by default.
-     *
-     * @ignore
-     * @private
-     * @return {*|Boolean} The current value to check for or the default, true.
-     */
-    proto._getOnceReturnValue = function _getOnceReturnValue() {
-        if (this.hasOwnProperty('_onceReturnValue')) {
-            return this._onceReturnValue;
-        }
-        else {
-            return true;
-        }
-    };
-
-    /**
-     * Fetches the events object and creates one if required.
-     *
-     * @ignore
-     * @private
-     * @return {Object} The events storage object.
-     */
-    proto._getEvents = function _getEvents() {
-        return this._events || (this._events = {});
+    EventEmitter.prototype.clearEvents = function() {
+        this.__events = {};
     };
 
 	XQCore.Event = EventEmitter;
@@ -1181,7 +934,7 @@ var XQCore;
          * @private
          * @type {Object}
          */
-        this.__Router = new XQCore.Router();
+        this.router = new XQCore.Router();
 
         /**
          * Logger instance
@@ -1201,34 +954,10 @@ var XQCore;
             fn.call(this, self, log);
         }
 
-        if (XQCore.html5Routes) {
-            window.addEventListener('popstate', function(e) {
-                self.__onPopstate(e.state);
-            }, false);
-        }
-        else {
-            window.addEventListener('hashchange', function(e) {
-                self.__onPopstate(e.state);
-            }, false);
-        }
-
-        var route = XQCore.defaultRoute;
-        if (/^#![a-zA-Z0-9]+/.test(self.getHash())) {
-            route = self.getHash().substr(2);
-        }
-
-        route = self.__Router.match(route);
-        if (route) {
-            var data = route.params;
-            if (XQCore.callerEvent) {
-                data[XQCore.callerEvent] = 'pageload';
-            }
-
-            $(function() {
-                log.info('Trigger route', route, data);
-                route.fn.call(self, route.params, route.splats);
-            });
-        }
+        $(function() {
+            //Call current page
+            self.router.callRoute(self.router.getPath());
+        });
     };
 
     XQCore.extend(Presenter.prototype, new XQCore.Event());
@@ -1244,10 +973,10 @@ var XQCore;
     /**
      * Add a history item to the browser history
      *
-     * @param {Object} data Data object
      * @param {String} url Page URL (Optional) defaults to the curent URL
+     * @param {Object} data Data object
      */
-    Presenter.prototype.pushState = function(data, url) {
+    Presenter.prototype.pushState = function(url, data) {
         // log.info('Check State', data, history.state, XQCore.compare(data, history.state));
         // if (XQCore.compare(data, history.state)) {
         //     this.warn('Abborting history.pushState because data are equale to current history state');
@@ -1255,23 +984,20 @@ var XQCore;
         var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
         url = hash + url;
         history.pushState(data, '', url || null);
-        log.info('Update history with pushState', data, url);
+        log.info('Update history with pushState. New URL: ' + data, url);
     };
 
     /**
      * Add a history item to the browser history
      *
-     * @param {Object} data Data object
      * @param {String} url Page URL (Optional) defaults to the current URL
+     * @param {Object} data Data object
      */
-    Presenter.prototype.replaceState = function(data, url) {
-        // if (data === history.state) {
-        //     this.warn('Abborting history.replaceState because data are equale to current history state');
-        // }
+    Presenter.prototype.replaceState = function(url, data) {
         var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
         url = hash + url;
         history.replaceState(data, '', url || null);
-        log.info('Update history with replaceState', data, url);
+        log.info('Update history with replaceState. New URL: ' + data, url);
     };
 
     /**
@@ -1279,44 +1005,15 @@ var XQCore;
      *
      * Options: {
      *  replace: <Boolean> Replace current history entry with route (Only when html5 routes are enabled)
-     *  trigger: <Boolean> Set this to false to surpress a route change when new route equals to old route
+     *  noPush: <Boolean> Set this to false to surpress a route change when new route equals to old route
      * }
      *
      * @param {String} route Route url
-     * @param {Object} data Data object
      * @param {Object} options Options
      */
-    Presenter.prototype.navigateTo = function(route, data, options) {
-        log.info('Navigate to route: ', route, data, options);
-
+    Presenter.prototype.navigateTo = function(route, options) {
         options = options || {};
-
-        if (XQCore.html5Routes) {
-            if (options.replace) {
-                this.replaceState(data, route);
-            } else {
-                this.pushState(data, route);
-            }
-            
-            //Trigger popstate handler
-            this.__onPopstate();
-            // var evt = new PopStateEvent('popstate', {
-            //     bubbles: false,
-            //     cancelable: false,
-            //     state: null
-            // });
-
-            // window.dispatchEvent(evt);
-        }
-        else {
-            var hashRoute = XQCore.hashBang + route;
-            if (options.trigger !== false && location.hash === hashRoute) {
-                this.__onPopstate();
-                return;
-            }
-
-            location.hash = hashRoute;
-        }
+        this.router.callRoute(route, options);
     };
 
     /**
@@ -1565,47 +1262,6 @@ var XQCore;
         return this;
     };
 
-
-    /**
-     * PopstateEvent
-     *
-     * @method __onPopstate
-     * @param {Object} data Event data
-     * @private
-     */
-    Presenter.prototype.__onPopstate = function(data) {
-        var self = this;
-
-        log.info('popstate event recived', data, self);
-
-        var route = XQCore.defaultRoute;
-        if (XQCore.html5Routes) {
-            var pattern = new RegExp('^' + self.root);
-            route = self.getPathname().replace(pattern, '');
-        }
-        else {
-            if (/^#!\S+/.test(this.getHash())) {
-                route = self.getHash().substr(2);
-            }
-        }
-
-        route = self.__Router.match(route);
-        if (route) {
-            data = data || route.params;
-            console.log('ROUTES', route);
-            if (route.splats) {
-                data.splats = route.splats;
-            }
-            if (XQCore.callerEvent) {
-                data[XQCore.callerEvent] = 'popstate';
-            }
-
-            log.info('Trigger route', route, data);
-
-            route.fn.call(self, data, route.splats);
-        }
-    };
-
     /**
      * Initialize a new view into the presenter scope
      *
@@ -1640,6 +1296,14 @@ var XQCore;
         });
 
         this.__views[viewName] = view;
+
+        var self = this;
+        if (XQCore.html5Routes) {
+            view.on('xqcore.navigate', function(url) {
+                self.router.callRoute(url);
+            });
+        }
+
         return view;
     };
 
@@ -1660,13 +1324,13 @@ var XQCore;
 
         if (typeof callback === 'function') {
             if (typeof route === 'string') {
-                log.info('Register route', route, 'with callback', callback);
-                this.__Router.addRoute(route, callback);
+                log.info('Register new route:', route, 'using fn as callback:', callback);
+                this.router.addRoute(route, callback);
             }
             else if (Array.isArray(route)) {
                 route.forEach(function(r) {
-                    log.info('Register route', r, 'with callback', callback);
-                    self.__Router.addRoute(r, callback);
+                    log.info('Register new route:', route, 'using fn as callback:', callback);
+                    self.router.addRoute(r, callback);
                 });
             }
 
@@ -2099,7 +1763,7 @@ var XQCore;
      *   noValidation: <Boolean> Don't validate
      *   validateOne: <Boolean> Only if setting one item, validate the item only
      *   replace: <Boolean> Replace all date with new data
-     *   sync: <Boolean> Calles sync method if validations succeeds. Default: false
+     *   noSync: <Boolean> Do not call sync method. Default: false
      * }
      *
      * @method set
@@ -2365,14 +2029,14 @@ var XQCore;
         var oldData = this.get();
         this.properties = XQCore.extend({}, this.defaults);
         this.state('starting');
-        if (options.removeListener) {
-            this.removeEvent();
-        }
-        
         if (!options.silent) {
             this.emit('data.reset', oldData);
         }
 
+        if (options.removeListener) {
+            this.clearEvents();
+        }
+        
         if (!options.noSync) {
             if (typeof this.sync === 'function') {
                 this.sync('reset', oldData);
@@ -3532,7 +3196,6 @@ var XQCore;
     };
 
     View.prototype.registerListener = function($el) {
-        console.log('REG LISTENER');
         var self = this;
 
         $el.find('[on]').addBack('[on]').each(function() {
@@ -3541,7 +3204,6 @@ var XQCore;
             var data = $(this).data();
             var listenerFunc;
             $cur.removeAttr('on');
-            console.log(' ... NEW LISTENER', events);
 
             events = events.split(';');
             events.forEach(function(ev) {
@@ -3878,6 +3540,24 @@ var XQCore;
             //Set ready state
             self.__setReadyState();
             self.registerListener(self.$el);
+
+            //Register view listener
+            if (XQCore.html5Routes) {
+                self.$el.on('click', 'a', function(e) {
+                    if (/^http(s)?:\/\//.test(e.href)) {
+                        return;
+                    }
+
+                    if (!/^\/?[a-z]/.test(e.href)) {
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    self.emit('xqcore.navigate', e.href);
+                });
+            }
         });
     };
 
@@ -3885,218 +3565,291 @@ var XQCore;
 
 })(XQCore);
 
-/*jshint -W014 */
 /**
- * XQCore Router API
- *
- * @author Andi Heinkelein - noname-media.com
- * @copyright Andi Heinkelein - noname-media.com
- *
- * Based on router.js v0.2.0
+ * XQCore router
+ * 
+ * Based on router.js v2.1.0
  * Copyright Aaron Blohowiak and TJ Holowaychuk 2011.
  * https://github.com/aaronblohowiak/routes.js
+ *
+ * @module  XQCore.Router
+ *
+ * @example
+ *
+ * var router = new XQCore.Router();
+ * router.addRoute('/index', function() {
+ *     // index route was called
+ * });
+ *
+ * router.addRoute('/foo/:name', function(data) {
+ *     // data.name contains the name part
+ * });
+ *
  * 
- * @module XQCore.Router
  */
-(function(XQCore, undefined) {
-	'use strict';
+(function(XQCore) {
+    'use strict';
 
-	/**
-	 * Convert path to route object
-	 *
-	 * A string or RegExp should be passed,
-	 * will return { re, src, keys} obj
-	 *
-	 * @param  {String|RegExp} path
-	 * @return {Object}
-	 */
-	var Route = function(path) {
-		//using 'new' is optional
-		
-		var src, re, keys = [];
-		
-		if (path instanceof RegExp) {
-			re = path;
-			src = path.toString();
-		} else {
-			re = pathToRegExp(path, keys);
-			src = path;
-		}
+    var log = new XQCore.Logger('Router');
 
-		return {
-			re: re,
-			src: path.toString(),
-			keys: keys
-		};
-	};
+    /**
+     * Convert path to route object
+     *
+     * A string or RegExp should be passed,
+     * will return { re, src, keys} obj
+     *
+     * @param  {String / RegExp} path
+     * @return {Object}
+     */
 
-	/**
-	 * Normalize the given path string,
-	 * returning a regular expression.
-	 *
-	 * An empty array should be passed,
-	 * which will contain the placeholder
-	 * key names. For example "/user/:id" will
-	 * then contain ["id"].
-	 *
-	 * @param  {String} path
-	 * @param  {Array} keys
-	 * @return {RegExp}
-	 */
-	var pathToRegExp = function (path, keys) {
-		path = path
-			.concat('/?')
-			.replace(/\/\(/g, '(?:/')
-			.replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?/g, function(_, slash, format, key, capture, optional){
-				keys.push(key);
-				slash = slash || '';
-				return ''
-					+ (optional ? '' : slash)
-					+ '(?:'
-					+ (optional ? slash : '')
-					+ (format || '') + (capture || '([^/]+?)') + ')'
-					+ (optional || '');
-			})
-			.replace(/([\/.])/g, '\\$1')
-			.replace(/\*/g, '(.+)');
-		return new RegExp('^' + path + '$', 'i');
-	};
+    var Route = function(path) {
+        var src, re, keys = [];
 
-	/**
-	 * Attempt to match the given request to
-	 * one of the routes. When successful
-	 * a  {fn, params, splats} obj is returned
-	 *
-	 * @param  {Array} routes
-	 * @param  {String} uri
-	 * @return {Object}
-	 */
-	var match = function (routes, uri) {
-		var captures, i = 0;
+        if (path instanceof RegExp) {
+            re = path;
+            src = path.toString();
+        } else {
+            re = pathToRegExp(path, keys);
+            src = path;
+        }
 
-		for (var len = routes.length; i < len; ++i) {
-			var route = routes[i],
-				re = route.re,
-				keys = route.keys,
-				splats = [],
-				params = {},
-				j;
+        return {
+            re: re,
+            src: path.toString(),
+            keys: keys
+        };
+    };
 
-			captures = re.exec(uri);
-			if (captures) {
-				for (j = 1, len = captures.length; j < len; ++j) {
-					var key = keys[j-1],
-						val = typeof captures[j] === 'string'
-							? decodeURIComponent(captures[j])
-							: captures[j];
-					if (key) {
-						params[key] = val;
-					} else {
-						splats.push(val);
-					}
-				}
+    /**
+     * Normalize the given path string,
+     * returning a regular expression.
+     *
+     * An empty array should be passed,
+     * which will contain the placeholder
+     * key names. For example "/user/:id" will
+     * then contain ["id"].
+     *
+     * @param  {String} path
+     * @param  {Array} keys
+     * @return {RegExp}
+     */
+    var pathToRegExp = function(path, keys) {
+        path = path
+            .concat('/?')
+            .replace(/\/\(/g, '(?:/')
+            .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?|\*/g, function(_, slash, format, key, capture, optional) {
+                if (_ === '*') {
+                    keys.push(undefined);
+                    return _;
+                }
 
-				return {
-					params: params,
-					splats: splats,
-					route: route.src
-				};
-			}
-		}
-	};
+                keys.push(key);
+                slash = slash || '';
+                return '' + (optional ? '' : slash) + '(?:' + (optional ? slash : '') + (format || '') + (capture || '([^/]+?)') + ')' + (optional || '');
+            })
+            .replace(/([\/.])/g, '\\$1')
+            .replace(/\*/g, '(.*)');
+        return new RegExp('^' + path + '$', 'i');
+    };
 
-	/**
-	 * Default "normal" router constructor.
-	 * accepts path, fn tuples via addRoute
-	 * returns {fn, params, splats, route}
-	 *  via match
-	 *
-	 * @return {Object}
-	 */
-	// var getRouter = function() {
-	//   //using 'new' is optional
-	//   return {
-	//     routes: [],
-	//     routeMap : {},
-	//     addRoute: function(path, fn) {
-	//       if (!path) {
-	//         throw new Error(' route requires a path');
-	//       }
+    /**
+     * Attempt to match the given request to
+     * one of the routes. When successful
+     * a  {fn, params, splats} obj is returned
+     *
+     * @param  {Array} routes
+     * @param  {String} uri
+     * @return {Object}
+     */
+    var match = function(routes, uri, startAt) {
+        var captures, i = startAt || 0;
 
-	//       if (!fn) {
-	//        throw new Error(' route ' + path.toString() + ' requires a callback');
-	//       }
+        for (var len = routes.length; i < len; ++i) {
+            var route = routes[i],
+                re = route.re,
+                keys = route.keys,
+                splats = [],
+                params = {};
 
-	//       var route = new Route(path);
-	//       route.fn = fn;
+            captures = uri.match(re);
+            if (captures) {
+                for (var j = 1, cLen = captures.length; j < cLen; ++j) {
+                    var key = keys[j - 1],
+                        val = typeof captures[j] === 'string' ? unescape(captures[j]) : captures[j];
+                    if (key) {
+                        params[key] = val;
+                    } else {
+                        splats.push(val);
+                    }
+                }
+                return {
+                    params: params,
+                    splats: splats,
+                    route: route.src,
+                    next: i + 1
+                };
+            }
+        }
+    };
 
-	//       this.routes.push(route);
-	//       this.routeMap[path] = fn;
-	//     },
+    /**
+     * Router constructor
+     *
+     * @constructor
+     */
+    var Router = function(options) {
+        options = options || {};
 
-	//     match: function(pathname) {
-	//       var route = match(this.routes, pathname);
-	//       if(route){
-	//         route.fn = this.routeMap[route.route];
-	//       }
-	//       return route;
-	//     }
-	//   };
-	// };
+        /**
+         * Contains all registered routes
+         *
+         * @property {Array} routes
+         * @private
+         */
+        this.routes = [];
 
-	var Router = function(conf) {
-		conf = XQCore.extend({
-			debug: false
-		}, conf);
+        this.routeMap = {};
 
-		this.debug = Boolean(conf.debug);
+        if (!options.noListener) {
+            this.registerListener();
+        }
+    };
 
-		this.routes = [];
-		this.routeMap = {};
-	};
+    Router.prototype.registerListener = function() {
+        if (XQCore.html5Routes) {
+            console.log('DEFINE');
+            window.addEventListener('popstate', this.onPopStateHandler.bind(this));
+        }
+        else {
+            window.addEventListener('hashchange', this.onPopStateHandler.bind(this));
+        }
+    };
 
-	Router.prototype.addRoute = function(path, fn) {
-		if (!path) {
-			throw new Error(' route requires a path');
-		}
+    Router.prototype.onPopStateHandler = function(e) {
+        var path = this.getPath();
+        this.callRoute(path, {
+            noPush: true
+        });
+    };
 
-		if (!fn) {
-			throw new Error(' route ' + path.toString() + ' requires a callback');
-		}
+    Router.prototype.getPath = function() {
+        var path;
+        if (XQCore.html5Routes) {
+            path = location.pathname;
+            return path.replace(new RegExp('^' + XQCore.basePath), '');
+        }
+        else {
+            path = '/' + location.hash;
+            return path.replace(new RegExp('^' + XQCore.hashBang), '');
+        }
+    };
 
-		var route = new Route(path);
-		route.fn = fn;
+    /**
+     * Registers a new route
+     *
+     * @method addRoute
+     * @param {String}   path Route path
+     * @param {Function} fn   Function to be called when addRoute will be called
+     * @returns {Object} Returns this value
+     * @chainable
+     */
+    Router.prototype.addRoute = function(path, fn) {
+        if (!path) {
+            throw new Error(' route requires a path');
+        }
+        
+        if (!fn) {
+            throw new Error(' route ' + path.toString() + ' requires a callback');
+        }
 
-		this.routes.push(route);
-		this.routeMap[path] = fn;
-	};
+        if (this.routeMap[path]) {
+            throw new Error('path is already defined: ' + path);
+        }
 
-	Router.prototype.match = function(pathname) {
-		var route = match(this.routes, pathname);
-		if(route){
-			route.fn = this.routeMap[route.route];
-		}
-		return route;
-	};
+        var route = new Route(path);
+        route.fn = fn;
 
-	/**
-	 * Fires a give route
-	 *
-	 * @param  {String} route	The route to fire
-	 * @param  {Object}	data	Callback data
-	 *
-	 * @return {Boolean}       Returns the matched route
-	 */
-	Router.prototype.fire = function(route, data) {
-		route = this.match(route);
-		if (route) {
-			route.fn(data);
-		}
-	};
+        this.routes.push(route);
+        this.routeMap[path] = fn;
 
-	XQCore.Router = Router;
+        return this;
+    };
 
+    /**
+     * Removes a route
+     *
+     * @method removeRoute
+     * @param  {String} path Path to be removed
+     * @return {Object}      Returns this value
+     * @chainable
+     */
+    Router.prototype.removeRoute = function(path) {
+        if (!path) {
+            throw new Error(' route requires a path');
+        }
+
+        if (!this.routeMap[path]) {
+            log.warn('Can not remove route! Route does not exists: ' + path);
+            return this;
+        }
+
+        for (var i = 0; i < this.routes.length; i++) {
+            var route = this.routes[i];
+            if (route.src === path) {
+                this.routes.splice(i, 1);
+            }
+        }
+
+        delete this.routeMap[path];
+        return this;
+    };
+
+    Router.prototype.match = function(pathname, startAt) {
+        var route = match(this.routes, pathname, startAt);
+        if (route) {
+            route.fn = this.routeMap[route.route];
+            route.next = this.match.bind(this, pathname, route.next);
+        }
+        return route;
+    };
+
+    /**
+     * Calls a route
+     *
+     * Options:
+     * --------
+     * **noRoute** Doesn't add a push state item
+     * **replace** Add a replace state item
+     * 
+     *
+     * @method callRoute
+     * @param  {String} path Route path
+     * @param {Object} [options] Set options for route call
+     * 
+     */
+    Router.prototype.callRoute = function(path, options) {
+        options = options || {};
+
+        var route = this.match(path);
+
+        if (!route) {
+            log.warn('Could not call any route! No route were found! Called path: ' + path);
+            return;
+        }
+
+        if (XQCore.html5Routes && !options.noPush && !options.replace) {
+            history.pushState(null, '', path);
+        }
+        else if (XQCore.html5Routes && options.replace) {
+            history.replaceState(null, '', path);
+        }
+
+        route.fn.call(this, route.params, route.splats);
+    };
+
+    XQCore.Router = Router;
 })(XQCore);
+
 /**
  * Socket connection
  * Creates a socket connection to a socket server. Only one connection is used per server/port combination.
@@ -4223,8 +3976,6 @@ var XQCore;
                     }, self.reconnectionInterval);
                 }
             };
-
-            console.log('CONN', this.conn);
         }
     };
 

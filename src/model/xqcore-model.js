@@ -262,7 +262,8 @@
                     this.sync('set', newData);
                 }
                 else {
-                    this.emit('data.replace', newData, oldData);
+                    //TODO show only replaced data if merge is using
+                    this.emit(options.replace ? 'data.replace' : 'data.merge', newData, oldData);
                 }
             }
             else if (setItem){

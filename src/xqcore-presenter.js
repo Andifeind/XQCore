@@ -201,6 +201,7 @@
         //Old
         var modelEventConf = XQCore.extend({
             'data.replace': 'xrender',
+            'data.merge': 'xrender',
             'data.item': 'xrender',
             'data.append': 'xrender',
             'data.prepend': 'xrender',

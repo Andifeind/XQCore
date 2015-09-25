@@ -403,7 +403,7 @@ describe('XQCore Model', function() {
             expect(model.properties).to.eql(modelData);
 
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.replace', model.properties, {});
+            expect(emitStub).to.be.calledWith('data.merge', model.properties, {});
             expect(emitStub).to.be.calledWith('data.change', model.properties, {});
 
             emitStub.restore();

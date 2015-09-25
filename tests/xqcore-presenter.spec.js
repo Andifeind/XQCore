@@ -195,6 +195,9 @@ describe('XQCore Presenter', function() {
     });
 
     describe('route', function() {
+        afterEach(function() {
+
+        });
         it('Should register a routing listener', function() {
             var indexStub = sinon.stub();
             var addStub = sinon.stub();
@@ -203,13 +206,14 @@ describe('XQCore Presenter', function() {
                 self.route('index', indexStub);
                 self.route('add', addStub);
 
-                expect(self.__Router.routeMap).to.eql({
+                expect(self.router.routeMap).to.eql({
                     'index': indexStub,
                     'add': addStub
                 });
             });
 
-            presenter.init();
+            presenter.router.routes = [];
+            presenter.router.routeMap = {};
         });
 
         it('Should register an array of routes with the same listener', function() {
@@ -220,14 +224,15 @@ describe('XQCore Presenter', function() {
                 self.route('index', indexStub);
                 self.route(['add', 'new'], addStub);
 
-                expect(self.__Router.routeMap).to.eql({
+                expect(self.router.routeMap).to.eql({
                     'index': indexStub,
                     'add': addStub,
                     'new': addStub
                 });
             });
 
-            presenter.init();
+            presenter.router.routes = [];
+            presenter.router.routeMap = {};
         });
     });
 });

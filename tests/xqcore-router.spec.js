@@ -1,4 +1,4 @@
-describe.only('XQCore Router', function() {
+describe('XQCore Router', function() {
     'use strict';
 
     describe('instance', function() {

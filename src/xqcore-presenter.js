@@ -122,8 +122,15 @@
      * @param {Object} options Options
      */
     Presenter.prototype.navigateTo = function(route, options) {
+        //TODO check route trigger
         options = options || {};
-        this.router.callRoute(route, options);
+        if (XQCore.html5Routes) {
+            this.router.callRoute(route, options);
+        }
+        else {
+            location.hash = XQCore.hashBang + route;
+            this.router.callRoute(route, options);
+        }
     };
 
     /**

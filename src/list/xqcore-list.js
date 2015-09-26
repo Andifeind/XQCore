@@ -43,6 +43,9 @@
         //Call XQCore.ReadyState constructor
         XQCore.ReadyState.call(this);
 
+        //Call Event constructor
+        XQCore.Event.call(this);
+
         var self = this;
 
         if (typeof arguments[0] === 'object') {
@@ -99,8 +102,9 @@
 
     //Extend with ready state
     XQCore.extend(List.prototype, XQCore.ReadyState.prototype);
+    XQCore.extend(List.prototype, XQCore.Event.prototype);
 
-    XQCore.extend(List.prototype, new XQCore.Event(), new XQCore.Logger());
+    XQCore.extend(List.prototype, new XQCore.Logger());
 
     /**
      * Inherits a list prototype

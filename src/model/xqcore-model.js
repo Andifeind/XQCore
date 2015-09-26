@@ -25,6 +25,9 @@
         //Call XQCore.ReadyState constructor
         XQCore.ReadyState.call(this);
 
+        //Call Event constructor
+        XQCore.Event.call(this);
+
         if (typeof arguments[0] === 'object') {
             conf = name;
             name = conf.name;
@@ -81,8 +84,9 @@
 
     //Extend with ready state
     XQCore.extend(Model.prototype, XQCore.ReadyState.prototype);
+    XQCore.extend(Model.prototype, XQCore.Event.prototype);
 
-    XQCore.extend(Model.prototype, new XQCore.Event(), new XQCore.Logger());
+    XQCore.extend(Model.prototype, new XQCore.Logger());
 
     if (XQCore.Sync) {
         XQCore.extend(Model.prototype, XQCore.Sync.prototype);
@@ -103,6 +107,9 @@
         }
 
         var Proto = function(_name, _options) {
+            //TODO call this later, ready state will be set before _options had been run
+            XQCore.Model.call(this, name, options);
+
             if (_name) {
                 if (typeof _name === 'string') {
                     name = _name;
@@ -118,7 +125,6 @@
                     XQCore.extend(this, _options);
                 }
             }
-            XQCore.Model.call(this, name, options);
         };
 
         Proto.prototype = Object.create(XQCore.Model.prototype);

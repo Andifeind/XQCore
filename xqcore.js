@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-150
+ * XQCore - +0.11.1-156
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-09-14
+ * Creation Date: 2015-09-26
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-150',
+        version: '0.11.1-156',
         
         /**
          * Defines a default route
@@ -679,7 +679,7 @@ var XQCore;
          * @return {Boolean} Returns true if event was removed
          */
         this.remove = function() {
-            this.ee.off(event, fn);
+            ee.off(event, fn);
         };
     };
 
@@ -1013,7 +1013,13 @@ var XQCore;
      */
     Presenter.prototype.navigateTo = function(route, options) {
         options = options || {};
-        this.router.callRoute(route, options);
+        if (XQCore.html5Routes) {
+            this.router.callRoute(route, options);
+        }
+        else {
+            location.hash = XQCore.hashBang + route;
+            this.router.callRoute(route, options);
+        }
     };
 
     /**
@@ -1091,6 +1097,7 @@ var XQCore;
         //Old
         var modelEventConf = XQCore.extend({
             'data.replace': 'xrender',
+            'data.merge': 'xrender',
             'data.item': 'xrender',
             'data.append': 'xrender',
             'data.prepend': 'xrender',
@@ -1611,6 +1618,9 @@ var XQCore;
         //Call XQCore.ReadyState constructor
         XQCore.ReadyState.call(this);
 
+        //Call Event constructor
+        XQCore.Event.call(this);
+
         if (typeof arguments[0] === 'object') {
             conf = name;
             name = conf.name;
@@ -1667,8 +1677,9 @@ var XQCore;
 
     //Extend with ready state
     XQCore.extend(Model.prototype, XQCore.ReadyState.prototype);
+    XQCore.extend(Model.prototype, XQCore.Event.prototype);
 
-    XQCore.extend(Model.prototype, new XQCore.Event(), new XQCore.Logger());
+    XQCore.extend(Model.prototype, new XQCore.Logger());
 
     if (XQCore.Sync) {
         XQCore.extend(Model.prototype, XQCore.Sync.prototype);
@@ -1689,6 +1700,9 @@ var XQCore;
         }
 
         var Proto = function(_name, _options) {
+            //TODO call this later, ready state will be set before _options had been run
+            XQCore.Model.call(this, name, options);
+
             if (_name) {
                 if (typeof _name === 'string') {
                     name = _name;
@@ -1704,7 +1718,6 @@ var XQCore;
                     XQCore.extend(this, _options);
                 }
             }
-            XQCore.Model.call(this, name, options);
         };
 
         Proto.prototype = Object.create(XQCore.Model.prototype);
@@ -1848,7 +1861,8 @@ var XQCore;
                     this.sync('set', newData);
                 }
                 else {
-                    this.emit('data.replace', newData, oldData);
+                    //TODO show only replaced data if merge is using
+                    this.emit(options.replace ? 'data.replace' : 'data.merge', newData, oldData);
                 }
             }
             else if (setItem){
@@ -2789,6 +2803,9 @@ var XQCore;
      * @param {object} conf View configuration
      */
     var View = function(name, conf) {
+        //Call Event constructor
+        XQCore.Event.call(this);
+    
         if (typeof arguments[0] === 'object' || typeof arguments[0] === 'function') {
             conf = name;
             name = null;
@@ -2918,7 +2935,7 @@ var XQCore;
         });
     };
 
-    XQCore.extend(View.prototype, new XQCore.Event());
+    XQCore.extend(View.prototype, XQCore.Event.prototype);
 
     View.prototype.show = function() {
         this.$el.show();
@@ -3845,7 +3862,7 @@ var XQCore;
         options = options || {};
 
         if (path === undefined) {
-            throw new Error('Path is undefined in Router.callRoute!');
+            throw new Error('XQCore.Router error! Path is undefined in callRoute()!');
         }
 
         var route = this.match(path);
@@ -4348,6 +4365,9 @@ var XQCore;
         //Call XQCore.ReadyState constructor
         XQCore.ReadyState.call(this);
 
+        //Call Event constructor
+        XQCore.Event.call(this);
+
         var self = this;
 
         if (typeof arguments[0] === 'object') {
@@ -4404,8 +4424,9 @@ var XQCore;
 
     //Extend with ready state
     XQCore.extend(List.prototype, XQCore.ReadyState.prototype);
+    XQCore.extend(List.prototype, XQCore.Event.prototype);
 
-    XQCore.extend(List.prototype, new XQCore.Event(), new XQCore.Logger());
+    XQCore.extend(List.prototype, new XQCore.Logger());
 
     /**
      * Inherits a list prototype

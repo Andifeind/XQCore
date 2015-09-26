@@ -47,7 +47,7 @@
          * @return {Boolean} Returns true if event was removed
          */
         this.remove = function() {
-            this.ee.off(event, fn);
+            ee.off(event, fn);
         };
     };
 

@@ -21,6 +21,9 @@
      * @param {object} conf View configuration
      */
     var View = function(name, conf) {
+        //Call Event constructor
+        XQCore.Event.call(this);
+    
         if (typeof arguments[0] === 'object' || typeof arguments[0] === 'function') {
             conf = name;
             name = null;
@@ -150,7 +153,7 @@
         });
     };
 
-    XQCore.extend(View.prototype, new XQCore.Event());
+    XQCore.extend(View.prototype, XQCore.Event.prototype);
 
     View.prototype.show = function() {
         this.$el.show();

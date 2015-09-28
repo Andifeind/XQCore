@@ -420,7 +420,7 @@ describe('XQCore Model', function() {
             }));
 
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.item', 'profession', 'Developer');
+            expect(emitStub).to.be.calledWith('value.set', 'profession', 'Developer');
             expect(emitStub).to.be.calledWith('data.change', model.properties, modelData);
 
             emitStub.restore();
@@ -439,7 +439,7 @@ describe('XQCore Model', function() {
             }));
 
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.item', 'profession.name', 'Developer');
+            expect(emitStub).to.be.calledWith('value.set', 'profession.name', 'Developer');
             expect(emitStub).to.be.calledWith('data.change', model.properties, modelData);
 
             emitStub.restore();
@@ -658,7 +658,7 @@ describe('XQCore Model', function() {
             model.set('a', 'aa', {noSync: false});
 
             expect(syncStub).to.be.calledOnce();
-            expect(syncStub).to.be.calledWith('item', 'a', 'aa');
+            expect(syncStub).to.be.calledWith('value', 'a', 'aa');
         });
 
         it('Should not call sync method when sync option is false', function() {
@@ -846,14 +846,14 @@ describe('XQCore Model', function() {
         });
     });
 
-    describe('append', function() {
+    describe('push', function() {
         var model;
 
         beforeEach(function() {
             model = new XQCore.Model('test');
         });
 
-        it('Should append data to a subset', function() {
+        it('Should push data to a subset', function() {
             var emitStub = sinon.stub(model, 'emit');
             model.properties = {
                 listing: [
@@ -872,9 +872,9 @@ describe('XQCore Model', function() {
                 ]
             };
 
-            model.append('listing', {name: 'DDD', value: '4'});
+            model.push('listing', {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', 'listing', -1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', 'listing', -1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
@@ -882,7 +882,7 @@ describe('XQCore Model', function() {
             emitStub.restore();
         });
 
-        it('Should append data to a subset (path ist listing.data)', function() {
+        it('Should push data to a subset (path ist listing.data)', function() {
             var emitStub = sinon.stub(model, 'emit');
             model.properties = {
                 listing: {
@@ -905,9 +905,9 @@ describe('XQCore Model', function() {
                 }
             };
 
-            model.append('listing.data', {name: 'DDD', value: '4'});
+            model.push('listing.data', {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', 'listing.data', -1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', 'listing.data', -1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
@@ -915,7 +915,7 @@ describe('XQCore Model', function() {
             emitStub.restore();
         });
 
-        it('Should append data to a subset (path is null)', function() {
+        it('Should push data to a subset (path is null)', function() {
             var emitStub = sinon.stub(model, 'emit');
             model.properties = [
                 { name: 'AAA', value: '1' },
@@ -930,9 +930,9 @@ describe('XQCore Model', function() {
                 { name: 'DDD', value: '4' }
             ];
 
-            model.append(null, {name: 'DDD', value: '4'});
+            model.push(null, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', null, -1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', null, -1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
@@ -940,7 +940,7 @@ describe('XQCore Model', function() {
             emitStub.restore();
         });
 
-        it('Should append data to a not existing dataset', function() {
+        it('Should push data to a not existing dataset', function() {
             var emitStub = sinon.stub(model, 'emit');
             model.properties = {};
 
@@ -948,36 +948,36 @@ describe('XQCore Model', function() {
                 { name: 'DDD', value: '4' }
             ];
 
-            model.append(null, {name: 'DDD', value: '4'});
+            model.push(null, {name: 'DDD', value: '4'});
 
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', null, -1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', null, -1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
 
             emitStub.restore();
         });
 
-        it('Should append data to a existing dataset and should fail with an error', function() {
+        it('Should push data to a existing dataset and should fail with an error', function() {
             var emitStub = sinon.stub(model, 'emit'),
                 errorStub = sinon.stub(model, 'error');
             
             model.properties = { listing: {} };
-            model.append('listing', {name: 'DDD', value: '4'});
+            model.push('listing', {name: 'DDD', value: '4'});
             expect(errorStub).to.be.called();
-            expect(errorStub).to.be.calledWithMatch(/Model.append requires an array./);
+            expect(errorStub).to.be.calledWithMatch(/Model.push requires an array./);
             expect(emitStub).to.be.notCalled();
 
             emitStub.restore();
             errorStub.restore();
         });
 
-        it('Should call sync method with append mode', function() {
+        it('Should call sync method with push mode', function() {
             var syncStub = sinon.stub();
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.append('listing', {a: 'aa'}, { noSync: false });
+            model.push('listing', {a: 'aa'}, { noSync: false });
 
             expect(syncStub).to.be.calledOnce();
             expect(syncStub).to.be.calledWith('insert', 'listing', -1, {a:'aa'});
@@ -988,20 +988,20 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.append('listing', {a: 'aa'}, { noSync: true });
+            model.push('listing', {a: 'aa'}, { noSync: true });
 
             expect(syncStub).to.be.notCalled();
         });
     });
 
-    describe('prepend', function() {
+    describe('unshift', function() {
         var model;
 
         beforeEach(function() {
             model = new XQCore.Model('test');
         });
 
-        it('Should prepend data to a subset', function() {
+        it('Should unshift data to a subset', function() {
             var emitStub = sinon.stub(model, 'emit');
             model.properties = { listing: [
                 { name: 'AAA', value: '1' },
@@ -1018,9 +1018,9 @@ describe('XQCore Model', function() {
                 ]
             };
 
-            model.prepend('listing', {name: 'DDD', value: '4'});
+            model.unshift('listing', {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', 'listing', 0, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', 'listing', 0, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
@@ -1028,7 +1028,7 @@ describe('XQCore Model', function() {
             emitStub.restore();
         });
 
-        it('Should prepend data to a subset (path ist listing.data)', function() {
+        it('Should unshift data to a subset (path ist listing.data)', function() {
             var emitStub = sinon.stub(model, 'emit');
             model.properties = {
                 listing: {
@@ -1051,9 +1051,9 @@ describe('XQCore Model', function() {
                 }
             };
 
-            model.prepend('listing.data', {name: 'DDD', value: '4'});
+            model.unshift('listing.data', {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', 'listing.data', 0, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', 'listing.data', 0, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
             
             expect(model.properties).to.eql(finalData);
@@ -1061,7 +1061,7 @@ describe('XQCore Model', function() {
             emitStub.restore();
         });
 
-        it('Should prepend data to a subset (path is null)', function() {
+        it('Should unshift data to a subset (path is null)', function() {
             var emitStub = sinon.stub(model, 'emit');
             model.properties = [
                 { name: 'AAA', value: '1' },
@@ -1076,9 +1076,9 @@ describe('XQCore Model', function() {
                 { name: 'CCC', value: '3' }
             ];
 
-            model.prepend(null, {name: 'DDD', value: '4'});
+            model.unshift(null, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', null, 0, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', null, 0, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
             
@@ -1087,7 +1087,7 @@ describe('XQCore Model', function() {
             emitStub.restore();
         });
 
-        it('Should prepend data to a not existing dataset', function() {
+        it('Should unshift data to a not existing dataset', function() {
             var emitStub = sinon.stub(model, 'emit');
             model.properties = {};
 
@@ -1095,36 +1095,36 @@ describe('XQCore Model', function() {
                 { name: 'DDD', value: '4' }
             ];
 
-            model.prepend(null, {name: 'DDD', value: '4'});
+            model.unshift(null, {name: 'DDD', value: '4'});
 
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', null, 0, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', null, 0, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
 
             emitStub.restore();
         });
 
-        it('Should prepend data to a existing dataset and should fail with an error', function() {
+        it('Should unshift data to a existing dataset and should fail with an error', function() {
             var emitStub = sinon.stub(model, 'emit'),
                 errorStub = sinon.stub(model, 'error');
             
             model.properties = { listing: {} };
-            model.prepend('listing', {name: 'DDD', value: '4'});
+            model.unshift('listing', {name: 'DDD', value: '4'});
             expect(errorStub).to.be.called();
-            expect(errorStub).to.be.calledWithMatch(/Model.prepend requires an array./);
+            expect(errorStub).to.be.calledWithMatch(/Model.unshift requires an array./);
             expect(emitStub).to.be.notCalled();
 
             emitStub.restore();
             errorStub.restore();
         });
 
-        it('Should call sync method with prepend mode', function() {
+        it('Should call sync method with unshift mode', function() {
             var syncStub = sinon.stub();
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.prepend('listing', {a: 'aa'}, {noSync: false });
+            model.unshift('listing', {a: 'aa'}, {noSync: false });
 
             expect(syncStub).to.be.calledOnce();
             expect(syncStub).to.be.calledWith('insert', 'listing', 0, {a:'aa'});
@@ -1135,13 +1135,13 @@ describe('XQCore Model', function() {
             model.sync = syncStub;
 
             model.properties = { listing: [] };
-            model.prepend('listing', {a: 'aa'}, { noSync: true });
+            model.unshift('listing', {a: 'aa'}, { noSync: true });
 
             expect(syncStub).to.be.notCalled();
         });
     });
 
-    describe.only('insert', function() {
+    describe('insert', function() {
         var model;
 
         beforeEach(function() {
@@ -1167,7 +1167,7 @@ describe('XQCore Model', function() {
 
             model.insert('listing', 1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', 'listing', 1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', 'listing', 1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
@@ -1200,7 +1200,7 @@ describe('XQCore Model', function() {
 
             model.insert('listing.data', 1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', 'listing.data', 1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', 'listing.data', 1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
             
             expect(model.properties).to.eql(finalData);
@@ -1225,7 +1225,7 @@ describe('XQCore Model', function() {
 
             model.insert(null, 1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', null, 1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', null, 1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
             
@@ -1270,7 +1270,7 @@ describe('XQCore Model', function() {
             model.insert(null, 1, {name: 'DDD', value: '4'});
 
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.insert', null, 1, {name: 'DDD', value: '4'});
+            expect(emitStub).to.be.calledWith('item.insert', null, 1, {name: 'DDD', value: '4'});
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
 
@@ -1338,7 +1338,7 @@ describe('XQCore Model', function() {
 
             model.remove('listing', 1);
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.remove', 'listing', 1, { name: 'BBB', value: '2' });
+            expect(emitStub).to.be.calledWith('item.remove', 'listing', 1, { name: 'BBB', value: '2' });
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
             expect(model.properties).to.eql(finalData);
@@ -1369,7 +1369,7 @@ describe('XQCore Model', function() {
 
             model.remove('listing.data', 1);
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.remove', 'listing.data', 1, { name: 'BBB', value: '2' });
+            expect(emitStub).to.be.calledWith('item.remove', 'listing.data', 1, { name: 'BBB', value: '2' });
             expect(emitStub).to.be.calledWith('data.change', finalData);
             
             expect(model.properties).to.eql(finalData);
@@ -1392,7 +1392,7 @@ describe('XQCore Model', function() {
 
             model.remove(null, 1);
             expect(emitStub).to.be.calledTwice();
-            expect(emitStub).to.be.calledWith('data.remove', null, 1, { name: 'BBB', value: '2' });
+            expect(emitStub).to.be.calledWith('item.remove', null, 1, { name: 'BBB', value: '2' });
             expect(emitStub).to.be.calledWith('data.change', finalData);
 
             
@@ -1466,6 +1466,169 @@ describe('XQCore Model', function() {
 
             model.properties = { listing: [] };
             model.remove('listing', 1, { noSync: true });
+
+            expect(syncStub).to.be.notCalled();
+        });
+    });
+  
+    describe('update', function() {
+        var model;
+
+        beforeEach(function() {
+            model = new XQCore.Model('test');
+        });
+
+        it('Should update data to a subset', function() {
+            var emitStub = sinon.stub(model, 'emit');
+            model.properties = { listing: [
+                { name: 'AAA', value: '1' },
+                { name: 'BBB', value: '2' },
+                { name: 'CCC', value: '3' }
+            ]};
+
+            var finalData = {
+                listing: [
+                    { name: 'DDD', value: '4' },
+                    { name: 'BBB', value: '2' },
+                    { name: 'CCC', value: '3' }
+                ]
+            };
+
+            model.update('listing', 0, { name: 'DDD', value: '4' });
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.update', 'listing', 0, { name: 'DDD', value: '4' }, { name: 'AAA', value: '1' });
+            expect(emitStub).to.be.calledWith('data.change', finalData);
+
+            expect(model.properties).to.eql(finalData);
+
+            emitStub.restore();
+        });
+
+        it('Should update data to a subset using match object', function() {
+            var emitStub = sinon.stub(model, 'emit');
+            model.properties = { listing: [
+                { name: 'AAA', value: '1' },
+                { name: 'BBB', value: '2' },
+                { name: 'CCC', value: '3' }
+            ]};
+
+            var finalData = {
+                listing: [
+                    { name: 'AAA', value: '1' },
+                    { name: 'DDD', value: '4' },
+                    { name: 'CCC', value: '3' }
+                ]
+            };
+
+            model.update('listing', { name: 'BBB' }, { name: 'DDD', value: '4' });
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.update', 'listing', { name: 'BBB' }, { name: 'DDD', value: '4' }, { name: 'BBB', value: '2' });
+            expect(emitStub).to.be.calledWith('data.change', finalData);
+
+            expect(model.properties).to.eql(finalData);
+
+            emitStub.restore();
+        });
+
+        it('Should update data to a subset (path ist listing.data)', function() {
+            var emitStub = sinon.stub(model, 'emit');
+            model.properties = {
+                listing: {
+                    data: [
+                        { name: 'AAA', value: '1' },
+                        { name: 'BBB', value: '2' },
+                        { name: 'CCC', value: '3' }
+                    ]
+                }
+            };
+
+            var finalData = {
+                listing: {
+                    data: [
+                        { name: 'AAA', value: '1' },
+                        { name: 'DDD', value: '4' },
+                        { name: 'CCC', value: '3' }
+                    ]
+                }
+            };
+
+            model.update('listing.data', 1, { name: 'DDD', value: '4' });
+            expect(emitStub).to.be.calledTwice();
+            expect(emitStub).to.be.calledWith('data.update', 'listing.data', 1, { name: 'DDD', value: '4' }, { name: 'BBB', value: '2' });
+            expect(emitStub).to.be.calledWith('data.change', finalData);
+            
+            expect(model.properties).to.eql(finalData);
+
+            emitStub.restore();
+        });
+
+        it('Should update data to a subset and should never emit an event', function() {
+            var emitStub = sinon.stub(model, 'emit');
+            model.properties = {
+                listing: [
+                    { name: 'AAA', value: '1' },
+                    { name: 'BBB', value: '2' },
+                    { name: 'CCC', value: '3' }
+                ]
+            };
+
+            var finalData = {
+                listing: [
+                    { name: 'AAA', value: '1' },
+                    { name: 'DDD', value: '4' },
+                    { name: 'CCC', value: '3' }
+                ]
+            };
+
+            model.update('listing', 1, { name: 'DDD', value: '4' }, {
+                silent: true
+            });
+
+            expect(emitStub).to.be.notCalled();
+            expect(model.properties).to.eql(finalData);
+
+            emitStub.restore();
+        });
+
+        it('Should update data from a not existing dataset', function() {
+            var emitStub = sinon.stub(model, 'emit');
+            model.properties = {
+                listing: []
+            };
+
+            model.update('listing', 1);
+
+            expect(emitStub).to.be.notCalled();
+            expect(model.properties).to.eql({
+                listing: []
+            });
+            emitStub.restore();
+        });
+
+        it('Should call sync method with update mode', function() {
+            var syncStub = sinon.stub();
+            model.sync = syncStub;
+
+            model.properties = {
+                listing: [
+                    { name: 'AAA', value: '1' },
+                    { name: 'DDD', value: '4' },
+                    { name: 'CCC', value: '3' }
+                ]
+            };
+
+            model.update('listing', 1, { name: 'DDD', value: '4' }, { noSync: false });
+
+            expect(syncStub).to.be.calledOnce();
+            expect(syncStub).to.be.calledWith('update', 'listing', 1, { name: 'DDD', value: '4' });
+        });
+
+        it('Should not call sync method when sync option is false', function() {
+            var syncStub = sinon.stub();
+            model.sync = syncStub;
+
+            model.properties = { listing: [] };
+            model.update('listing', 1, { noSync: true });
 
             expect(syncStub).to.be.notCalled();
         });

@@ -210,9 +210,9 @@
             'data.replace': 'xrender',
             'data.set': 'xrender',
             'data.item': 'xrender',
-            'data.insert': 'xrender',
+            'item.insert': 'xrender',
             // 'data.insert': 'insert',
-            'data.remove': 'remove',
+            'item.remove': 'remove',
             'validation.error': 'validationFailed',
             'state.change': 'onStateChange'
         }, conf.modelEvents);

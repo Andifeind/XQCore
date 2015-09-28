@@ -122,8 +122,8 @@
             self.push(opts);
         });
         
-        self.socket.on('synclist.update', function(query, data) {
-            self.update(query, data, opts);
+        self.socket.on('synclist.update', function(match, data) {
+            self.update(match, data, opts);
         });
         
         self.socket.on('synclist.clear', function() {

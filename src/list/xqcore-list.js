@@ -208,17 +208,19 @@
         //No validation error has been ocured.
         var length = this.items.push.apply(this.items, models);
 
-        if (this.maxLength && this.items.length > this.maxLength) {
-            this.items.splice(0, this.items.length - this.maxLength);
-        }
+        if (length) {
+            if (this.maxLength && this.items.length > this.maxLength) {
+                this.items.splice(0, this.items.length - this.maxLength);
+            }
 
-        if (!options.silent) {
-            this.emit('item.push', length - models.length, models.length);
-        }
+            if (!options.silent) {
+                this.emit('item.push', models, length);
+            }
 
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('push', models);
+            if (!options.noSync) {
+                if (typeof this.sync === 'function') {
+                    this.sync('push', models);
+                }
             }
         }
 
@@ -272,13 +274,19 @@
         //No validation error has been ocured.
         var length = this.items.unshift.apply(this.items, models);
 
-        if (!options.silent) {
-            this.emit('item.unshift', length - models.length, models.length);
-        }
+        if (length) {
+            if (this.maxLength && this.items.length > this.maxLength) {
+                this.items.splice(this.maxLength);
+            }
 
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('unshift', models);
+            if (!options.silent) {
+                this.emit('item.unshift', models, length);
+            }
+
+            if (!options.noSync) {
+                if (typeof this.sync === 'function') {
+                    this.sync('unshift', models);
+                }
             }
         }
 
@@ -362,8 +370,9 @@
      * You can pass a XQCore.Model or a plain data object.
      * A data object will be converted into a XQCore.Model.
      * The model must be valid to be added to the list.
-     * 
-     * @param {Object|Array} data Model instance or a plain data object. Add multiple models by using an array of items
+     *
+     * @param {Object|Number} match Match to find element which should be updated
+     * @param {Object} data Model instance or a plain data object.
      * @param {Object} options Options object
      * {
      *     silent: true,    //Disable event emitting
@@ -373,38 +382,35 @@
      * @fires item.update
      * Fires an item.update event if item was succesfully updated. Othwewise fires an item.push event
      *
-     * @returns {Boolean} Returns true if validation was succesfully and all items were added
+     * @returns {Object} Returns the updated item
      */
-    List.prototype.update = function(select, data, options) {
-        var item;
-
+    List.prototype.update = function(match, data, options) {
         options = options || {};
 
-        if (!Array.isArray(data)) {
-            data = [data];
+        var updateItem;
+        if (typeof match === 'number') {
+
+            updateItem = this.models[match];
+        }
+        else {
+            updateItem = this.findOne(match);
         }
 
-        for (var i = 0, len = data.length; i < len; i++) {
-            item = data[i];
-        
-            var updateItem = this.findOne(select);
+        if (updateItem) {
+            updateItem.set(data, { noSync: true });
+            
+            if (!options.silent) {
+                this.emit('item.update', updateItem);
+            }
 
-            if (updateItem) {
-                updateItem.set(item, { noSync: true });
+            if (!options.noSync) {
+                if (typeof this.sync === 'function') {
+                    this.sync('update', match, data);
+                }
             }
         }
 
-        if (!options.silent) {
-            this.emit('item.update');
-        }
-
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('update', select, data);
-            }
-        }
-
-        return true;
+        return updateItem;
     };
 
     /**

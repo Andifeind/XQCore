@@ -274,10 +274,10 @@
             }
             else if (setItem){
                 if (!options.noSync && typeof this.sync === 'function') {
-                    this.sync('item', key, value);
+                    this.sync('value', key, value);
                 }
                 
-                this.emit('data.item', key, value);
+                this.emit('value.set', key, value);
             }
 
             this.emit('data.change', newData, oldData);
@@ -339,7 +339,7 @@
                 }
             }
 
-            return item[index];
+            return item ? item[index] : null;
         }
         else {
             if (options.copy === true) {
@@ -468,13 +468,13 @@
     };
 
     /**
-     * Append data to a subset
+     * Push data to a subset
      *
-     * @method append
+     * @method push
      * @param {String} path path to subset
      * @param {Object} data data to add
      */
-    Model.prototype.append = function(path, data, options) {
+    Model.prototype.push = function(path, data, options) {
         var dataset = XQCore.undotify(path, this.properties);
 
         options = options || {};
@@ -489,7 +489,7 @@
             this.properties = [data];
         }
         else {
-            this.error('Model.append requires an array. Dataset isn\'t an array. Path: ', path);
+            this.error('Model.push requires an array. Dataset isn\'t an array. Path: ', path);
             return;
         }
 
@@ -498,19 +498,19 @@
                 this.sync('insert', path, -1, data);
             }
 
-            this.emit('data.insert', path, -1, data);
+            this.emit('item.insert', path, -1, data);
             this.emit('data.change', this.properties);
         }
     };
 
     /**
-     * Prepend data to a subset
+     * Unshift data to a subset
      *
-     * @method prepend
+     * @method unshift
      * @param {String} path path to subset
      * @param {Object} data data to add
      */
-    Model.prototype.prepend = function(path, data, options) {
+    Model.prototype.unshift = function(path, data, options) {
         var dataset = XQCore.undotify(path, this.properties);
 
         options = options || {};
@@ -525,7 +525,7 @@
             this.properties = [data];
         }
         else {
-            this.error('Model.prepend requires an array. Dataset isn\'t an array. Path: ', path);
+            this.error('Model.unshift requires an array. Dataset isn\'t an array. Path: ', path);
             return;
         }
 
@@ -534,7 +534,7 @@
                 this.sync('insert', path, 0, data);
             }
 
-            this.emit('data.insert', path, 0, data);
+            this.emit('item.insert', path, 0, data);
             this.emit('data.change', this.properties);
         }
     };
@@ -572,7 +572,7 @@
                 this.sync('insert', path, index, data);
             }
 
-            this.emit('data.insert', path, index, data);
+            this.emit('item.insert', path, index, data);
             this.emit('data.change', this.properties);
         }
     };
@@ -607,7 +607,7 @@
                 this.sync('remove', path, index);
             }
 
-            this.emit('data.remove', path, index, removed[0]);
+            this.emit('item.remove', path, index, removed[0]);
             this.emit('data.change', this.properties);
         }
 
@@ -678,21 +678,38 @@
     };
 
     /**
-     * Modify a dataset
+     * Update a dataset
      * @development
      * 
-     * @method modify
-     * @param {[type]} path [description]
-     * @param {[type]} match [description]
-     * @param {[type]} data [description]
-     * @returns {[type]} [description]
+     * @method update
+     * @param {String} path Parent path
+     * @param {Number|Object} match Search match or index to find the to be updated item
+     * @param {Object} data Update date
      */
-    Model.prototype.modify = function(path, match, data) {
-        var item = this.search(path, match);
+    Model.prototype.update = function(path, match, data, options) {
+        var item;
+
+        options = options || {};
+
+        if (typeof match === 'number') {
+            item = this.get(path, match);
+        }
+        else {
+            item = this.search(path, match);
+        }
+
+        var oldData = XQCore.extend({}, item);
         if (item) {
             XQCore.extend(item, data);
-            this.emit('data.modify', path, data, item);
-            this.emit('data.change', this.properties);
+
+            if (options.silent !== true) {
+                this.emit('data.update', path, match, data, oldData);
+                this.emit('data.change', this.properties);
+            }
+
+            if (!options.noSync && typeof this.sync === 'function') {
+                this.sync('update', path, match, data);
+            }
         }
     };
 

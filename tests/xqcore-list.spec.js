@@ -1,4 +1,4 @@
-describe('XQCore List', function() {
+describe.only('XQCore List', function() {
     'use strict';
 
     describe('instance', function() {
@@ -262,7 +262,7 @@ describe('XQCore List', function() {
 
             expect(list.items).to.have.length(1);
             expect(cb).to.be.calledOnce();
-            expect(cb).to.be.calledWith(0, 1);
+            expect(cb).to.be.calledWith(sinon.match.array, 1);
         });
 
         it('Should emit an item.push event on adding multiple items', function() {
@@ -284,7 +284,7 @@ describe('XQCore List', function() {
 
             expect(list.items).to.have.length(3);
             expect(cb).to.be.calledOnce();
-            expect(cb).to.be.calledWith(0, 3);
+            expect(cb).to.be.calledWith(sinon.match.array, 3);
         });
 
         it('Should not emit an item.push event if silent option is set', function() {
@@ -499,7 +499,7 @@ describe('XQCore List', function() {
 
             expect(list.items).to.have.length(1);
             expect(cb).to.be.calledOnce();
-            expect(cb).to.be.calledWith(0, 1);
+            expect(cb).to.be.calledWith(sinon.match.array, 1);
         });
 
         it('Should emit an item.unshift event on adding multiple items', function() {
@@ -521,7 +521,7 @@ describe('XQCore List', function() {
 
             expect(list.items).to.have.length(3);
             expect(cb).to.be.calledOnce();
-            expect(cb).to.be.calledWith(0, 3);
+            expect(cb).to.be.calledWith(sinon.match.array, 3);
         });
 
         it('Should not emit an item.unshift event if silent option is set', function() {
@@ -1021,9 +1021,38 @@ describe('XQCore List', function() {
         });
     });
 
-    describe('remove', function() {
-        it.skip('Should remove an item from the list by a given index', function() {
+    describe.skip('remove', function() {
+        var list, model1, model2, model3;
 
+        beforeEach(function() {
+            list = new XQCore.List();
+            model1 = new XQCore.Model();
+            model1.set({
+                id: 1,
+                a: 'AA',
+                b: 'BB'
+            });
+
+            model2 = new XQCore.Model();
+            model2.set({
+                id: 2,
+                a: 'CC',
+                b: 'DD'
+            });
+
+            model3 = new XQCore.Model();
+            model3.set({
+                id: 3,
+                a: 'EE',
+                b: 'FF'
+            });
+
+            list.push([model1, model2, model3]);
+        });
+
+        it('Should remove an item from the list by a given index', function() {
+            var removed = list.remove(1);
+            expect(removed).to.be(model2);
         });
     });
 

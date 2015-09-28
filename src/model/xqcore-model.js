@@ -265,11 +265,11 @@
         if (options.silent !== true) {
             if (setAll) {
                 if (!options.noSync && typeof this.sync === 'function') {
-                    this.sync('set', newData);
+                    this.sync(options.replace ? 'replace' : 'set', newData);
                 }
                 else {
-                    //TODO show only replaced data if merge is using
-                    this.emit(options.replace ? 'data.replace' : 'data.merge', newData, oldData);
+                    //TODO show only replaced data if set is using
+                    this.emit(options.replace ? 'data.replace' : 'data.set', newData, oldData);
                 }
             }
             else if (setItem){
@@ -495,10 +495,10 @@
 
         if (options.silent !== true) {
             if (!options.noSync && typeof this.sync === 'function') {
-                this.sync('append', path, data);
+                this.sync('insert', path, -1, data);
             }
 
-            this.emit('data.append', path, data);
+            this.emit('data.insert', path, -1, data);
             this.emit('data.change', this.properties);
         }
     };
@@ -531,10 +531,10 @@
 
         if (options.silent !== true) {
             if (!options.noSync && typeof this.sync === 'function') {
-                this.sync('prepend', path, data);
+                this.sync('insert', path, 0, data);
             }
 
-            this.emit('data.prepend', path, data);
+            this.emit('data.insert', path, 0, data);
             this.emit('data.change', this.properties);
         }
     };
@@ -617,13 +617,13 @@
     /**
      * Replace all models data with new data. This is a alias for set(<AnyData>, {replace: true})
      *
-     * @method repalce
+     * @method replace
      * @param {Object} data Data object
      * @param {Object} options Option data. (See set method for details)
      */
-    Model.prototype.repalce = function(data, options) {
+    Model.prototype.replace = function(data, options) {
         options = options || {};
-        options.repalce = true;
+        options.replace = true;
         return this.set(data, options);
     };
 

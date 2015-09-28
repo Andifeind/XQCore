@@ -208,11 +208,10 @@
         //Old
         var modelEventConf = XQCore.extend({
             'data.replace': 'xrender',
-            'data.merge': 'xrender',
+            'data.set': 'xrender',
             'data.item': 'xrender',
-            'data.append': 'xrender',
-            'data.prepend': 'xrender',
-            'data.insert': 'insert',
+            'data.insert': 'xrender',
+            // 'data.insert': 'insert',
             'data.remove': 'remove',
             'validation.error': 'validationFailed',
             'state.change': 'onStateChange'

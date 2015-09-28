@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-156
+ * XQCore - +0.11.1-159
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-09-26
+ * Creation Date: 2015-09-28
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-156',
+        version: '0.11.1-159',
         
         /**
          * Defines a default route
@@ -1012,6 +1012,7 @@ var XQCore;
      * @param {Object} options Options
      */
     Presenter.prototype.navigateTo = function(route, options) {
+        //TODO check route trigger
         options = options || {};
         if (XQCore.html5Routes) {
             this.router.callRoute(route, options);

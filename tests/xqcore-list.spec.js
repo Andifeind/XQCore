@@ -1,4 +1,4 @@
-describe.only('XQCore List', function() {
+describe('XQCore List', function() {
     'use strict';
 
     describe('instance', function() {

@@ -554,13 +554,18 @@
         options = options || {};
 
         if (dataset instanceof Array) {
-            dataset.splice(index, 0, data);
+            if (index === -1) {
+                dataset.push(data);
+            }
+            else if (index === 0) {
+                dataset.unshift(data);
+            }
+            else {
+                dataset.splice(index, 0, data);
+            }
         }
-        else if (typeof dataset === 'undefined') {
+        else if (!dataset) {
             XQCore.dedotify(this.properties, path, [data]);
-        }
-        else if (typeof dataset === 'object' && !path && XQCore.isEmptyObject(this.properties)) {
-            this.properties = [data];
         }
         else {
             this.error('Model.insert requires an array. Dataset isn\'t an array. Path: ', path);

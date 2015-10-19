@@ -125,7 +125,7 @@
         var args = Array.prototype.slice.call(arguments, 1),
             len = this.__events[event].length;
 
-        for (var i = 0; i < len; i++) {
+        for (var i = len - 1; i >= 0; i--) {
             var listener = this.__events[event][i];
             listener.fn.apply(this, args);
             listener.calls++;

@@ -83,17 +83,14 @@
             self.set(data, opts);
         });
 
+        self.socket.on('syncmodel.replace', function(data) {
+            opts.replace = true;
+            self.set(data, opts);
+        });
+
         self.socket.on('syncmodel.item', function(key, value) {
             self.set(key, value, opts);
         });
-
-        // self.socket.on('syncmodel.append', function(path, data) {
-        //     self.append(path, data, opts);
-        // });
-
-        // self.socket.on('syncmodel.prepend', function(path, data) {
-        //     self.prepend(path, data, opts);
-        // });
 
         self.socket.on('syncmodel.insert', function(path, index, data) {
             self.insert(path, index, data, opts);
@@ -124,9 +121,8 @@
         });
 
         this.socket.off('syncmodel.set');
+        this.socket.off('syncmodel.replace');
         this.socket.off('syncmodel.item');
-        // this.socket.off('syncmodel.append');
-        // this.socket.off('syncmodel.prepend');
         this.socket.off('syncmodel.insert');
         this.socket.off('syncmodel.remove');
         this.socket.off('syncmodel.reset');

@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-159
+ * XQCore - +0.11.1-163
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-09-28
+ * Creation Date: 2015-10-18
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-159',
+        version: '0.11.1-163',
         
         /**
          * Defines a default route
@@ -757,7 +757,7 @@ var XQCore;
         var args = Array.prototype.slice.call(arguments, 1),
             len = this.__events[event].length;
 
-        for (var i = 0; i < len; i++) {
+        for (var i = len - 1; i >= 0; i--) {
             var listener = this.__events[event][i];
             listener.fn.apply(this, args);
             listener.calls++;
@@ -1098,12 +1098,11 @@ var XQCore;
         //Old
         var modelEventConf = XQCore.extend({
             'data.replace': 'xrender',
-            'data.merge': 'xrender',
+            'data.set': 'xrender',
             'data.item': 'xrender',
-            'data.append': 'xrender',
-            'data.prepend': 'xrender',
-            'data.insert': 'insert',
-            'data.remove': 'remove',
+            'item.insert': 'xrender',
+            // 'data.insert': 'insert',
+            'item.remove': 'remove',
             'validation.error': 'validationFailed',
             'state.change': 'onStateChange'
         }, conf.modelEvents);
@@ -1859,19 +1858,19 @@ var XQCore;
         if (options.silent !== true) {
             if (setAll) {
                 if (!options.noSync && typeof this.sync === 'function') {
-                    this.sync('set', newData);
+                    this.sync(options.replace ? 'replace' : 'set', newData);
                 }
                 else {
-                    //TODO show only replaced data if merge is using
-                    this.emit(options.replace ? 'data.replace' : 'data.merge', newData, oldData);
+                    //TODO show only replaced data if set is using
+                    this.emit(options.replace ? 'data.replace' : 'data.set', newData, oldData);
                 }
             }
             else if (setItem){
                 if (!options.noSync && typeof this.sync === 'function') {
-                    this.sync('item', key, value);
+                    this.sync('value', key, value);
                 }
                 
-                this.emit('data.item', key, value);
+                this.emit('value.set', key, value);
             }
 
             this.emit('data.change', newData, oldData);
@@ -1933,7 +1932,7 @@ var XQCore;
                 }
             }
 
-            return item[index];
+            return item ? item[index] : null;
         }
         else {
             if (options.copy === true) {
@@ -2062,13 +2061,13 @@ var XQCore;
     };
 
     /**
-     * Append data to a subset
+     * Push data to a subset
      *
-     * @method append
+     * @method push
      * @param {String} path path to subset
      * @param {Object} data data to add
      */
-    Model.prototype.append = function(path, data, options) {
+    Model.prototype.push = function(path, data, options) {
         var dataset = XQCore.undotify(path, this.properties);
 
         options = options || {};
@@ -2083,28 +2082,28 @@ var XQCore;
             this.properties = [data];
         }
         else {
-            this.error('Model.append requires an array. Dataset isn\'t an array. Path: ', path);
+            this.error('Model.push requires an array. Dataset isn\'t an array. Path: ', path);
             return;
         }
 
         if (options.silent !== true) {
             if (!options.noSync && typeof this.sync === 'function') {
-                this.sync('append', path, data);
+                this.sync('insert', path, -1, data);
             }
 
-            this.emit('data.append', path, data);
+            this.emit('item.insert', path, -1, data);
             this.emit('data.change', this.properties);
         }
     };
 
     /**
-     * Prepend data to a subset
+     * Unshift data to a subset
      *
-     * @method prepend
+     * @method unshift
      * @param {String} path path to subset
      * @param {Object} data data to add
      */
-    Model.prototype.prepend = function(path, data, options) {
+    Model.prototype.unshift = function(path, data, options) {
         var dataset = XQCore.undotify(path, this.properties);
 
         options = options || {};
@@ -2119,16 +2118,16 @@ var XQCore;
             this.properties = [data];
         }
         else {
-            this.error('Model.prepend requires an array. Dataset isn\'t an array. Path: ', path);
+            this.error('Model.unshift requires an array. Dataset isn\'t an array. Path: ', path);
             return;
         }
 
         if (options.silent !== true) {
             if (!options.noSync && typeof this.sync === 'function') {
-                this.sync('prepend', path, data);
+                this.sync('insert', path, 0, data);
             }
 
-            this.emit('data.prepend', path, data);
+            this.emit('item.insert', path, 0, data);
             this.emit('data.change', this.properties);
         }
     };
@@ -2148,7 +2147,15 @@ var XQCore;
         options = options || {};
 
         if (dataset instanceof Array) {
-            dataset.splice(index, 0, data);
+            if (index === -1) {
+                dataset.push(data);
+            }
+            else if (index === 0) {
+                dataset.unshift(data);
+            }
+            else {
+                dataset.splice(index, 0, data);
+            }
         }
         else if (typeof dataset === 'undefined') {
             XQCore.dedotify(this.properties, path, [data]);
@@ -2166,7 +2173,7 @@ var XQCore;
                 this.sync('insert', path, index, data);
             }
 
-            this.emit('data.insert', path, index, data);
+            this.emit('item.insert', path, index, data);
             this.emit('data.change', this.properties);
         }
     };
@@ -2201,7 +2208,7 @@ var XQCore;
                 this.sync('remove', path, index);
             }
 
-            this.emit('data.remove', path, index, removed[0]);
+            this.emit('item.remove', path, index, removed[0]);
             this.emit('data.change', this.properties);
         }
 
@@ -2211,13 +2218,13 @@ var XQCore;
     /**
      * Replace all models data with new data. This is a alias for set(<AnyData>, {replace: true})
      *
-     * @method repalce
+     * @method replace
      * @param {Object} data Data object
      * @param {Object} options Option data. (See set method for details)
      */
-    Model.prototype.repalce = function(data, options) {
+    Model.prototype.replace = function(data, options) {
         options = options || {};
-        options.repalce = true;
+        options.replace = true;
         return this.set(data, options);
     };
 
@@ -2272,21 +2279,38 @@ var XQCore;
     };
 
     /**
-     * Modify a dataset
+     * Update a dataset
      * @development
      * 
-     * @method modify
-     * @param {[type]} path [description]
-     * @param {[type]} match [description]
-     * @param {[type]} data [description]
-     * @returns {[type]} [description]
+     * @method update
+     * @param {String} path Parent path
+     * @param {Number|Object} match Search match or index to find the to be updated item
+     * @param {Object} data Update date
      */
-    Model.prototype.modify = function(path, match, data) {
-        var item = this.search(path, match);
+    Model.prototype.update = function(path, match, data, options) {
+        var item;
+
+        options = options || {};
+
+        if (typeof match === 'number') {
+            item = this.get(path, match);
+        }
+        else {
+            item = this.search(path, match);
+        }
+
+        var oldData = XQCore.extend({}, item);
         if (item) {
             XQCore.extend(item, data);
-            this.emit('data.modify', path, data, item);
-            this.emit('data.change', this.properties);
+
+            if (options.silent !== true) {
+                this.emit('data.update', path, match, data, oldData);
+                this.emit('data.change', this.properties);
+            }
+
+            if (!options.noSync && typeof this.sync === 'function') {
+                this.sync('update', path, match, data);
+            }
         }
     };
 
@@ -4246,16 +4270,13 @@ var XQCore;
             self.set(data, opts);
         });
 
+        self.socket.on('syncmodel.replace', function(data) {
+            opts.replace = true;
+            self.set(data, opts);
+        });
+
         self.socket.on('syncmodel.item', function(key, value) {
             self.set(key, value, opts);
-        });
-
-        self.socket.on('syncmodel.append', function(path, data) {
-            self.append(path, data, opts);
-        });
-
-        self.socket.on('syncmodel.prepend', function(path, data) {
-            self.prepend(path, data, opts);
         });
 
         self.socket.on('syncmodel.insert', function(path, index, data) {
@@ -4287,9 +4308,8 @@ var XQCore;
         });
 
         this.socket.off('syncmodel.set');
+        this.socket.off('syncmodel.replace');
         this.socket.off('syncmodel.item');
-        this.socket.off('syncmodel.append');
-        this.socket.off('syncmodel.prepend');
         this.socket.off('syncmodel.insert');
         this.socket.off('syncmodel.remove');
         this.socket.off('syncmodel.reset');
@@ -4531,17 +4551,19 @@ var XQCore;
         //No validation error has been ocured.
         var length = this.items.push.apply(this.items, models);
 
-        if (this.maxLength && this.items.length > this.maxLength) {
-            this.items.splice(0, this.items.length - this.maxLength);
-        }
+        if (length) {
+            if (this.maxLength && this.items.length > this.maxLength) {
+                this.items.splice(0, this.items.length - this.maxLength);
+            }
 
-        if (!options.silent) {
-            this.emit('item.push', length - models.length, models.length);
-        }
+            if (!options.silent) {
+                this.emit('item.push', models, length);
+            }
 
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('push', models);
+            if (!options.noSync) {
+                if (typeof this.sync === 'function') {
+                    this.sync('push', models);
+                }
             }
         }
 
@@ -4595,13 +4617,19 @@ var XQCore;
         //No validation error has been ocured.
         var length = this.items.unshift.apply(this.items, models);
 
-        if (!options.silent) {
-            this.emit('item.unshift', length - models.length, models.length);
-        }
+        if (length) {
+            if (this.maxLength && this.items.length > this.maxLength) {
+                this.items.splice(this.maxLength);
+            }
 
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('unshift', models);
+            if (!options.silent) {
+                this.emit('item.unshift', models, length);
+            }
+
+            if (!options.noSync) {
+                if (typeof this.sync === 'function') {
+                    this.sync('unshift', models);
+                }
             }
         }
 
@@ -4685,8 +4713,9 @@ var XQCore;
      * You can pass a XQCore.Model or a plain data object.
      * A data object will be converted into a XQCore.Model.
      * The model must be valid to be added to the list.
-     * 
-     * @param {Object|Array} data Model instance or a plain data object. Add multiple models by using an array of items
+     *
+     * @param {Object|Number} match Match to find element which should be updated
+     * @param {Object} data Model instance or a plain data object.
      * @param {Object} options Options object
      * {
      *     silent: true,    //Disable event emitting
@@ -4696,38 +4725,35 @@ var XQCore;
      * @fires item.update
      * Fires an item.update event if item was succesfully updated. Othwewise fires an item.push event
      *
-     * @returns {Boolean} Returns true if validation was succesfully and all items were added
+     * @returns {Object} Returns the updated item
      */
-    List.prototype.update = function(select, data, options) {
-        var item;
-
+    List.prototype.update = function(match, data, options) {
         options = options || {};
 
-        if (!Array.isArray(data)) {
-            data = [data];
+        var updateItem;
+        if (typeof match === 'number') {
+
+            updateItem = this.models[match];
+        }
+        else {
+            updateItem = this.findOne(match);
         }
 
-        for (var i = 0, len = data.length; i < len; i++) {
-            item = data[i];
-        
-            var updateItem = this.findOne(select);
+        if (updateItem) {
+            updateItem.set(data, { noSync: true });
+            
+            if (!options.silent) {
+                this.emit('item.update', updateItem);
+            }
 
-            if (updateItem) {
-                updateItem.set(item, { noSync: true });
+            if (!options.noSync) {
+                if (typeof this.sync === 'function') {
+                    this.sync('update', match, data);
+                }
             }
         }
 
-        if (!options.silent) {
-            this.emit('item.update');
-        }
-
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('update', select, data);
-            }
-        }
-
-        return true;
+        return updateItem;
     };
 
     /**
@@ -4996,8 +5022,8 @@ var XQCore;
             self.push(opts);
         });
         
-        self.socket.on('synclist.update', function(query, data) {
-            self.update(query, data, opts);
+        self.socket.on('synclist.update', function(match, data) {
+            self.update(match, data, opts);
         });
         
         self.socket.on('synclist.clear', function() {

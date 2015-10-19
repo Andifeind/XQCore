@@ -157,6 +157,36 @@ describe('XQCore.Event', function() {
             ee.emit('test', 'aa');
             expect(fn).to.be.calledOnce();
         });
+
+        it('Should register an event listener multiple times', function() {
+            var fn = sinon.stub();
+            var fn2 = sinon.stub();
+            var fn3 = sinon.stub();
+            ee.on('test', fn);
+            ee.once('test', fn2);
+            ee.on('test', fn3);
+
+            expect(ee.__events.test).to.be.an('array');
+            expect(ee.__events.test).to.have.length(3);
+            expect(ee.__events.test[0].fn).to.equal(fn);
+            expect(ee.__events.test[1].fn).to.equal(fn2);
+            expect(ee.__events.test[2].fn).to.equal(fn3);
+
+            ee.emit('test', 'aa');
+            expect(fn).to.be.calledOnce();
+            expect(fn2).to.be.calledOnce();
+            expect(fn3).to.be.calledOnce();
+            expect(fn).to.be.calledWith('aa');
+            expect(fn2).to.be.calledWith('aa');
+            expect(fn3).to.be.calledWith('aa');
+
+            expect(ee.__events.test).to.have.length(2);
+
+            ee.emit('test', 'aa');
+            expect(fn).to.be.calledTwice();
+            expect(fn2).to.be.calledOnce();
+            expect(fn3).to.be.calledTwice();
+        });
     });
 
     describe('off', function() {

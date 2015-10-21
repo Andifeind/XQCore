@@ -25,6 +25,5 @@
         "src/list/xqcore-list.js",
         "src/synclist/xqcore-synclist.js"
     ],
-	"watch": "src/**/*.js",
 	"tests": "tests/*.spec.js"
 }

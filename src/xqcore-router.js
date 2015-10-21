@@ -37,6 +37,7 @@
 
     var Route = function(path) {
         var src, re, keys = [];
+        log.logLevel = XQCore.logLevel;
 
         if (path instanceof RegExp) {
             re = path;
@@ -186,8 +187,10 @@
             return path.replace(new RegExp('^' + XQCore.basePath), '');
         }
         else {
-            path = '/' + location.hash;
-            return path.replace(new RegExp('^' + XQCore.hashBang), '');
+            path = location.hash;
+            path = path.replace(new RegExp('^' + XQCore.hashBang), '');
+            path = '/' + path;
+            return path;
         }
     };
 
@@ -201,6 +204,8 @@
      * @chainable
      */
     Router.prototype.addRoute = function(path, fn) {
+        log.info('Register new route:', path, fn);
+        
         if (!path) {
             throw new Error(' route requires a path');
         }
@@ -213,6 +218,10 @@
             throw new Error('path is already defined: ' + path);
         }
 
+        if (path.charAt(0) !== '/') {
+            path = '/' + path;
+        }
+        
         var route = new Route(path);
         route.fn = fn;
 
@@ -277,6 +286,8 @@
     Router.prototype.callRoute = function(path, options) {
         options = options || {};
 
+        log.info('Call route', path);
+
         if (path === undefined) {
             throw new Error('XQCore.Router error! Path is undefined in callRoute()!');
         }
@@ -295,7 +306,18 @@
             history.replaceState(null, '', path);
         }
 
-        route.fn.call(this, route.params, route.splats);
+        var next = function() {
+            log.info('... trigger route', this.route, this.fn, this.next);
+            this.fn.call(this, this.params, this.splats, function() {
+                var nextRoute = this.next();
+                if (nextRoute) {
+                    next.call(nextRoute);
+                }
+            }.bind(this));
+        };
+
+        next.call(route);
+
     };
 
     XQCore.Router = Router;

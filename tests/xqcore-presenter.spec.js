@@ -44,131 +44,186 @@ describe('XQCore Presenter', function() {
     });
 
     describe('couple', function() {
-        var renderStub,
-            appendStub,
-            prependStub,
-            insertStub,
-            removeStub,
-            presenter,
-            model,
-            view;
+        it('Should couple a model and a view', function() {
+            var presenter = new XQCore.Presenter('test');
+            var model = new XQCore.Model('test');
+            var view = new XQCore.View('test');
 
-        beforeEach(function() {
-            presenter = new XQCore.Presenter();
-            model = new XQCore.Model();
-            view = new XQCore.View();
+            var coupleModelStub = sinon.stub(presenter, 'coupleModel');
+            var coupleListStub = sinon.stub(presenter, 'coupleList');
+            var coupleViewStub = sinon.stub(presenter, 'coupleView');
+
+            presenter.couple(view, model);
+
+            expect(coupleModelStub).to.be.calledOnce();
+            expect(coupleListStub).to.be.notCalled();
+            expect(coupleViewStub).to.be.calledOnce();
+
+            coupleModelStub.restore();    
+            coupleListStub.restore();    
+            coupleViewStub.restore();    
+       });
+
+        it('Should couple a list and a view', function() {
+            var presenter = new XQCore.Presenter('test');
+            var list = new XQCore.List('test');
+            var view = new XQCore.View('test');
+
+            var coupleModelStub = sinon.stub(presenter, 'coupleModel');
+            var coupleListStub = sinon.stub(presenter, 'coupleList');
+            var coupleViewStub = sinon.stub(presenter, 'coupleView');
+
+            presenter.couple(view, list);
+
+            expect(coupleModelStub).to.be.notCalled();
+            expect(coupleListStub).to.be.calledOnce();
+            expect(coupleViewStub).to.be.calledOnce();
+
+            coupleModelStub.restore();    
+            coupleListStub.restore();    
+            coupleViewStub.restore();    
+       });
+    });
+
+    describe('coupleModel', function() {
+        it('Should couple a model onto a view', function() {
+            // XQCore.logLevel = 5;
+            var presenter = new XQCore.Presenter('test');
+            var model = new XQCore.Model('test');
+            var view = new XQCore.View('test');
             
-            renderStub = sinon.stub(view, 'render');
-            appendStub = sinon.stub(view, 'append');
-            prependStub = sinon.stub(view, 'prepend');
-            insertStub = sinon.stub(view, 'insert');
-            removeStub = sinon.stub(view, 'remove');
-                
-            presenter.init();
+            presenter.coupleModel(view, model);
+
+            expect(model.__coupled).to.be.an('object');
+            expect(view.__coupled).to.be(undefined);
+
+            expect(model.__coupled.obj).to.equal(view);
+            expect(model.__coupled.events).to.be.an('array');
+            expect(model.__coupled.uncouple).to.be.a('function');
         });
 
-        afterEach(function() {
-            renderStub.restore();
-            appendStub.restore();
-            prependStub.restore();
-            insertStub.restore();
-            removeStub.restore();
+        it('Should uncouple a model from a view', function() {
+            // XQCore.logLevel = 5;
+            var presenter = new XQCore.Presenter('test');
+            var model = new XQCore.Model('test');
+            var view = new XQCore.View('test');
+            
+            presenter.coupleModel(view, model);
+
+            expect(model.__coupled).to.be.an('object');
+            expect(view.__coupled).to.be(undefined);
+            expect(model.__events).to.have.property('data.replace');
+
+            model.__coupled.uncouple();
+            expect(model.__coupled).to.be(undefined);
+            expect(view.__coupled).to.be(undefined);
+            expect(model.__events).to.eql({});
         });
-        
-        it('Should couple a model with a view', function() {
-            presenter.couple(view, model);
+    });
 
-            model.set({
-                data: 'changed'
-            });
+    describe('coupleList', function() {
+        it('Should couple a list onto a view', function() {
+            // XQCore.logLevel = 5;
+            var presenter = new XQCore.Presenter('test');
+            var list = new XQCore.List('test');
+            var view = new XQCore.View('test');
+            
+            presenter.coupleList(view, list);
 
-            expect(renderStub).to.be.called();
-            expect(renderStub).to.be.calledWith({
-                data: 'changed'
-            });
-        });
-        
-        it('Should render view with model data on an initial call', function() {
-            model.properties = {
-                'data': 'initial'
-            };
+            expect(list.__coupled).to.be.an('object');
+            expect(view.__coupled).to.be(undefined);
 
-            presenter.couple(view, model);
-
-            expect(renderStub).to.be.calledOnce();
-            expect(renderStub).to.be.calledWith({
-                data: 'initial'
-            });
-        });
-
-        it('Should couple a model with a view in scope way', function() {
-            presenter = new XQCore.Presenter('Test', function(self) {
-                self.couple(view, model);
-            }).init();
-
-            model.set({
-                data: 'changed'
-            });
-
-            expect(renderStub).to.be.calledTwice();
-            expect(renderStub).to.be.calledWith({
-                data: 'changed'
-            });
+            expect(list.__coupled.obj).to.equal(view);
+            expect(list.__coupled.events).to.be.an('array');
+            expect(list.__coupled.uncouple).to.be.a('function');
         });
 
-        it.skip('Should trigger an append event', function() {
-            presenter.couple(view, model);
+        it('Should uncouple a list from a view', function() {
+            // XQCore.logLevel = 5;
+            var presenter = new XQCore.Presenter('test');
+            var list = new XQCore.List('test');
+            var view = new XQCore.View('test');
+            
+            presenter.coupleList(view, list);
 
-            model.append('listing', {
-                data: 'changed'
-            });
+            expect(list.__coupled).to.be.an('object');
+            expect(view.__coupled).to.be(undefined);
+            expect(list.__events).to.have.property('item.push');
 
-            expect(renderStub).to.be.calledOnce();
-            expect(appendStub).to.be.calledOnce();
-            expect(appendStub).to.be.calledWith('listing', {
-                data: 'changed'
-            });
+            list.__coupled.uncouple();
+            expect(list.__coupled).to.be(undefined);
+            expect(view.__coupled).to.be(undefined);
+            expect(list.__events).to.eql({});
+        });
+    });
+
+    describe('coupleView', function() {
+        it('Should couple a view onto a model', function() {
+            // XQCore.logLevel = 5;
+            var presenter = new XQCore.Presenter('test');
+            var model = new XQCore.Model('test');
+            var view = new XQCore.View('test');
+            
+            presenter.coupleView(view, model);
+
+            expect(model.__coupled).to.be(undefined);
+            expect(view.__coupled).to.be.an('object');
+
+            expect(view.__coupled.obj).to.equal(model);
+            expect(view.__coupled.events).to.be.an('array');
+            expect(view.__coupled.uncouple).to.be.a('function');
         });
 
-        it.skip('Should trigger an prepend event', function() {
-            presenter.couple(view, model);
+        it('Should couple a view onto a list', function() {
+            // XQCore.logLevel = 5;
+            var presenter = new XQCore.Presenter('test');
+            var list = new XQCore.List('test');
+            var view = new XQCore.View('test');
+            
+            presenter.coupleView(view, list);
 
-            model.prepend('listing', {
-                data: 'changed'
-            });
+            expect(list.__coupled).to.be(undefined);
+            expect(view.__coupled).to.be.an('object');
 
-            expect(renderStub).to.be.calledOnce();
-            expect(prependStub).to.be.calledOnce();
-            expect(prependStub).to.be.calledWith('listing', {
-                data: 'changed'
-            });
+            expect(view.__coupled.obj).to.equal(list);
+            expect(view.__coupled.events).to.be.an('array');
+            expect(view.__coupled.uncouple).to.be.a('function');
         });
 
-        it.skip('Should trigger an insert event', function() {
-            presenter.couple(view, model);
+        it('Should uncouple a view from a model', function() {
+            // XQCore.logLevel = 5;
+            var presenter = new XQCore.Presenter('test');
+            var model = new XQCore.Model('test');
+            var view = new XQCore.View('test');
+            
+            presenter.coupleView(view, model);
 
-            model.insert('listing', 0, {
-                data: 'changed'
-            });
+            expect(view.__coupled).to.be.an('object');
+            expect(model.__coupled).to.be(undefined);
+            expect(view.__events).to.have.property('form.submit');
 
-            expect(renderStub).to.be.calledOnce();
-            expect(insertStub).to.be.calledOnce();
-            expect(insertStub).to.be.calledWith('listing', 0, {
-                data: 'changed'
-            });
+            view.__coupled.uncouple();
+            expect(view.__coupled).to.be(undefined);
+            expect(model.__coupled).to.be(undefined);
+            expect(view.__events).to.eql({});
         });
 
-        it.skip('Should trigger an remove event', function() {
-            presenter.couple(view, model);
+        it('Should uncouple a view from a list', function() {
+            // XQCore.logLevel = 5;
+            var presenter = new XQCore.Presenter('test');
+            var list = new XQCore.List('test');
+            var view = new XQCore.View('test');
+            
+            presenter.coupleView(view, list);
 
-            model.set({ listing: [ { name: 'AAA' }]}, { silent: true });
-            model.remove('listing', 0);
+            expect(view.__coupled).to.be.an('object');
+            expect(list.__coupled).to.be(undefined);
+            expect(view.__events).to.have.property('form.submit');
 
-            expect(renderStub).to.be.calledOnce();
-            expect(removeStub).to.be.calledOnce();
-            expect(removeStub).to.be.calledWith('listing', 0, {
-                name: 'AAA'
-            });
+            view.__coupled.uncouple();
+            expect(view.__coupled).to.be(undefined);
+            expect(list.__coupled).to.be(undefined);
+            expect(view.__events).to.eql({});
         });
     });
 

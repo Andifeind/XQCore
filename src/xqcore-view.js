@@ -155,12 +155,39 @@
 
     XQCore.extend(View.prototype, XQCore.Event.prototype);
 
-    View.prototype.show = function() {
-        this.$el.show();
+    /**
+     * Show view if it is invisible
+     *
+     * @method show
+     * @param {Boolean} hideOther Hide all other sibling views
+     * @chainable
+     * @returns {Object} Returns this value
+     */
+    View.prototype.show = function(hideOther) {
+        var self = this;
+
+        if (hideOther) {
+            self.$ct.children('.xq-view').each(function() {
+                if (this !== self.el) {
+                    $(this).hide().addClass('xq-hidden');
+                }
+            });
+        }
+
+        this.$el.show().removeClass('xq-hidden');
+        return this;
     };
 
+    /**
+     * Hide view
+     * 
+     * @method hide
+     * @chainable
+     * @return {Object} Returns this value
+     */
     View.prototype.hide = function() {
-        this.$el.hide();
+        this.$el.hide().addClass('xq-hidden');
+        return this;
     };
 
     View.prototype.renderHTML = function(template, data) {
@@ -304,7 +331,18 @@
         log.info('Inject view into container', this.$ct);
 
         if (this.mode === 'replace') {
-            this.$ct.contents().detach();
+            var childs = this.$ct.contents();
+            childs.each(function() {
+                var view = $(this).data('view');
+                if (view) {
+                    view.destroy();
+                }
+                else {
+                    $(this).remove();
+                }
+            });
+
+            // this.$ct.contents().detach();
             this.$ct.append(this.$el);
         }
         else if (this.mode === 'append') {
@@ -645,30 +683,28 @@
 
     /**
      * Removes a view from dom and unregisters all its listener
+     *
+     * @fires view.destroy Fires a `view.destroy` event before view is removing from dom.
      * @return {[type]} [description]
      */
     View.prototype.destroy = function() {
-        this.$el.remove();
-        this.removeAllListeners();
-        if (this.__coupledWith) {
-            for (var i = 0, len = this.__coupledWith.length; i < len; i++) {
-                var coupledObj = this.__coupledWith[i];
-                if (coupledObj._events) {
-                    for (var ev in coupledObj._events) {
-                        if (coupledObj._events[ev]) {
-                            var eventName = ev;
-                            for (var j = 0, len2 = coupledObj._events[ev].length; j < len2; j++) {
-                                if (coupledObj._events[ev][j].listener.fnType === 'coupled-model-listener' && coupledObj._events[ev][j].listener.fnParent === this) {
-                                    coupledObj.removeEvent(eventName, coupledObj._events[ev][j].listener);
-                                }
-                            }
-                        }
-                    }
+        log.info('Destroy view');
 
-                }
+        this.emit('view.destroy');
+
+        this.$el.remove();
+
+        if (this.__coupled) {
+            //Uncouple other participate
+            if (this.__coupled.obj.__coupled && this.__coupled.obj.__coupled.obj === this) {
+                this.__coupled.obj.__coupled.uncouple();
             }
+            
+            this.__coupled.uncouple();
         }
 
+        //TODO remove all events
+        
         log.info('View ' + this.name + ' has been destroyed');
     };
 
@@ -744,6 +780,7 @@
             
             self.el = self.__createViewElement();
             self.$el = $(self.el);
+            self.$el.data('view', self);
             classNames.push('xq-view xq-' + self.name.replace(/View$/, '-view').toLowerCase());
 
             if (self.id) {

@@ -53,7 +53,7 @@ var XQCore;
          * Defines a default route
          * @property {String} defaultRoute
          */
-        defaultRoute: 'index',
+        defaultRoute: '/',
 
         /**
          * Enables html5 routing support

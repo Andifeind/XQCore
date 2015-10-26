@@ -404,6 +404,7 @@
      * options: {
      *   mode: String       Insert mode, (append, prepend or replace) replace is default
      *   inject: Boolean    Set to false to disable injecting view into the DOM
+     *   forms: Boolean|String     View has forms. Add a selector here or set this to true to find all forms
      * }
      * 
      * @method initView
@@ -426,6 +427,7 @@
             self.mode = options.mode || 'replace';
             self.container = container || 'body';
             self.hidden = !!options.hidden;
+            self.forms = options.forms;
             if (options.inject === false) {
                 self.autoInject = false;
             }
@@ -475,7 +477,7 @@
             log.warn('Router callback isn\'t a function', callback, 'of route', route);
         }
 
-        return self;
+        return this;
     };
 
     /**

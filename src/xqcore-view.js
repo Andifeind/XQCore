@@ -161,6 +161,7 @@
      * @method show
      * @param {Boolean} hideOther Hide all other sibling views
      * @chainable
+     * @fires view.show Fires a v`view.show` event
      * @returns {Object} Returns this value
      */
     View.prototype.show = function(hideOther) {
@@ -169,12 +170,14 @@
         if (hideOther) {
             self.$ct.children('.xq-view').each(function() {
                 if (this !== self.el) {
-                    $(this).hide().addClass('xq-hidden');
+                    var view = $(this).data('view');
+                    view.hide();
                 }
             });
         }
 
         this.$el.show().removeClass('xq-hidden');
+        this.emit('view.show');
         return this;
     };
 
@@ -183,10 +186,53 @@
      * 
      * @method hide
      * @chainable
+     * @fires view.hide Fires a v`view.hide` event
      * @return {Object} Returns this value
      */
     View.prototype.hide = function() {
         this.$el.hide().addClass('xq-hidden');
+        this.emit('view.hide');
+        return this;
+    };
+
+    /**
+     * Marks a view as active, optionally inactivates all other sibling views
+     *
+     * @method active
+     * @param {Boolean} inactivateOther Makes all other sibling views inactive
+     * @chainable
+     * @fires view.active Fires a v`view.active` event
+     * @returns {Object} Returns this value
+     */
+    View.prototype.active = function(inactivateOther) {
+        var self = this;
+
+        if (inactivateOther) {
+            self.$ct.children('.xq-view').each(function() {
+                if (this !== self.el) {
+                    var view = $(this).data('view');
+                    view.inactive();
+                }
+            });
+        }
+
+        this.$el.addClass('xq-active').removeClass('xq-inactive');
+
+        this.emit('view.active');
+        return this;
+    };
+
+    /**
+     * Marks a view as inactive
+     * 
+     * @method inactivate
+     * @chainable
+     * @fires view.inactive Fires a v`view.inactive` event
+     * @return {Object} Returns this value
+     */
+    View.prototype.inactive = function() {
+        this.$el.removeClass('xq-active').addClass('xq-inactive');
+        this.emit('view.inactive');
         return this;
     };
 
@@ -196,8 +242,15 @@
         return template(data);
     };
 
+    /**
+     * To be called if window resizes
+     * This is a placeholder method. Override this method if its needed
+     *
+     * @overridable
+     * @return {Object} Returns this value
+     */
     View.prototype.resize = function() {
-
+        return this;
     };
 
     /**
@@ -432,15 +485,16 @@
      * Render view
      *
      * @method render
+     * @chainable
      * @emits content.change
      *
      * @param  {Object} data Render data
-     *
+     * @returns {Object} Returns this value
      */
     View.prototype.render = function(data) {
         if (this.__domReady === false) {
             this.__initialData = data || {};
-            return;
+            return this;
         }
 
         if (this.autoInject) {
@@ -466,6 +520,9 @@
         this.emit('content.change', data);
 
         this.registerListener(this.$el);
+        this.registerForms();
+
+        return this;
     };
 
     View.prototype.registerListener = function($el) {
@@ -831,6 +888,21 @@
                 });
             }
         });
+    };
+
+    View.prototype.registerForms = function() {
+        if (this.forms) {
+            var formSelector = 'form';
+            if (typeof this.forms === 'string') {
+                formSelector = this.forms;
+            }
+
+            this.ready(function() {
+                this.$forms = this.$el.find(formSelector);
+                this.$forms.addClass('xq-forms');
+                this.$forms.find(':input').addClass('xq-input');
+            });
+        }
     };
 
     XQCore.View = View;

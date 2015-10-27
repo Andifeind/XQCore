@@ -77,6 +77,15 @@
             });
         }
 
+        //Add schema props as default values
+        if (this.schema) {
+            Object.keys(this.schema).forEach(function(key) {
+                if (!(key in this.properties)) {
+                    this.properties[key] = this.schema[key].default !== undefined ? this.schema[key].default : null;
+                }
+            }, this);
+        }
+
         this._isValid = !this.schema;
         this.state('ready');
     };

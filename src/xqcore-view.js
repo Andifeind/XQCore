@@ -682,37 +682,41 @@
         var self = this;
 
         this.ready(function() {
-            var errClassName = 'xq-invalid',
-                disabledClass = 'xq-disabled';
+            // var errClassName = 'xq-invalid',
+                // disabledClass = 'xq-disabled';
 
-            if (!$el) {
-                $el = this.$el.find('form');
-            }
+            // if (!$el) {
+            //     $el = this.$el.find('form');
+            // }
 
             var blurHandler = function(e) {
-                var $form = $(this).closest('form'),
-                    $input = $(this);
+                var value = e.target.value;
+                var name = e.target.name;
+                
+                self.emit('input.change', name, value);
+                // var $form = $(this).closest('form'),
+                //     $input = $(this);
 
-                $input.removeClass(errClassName);
-                var name = $input.attr('name'),
-                    value = $input.val();
+                // $input.removeClass(errClassName);
+                // var name = $input.attr('name'),
+                //     value = $input.val();
 
-                if (name && model.schema && model.schema[name]) {
-                    var result = model.validateOne(model.schema[name], value);
-                    if (result.isValid) {
+                // if (name && model.schema && model.schema[name]) {
+                //     var result = model.validateOne(model.schema[name], value);
+                //     if (result.isValid) {
 
-                        //Set form valid state
-                        if ($form.find(':input[class~="' + errClassName + '"]').length === 0) {
-                            $form.removeClass(errClassName);
-                            $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
-                        }
-                    }
-                    else {
-                        $input.addClass(errClassName);
-                        $form.addClass(errClassName);
-                        $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
-                    }
-                }
+                //         //Set form valid state
+                //         if ($form.find(':input[class~="' + errClassName + '"]').length === 0) {
+                //             $form.removeClass(errClassName);
+                //             $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
+                //         }
+                //     }
+                //     else {
+                //         $input.addClass(errClassName);
+                //         $form.addClass(errClassName);
+                //         $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
+                //     }
+                // }
             };
 
             var submitHandler = function(e) {
@@ -887,6 +891,10 @@
                     self.emit('xqcore.navigate', e.href);
                 });
             }
+
+            if (self.forms) {
+                self.formSetup();
+            }
         });
     };
 
@@ -896,7 +904,7 @@
             if (typeof this.forms === 'string') {
                 formSelector = this.forms;
             }
-
+            
             this.ready(function() {
                 this.$forms = this.$el.find(formSelector);
                 this.$forms.addClass('xq-forms');

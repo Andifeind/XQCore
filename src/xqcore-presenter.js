@@ -248,11 +248,14 @@
         };
 
         var listener = function(listener, func) {
-            var fn = view[func];
+            var fn;
             if (func === 'xrender') {
                 fn = function() {
                     view.render(model.get());
                 };
+            }
+            else {
+                 fn = view[func].bind(view);
             }
 
             var handler = model.on(listener, fn);
@@ -318,7 +321,7 @@
         };
 
         var listener = function(listener, func) {
-            var fn = view[func];
+            var fn = view[func].bind(view);
             if (func === 'xrender') {
                 fn = function() {
                     view.render(list.get());
@@ -378,12 +381,21 @@
             }
         };
 
-        var eventsMap = {
-           'form.submit': 'submit'
-        };
+        var eventsMap;
+        if (model instanceof XQCore.Model) {
+            eventsMap = {
+               'form.submit': 'submit',
+               'input.change': 'set'
+            };
+        }
+        else {
+            eventsMap = {
+               'form.submit': 'submit'
+            };
+        }
 
         var listener = function(listener, func) {
-            var fn = view[func];
+            var fn = model[func].bind(model);
             var handler = view.on(listener, fn);
             view.__coupled.events.push(handler);
         };

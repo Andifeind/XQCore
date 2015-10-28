@@ -26,7 +26,7 @@
 (function(XQCore, undefined) {
 	'use strict';
 
-    var log = new XQCore.Logger('Event');
+    var log = new XQCore.Logger('EventEmitter');
 
     /**
      * An EventListener represents a single event.
@@ -62,6 +62,7 @@
     var EventEmitter = function() {
         this.__events = {};
         this.__logger = log;
+
         
         /**
          * Sets max length of event listeners
@@ -136,7 +137,7 @@
 
         if (len) {
             log.info('Emit `' + event + '` event to', len, 'listener');
-            log.debug(' ... emit data:', data);
+            log.debug(' ... data:', data);
         }
 
         return len;

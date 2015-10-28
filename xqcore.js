@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-254
+ * XQCore - +0.11.1-304
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-10-26
+ * Creation Date: 2015-10-27
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-254',
+        version: '0.11.1-304',
         
         /**
          * Defines a default route
@@ -459,7 +459,7 @@ var XQCore;
      */
     Logger.prototype.log = function() {
         var args;
-        if (this.logLevel >= 3) {
+        if (XQCore.logLevel >= 3) {
             args = Array.prototype.slice.call(arguments);
 
             if (this.loggerName) {
@@ -486,7 +486,7 @@ var XQCore;
      */
     Logger.prototype.warn = function() {
         var args;
-        if (this.logLevel >= 2) {
+        if (XQCore.logLevel >= 2) {
             args = Array.prototype.slice.call(arguments);
             if (this.loggerName) {
                 args.unshift('[' + this.loggerName + ']');
@@ -513,7 +513,7 @@ var XQCore;
      */
     Logger.prototype.error = function() {
         var args;
-        if (this.logLevel >= 1) {
+        if (XQCore.logLevel >= 1) {
             args = Array.prototype.slice.call(arguments);
             if (this.loggerName) {
                 args.unshift('[' + this.loggerName + ']');
@@ -547,7 +547,7 @@ var XQCore;
      */
     Logger.prototype.debug = function() {
         var args;
-        if (this.logLevel >= 4) {
+        if (XQCore.logLevel >= 4) {
             args = Array.prototype.slice.call(arguments);
 
             if (this.loggerName) {
@@ -658,7 +658,7 @@ var XQCore;
 (function(XQCore, undefined) {
 	'use strict';
 
-    var log = new XQCore.Logger('Event');
+    var log = new XQCore.Logger('EventEmitter');
 
     /**
      * An EventListener represents a single event.
@@ -694,6 +694,7 @@ var XQCore;
     var EventEmitter = function() {
         this.__events = {};
         this.__logger = log;
+
         
         /**
          * Sets max length of event listeners
@@ -768,7 +769,7 @@ var XQCore;
 
         if (len) {
             log.info('Emit `' + event + '` event to', len, 'listener');
-            log.debug(' ... emit data:', data);
+            log.debug(' ... data:', data);
         }
 
         return len;
@@ -1275,7 +1276,18 @@ var XQCore;
         if (model instanceof XQCore.Model) {
             eventsMap = {
                'form.submit': 'submit',
-               'input.change': 'set'
+               'input.change': 'set',
+               'input.edit': function(key, value) {
+                    var check = model.checkValidation(key, value);
+                    if (check) {
+                        view.validationSucceeded(key, value);
+                    }
+                    else {
+                        view.validationFailed([{
+                            property: name
+                        }]);
+                    }
+               }
             };
         }
         else {
@@ -1285,7 +1297,7 @@ var XQCore;
         }
 
         var listener = function(listener, func) {
-            var fn = model[func].bind(model);
+            var fn = typeof func === 'function' ? func : model[func].bind(model);
             var handler = view.on(listener, fn);
             view.__coupled.events.push(handler);
         };
@@ -1666,7 +1678,7 @@ var XQCore;
          * @public
          * @type {Boolean}
          */
-        this.debug = XQCore.debug;
+        this.logLevel = XQCore.logLevel;
 
         /**
          * Stores models properties
@@ -1674,6 +1686,13 @@ var XQCore;
          * @property properties
          */
         this.properties = {};
+
+        /**
+         * Contains last validation errors if state is invalid
+         * @type {Array}
+         * @property lastValidationErr
+         */
+        this.lastValidationErr = null;
 
         if (conf === undefined) {
             conf = {};
@@ -1695,7 +1714,7 @@ var XQCore;
         this.conf = conf;
 
         this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
-        this._isValid = false;
+        this.__isValid = false;
 
         //Add default values
         if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
@@ -1714,7 +1733,7 @@ var XQCore;
             }, this);
         }
 
-        this._isValid = !this.schema;
+        this.__isValid = !this.schema;
         this.state('ready');
     };
 
@@ -1818,7 +1837,6 @@ var XQCore;
      * options: {
      *   silent: <Boolean> Don't trigger any events
      *   noValidation: <Boolean> Don't validate
-     *   validateOne: <Boolean> Only if setting one item, validate the item only
      *   replace: <Boolean> Replace all date with new data
      *   noSync: <Boolean> Do not call sync method. Default: false
      * }
@@ -1831,7 +1849,7 @@ var XQCore;
     Model.prototype.set = function(key, value, options) {
         var newData = {},
             oldData = this.get(),
-            validateResult,
+            validationResult,
             setItem = false,
             setAll = false;
 
@@ -1854,22 +1872,7 @@ var XQCore;
             newData = XQCore.extend({}, this.get());
             setItem = true;
             XQCore.dedotify(newData, key, value);
-            this.log('Set data', newData, oldData);
-
-            options = options || {};
-            if (!this.customValidate && options.validateOne) {
-                options.noValidation = true;
-                validateResult = this.validateOne(this.schema[key], value);
-                if (validateResult.isValid === false) {
-                    validateResult.error = validateResult.error || {};
-                    validateResult.error.property = key;
-                    this.warn('Validation error in model.set of property', key, validateResult);
-                    if (options.silent !== true) {
-                        this.emit('validation.error', validateResult, newData);
-                    }
-                    return false;
-                }
-            }
+            this.log('Set value', key, value, oldData);
         }
         else {
             this.warn('Data are incorrect in model.set()', arguments);
@@ -1877,23 +1880,32 @@ var XQCore;
 
         options = options || {};
 
-        if (!this.customValidate && this.schema && options.noValidation !== true) {
-            validateResult = this.validate(newData);
-            if (validateResult !== null) {
-                this.warn('Validate error in model.set', validateResult);
-                if (options.silent !== true) {
-                    this.emit('validation.error', validateResult, newData);
-                }
-                return false;
+        if (options.noValidation !== true) {
+            if (this.customValidate) {
+                this.log('Using a custom validation!');
+                validationResult = this.customValidate(newData);
             }
-        }
+            else if (this.schema) {
+                validationResult = this.validate(newData);
+                if (setItem && validationResult) {
+                    var newValidationResult;
+                    for (var i = 0, len = validationResult.length; i < len; i++) {
+                        if (validationResult[i].property === key) {
+                            newValidationResult = [validationResult[i]];
+                            break;
+                        }
+                    }
 
-        if (this.customValidate && options.noValidation !== true) {
-            validateResult = this.customValidate(newData);
-            this.log('Using a custom validation which returns:', validateResult);
-            if (validateResult !== null) {
-                this.warn('Validate error in model.set', validateResult);
-                this.emit('validation.error', validateResult, newData);
+                    validationResult = newValidationResult || null;
+                }
+            }
+            
+            if (validationResult) {
+                this.warn('Validation error', validationResult);
+                if (options.silent !== true) {
+                    this.emit('validation.error', validationResult, newData);
+                }
+
                 return false;
             }
         }
@@ -2496,12 +2508,14 @@ var XQCore;
         }
 
         if (failed.length === 0) {
-            this._isValid = true;
+            this.__isValid = true;
+            this.lastValidationErr = null;
             this.state('valid');
             return null;
         }
         else {
-            this._isValid = false;
+            this.__isValid = false;
+            this.lastValidationErr = failed;
             this.state('invalid');
             return failed;
         }
@@ -2570,13 +2584,26 @@ var XQCore;
     };
 
     /**
+     * Checks the validation of a property without changeing any states
+     *
+     * @method checkValidation
+     * @param  {String}  key  Property name
+     * @param {String} value Property value
+     * @returns {Boolean} Returns true if validation had been passed
+     */
+    Model.prototype.checkValidation = function(key, value) {
+        var check = this.validateOne(this.schema[key], value, key);
+        return check.isValid;
+    };
+
+    /**
      * Returns the validation state of the model
      * 
      * @method isValid
      * @returns {Boolean} Returns true when model data are valid. When no data was set it'll returns false
      */
     Model.prototype.isValid = function() {
-        return this._isValid;
+        return this.__isValid;
     };
 
     /**
@@ -2788,7 +2815,19 @@ var XQCore;
             if (!/^\d+(:\d{2}){1,3}$/.test(value)) {
                 return {
                     msg: 'Property isn\'t a valid time',
-                    errCode: 61
+                    errCode: 71
+                };
+            }
+        },
+
+        /**
+         * Validation type email         *
+         */
+        'email': function(value, schema) {
+            if (!/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(value)) {
+                return {
+                    msg: 'Property isn\'t a valid email',
+                    errCode: 72
                 };
             }
         }
@@ -3172,6 +3211,19 @@ var XQCore;
     };
 
     /**
+     * If a validation succeeds (Automatically called in a coupled view)
+     *
+     * @method validationSucceeded
+     * @param {String} name Input name
+     * @param {String} value Input value
+     */
+    View.prototype.validationSucceeded = function(name, value) {
+        var self = this;
+
+        self.$el.find('[name="' + name + '"]').removeClass('xq-invalid');
+    };
+
+    /**
      * To be called when a state.change event from a coupled model was revived
      *
      * @param {String} state Model state
@@ -3393,7 +3445,6 @@ var XQCore;
                         data = self.serializeForm(e.target);
                         data = self.onSubmit(data, e.target);
                         self.emit(ev[1], data, e);
-                        // self.presenter.emit(ev[1], data, e);
                     };
                 }
                 else {
@@ -3430,17 +3481,11 @@ var XQCore;
                         }
 
                         self.emit(ev[1], value, data, e);
-                        // self.presenter.emit(ev[1], value, data, e);
                     };
                 }
 
                 $cur.bind(ev[0], listenerFunc);
             });
-        });
-
-        //Register DOM listener
-        this.__viewEvents.forEach(function(listener) {
-            self.$el.delegate(listener.selector, listener.events, listener.callback);
         });
     };
 
@@ -3537,34 +3582,18 @@ var XQCore;
             //     $el = this.$el.find('form');
             // }
 
-            var blurHandler = function(e) {
+            var changeHandler = function(e) {
                 var value = e.target.value;
                 var name = e.target.name;
                 
                 self.emit('input.change', name, value);
-                // var $form = $(this).closest('form'),
-                //     $input = $(this);
+            };
 
-                // $input.removeClass(errClassName);
-                // var name = $input.attr('name'),
-                //     value = $input.val();
-
-                // if (name && model.schema && model.schema[name]) {
-                //     var result = model.validateOne(model.schema[name], value);
-                //     if (result.isValid) {
-
-                //         //Set form valid state
-                //         if ($form.find(':input[class~="' + errClassName + '"]').length === 0) {
-                //             $form.removeClass(errClassName);
-                //             $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
-                //         }
-                //     }
-                //     else {
-                //         $input.addClass(errClassName);
-                //         $form.addClass(errClassName);
-                //         $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
-                //     }
-                // }
+            var keyUpHandler = function(e) {
+                var value = e.target.value;
+                var name = e.target.name;
+                
+                self.emit('input.edit', name, value);
             };
 
             var submitHandler = function(e) {
@@ -3573,7 +3602,8 @@ var XQCore;
                 self.emit('form.submit', data);
             };
 
-            this.addEvent(':input', 'blur', blurHandler);
+            this.addEvent(':input', 'change', changeHandler);
+            this.addEvent(':input', 'keyup', keyUpHandler);
             this.addEvent('form', 'submit', submitHandler);
         });
     };

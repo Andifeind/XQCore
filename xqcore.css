@@ -9,11 +9,11 @@
   padding: 5px 2px;
   background-color: #fefefe;
 }
-.xq-input.xq-invalid {
-  border-color: #d00;
-}
 .xq-input:focus {
   border-color: #bbb;
+}
+.xq-input.xq-invalid {
+  border-color: #d00;
 }
 /**
  * Forms

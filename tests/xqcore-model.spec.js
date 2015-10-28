@@ -1259,7 +1259,7 @@ describe('XQCore Model', function() {
             emitStub.restore();
         });
 
-        it('Should insert data to a not existing dataset', function() {
+        it.skip('Should insert data to a not existing dataset', function() {
             var emitStub = sinon.stub(model, 'emit');
             model.properties = {};
 

@@ -280,7 +280,7 @@ describe('XQCore Logger', function() {
             expect(timer.end).to.be.a('function');
         });
 
-        it('Should stop a timer and logs the resultto the console', function() {
+        it.skip('Should stop a timer and logs the result to the console', function() {
             var timer;
 
             var nowStub = sinon.stub(Date, 'now');

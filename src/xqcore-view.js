@@ -324,6 +324,19 @@
     };
 
     /**
+     * If a validation succeeds (Automatically called in a coupled view)
+     *
+     * @method validationSucceeded
+     * @param {String} name Input name
+     * @param {String} value Input value
+     */
+    View.prototype.validationSucceeded = function(name, value) {
+        var self = this;
+
+        self.$el.find('[name="' + name + '"]').removeClass('xq-invalid');
+    };
+
+    /**
      * To be called when a state.change event from a coupled model was revived
      *
      * @param {String} state Model state
@@ -626,7 +639,6 @@
                         data = self.serializeForm(e.target);
                         data = self.onSubmit(data, e.target);
                         self.emit(ev[1], data, e);
-                        // self.presenter.emit(ev[1], data, e);
                     };
                 }
                 else {
@@ -663,17 +675,11 @@
                         }
 
                         self.emit(ev[1], value, data, e);
-                        // self.presenter.emit(ev[1], value, data, e);
                     };
                 }
 
                 $cur.bind(ev[0], listenerFunc);
             });
-        });
-
-        //Register DOM listener
-        this.__viewEvents.forEach(function(listener) {
-            self.$el.delegate(listener.selector, listener.events, listener.callback);
         });
     };
 
@@ -770,34 +776,18 @@
             //     $el = this.$el.find('form');
             // }
 
-            var blurHandler = function(e) {
+            var changeHandler = function(e) {
                 var value = e.target.value;
                 var name = e.target.name;
                 
                 self.emit('input.change', name, value);
-                // var $form = $(this).closest('form'),
-                //     $input = $(this);
+            };
 
-                // $input.removeClass(errClassName);
-                // var name = $input.attr('name'),
-                //     value = $input.val();
-
-                // if (name && model.schema && model.schema[name]) {
-                //     var result = model.validateOne(model.schema[name], value);
-                //     if (result.isValid) {
-
-                //         //Set form valid state
-                //         if ($form.find(':input[class~="' + errClassName + '"]').length === 0) {
-                //             $form.removeClass(errClassName);
-                //             $form.find(':submit').removeAttr('disabled').removeClass(disabledClass);
-                //         }
-                //     }
-                //     else {
-                //         $input.addClass(errClassName);
-                //         $form.addClass(errClassName);
-                //         $form.find(':submit').attr('disabled', 'disabled').addClass(disabledClass);
-                //     }
-                // }
+            var keyUpHandler = function(e) {
+                var value = e.target.value;
+                var name = e.target.name;
+                
+                self.emit('input.edit', name, value);
             };
 
             var submitHandler = function(e) {
@@ -806,7 +796,8 @@
                 self.emit('form.submit', data);
             };
 
-            this.addEvent(':input', 'blur', blurHandler);
+            this.addEvent(':input', 'change', changeHandler);
+            this.addEvent(':input', 'keyup', keyUpHandler);
             this.addEvent('form', 'submit', submitHandler);
         });
     };

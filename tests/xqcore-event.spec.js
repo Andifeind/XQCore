@@ -383,7 +383,7 @@ describe('XQCore.Event', function() {
             expect(logStub).to.be.calledOnce();
             expect(debugStub).to.be.calledOnce();
             expect(logStub).to.be.calledWith('Emit `test` event to', 1, 'listener');
-            expect(debugStub).to.be.calledWith(' ... emit data:', { a: 'aa' });
+            expect(debugStub).to.be.calledWith(' ... data:', { a: 'aa' });
         });
 
         it('Should log an emit failed message if no event of this type were registered', function() {

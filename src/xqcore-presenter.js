@@ -385,7 +385,18 @@
         if (model instanceof XQCore.Model) {
             eventsMap = {
                'form.submit': 'submit',
-               'input.change': 'set'
+               'input.change': 'set',
+               'input.edit': function(key, value) {
+                    var check = model.checkValidation(key, value);
+                    if (check) {
+                        view.validationSucceeded(key, value);
+                    }
+                    else {
+                        view.validationFailed([{
+                            property: name
+                        }]);
+                    }
+               }
             };
         }
         else {
@@ -395,7 +406,7 @@
         }
 
         var listener = function(listener, func) {
-            var fn = model[func].bind(model);
+            var fn = typeof func === 'function' ? func : model[func].bind(model);
             var handler = view.on(listener, fn);
             view.__coupled.events.push(handler);
         };

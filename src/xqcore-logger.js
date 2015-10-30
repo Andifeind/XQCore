@@ -60,7 +60,7 @@
      */
     Logger.prototype.log = function() {
         var args;
-        if (this.logLevel >= 3) {
+        if (XQCore.logLevel >= 3) {
             args = Array.prototype.slice.call(arguments);
 
             if (this.loggerName) {
@@ -87,7 +87,7 @@
      */
     Logger.prototype.warn = function() {
         var args;
-        if (this.logLevel >= 2) {
+        if (XQCore.logLevel >= 2) {
             args = Array.prototype.slice.call(arguments);
             if (this.loggerName) {
                 args.unshift('[' + this.loggerName + ']');
@@ -114,7 +114,7 @@
      */
     Logger.prototype.error = function() {
         var args;
-        if (this.logLevel >= 1) {
+        if (XQCore.logLevel >= 1) {
             args = Array.prototype.slice.call(arguments);
             if (this.loggerName) {
                 args.unshift('[' + this.loggerName + ']');
@@ -148,7 +148,7 @@
      */
     Logger.prototype.debug = function() {
         var args;
-        if (this.logLevel >= 4) {
+        if (XQCore.logLevel >= 4) {
             args = Array.prototype.slice.call(arguments);
 
             if (this.loggerName) {

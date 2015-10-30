@@ -25,7 +25,7 @@ var tmpl = function(data,scopes) {
         var s='';
         s+=h('each',data,parent,root,'ul','class=listing',function(data){
             var s='';
-            s+='<li><span class="name">'+dataFn('name',data)+'</span><span class=image>';
+            s+='<li><span class="name '+dataFn('name',data)+'">'+dataFn('name',data)+'</span><span class=image>';
             s+=scopeFn('scope002','image',data);
             s+='</span></li>';
             return s;
@@ -35,7 +35,7 @@ var tmpl = function(data,scopes) {
         
     };
     var s='';
-    s+='<div class="example"><h1>'+dataFn('title')+'</h1><div class="description">'+dataFn('description')+'</div><ul class=listing>';
+    s+='<div class="example"><h1>'+dataFn('title',data)+'</h1><div class="description">'+dataFn('description',data)+'</div><ul class=listing>';
     s+=scopeFn('scope001','listing',data);
     s+='</ul></div>';
     return s;
@@ -47,10 +47,10 @@ var scopesMap = {};
 var data = {};
 var scopes = {
     dataFn: function(path) {
-
+        return '<ftlt>'+data[path]+'</ftlt>';
     },
     scopeFn: function(scopeId, path, data) {
-
+        return '<ftls scope="' + scopeId + ' path="' + path + '"></ftls>';
     }
 };
 
@@ -62,10 +62,28 @@ scopesMap = {
         fn: scopes.scope001,
         parent: 'elemet1',
         childs: []
-    },
+    }],
     'listing.name': [{
         fn: scopes.scope001,
         parent: 'elemet1',
         childs: []  
+    }, {
+        type: 'attr'
     }]
 };
+
+
+var html = [
+    {
+        tag: 'section',
+        attrs: [],
+        childs: [{
+            tag: 'div',
+            childs: [{
+                tag: '#',
+                content: 'Hello %s!',
+                data: ['name']
+            }]
+        }]
+    }
+];

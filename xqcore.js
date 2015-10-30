@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-254
+ * XQCore - +0.11.1-285
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-10-26
+ * Creation Date: 2015-10-30
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-254',
+        version: '0.11.1-285',
         
         /**
          * Defines a default route
@@ -3280,7 +3280,7 @@ var XQCore;
         }
         catch(err) {
             html = '<p class="renderError"><b>View render error!</b><br>' + err.message + '</p>';
-            this.error('View render error!', err);
+            log.error('View render error!', err);
         }
 
         var parseScope = function(html, data, parent) {
@@ -3361,10 +3361,91 @@ var XQCore;
         }
         catch(err) {
             html = '<p class="renderError"><b>View render error!</b><br>' + err.message + '</p>';
-            this.error('View render error!', err);
+            log.error('View render error!', err);
         }
 
         this.el.innerHTML = html;
+        this.emit('content.change', data);
+
+        this.registerListener(this.$el);
+        this.registerForms();
+
+        return this;
+    };
+
+    /**
+     * Render view
+     *
+     * @method render
+     * @chainable
+     * @emits content.change
+     *
+     * @param  {Object} data Render data
+     * @returns {Object} Returns this value
+     */
+    View.prototype.srender = function(data) {
+        if (this.__domReady === false) {
+            this.__initialData = data || {};
+            return this;
+        }
+
+        if (this.autoInject) {
+            this.inject();
+        }
+
+        var html;
+
+        log.info('Render view template of view ' + this.name, 'with data:', data);
+
+        var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
+        
+        this.scopes = {
+            dataFn: function(path, data) {
+                return '<ftl path="' + path + '">'+data[path]+'</ftl>';
+            },
+            scopeFn: function(scopeId, path, data) {
+                return '<ftl scope="' + scopeId + '" path="' + path + '"></ftl>';
+            }
+        };
+
+        try {
+            html = template(data || {}, this.scopes);
+        }
+        catch(err) {
+            html = '<p class="renderError"><b>View render error!</b><br>' + err.message + '</p>';
+            log.error('View render error!', err);
+        }
+
+        this.el.innerHTML = html;
+        var self = this;
+        
+        var replaceScopes = function($el, scope, data, path) {
+            console.log('Replace scope', scope, data, path);
+            var scopeData = path ? data[path] : data;
+            var html = self.scopes[scope](scopeData, data);
+            var $html = $($.parseHTML(html));
+
+            //Replace scopes
+            $html.find('ftl').each(function() {
+                var scope = $(this).attr('scope');
+                var path = $(this).attr('path');
+                if (scope) {
+                    replaceScopes($(this), scope, data, path);
+                }
+            });
+
+            $el.replaceWith($html);
+        };
+
+        //Replace scopes
+        this.$el.find('ftl').each(function() {
+            var scope = $(this).attr('scope');
+            var path = $(this).attr('path');
+            if (scope) {
+                replaceScopes($(this), scope, data, path);
+            }
+        });
+
         this.emit('content.change', data);
 
         this.registerListener(this.$el);

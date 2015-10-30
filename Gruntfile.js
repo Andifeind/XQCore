@@ -117,6 +117,16 @@ module.exports = function(grunt) {
                 }
             }
         },
+        release: {
+            options: {
+                npm: true, //default: true
+                indentation: '    ', //default: '  ' (two spaces)
+                tagName: 'v<%= version %>', //default: '<%= version %>'
+                commitMessage: 'Release v<%= version %>', //default: 'release <%= version %>'
+                tagMessage: 'Tagging release v<%= version %>', //default: 'Version <%= version %>',
+                beforeRelease: ['build']
+            }
+        },
         version: {
             component: {
                 src: ['../component-builds/xqcore/component.json']
@@ -153,12 +163,6 @@ module.exports = function(grunt) {
         'jshint:files',
         'concat:build',
         'uglify',
-        'component-build',
         'bumpup:prerelease'
-    ]);
-
-    grunt.registerTask('component-build', [
-        'copy:component',
-        'version:component'
     ]);
 };

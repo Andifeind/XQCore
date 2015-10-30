@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-304
+ * XQCore - +0.11.1-305
  * 
  * Model View Presenter Javascript Framework
  *
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-304',
+        version: '0.11.1-305',
         
         /**
          * Defines a default route

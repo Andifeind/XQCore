@@ -238,26 +238,17 @@
         };
 
         var eventsMap = {
-            'data.replace': 'xrender',
-            'data.set': 'xrender',
-            'value.set': 'xrender',
-            'item.insert': 'xrender',
+            'data.replace': 'render',
+            'data.set': 'render',
+            'value.set': 'change',
+            // 'item.insert': 'xrender',
             'item.remove': 'remove',
             'validation.error': 'validationFailed',
             'state.change': 'onStateChange'
         };
 
         var listener = function(listener, func) {
-            var fn;
-            if (func === 'xrender') {
-                fn = function() {
-                    view.render(model.get());
-                };
-            }
-            else {
-                 fn = view[func].bind(view);
-            }
-
+            var fn = typeof func === 'function' ? func : view[func].bind(view);
             var handler = model.on(listener, fn);
             model.__coupled.events.push(handler);
         };
@@ -312,22 +303,21 @@
         };
 
         var eventsMap = {
-            'item.push': 'xrender',
-            'item.unshift': 'xrender',
-            'item.pop': 'xrender',
-            'item.shift': 'xrender',
-            'item.update': 'xrender',
+            'item.push': function(data) {
+                view.append('_ftl_root', data[0].toJSON());
+            },
+            'item.unshift': 'prepend',
+            'item.pop': 'removeLast',
+            'item.shift': 'removeFirst',
+            'item.update': 'update',
+            'item.remove': function(item, index) {
+                view.remove('_ftl_root', index);
+            },
             'state.change': 'onStateChange'
         };
 
         var listener = function(listener, func) {
-            var fn = view[func].bind(view);
-            if (func === 'xrender') {
-                fn = function() {
-                    view.render(list.get());
-                };
-            }
-
+            var fn = typeof func === 'function' ? func : view[func].bind(view);
             var handler = list.on(listener, fn);
             list.__coupled.events.push(handler);
         };

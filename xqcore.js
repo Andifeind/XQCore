@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.11.1-305
+ * XQCore - +0.12.1-178
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-10-30
+ * Creation Date: 2015-11-01
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.11.1-305',
+        version: '0.12.1-178',
         
         /**
          * Defines a default route
@@ -142,7 +142,6 @@ var XQCore;
     XQCore.extend = jQuery.extend;
 
 
-    XQCore.isEmptyObject = jQuery.isEmptyObject;
     XQCore.isPlainObject = jQuery.isPlainObject;
     XQCore.isFunction = jQuery.isFunction;
 
@@ -264,6 +263,61 @@ var XQCore;
      */
     XQCore.logLevel = 1;
 
+    /**
+     * Returns one or all queries
+     * Converts all numberic items to a Number
+     *
+     * @method getQuery
+     * @param  {String} name Query name
+     * @return {Object|String}      Returns all queries or one value.
+     */
+    XQCore.getQuery = function(name) {
+        if (!XQCore.__query) {
+            XQCore.__query = {};
+            location.search.substr(1).split('&').forEach(function(q) {
+                q = q.split('=');
+                if (q && q[0]) {
+                    var val = encodeURI(q[1]);
+                    XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
+                }
+            });
+        }
+
+        if (name) {
+            return XQCore.__query[name];
+        }
+        else {
+            return XQCore.__query;
+        }
+    };
+
+    /**
+     * Checks wether an object is an empty object
+     * @param  {Object}  obj Object which should be checked
+     * @return {Boolean}     Returns tru if object is empty
+     */
+    XQCore.isEmptyObject = function(obj) {
+        var name;
+        //jshint forin:false
+        for ( name in obj ) {
+            return false;
+        }
+        return true;
+    };
+
+    /**
+     * Checks wether an object is an empty object or an empty array
+     * @param  {Object|Array}  obj Object which should be checked
+     * @return {Boolean}     Returns true if obj is empty
+     */
+    XQCore.isEmpty = function(obj) {
+        if (Array.isArray(obj)) {
+            return obj.length === 0;
+        }
+
+        return XQCore.isEmptyObject(obj);
+    };
+
     //--
     return XQCore;
 }));
@@ -359,43 +413,6 @@ var XQCore;
         return str.substr(0, len);
     };
     
-})(XQCore);
-/**
- * Extends XQCore with some usefull functions
- *
- * @group  XQCore.Utils
- */
-(function(XQCore, undefined) {
-    'use strict';
-
-    /**
-     * Returns one or all queries
-     * Converts all numberic items to a Number
-     *
-     * @method getQuery
-     * @param  {String} name Query name
-     * @return {Object|String}      Returns all queries or one value.
-     */
-    XQCore.getQuery = function(name) {
-        if (!XQCore.__query) {
-            XQCore.__query = {};
-            location.search.substr(1).split('&').forEach(function(q) {
-                q = q.split('=');
-                if (q && q[0]) {
-                    var val = encodeURI(q[1]);
-                    XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
-                }
-            });
-        }
-
-        if (name) {
-            return XQCore.__query[name];
-        }
-        else {
-            return XQCore.__query;
-        }
-    };
-
 })(XQCore);
 /**
  * XQCore Logger module
@@ -1129,26 +1146,17 @@ var XQCore;
         };
 
         var eventsMap = {
-            'data.replace': 'xrender',
-            'data.set': 'xrender',
-            'value.set': 'xrender',
-            'item.insert': 'xrender',
+            'data.replace': 'render',
+            'data.set': 'render',
+            'value.set': 'change',
+            // 'item.insert': 'xrender',
             'item.remove': 'remove',
             'validation.error': 'validationFailed',
             'state.change': 'onStateChange'
         };
 
         var listener = function(listener, func) {
-            var fn;
-            if (func === 'xrender') {
-                fn = function() {
-                    view.render(model.get());
-                };
-            }
-            else {
-                 fn = view[func].bind(view);
-            }
-
+            var fn = typeof func === 'function' ? func : view[func].bind(view);
             var handler = model.on(listener, fn);
             model.__coupled.events.push(handler);
         };
@@ -1203,22 +1211,21 @@ var XQCore;
         };
 
         var eventsMap = {
-            'item.push': 'xrender',
-            'item.unshift': 'xrender',
-            'item.pop': 'xrender',
-            'item.shift': 'xrender',
-            'item.update': 'xrender',
+            'item.push': function(data) {
+                view.append('_ftl_root', data[0].toJSON());
+            },
+            'item.unshift': 'prepend',
+            'item.pop': 'removeLast',
+            'item.shift': 'removeFirst',
+            'item.update': 'update',
+            'item.remove': function(item, index) {
+                view.remove('_ftl_root', index);
+            },
             'state.change': 'onStateChange'
         };
 
         var listener = function(listener, func) {
-            var fn = view[func].bind(view);
-            if (func === 'xrender') {
-                fn = function() {
-                    view.render(list.get());
-                };
-            }
-
+            var fn = typeof func === 'function' ? func : view[func].bind(view);
             var handler = list.on(listener, fn);
             list.__coupled.events.push(handler);
         };
@@ -1454,10 +1461,10 @@ var XQCore;
 		}
 		else if (typeof data === 'function') {
 			callback = data;
-			data = this.get();
+			data = this.toJSON();
 		}
 		else if (data === undefined) {
-			data = this.get();
+			data = this.toJSON();
 		}
 
 		if (method === undefined) {
@@ -1576,7 +1583,7 @@ var XQCore;
 	Sync.prototype.save = function(data, callback) {
 		if (typeof data === 'function') {
 			callback = data;
-			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.get();
+			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.toJSON();
 		}
 
 		if (this.isValid()) {
@@ -1597,7 +1604,7 @@ var XQCore;
 	Sync.prototype.update = function(data, callback) {
 		if (typeof data === 'function') {
 			callback = data;
-			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.get();
+			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.toJSON();
 		}
 
 		if (this.isValid()) {
@@ -1626,12 +1633,16 @@ var XQCore;
 	 */
 	Sync.prototype.submit = function(data) {
 		if (this.set(data, { extend: true })) {
-			if (data.id === undefined || data.id === null) {
-				this.save(data);
-				return;
+			if (this.server) {
+				if (data.id === undefined || data.id === null) {
+					this.save(data);
+					return;
+				}
+
+				this.update(data);
 			}
 
-			this.update(data);
+			this.emit('data.submit', data);
 		}
 	};
 
@@ -2833,6 +2844,10 @@ var XQCore;
         }
     };
 
+    Model.prototype.toJSON = function() {
+        return this.get();
+    };
+
     XQCore.Model = Model;
 })(XQCore);
 
@@ -3391,7 +3406,7 @@ var XQCore;
      * @param  {Object} data Render data
      * @returns {Object} Returns this value
      */
-    View.prototype.render = function(data) {
+    View.prototype._render = function(data) {
         if (this.__domReady === false) {
             this.__initialData = data || {};
             return this;
@@ -3435,7 +3450,7 @@ var XQCore;
      * @param  {Object} data Render data
      * @returns {Object} Returns this value
      */
-    View.prototype.srender = function(data) {
+    View.prototype.render = function(data) {
         if (this.__domReady === false) {
             this.__initialData = data || {};
             return this;
@@ -3456,7 +3471,23 @@ var XQCore;
                 return '<ftl path="' + path + '">'+data[path]+'</ftl>';
             },
             scopeFn: function(scopeId, path, data) {
+                if (path === 'data' && Array.isArray(data)) {
+                    path = '_ftl_root';
+                }
+
                 return '<ftl scope="' + scopeId + '" path="' + path + '"></ftl>';
+            },
+            attrFn: function(attr, value) {
+                var val1 = value.replace(/<ftl path="([a-zA-Z0-9_.-]+)">(.+?)<\/ftl>/g, function(str, p1, p2) {
+                    return p2;
+                });
+
+                var val2 = value.replace(/<ftl path="([a-zA-Z0-9_.-]+)">(.+?)<\/ftl>/g, function(str, p1, p2) {
+                    return '%s';
+                });
+
+                var attrs = attr + '="' + val1 + '" xq-' + attr + '="' + val2 + '"';
+                return attrs;
             }
         };
 
@@ -3470,40 +3501,131 @@ var XQCore;
 
         this.el.innerHTML = html;
         var self = this;
-        
-        var replaceScopes = function($el, scope, data, path) {
-            console.log('Replace scope', scope, data, path);
-            var scopeData = path ? data[path] : data;
-            var html = self.scopes[scope](scopeData, data);
-            var $html = $($.parseHTML(html));
-
-            //Replace scopes
-            $html.find('ftl').each(function() {
-                var scope = $(this).attr('scope');
-                var path = $(this).attr('path');
-                if (scope) {
-                    replaceScopes($(this), scope, data, path);
-                }
-            });
-
-            $el.replaceWith($html);
-        };
+        this.scopesMap = {};
 
         //Replace scopes
         this.$el.find('ftl').each(function() {
             var scope = $(this).attr('scope');
             var path = $(this).attr('path');
             if (scope) {
-                replaceScopes($(this), scope, data, path);
+                self.replaceScopes($(this), scope, data, path, path);
+            }
+            else {
+                self.replaceNode($(this), path);
             }
         });
 
+        console.log('Scopes map', this.scopesMap);
         this.emit('content.change', data);
 
         this.registerListener(this.$el);
         this.registerForms();
 
         return this;
+    };
+
+    View.prototype.replaceScopes = function($el, scope, data, path, fullPath) {
+        console.log('Replace scope', scope, data, path);
+        var self = this;
+        var scopeData = path && path !== '_ftl_root' ? data[path] : data;
+        var html = self.scopes[scope](scopeData, data);
+        var $html = $($.parseHTML(html));
+        var $parent = $el.parent();
+
+        //Replace scopes
+        $html.find('ftl').each(function() {
+            var scope = $(this).attr('scope');
+            var path = $(this).attr('path');
+            if (scope) {
+                self.replaceScopes($(this), scope, scopeData, path, fullPath + (Array.isArray(scopeData) ? '[].' : '.') + path);
+            }
+            else {
+                self.replaceNode($(this), fullPath + (Array.isArray(scopeData) ? '[].' : '.') + path);
+            }
+        });
+
+        $el.replaceWith($html);
+
+        if (fullPath.indexOf('[].') !== -1) {
+            return;
+        }
+
+        if (!(fullPath in self.scopesMap)) {
+            self.scopesMap[fullPath] = [];
+        }
+
+        var splitItems = function($html) {
+            if (!Array.isArray(scopeData)) {
+                return [$html];
+            }
+            var len = $html.length / scopeData.length;
+            var out = [];
+            
+            var next = [];
+            $html.each(function() {
+                next.push($(this).get(0));
+                if (next.length === len) {
+                    out.push(next);
+                    next = [];
+                }
+            });
+
+            return out;
+        };
+
+        self.scopesMap[fullPath].push({
+            type: 'scope',
+            fn: self.scopes[scope],
+            childs: splitItems($html, scopeData),
+            parentData: data,
+            parent: $parent
+        });
+    };
+
+    View.prototype.replaceNode = function($el, fullPath) {
+        console.log('Replace node', fullPath);
+        var self = this;
+        var nodeData = $el.html();
+
+        var node = document.createTextNode(nodeData);
+        $el.replaceWith(node);
+
+        if (fullPath.indexOf('[].') !== -1) {
+            return;
+        }
+
+        if (!(fullPath in self.scopesMap)) {
+            self.scopesMap[fullPath] = [];
+        }
+
+        self.scopesMap[fullPath].push({
+            type: 'node',
+            node: node
+        });
+    };
+
+    View.prototype.renderScope = function(scope, path, data) {
+        var self = this;
+        var html = $.parseHTML(scope.fn(data, scope.parentData));
+        var $html = $(html);
+        $html.find('ftl').each(function() {
+            var scope = $(this).attr('scope');
+            var path = $(this).attr('path');
+            if (scope) {
+                self.replaceScopes($(this), scope, data, path, path);
+            }
+            else {
+                self.replaceNode($(this), path);
+            }
+        });
+
+        this.registerListener($html);
+
+        return $html;
+    };
+
+    View.prototype.renderNode = function(scope, path, data) {
+        scope.node.nodeValue = data;
     };
 
     View.prototype.registerListener = function($el) {
@@ -3601,22 +3723,24 @@ var XQCore;
      */
     View.prototype.insert = function(path, index, data) {
         var self = this;
-        var $scope = this.$el.find('[fire-path="' + path + '"]');
-        if ($scope.length) {
-            $scope.each(function() {
-                var scope = $(this).attr('fire-scope');
-                var html = self.scopes[scope]([data]);
-
-                var $childs = $(this).children();
-                if (index > -1) {
-                    if (index > $childs.length - 1) {
-                        index = $childs.length - 1;
-                    }
-
-                    $childs.eq(index).before(html);
+        console.log('INSERT new item', path, index, data);
+        if (path in this.scopesMap) {
+            console.log(' matched items', this.scopesMap[path]);
+            this.scopesMap[path].forEach(function(scope) {
+                var $html = self.renderScope(scope, path, [data]);
+                if (index === -1) {
+                    scope.parent.append($html);
+                    scope.childs.push([$html.get()]);
+                }
+                else if (index === 0) {
+                    scope.parent.prepend($html);
+                    scope.childs.unshift([$html.get()]);
                 }
                 else {
-                    $childs.eq(index).after(html);
+                    var els = scope.childs[index];
+                    $(els[0]).before($html);
+                    var args = [index, 0].concat([$html.get()]);
+                    scope.childs.splice.apply(scope.childs, args);
                 }
             });
         }
@@ -3627,10 +3751,20 @@ var XQCore;
     };
 
     View.prototype.append = function(path, data) {
+        if (arguments.length === 1) {
+            data = path;
+            path = 'data';
+        }
+
         this.insert(path, -1, data);
     };
 
     View.prototype.prepend = function(path, data) {
+        if (arguments.length === 1) {
+            data = path;
+            path = 'data';
+        }
+
         this.insert(path, 0, data);
     };
 
@@ -3642,8 +3776,46 @@ var XQCore;
      * @param  {Number} index Index of the item
      */
     View.prototype.remove = function(path, index) {
-        var $scope = this.$el.find('[fire-path="' + path + '"]');
-        $scope.children(':eq(' + index + ')').remove();
+        console.log('REMOVE item', path, index);
+        if (path in this.scopesMap) {
+            console.log(' matched items', this.scopesMap[path]);
+            this.scopesMap[path].forEach(function(scope) {
+                var els = scope.childs[index];
+                if (Array.isArray(els)) {
+                    els.forEach(function(el) {
+                        $(el).remove();
+                    });
+                }
+                else {
+                    $(els).remove();
+                }
+
+                scope.childs.splice(index, 1);
+            });
+        }
+    };
+
+    View.prototype.removeLast = function(path) {
+        log.warn('XQCore doesn`t support pop events yet');
+    };
+
+    View.prototype.removeFirst = function(path) {
+        log.warn('XQCore doesn`t support shift events yet');
+    };
+
+    View.prototype.change = function(path, value) {
+        var self = this;
+
+        this.ready(function() {
+            if (path in this.scopesMap) {
+                console.log(' change item', this.scopesMap[path]);
+                this.scopesMap[path].forEach(function(scope) {
+                    if (scope.type === 'node') {
+                        self.renderNode(scope, path, value);
+                    }
+                });
+            }
+        });
     };
 
     /**
@@ -4730,6 +4902,17 @@ var XQCore;
         else {
             XQCore.extend(this, conf);
         }
+
+        /**
+         * Sets default values
+         * @property {Object|Array} defaults
+         */
+        if (this.defaults && !XQCore.isEmpty(this.defaults)) {
+            this.push(this.defaults, {
+                silent: true,
+                noValidation: true
+            });
+        }
         
         this.state('ready');
     };
@@ -4739,6 +4922,10 @@ var XQCore;
     XQCore.extend(List.prototype, XQCore.Event.prototype);
 
     XQCore.extend(List.prototype, new XQCore.Logger());
+
+    if (XQCore.Sync) {
+        XQCore.extend(List.prototype, XQCore.Sync.prototype);
+    }
 
     /**
      * Inherits a list prototype
@@ -5024,7 +5211,7 @@ var XQCore;
         var updateItem;
         if (typeof match === 'number') {
 
-            updateItem = this.models[match];
+            updateItem = this.items[match];
         }
         else {
             updateItem = this.findOne(match);
@@ -5046,6 +5233,59 @@ var XQCore;
 
         return updateItem;
     };
+
+    /**
+     * Removes an item at a given position
+     *
+     * @param {Object|Number} match Match to find element which should be removed
+     * @param {Object} options Options object
+     * {
+     *     silent: true,    //Disable event emitting
+     *     noSync: true     //Don't call sync method
+     * }
+     *
+     * @fires item.remove
+     * Fires an item.remove event if item was succesfully removed.
+     *
+     * @returns {Object} Returns the removed item
+     */
+    List.prototype.remove = function(match, options) {
+        options = options || {};
+
+        var removedItem,
+            index = 0;
+        if (typeof match === 'number') {
+            removedItem = this.items[match];
+            index = match;
+        }
+        else {
+            removedItem = this.findOne(match);
+            for (var i = 0, len = this.items.length; i < len; i++) {
+                if (this.items[i] === removedItem) {
+                    index = i;
+                    break;
+                } 
+            }
+        }
+
+        if (removedItem) {
+            this.items.splice(index, 1);
+            
+            if (!options.silent) {
+                this.emit('item.remove', removedItem, index);
+            }
+
+            if (!options.noSync) {
+                if (typeof this.sync === 'function') {
+                    this.sync('remove', match, index);
+                }
+            }
+        }
+
+        return removedItem;
+    };
+
+
 
     /**
      * Clears the whole list
@@ -5088,6 +5328,10 @@ var XQCore;
         return this.items.map(function(model) {
             return model.properties;
         });
+    };
+
+    List.prototype.toJSON = function() {
+        return this.toArray();
     };
 
     /**
@@ -5169,15 +5413,24 @@ var XQCore;
         return res;
     };
 
+    /**
+     * Calls a function on each item.
+     * Optionally traverse the `initial` object through all methods and returns it at the end.
+     *
+     * @method each
+     * @param  {Object}   initial Object which will be traversed and returned at the end
+     * @param  {Function} fn      Funtion to be called on each item. Gets the model as first arg and the traversing object as second arg.
+     * @returns {Object}          Returns a traversed object
+     */
     List.prototype.each = function(initial, fn) {
         if (typeof initial === 'function') {
             fn = initial;
-            initial = null;
+            initial = {};
         }
 
         var data = initial;
         for (var i = 0, len = this.items.length; i < len; i++) {
-            data = fn(data, this.items[i].properties);
+            data = fn(this.items[i], data);
         }
 
         return data;

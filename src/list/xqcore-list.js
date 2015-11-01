@@ -96,6 +96,17 @@
         else {
             XQCore.extend(this, conf);
         }
+
+        /**
+         * Sets default values
+         * @property {Object|Array} defaults
+         */
+        if (this.defaults && !XQCore.isEmpty(this.defaults)) {
+            this.push(this.defaults, {
+                silent: true,
+                noValidation: true
+            });
+        }
         
         this.state('ready');
     };
@@ -105,6 +116,10 @@
     XQCore.extend(List.prototype, XQCore.Event.prototype);
 
     XQCore.extend(List.prototype, new XQCore.Logger());
+
+    if (XQCore.Sync) {
+        XQCore.extend(List.prototype, XQCore.Sync.prototype);
+    }
 
     /**
      * Inherits a list prototype
@@ -390,7 +405,7 @@
         var updateItem;
         if (typeof match === 'number') {
 
-            updateItem = this.models[match];
+            updateItem = this.items[match];
         }
         else {
             updateItem = this.findOne(match);
@@ -412,6 +427,59 @@
 
         return updateItem;
     };
+
+    /**
+     * Removes an item at a given position
+     *
+     * @param {Object|Number} match Match to find element which should be removed
+     * @param {Object} options Options object
+     * {
+     *     silent: true,    //Disable event emitting
+     *     noSync: true     //Don't call sync method
+     * }
+     *
+     * @fires item.remove
+     * Fires an item.remove event if item was succesfully removed.
+     *
+     * @returns {Object} Returns the removed item
+     */
+    List.prototype.remove = function(match, options) {
+        options = options || {};
+
+        var removedItem,
+            index = 0;
+        if (typeof match === 'number') {
+            removedItem = this.items[match];
+            index = match;
+        }
+        else {
+            removedItem = this.findOne(match);
+            for (var i = 0, len = this.items.length; i < len; i++) {
+                if (this.items[i] === removedItem) {
+                    index = i;
+                    break;
+                } 
+            }
+        }
+
+        if (removedItem) {
+            this.items.splice(index, 1);
+            
+            if (!options.silent) {
+                this.emit('item.remove', removedItem, index);
+            }
+
+            if (!options.noSync) {
+                if (typeof this.sync === 'function') {
+                    this.sync('remove', match, index);
+                }
+            }
+        }
+
+        return removedItem;
+    };
+
+
 
     /**
      * Clears the whole list
@@ -454,6 +522,10 @@
         return this.items.map(function(model) {
             return model.properties;
         });
+    };
+
+    List.prototype.toJSON = function() {
+        return this.toArray();
     };
 
     /**
@@ -535,15 +607,24 @@
         return res;
     };
 
+    /**
+     * Calls a function on each item.
+     * Optionally traverse the `initial` object through all methods and returns it at the end.
+     *
+     * @method each
+     * @param  {Object}   initial Object which will be traversed and returned at the end
+     * @param  {Function} fn      Funtion to be called on each item. Gets the model as first arg and the traversing object as second arg.
+     * @returns {Object}          Returns a traversed object
+     */
     List.prototype.each = function(initial, fn) {
         if (typeof initial === 'function') {
             fn = initial;
-            initial = null;
+            initial = {};
         }
 
         var data = initial;
         for (var i = 0, len = this.items.length; i < len; i++) {
-            data = fn(data, this.items[i].properties);
+            data = fn(this.items[i], data);
         }
 
         return data;

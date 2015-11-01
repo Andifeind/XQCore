@@ -1193,5 +1193,9 @@
         }
     };
 
+    Model.prototype.toJSON = function() {
+        return this.get();
+    };
+
     XQCore.Model = Model;
 })(XQCore);

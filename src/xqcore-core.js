@@ -142,7 +142,6 @@ var XQCore;
     XQCore.extend = jQuery.extend;
 
 
-    XQCore.isEmptyObject = jQuery.isEmptyObject;
     XQCore.isPlainObject = jQuery.isPlainObject;
     XQCore.isFunction = jQuery.isFunction;
 
@@ -263,6 +262,61 @@ var XQCore;
      * @property {String} logLevel
      */
     XQCore.logLevel = 1;
+
+    /**
+     * Returns one or all queries
+     * Converts all numberic items to a Number
+     *
+     * @method getQuery
+     * @param  {String} name Query name
+     * @return {Object|String}      Returns all queries or one value.
+     */
+    XQCore.getQuery = function(name) {
+        if (!XQCore.__query) {
+            XQCore.__query = {};
+            location.search.substr(1).split('&').forEach(function(q) {
+                q = q.split('=');
+                if (q && q[0]) {
+                    var val = encodeURI(q[1]);
+                    XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
+                }
+            });
+        }
+
+        if (name) {
+            return XQCore.__query[name];
+        }
+        else {
+            return XQCore.__query;
+        }
+    };
+
+    /**
+     * Checks wether an object is an empty object
+     * @param  {Object}  obj Object which should be checked
+     * @return {Boolean}     Returns tru if object is empty
+     */
+    XQCore.isEmptyObject = function(obj) {
+        var name;
+        //jshint forin:false
+        for ( name in obj ) {
+            return false;
+        }
+        return true;
+    };
+
+    /**
+     * Checks wether an object is an empty object or an empty array
+     * @param  {Object|Array}  obj Object which should be checked
+     * @return {Boolean}     Returns true if obj is empty
+     */
+    XQCore.isEmpty = function(obj) {
+        if (Array.isArray(obj)) {
+            return obj.length === 0;
+        }
+
+        return XQCore.isEmptyObject(obj);
+    };
 
     //--
     return XQCore;

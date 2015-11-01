@@ -51,10 +51,10 @@
 		}
 		else if (typeof data === 'function') {
 			callback = data;
-			data = this.get();
+			data = this.toJSON();
 		}
 		else if (data === undefined) {
-			data = this.get();
+			data = this.toJSON();
 		}
 
 		if (method === undefined) {
@@ -173,7 +173,7 @@
 	Sync.prototype.save = function(data, callback) {
 		if (typeof data === 'function') {
 			callback = data;
-			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.get();
+			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.toJSON();
 		}
 
 		if (this.isValid()) {
@@ -194,7 +194,7 @@
 	Sync.prototype.update = function(data, callback) {
 		if (typeof data === 'function') {
 			callback = data;
-			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.get();
+			data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.toJSON();
 		}
 
 		if (this.isValid()) {
@@ -223,12 +223,16 @@
 	 */
 	Sync.prototype.submit = function(data) {
 		if (this.set(data, { extend: true })) {
-			if (data.id === undefined || data.id === null) {
-				this.save(data);
-				return;
+			if (this.server) {
+				if (data.id === undefined || data.id === null) {
+					this.save(data);
+					return;
+				}
+
+				this.update(data);
 			}
 
-			this.update(data);
+			this.emit('data.submit', data);
 		}
 	};
 

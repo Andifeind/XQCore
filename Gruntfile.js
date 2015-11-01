@@ -32,7 +32,6 @@ module.exports = function(grunt) {
                 src: [
                     'src/xqcore-core.js',
                     'src/utils/xqcore-utils.js',
-                    'src/xqcore-utils-browser.js',
                     'src/xqcore-logger.js',
                     'src/xqcore-event.js',
                     'src/xqcore-readystate.js',
@@ -154,6 +153,7 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-available-tasks');
     grunt.loadNpmTasks('grunt-bumpup');
+    grunt.loadNpmTasks('grunt-release');
     grunt.loadNpmTasks('grunt-version');
     
     grunt.registerTask('default', ['availabletasks']);

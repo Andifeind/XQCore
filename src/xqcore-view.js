@@ -504,7 +504,7 @@
      * @param  {Object} data Render data
      * @returns {Object} Returns this value
      */
-    View.prototype.render = function(data) {
+    View.prototype._render = function(data) {
         if (this.__domReady === false) {
             this.__initialData = data || {};
             return this;
@@ -548,7 +548,7 @@
      * @param  {Object} data Render data
      * @returns {Object} Returns this value
      */
-    View.prototype.srender = function(data) {
+    View.prototype.render = function(data) {
         if (this.__domReady === false) {
             this.__initialData = data || {};
             return this;
@@ -569,7 +569,23 @@
                 return '<ftl path="' + path + '">'+data[path]+'</ftl>';
             },
             scopeFn: function(scopeId, path, data) {
+                if (path === 'data' && Array.isArray(data)) {
+                    path = '_ftl_root';
+                }
+
                 return '<ftl scope="' + scopeId + '" path="' + path + '"></ftl>';
+            },
+            attrFn: function(attr, value) {
+                var val1 = value.replace(/<ftl path="([a-zA-Z0-9_.-]+)">(.+?)<\/ftl>/g, function(str, p1, p2) {
+                    return p2;
+                });
+
+                var val2 = value.replace(/<ftl path="([a-zA-Z0-9_.-]+)">(.+?)<\/ftl>/g, function(str, p1, p2) {
+                    return '%s';
+                });
+
+                var attrs = attr + '="' + val1 + '" xq-' + attr + '="' + val2 + '"';
+                return attrs;
             }
         };
 
@@ -583,40 +599,131 @@
 
         this.el.innerHTML = html;
         var self = this;
-        
-        var replaceScopes = function($el, scope, data, path) {
-            console.log('Replace scope', scope, data, path);
-            var scopeData = path ? data[path] : data;
-            var html = self.scopes[scope](scopeData, data);
-            var $html = $($.parseHTML(html));
-
-            //Replace scopes
-            $html.find('ftl').each(function() {
-                var scope = $(this).attr('scope');
-                var path = $(this).attr('path');
-                if (scope) {
-                    replaceScopes($(this), scope, data, path);
-                }
-            });
-
-            $el.replaceWith($html);
-        };
+        this.scopesMap = {};
 
         //Replace scopes
         this.$el.find('ftl').each(function() {
             var scope = $(this).attr('scope');
             var path = $(this).attr('path');
             if (scope) {
-                replaceScopes($(this), scope, data, path);
+                self.replaceScopes($(this), scope, data, path, path);
+            }
+            else {
+                self.replaceNode($(this), path);
             }
         });
 
+        console.log('Scopes map', this.scopesMap);
         this.emit('content.change', data);
 
         this.registerListener(this.$el);
         this.registerForms();
 
         return this;
+    };
+
+    View.prototype.replaceScopes = function($el, scope, data, path, fullPath) {
+        console.log('Replace scope', scope, data, path);
+        var self = this;
+        var scopeData = path && path !== '_ftl_root' ? data[path] : data;
+        var html = self.scopes[scope](scopeData, data);
+        var $html = $($.parseHTML(html));
+        var $parent = $el.parent();
+
+        //Replace scopes
+        $html.find('ftl').each(function() {
+            var scope = $(this).attr('scope');
+            var path = $(this).attr('path');
+            if (scope) {
+                self.replaceScopes($(this), scope, scopeData, path, fullPath + (Array.isArray(scopeData) ? '[].' : '.') + path);
+            }
+            else {
+                self.replaceNode($(this), fullPath + (Array.isArray(scopeData) ? '[].' : '.') + path);
+            }
+        });
+
+        $el.replaceWith($html);
+
+        if (fullPath.indexOf('[].') !== -1) {
+            return;
+        }
+
+        if (!(fullPath in self.scopesMap)) {
+            self.scopesMap[fullPath] = [];
+        }
+
+        var splitItems = function($html) {
+            if (!Array.isArray(scopeData)) {
+                return [$html];
+            }
+            var len = $html.length / scopeData.length;
+            var out = [];
+            
+            var next = [];
+            $html.each(function() {
+                next.push($(this).get(0));
+                if (next.length === len) {
+                    out.push(next);
+                    next = [];
+                }
+            });
+
+            return out;
+        };
+
+        self.scopesMap[fullPath].push({
+            type: 'scope',
+            fn: self.scopes[scope],
+            childs: splitItems($html, scopeData),
+            parentData: data,
+            parent: $parent
+        });
+    };
+
+    View.prototype.replaceNode = function($el, fullPath) {
+        console.log('Replace node', fullPath);
+        var self = this;
+        var nodeData = $el.html();
+
+        var node = document.createTextNode(nodeData);
+        $el.replaceWith(node);
+
+        if (fullPath.indexOf('[].') !== -1) {
+            return;
+        }
+
+        if (!(fullPath in self.scopesMap)) {
+            self.scopesMap[fullPath] = [];
+        }
+
+        self.scopesMap[fullPath].push({
+            type: 'node',
+            node: node
+        });
+    };
+
+    View.prototype.renderScope = function(scope, path, data) {
+        var self = this;
+        var html = $.parseHTML(scope.fn(data, scope.parentData));
+        var $html = $(html);
+        $html.find('ftl').each(function() {
+            var scope = $(this).attr('scope');
+            var path = $(this).attr('path');
+            if (scope) {
+                self.replaceScopes($(this), scope, data, path, path);
+            }
+            else {
+                self.replaceNode($(this), path);
+            }
+        });
+
+        this.registerListener($html);
+
+        return $html;
+    };
+
+    View.prototype.renderNode = function(scope, path, data) {
+        scope.node.nodeValue = data;
     };
 
     View.prototype.registerListener = function($el) {
@@ -714,22 +821,24 @@
      */
     View.prototype.insert = function(path, index, data) {
         var self = this;
-        var $scope = this.$el.find('[fire-path="' + path + '"]');
-        if ($scope.length) {
-            $scope.each(function() {
-                var scope = $(this).attr('fire-scope');
-                var html = self.scopes[scope]([data]);
-
-                var $childs = $(this).children();
-                if (index > -1) {
-                    if (index > $childs.length - 1) {
-                        index = $childs.length - 1;
-                    }
-
-                    $childs.eq(index).before(html);
+        console.log('INSERT new item', path, index, data);
+        if (path in this.scopesMap) {
+            console.log(' matched items', this.scopesMap[path]);
+            this.scopesMap[path].forEach(function(scope) {
+                var $html = self.renderScope(scope, path, [data]);
+                if (index === -1) {
+                    scope.parent.append($html);
+                    scope.childs.push([$html.get()]);
+                }
+                else if (index === 0) {
+                    scope.parent.prepend($html);
+                    scope.childs.unshift([$html.get()]);
                 }
                 else {
-                    $childs.eq(index).after(html);
+                    var els = scope.childs[index];
+                    $(els[0]).before($html);
+                    var args = [index, 0].concat([$html.get()]);
+                    scope.childs.splice.apply(scope.childs, args);
                 }
             });
         }
@@ -740,10 +849,20 @@
     };
 
     View.prototype.append = function(path, data) {
+        if (arguments.length === 1) {
+            data = path;
+            path = 'data';
+        }
+
         this.insert(path, -1, data);
     };
 
     View.prototype.prepend = function(path, data) {
+        if (arguments.length === 1) {
+            data = path;
+            path = 'data';
+        }
+
         this.insert(path, 0, data);
     };
 
@@ -755,8 +874,46 @@
      * @param  {Number} index Index of the item
      */
     View.prototype.remove = function(path, index) {
-        var $scope = this.$el.find('[fire-path="' + path + '"]');
-        $scope.children(':eq(' + index + ')').remove();
+        console.log('REMOVE item', path, index);
+        if (path in this.scopesMap) {
+            console.log(' matched items', this.scopesMap[path]);
+            this.scopesMap[path].forEach(function(scope) {
+                var els = scope.childs[index];
+                if (Array.isArray(els)) {
+                    els.forEach(function(el) {
+                        $(el).remove();
+                    });
+                }
+                else {
+                    $(els).remove();
+                }
+
+                scope.childs.splice(index, 1);
+            });
+        }
+    };
+
+    View.prototype.removeLast = function(path) {
+        log.warn('XQCore doesn`t support pop events yet');
+    };
+
+    View.prototype.removeFirst = function(path) {
+        log.warn('XQCore doesn`t support shift events yet');
+    };
+
+    View.prototype.change = function(path, value) {
+        var self = this;
+
+        this.ready(function() {
+            if (path in this.scopesMap) {
+                console.log(' change item', this.scopesMap[path]);
+                this.scopesMap[path].forEach(function(scope) {
+                    if (scope.type === 'node') {
+                        self.renderNode(scope, path, value);
+                    }
+                });
+            }
+        });
     };
 
     /**

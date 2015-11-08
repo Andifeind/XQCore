@@ -1106,18 +1106,18 @@
             //Register view listener
             if (XQCore.html5Routes) {
                 self.$el.on('click', 'a', function(e) {
-                    if (/^http(s)?:\/\//.test(e.href)) {
+                    if (/^http(s)?:\/\//.test(e.currentTarget.href)) {
                         return;
                     }
 
-                    if (!/^\/?[a-z]/.test(e.href)) {
+                    if (!/^\/?[a-z]/.test(e.currentTarget.href)) {
                         return;
                     }
                     
                     e.preventDefault();
                     e.stopPropagation();
 
-                    self.emit('xqcore.navigate', e.href);
+                    self.emit('xqcore.navigate', e.currentTarget.href);
                 });
             }
 

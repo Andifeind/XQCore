@@ -218,6 +218,7 @@
             throw new Error('path is already defined: ' + path);
         }
 
+        path = path.replace(/\/$/, '');
         if (path.charAt(0) !== '/') {
             path = '/' + path;
         }

@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.12.1-178
+ * XQCore - +0.12.1-180
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-11-01
+ * Creation Date: 2015-11-08
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.12.1-178',
+        version: '0.12.1-180',
         
         /**
          * Defines a default route
@@ -1493,6 +1493,9 @@ var XQCore;
 			type: method,
 			data: data,
 			dataType: 'json',
+	        headers : {
+	            'Accept' : 'application/json'
+	        },
 			success: function(data, status, jqXHR) {
 				if (typeof callback === 'function') {
 					callback.call(self, null, data, status, jqXHR);
@@ -4008,18 +4011,18 @@ var XQCore;
             //Register view listener
             if (XQCore.html5Routes) {
                 self.$el.on('click', 'a', function(e) {
-                    if (/^http(s)?:\/\//.test(e.href)) {
+                    if (/^http(s)?:\/\//.test(e.currentTarget.href)) {
                         return;
                     }
 
-                    if (!/^\/?[a-z]/.test(e.href)) {
+                    if (!/^\/?[a-z]/.test(e.currentTarget.href)) {
                         return;
                     }
                     
                     e.preventDefault();
                     e.stopPropagation();
 
-                    self.emit('xqcore.navigate', e.href);
+                    self.emit('xqcore.navigate', e.currentTarget.href);
                 });
             }
 
@@ -4268,6 +4271,7 @@ var XQCore;
             throw new Error('path is already defined: ' + path);
         }
 
+        path = path.replace(/\/$/, '');
         if (path.charAt(0) !== '/') {
             path = '/' + path;
         }

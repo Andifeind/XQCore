@@ -83,6 +83,9 @@
 			type: method,
 			data: data,
 			dataType: 'json',
+	        headers : {
+	            'Accept' : 'application/json'
+	        },
 			success: function(data, status, jqXHR) {
 				if (typeof callback === 'function') {
 					callback.call(self, null, data, status, jqXHR);

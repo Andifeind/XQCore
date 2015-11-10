@@ -165,7 +165,6 @@
 
     Router.prototype.registerListener = function() {
         if (XQCore.html5Routes) {
-            console.log('DEFINE');
             window.addEventListener('popstate', this.onPopStateHandler.bind(this));
         }
         else {

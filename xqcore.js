@@ -4218,8 +4218,7 @@ var XQCore;
 
     Router.prototype.registerListener = function() {
         if (XQCore.html5Routes) {
-            console.log('DEFINE');
-            window.addEventListener('popstate', this.onPopStateHandler.bind(this));
+            window.addEventListener('popstate', this.onPopStateHandler.bind(this), true);
         }
         else {
             window.addEventListener('hashchange', this.onPopStateHandler.bind(this));
@@ -4267,13 +4266,15 @@ var XQCore;
             throw new Error(' route ' + path.toString() + ' requires a callback');
         }
 
-        if (this.routeMap[path]) {
-            throw new Error('path is already defined: ' + path);
-        }
+        // if (this.routeMap[path]) {
+        //     throw new Error('path is already defined: ' + path);
+        // }
 
-        path = path.replace(/\/$/, '');
-        if (path.charAt(0) !== '/') {
-            path = '/' + path;
+        if (typeof path === 'string') {
+            path = path.replace(/\/$/, '');
+            if (path.charAt(0) !== '/') {
+                path = '/' + path;
+            }
         }
         
         var route = new Route(path);
@@ -4347,6 +4348,7 @@ var XQCore;
         }
 
         var route = this.match(path);
+        route.path = path;
 
         if (!route) {
             log.warn('Could not call any route! No route were found! Called path: ' + path);

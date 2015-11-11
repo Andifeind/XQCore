@@ -971,11 +971,6 @@ var XQCore;
         if (typeof fn === 'function') {
             fn.call(this, self, log);
         }
-
-        $(function() {
-            //Call current page
-            self.router.callRoute(self.router.getPath());
-        });
     };
 
     XQCore.extend(Presenter.prototype, new XQCore.Event());
@@ -3295,6 +3290,7 @@ var XQCore;
      * @method inject
      */
     View.prototype.inject = function() {
+        console.log('XXX Inject', this.name, this.el.parentNode, this.el.parentNode === this.ct);
         if (this.el.parentNode === this.ct) {
             return;
         }
@@ -3326,6 +3322,7 @@ var XQCore;
             throw new Error('Unknown insert mode in view constructor');
         }
 
+        console.log('XXX Injected to', this.$ct);
     };
 
     /**
@@ -3410,6 +3407,7 @@ var XQCore;
      * @returns {Object} Returns this value
      */
     View.prototype._render = function(data) {
+        log.info('Render view template of view ' + this.name, 'with data:', data, this.__domReady);
         if (this.__domReady === false) {
             this.__initialData = data || {};
             return this;
@@ -3421,7 +3419,6 @@ var XQCore;
 
         var html;
 
-        log.info('Render view template of view ' + this.name, 'with data:', data);
 
         var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
         this.scopes = {};
@@ -3459,6 +3456,7 @@ var XQCore;
             return this;
         }
 
+        console.log('XXX Render', this.name);
         if (this.autoInject) {
             this.inject();
         }
@@ -3965,10 +3963,12 @@ var XQCore;
      * @private true
      */
     View.prototype.__createView = function() {
+        console.log('XXX __CreateView', this.name);
         var self = this,
             classNames = [];
 
         $(function() {
+            console.log('XXX __CreateView call', self.name);
             //Create view element
             self.$ct = self.$ct || $(self.container);
             self.ct = self.$ct.get(0);
@@ -4077,6 +4077,7 @@ var XQCore;
     'use strict';
 
     var log = new XQCore.Logger('Router');
+    var $ = XQCore.require('jquery');
 
     /**
      * Convert path to route object
@@ -4200,6 +4201,12 @@ var XQCore;
         if (!options.noListener) {
             this.registerListener();
         }
+
+        var self = this;
+        $(function() {
+            //Call current page
+            self.callRoute(self.getPath());
+        });
     };
 
     var instance;
@@ -4340,6 +4347,7 @@ var XQCore;
      */
     Router.prototype.callRoute = function(path, options) {
         options = options || {};
+        console.log('XXX Call route', path);
 
         log.info('Call route', path);
 

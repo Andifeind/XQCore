@@ -24,6 +24,7 @@
     'use strict';
 
     var log = new XQCore.Logger('Router');
+    var $ = XQCore.require('jquery');
 
     /**
      * Convert path to route object
@@ -147,6 +148,11 @@
         if (!options.noListener) {
             this.registerListener();
         }
+
+        $(function() {
+            //Call current page
+            self.router.callRoute(self.router.getPath());
+        });
     };
 
     var instance;

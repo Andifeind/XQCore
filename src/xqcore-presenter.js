@@ -9,8 +9,7 @@
 (function(XQCore, undefined) {
     'use strict';
 
-    var $ = XQCore.require('jquery'),
-        log;
+    var log;
 
     /**
      * XQCore.Presenter base class
@@ -63,11 +62,6 @@
         if (typeof fn === 'function') {
             fn.call(this, self, log);
         }
-
-        $(function() {
-            //Call current page
-            self.router.callRoute(self.router.getPath());
-        });
     };
 
     XQCore.extend(Presenter.prototype, new XQCore.Event());
@@ -456,6 +450,10 @@
         }
 
         return view;
+    };
+
+    Presenter.prototype.initFormView = function(model, selector, options) {
+        
     };
 
     /**

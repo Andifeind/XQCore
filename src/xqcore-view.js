@@ -390,8 +390,14 @@
      * @method inject
      */
     View.prototype.inject = function() {
-        if (this.el.parentNode === this.ct) {
+        var isInDOM = this.isElementInDOM(this.ct);
+        if (this.el.parentNode === this.ct && isInDOM) {
             return;
+        }
+
+        if (!isInDOM) {
+            this.$ct = $(this.container);
+            this.ct = this.$ct.get(0);
         }
 
         log.info('Inject view into container', this.$ct);
@@ -1140,6 +1146,25 @@
                 this.$forms.find(':input').addClass('xq-input');
             });
         }
+    };
+
+    /**
+     * Checks whether an element is in the DOM or not.
+     *
+     * @private
+     * @param  {Object}  el DOM element wich sholld be checked
+     * @return {Boolean}    Returns true if element is still in the DOM
+     */
+    View.prototype.isElementInDOM = function(el) {
+        while (el) {
+            if (el === document.body) {
+                return true;
+            }
+
+            el = el.parentNode;
+        }
+
+        return false;
     };
 
     XQCore.View = View;

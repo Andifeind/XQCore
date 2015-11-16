@@ -266,7 +266,10 @@
                     this.emit('validation.error', validationResult, newData);
                 }
 
-                return false;
+                return Promise.reject({
+                    msg: 'validation.error',
+                    err: validationResult
+                });
             }
         }
 
@@ -292,7 +295,7 @@
             this.emit('data.change', newData, oldData);
         }
 
-        return true;
+        return Promise.resolve(newData);
     };
 
     /**

@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.12.1-180
+ * XQCore - +0.12.1-193
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-11-08
+ * Creation Date: 2015-11-14
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.12.1-180',
+        version: '0.12.1-193',
         
         /**
          * Defines a default route
@@ -917,8 +917,7 @@ var XQCore;
 (function(XQCore, undefined) {
     'use strict';
 
-    var $ = XQCore.require('jquery'),
-        log;
+    var log;
 
     /**
      * XQCore.Presenter base class
@@ -1361,6 +1360,10 @@ var XQCore;
         return view;
     };
 
+    Presenter.prototype.initFormView = function(model, selector, options) {
+        
+    };
+
     /**
      * Register a route listener
      *
@@ -1486,8 +1489,9 @@ var XQCore;
 		$.ajax({
 			url: url,
 			type: method,
-			data: data,
+			data: JSON.stringify(data),
 			dataType: 'json',
+			contentType: 'application/json',
 	        headers : {
 	            'Accept' : 'application/json'
 	        },
@@ -1915,7 +1919,10 @@ var XQCore;
                     this.emit('validation.error', validationResult, newData);
                 }
 
-                return false;
+                return Promise.reject({
+                    msg: 'validation.error',
+                    err: validationResult
+                });
             }
         }
 
@@ -1941,7 +1948,7 @@ var XQCore;
             this.emit('data.change', newData, oldData);
         }
 
-        return true;
+        return Promise.resolve(newData);
     };
 
     /**
@@ -3290,9 +3297,14 @@ var XQCore;
      * @method inject
      */
     View.prototype.inject = function() {
-        console.log('XXX Inject', this.name, this.el.parentNode, this.el.parentNode === this.ct);
-        if (this.el.parentNode === this.ct) {
+        var isInDOM = this.isElementInDOM(this.ct);
+        if (this.el.parentNode === this.ct && isInDOM) {
             return;
+        }
+
+        if (!isInDOM) {
+            this.$ct = $(this.container);
+            this.ct = this.$ct.get(0);
         }
 
         log.info('Inject view into container', this.$ct);
@@ -3322,7 +3334,6 @@ var XQCore;
             throw new Error('Unknown insert mode in view constructor');
         }
 
-        console.log('XXX Injected to', this.$ct);
     };
 
     /**
@@ -3407,7 +3418,6 @@ var XQCore;
      * @returns {Object} Returns this value
      */
     View.prototype._render = function(data) {
-        log.info('Render view template of view ' + this.name, 'with data:', data, this.__domReady);
         if (this.__domReady === false) {
             this.__initialData = data || {};
             return this;
@@ -3419,6 +3429,7 @@ var XQCore;
 
         var html;
 
+        log.info('Render view template of view ' + this.name, 'with data:', data);
 
         var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
         this.scopes = {};
@@ -3456,7 +3467,6 @@ var XQCore;
             return this;
         }
 
-        console.log('XXX Render', this.name);
         if (this.autoInject) {
             this.inject();
         }
@@ -3963,12 +3973,10 @@ var XQCore;
      * @private true
      */
     View.prototype.__createView = function() {
-        console.log('XXX __CreateView', this.name);
         var self = this,
             classNames = [];
 
         $(function() {
-            console.log('XXX __CreateView call', self.name);
             //Create view element
             self.$ct = self.$ct || $(self.container);
             self.ct = self.$ct.get(0);
@@ -4045,6 +4053,25 @@ var XQCore;
                 this.$forms.find(':input').addClass('xq-input');
             });
         }
+    };
+
+    /**
+     * Checks whether an element is in the DOM or not.
+     *
+     * @private
+     * @param  {Object}  el DOM element wich sholld be checked
+     * @return {Boolean}    Returns true if element is still in the DOM
+     */
+    View.prototype.isElementInDOM = function(el) {
+        while (el) {
+            if (el === document.body) {
+                return true;
+            }
+
+            el = el.parentNode;
+        }
+
+        return false;
     };
 
     XQCore.View = View;
@@ -4225,7 +4252,7 @@ var XQCore;
 
     Router.prototype.registerListener = function() {
         if (XQCore.html5Routes) {
-            window.addEventListener('popstate', this.onPopStateHandler.bind(this), true);
+            window.addEventListener('popstate', this.onPopStateHandler.bind(this));
         }
         else {
             window.addEventListener('hashchange', this.onPopStateHandler.bind(this));
@@ -4273,9 +4300,9 @@ var XQCore;
             throw new Error(' route ' + path.toString() + ' requires a callback');
         }
 
-        // if (this.routeMap[path]) {
-        //     throw new Error('path is already defined: ' + path);
-        // }
+        if (this.routeMap[path]) {
+            throw new Error('path is already defined: ' + path);
+        }
 
         if (typeof path === 'string') {
             path = path.replace(/\/$/, '');
@@ -4347,7 +4374,6 @@ var XQCore;
      */
     Router.prototype.callRoute = function(path, options) {
         options = options || {};
-        console.log('XXX Call route', path);
 
         log.info('Call route', path);
 

@@ -12,7 +12,8 @@
 		"afterEach",
 		"sinon",
 		"XQCore",
-		"KeyboardEvent"
+		"KeyboardEvent",
+		"Promise"
 	],
 
 	"camelcase": true,

@@ -149,9 +149,10 @@
             this.registerListener();
         }
 
+        var self = this;
         $(function() {
             //Call current page
-            self.router.callRoute(self.router.getPath());
+            self.callRoute(self.getPath());
         });
     };
 
@@ -223,9 +224,11 @@
             throw new Error('path is already defined: ' + path);
         }
 
-        path = path.replace(/\/$/, '');
-        if (path.charAt(0) !== '/') {
-            path = '/' + path;
+        if (typeof path === 'string') {
+            path = path.replace(/\/$/, '');
+            if (path.charAt(0) !== '/') {
+                path = '/' + path;
+            }
         }
         
         var route = new Route(path);
@@ -299,6 +302,7 @@
         }
 
         var route = this.match(path);
+        route.path = path;
 
         if (!route) {
             log.warn('Could not call any route! No route were found! Called path: ' + path);

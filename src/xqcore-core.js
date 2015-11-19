@@ -318,6 +318,56 @@ var XQCore;
         return XQCore.isEmptyObject(obj);
     };
 
+    /**
+     * Returns a promise object
+     *
+     * the returning object has two extra methods
+     *
+     * `resolve` to resolv the promise
+     * `reject` to reject the promise
+     *
+     * If callback is set it will be called, when promise will be resolved or rejected.
+     * Gets the reject data as first argument and the resolve data as second argument
+     *
+     * @example {js}
+     * var promise = XQCore.promise();
+     * promise.then(function() {
+     *     console.log('Resolve');
+     * });
+     * 
+     * setTimeout(function() {
+     *     promise.resolve();
+     * }, 100);
+     *     
+     * @method promise
+     * @param  {Function} [callback] Callback function, to be called on resolv or rejecting the promise
+     * @return {Object} Returns a promise object
+     */
+    XQCore.promise = function(callback) {
+
+        var s, r;
+        var promise = new Promise(function(resolve, reject) {
+            s = resolve;
+            r = reject;
+        });
+
+        promise.resolve = function(data) {
+            s(data);
+            if (typeof callback === 'function') {
+                callback(null, data);
+            }
+        };
+
+        promise.reject = function(data) {
+            r(data);
+            if (typeof callback === 'function') {
+                callback(data);
+            }
+        };
+
+        return promise;
+    };
+
     //--
     return XQCore;
 }));

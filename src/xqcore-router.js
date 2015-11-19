@@ -152,7 +152,9 @@
         var self = this;
         $(function() {
             //Call current page
-            self.callRoute(self.getPath());
+            self.callRoute(self.getPath(), {
+                initialCall: true
+            });
         });
     };
 
@@ -303,6 +305,8 @@
 
         var route = this.match(path);
         route.path = path;
+
+        route.initialCall = !!options.initialCall;
 
         if (!route) {
             log.warn('Could not call any route! No route were found! Called path: ' + path);

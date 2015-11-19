@@ -109,6 +109,7 @@
         }
         
         this.state('ready');
+        this.setReady();
     };
 
     //Extend with ready state
@@ -209,7 +210,10 @@
             }
             else {
                 model = new this.model('ListItem');
-                model.set(item);
+                model.set(item, {
+                    noSync: true,
+                    silent: true
+                });
             }
 
             if (model.isValid()) {
@@ -275,7 +279,10 @@
             }
             else {
                 model = new this.model('ListItem');
-                model.set(item);
+                model.set(item, {
+                    noSync: true,
+                    silent: true
+                });
             }
 
             if (model.isValid()) {
@@ -412,7 +419,7 @@
         }
 
         if (updateItem) {
-            updateItem.set(data, { noSync: true });
+            updateItem.set(data, { noSync: true, silent: true });
             
             if (!options.silent) {
                 this.emit('item.update', updateItem);
@@ -458,7 +465,7 @@
                 if (this.items[i] === removedItem) {
                     index = i;
                     break;
-                } 
+                }
             }
         }
 

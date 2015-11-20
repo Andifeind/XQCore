@@ -44,9 +44,6 @@ XQCore.Sync.sendDELETE
 XQCore.Sync.fetch
 XQCore.Sync.save
 XQCore.Sync.update
-
-
-
 XQCore.Utils.dedotify 
 XQCore.Utils.uid
 XQCore.extend
@@ -110,15 +107,6 @@ XQCore.View.addEvent
 XQCore.View.__createViewElement
 XQCore.View.__createView
 XQCore.View.isElementInDOM
->> Create docu page: xqcore.html
->> Copy docu to: /home/andi/Webprojects/xqcore-page/webdocs
->> ... copy templates/deep-space/main.css
->> ... copy node_modules/highlight.js/styles/dark.css
-
-Running "doxydoc:xqcore-node" (doxydoc) task
->> Create page "index.html" from source: ../xqcore/README.md
->> Create page "tutorial.html" from source: pages/tutorial.fire
->> Create page "eventMap.html" from source: pages/eventMap.fire
 .isEmpty
 XQCore.List.inherit
 XQCore.List.state
@@ -133,7 +121,6 @@ XQCore.List.clear
 XQCore.List.findOne
 XQCore.List.find
 XQCore.List.each
-
 XQCore.Model.inherit
 XQCore.Model.init
 XQCore.Model.state
@@ -166,22 +153,3 @@ SyncList .emitRemote
 .registerListener
 .emitRemote
 
-XQCore.Utils.dedotify 
-XQCore.Utils.uid
-XQCore.Event .EventListener
-XQCore.Event .remove
-XQCore.Event .EventEmitter
-XQCore.Event .on
-XQCore.Event .once
-XQCore.Event .emit
-XQCore.Event .off
-XQCore.Event .clear
-XQCore.Logger.log
-XQCore.Logger.warn
-XQCore.Logger.error
-XQCore.Logger.debug
-XQCore.Logger.info
-XQCore.Logger.timer
-XQCore.ReadyState.ready
-XQCore.ReadyState.setReady
-XQCore.ReadyState.unsetReady

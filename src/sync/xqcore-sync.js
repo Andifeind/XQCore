@@ -231,7 +231,7 @@
      * To be called when a form was submited in a coupled model
      *
      * This method merges submited form data with model.
-     * If validation doesen't fail, update or save methode have to be called.
+     * If validation doesn't fail, update or save methode have to be called.
      * It calls update if data.id is not undefined, otherwise it calls save
      * Override this function if this behavior isn't desired 
      * 
@@ -250,6 +250,7 @@
                         self.save(data)
                         .then(function(result) {
                             resolve(result);
+                            self.emit('data.submit', result);
                         })
                         .catch(function(err) {
                             reject(err);
@@ -259,6 +260,7 @@
                         self.update(data)
                         .then(function(result) {
                             resolve(result);
+                            self.emit('data.submit', result);
                         })
                         .catch(function(err) {
                             reject(err);
@@ -266,7 +268,6 @@
                     }
                 }
 
-                self.emit('data.submit', data);
             });
         });
         

@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.12.1-205
+ * XQCore - +0.12.1-215
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-11-19
+ * Creation Date: 2015-11-21
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.12.1-205',
+        version: '0.12.1-215',
         
         /**
          * Defines a default route
@@ -318,56 +318,6 @@ var XQCore;
         return XQCore.isEmptyObject(obj);
     };
 
-    /**
-     * Returns a promise object
-     *
-     * the returning object has two extra methods
-     *
-     * `resolve` to resolv the promise
-     * `reject` to reject the promise
-     *
-     * If callback is set it will be called, when promise will be resolved or rejected.
-     * Gets the reject data as first argument and the resolve data as second argument
-     *
-     * @example {js}
-     * var promise = XQCore.promise();
-     * promise.then(function() {
-     *     console.log('Resolve');
-     * });
-     * 
-     * setTimeout(function() {
-     *     promise.resolve();
-     * }, 100);
-     *     
-     * @method promise
-     * @param  {Function} [callback] Callback function, to be called on resolv or rejecting the promise
-     * @return {Object} Returns a promise object
-     */
-    XQCore.promise = function(callback) {
-
-        var s, r;
-        var promise = new Promise(function(resolve, reject) {
-            s = resolve;
-            r = reject;
-        });
-
-        promise.resolve = function(data) {
-            s(data);
-            if (typeof callback === 'function') {
-                callback(null, data);
-            }
-        };
-
-        promise.reject = function(data) {
-            r(data);
-            if (typeof callback === 'function') {
-                callback(data);
-            }
-        };
-
-        return promise;
-    };
-
     //--
     return XQCore;
 }));
@@ -461,6 +411,60 @@ var XQCore;
         }
 
         return str.substr(0, len);
+    };
+
+    /**
+     * Returns a promise object
+     *
+     * the returning object has two extra methods
+     *
+     * `resolve` to resolv the promise
+     * `reject` to reject the promise
+     *
+     * If callback is set it will be called, when promise will be resolved or rejected.
+     * Gets the reject data as first argument and the resolve data as second argument
+     *
+     * @example {js}
+     * var promise = XQCore.promise();
+     * promise.then(function() {
+     *     console.log('Resolve');
+     * });
+     * 
+     * setTimeout(function() {
+     *     promise.resolve();
+     * }, 100);
+     *     
+     * @method promise
+     * @param  {Function} [callback] Callback function, to be called on resolv or rejecting the promise
+     * @return {Object} Returns a promise object
+     */
+    XQCore.promise = function(callback) {
+
+        var s, r;
+        var promise = new Promise(function(resolve, reject) {
+            s = resolve;
+            r = reject;
+        });
+
+        promise.resolve = function(data) {
+            s(data);
+            if (typeof callback === 'function') {
+                callback(null, data);
+            }
+            
+            return promise;
+        };
+
+        promise.reject = function(data) {
+            r(data);
+            if (typeof callback === 'function') {
+                callback(data);
+            }
+            
+            return promise;
+        };
+
+        return promise;
     };
     
 })(XQCore);
@@ -1169,12 +1173,13 @@ var XQCore;
             return log.error('Could not couple model with view. Second arg is not a valid model!');
         }
 
-        log.info('Couple model', model.name, 'with', view.name);
-
         if (model.__coupled) {
+            console.log('UNCOUPLE MODEL', view === model.__coupled.obj);
             model.__coupled.uncouple();
             // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
         }
+
+        log.info('Couple model', model.name, 'with', view.name);
 
         model.__coupled = {
             obj: view,
@@ -1234,12 +1239,12 @@ var XQCore;
             return log.error('Could not couple list with view. Second arg is not a valid list!');
         }
 
-        log.info('Couple list', list.name, 'with', view.name);
-
         if (list.__coupled) {
             list.__coupled.uncouple();
             // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
         }
+
+        log.info('Couple list', list.name, 'with', view.name);
 
         list.__coupled = {
             obj: view,
@@ -1303,12 +1308,13 @@ var XQCore;
             return log.error('Could not couple list with view. Second arg is not a valid model or list!');
         }
 
-        log.info('Couple view', view.name, 'with', model.name);
-
         if (view.__coupled) {
+            console.log('UNCOUPLE VIEW', model === model.__coupled.obj);
             view.__coupled.uncouple();
             // return log.error('Model or List', model.name, 'already coupled with', model.__coupled.obj.name, '. Only one view can be coupled with a model or a list !');
         }
+
+        log.info('Couple view', view.name, 'with', model.name);
 
         view.__coupled = {
             obj: model,
@@ -1689,7 +1695,7 @@ var XQCore;
      * To be called when a form was submited in a coupled model
      *
      * This method merges submited form data with model.
-     * If validation doesen't fail, update or save methode have to be called.
+     * If validation doesn't fail, update or save methode have to be called.
      * It calls update if data.id is not undefined, otherwise it calls save
      * Override this function if this behavior isn't desired 
      * 
@@ -1708,6 +1714,7 @@ var XQCore;
                         self.save(data)
                         .then(function(result) {
                             resolve(result);
+                            self.emit('data.submit', result);
                         })
                         .catch(function(err) {
                             reject(err);
@@ -1717,6 +1724,7 @@ var XQCore;
                         self.update(data)
                         .then(function(result) {
                             resolve(result);
+                            self.emit('data.submit', result);
                         })
                         .catch(function(err) {
                             reject(err);
@@ -1724,7 +1732,6 @@ var XQCore;
                     }
                 }
 
-                self.emit('data.submit', data);
             });
         });
         
@@ -1736,6 +1743,16 @@ var XQCore;
 })(XQCore);
 /**
  * XQCore Model
+ *
+ * This module organizes your data.
+ * A model has different states and changes it on a specific action.
+ *
+ * States:
+ * starting | Before initialization
+ * ready    | Initial state
+ * valid    | Validation was successfull
+ * invalid  | Validation failed
+ * 
  *  
  * @module  XQCore.Model
  * @requires XQCore.Utils
@@ -1885,15 +1902,6 @@ var XQCore;
     };
 
     /**
-     * Init
-     * @deprecated v0.10.0
-     * @method init
-     */
-    Model.prototype.init = function() {
-        console.warn('Model.init is deprecated since v0.10.0');
-    };
-
-    /**
      * Change the model state
      *
      * @method state
@@ -1941,6 +1949,8 @@ var XQCore;
      * @param {String} key
      * @param {Object} value Data value
      * @param {Object} options Options
+     *
+     * @returns {Object} Returns a promise object
      */
     Model.prototype.set = function(key, value, options) {
         var newData = {},
@@ -2043,7 +2053,7 @@ var XQCore;
      * @param {String} key Data key
      * @param {Object} options Set options
      *
-     * @return {Object}     model dataset
+     * @returns {Object}    Returns the whole model or a filtered dataset
      */
     Model.prototype.get = function(key, options) {
         if (options === undefined) {
@@ -2197,7 +2207,7 @@ var XQCore;
         this.log('Reset model');
         var oldData = this.get();
         this.properties = XQCore.extend({}, this.defaults);
-        this.state('starting');
+        this.state('ready');
         if (!options.silent) {
             this.emit('data.reset', oldData);
         }
@@ -3397,10 +3407,10 @@ var XQCore;
             childs.each(function() {
                 var view = $(this).data('view');
                 if (view) {
-                    view.destroy();
+                    view.detach();
                 }
                 else {
-                    $(this).remove();
+                    $(this).detach();
                 }
             });
 
@@ -3562,7 +3572,12 @@ var XQCore;
         
         this.scopes = {
             dataFn: function(path, data) {
-                return '<ftl path="' + path + '">'+data[path]+'</ftl>';
+                var d = data[path];
+                if (d === null || d === undefined) {
+                    d = '';
+                }
+
+                return '<ftl path="' + path + '">'+d+'</ftl>';
             },
             scopeFn: function(scopeId, path, data) {
                 if (path === 'data' && Array.isArray(data)) {
@@ -3724,6 +3739,8 @@ var XQCore;
 
     View.prototype.registerListener = function($el) {
         var self = this;
+
+        console.log('REGISTER VIEW LISTENER');
 
         $el.find('[on]').addBack('[on]').each(function() {
             var $cur = $(this);
@@ -3921,7 +3938,9 @@ var XQCore;
     View.prototype.formSetup = function(model, $el) {
         var self = this;
 
+        console.log('VIEW FORMSET UP INIT');
         this.ready(function() {
+        console.log('VIEW FORMSET UP RUN');
             // var errClassName = 'xq-invalid',
                 // disabledClass = 'xq-disabled';
 
@@ -3965,6 +3984,37 @@ var XQCore;
      */
     View.prototype.onSubmit = function(data, $form) {
         return data;
+    };
+
+    /**
+     * Removes a view from dom but does not unreister its DOM event listener.
+     * This is usefull if you wish to add this view later back into the DOM.
+     * Uncouples itself from a coupled model or list.
+     *
+     * @method  detach
+     *
+     * @fires view.detach Fires a `view.detach` event before view is removing from dom.
+     * @return {[type]} [description]
+     */
+    View.prototype.detach = function() {
+        log.info('Destroy view');
+
+        this.emit('view.detach');
+
+        this.$el.detach();
+
+        if (this.__coupled) {
+            //Uncouple other participate
+            if (this.__coupled.obj.__coupled && this.__coupled.obj.__coupled.obj === this) {
+                this.__coupled.obj.__coupled.uncouple();
+            }
+            
+            this.__coupled.uncouple();
+        }
+
+        //TODO remove all events
+        
+        log.info('View ' + this.name + ' has been destroyed');
     };
 
     /**

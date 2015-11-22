@@ -407,10 +407,10 @@
             childs.each(function() {
                 var view = $(this).data('view');
                 if (view) {
-                    view.destroy();
+                    view.detach();
                 }
                 else {
-                    $(this).remove();
+                    $(this).detach();
                 }
             });
 
@@ -572,7 +572,12 @@
         
         this.scopes = {
             dataFn: function(path, data) {
-                return '<ftl path="' + path + '">'+data[path]+'</ftl>';
+                var d = data[path];
+                if (d === null || d === undefined) {
+                    d = '';
+                }
+
+                return '<ftl path="' + path + '">'+d+'</ftl>';
             },
             scopeFn: function(scopeId, path, data) {
                 if (path === 'data' && Array.isArray(data)) {
@@ -734,6 +739,8 @@
 
     View.prototype.registerListener = function($el) {
         var self = this;
+
+        console.log('REGISTER VIEW LISTENER');
 
         $el.find('[on]').addBack('[on]').each(function() {
             var $cur = $(this);
@@ -931,7 +938,9 @@
     View.prototype.formSetup = function(model, $el) {
         var self = this;
 
+        console.log('VIEW FORMSET UP INIT');
         this.ready(function() {
+        console.log('VIEW FORMSET UP RUN');
             // var errClassName = 'xq-invalid',
                 // disabledClass = 'xq-disabled';
 
@@ -975,6 +984,37 @@
      */
     View.prototype.onSubmit = function(data, $form) {
         return data;
+    };
+
+    /**
+     * Removes a view from dom but does not unreister its DOM event listener.
+     * This is usefull if you wish to add this view later back into the DOM.
+     * Uncouples itself from a coupled model or list.
+     *
+     * @method  detach
+     *
+     * @fires view.detach Fires a `view.detach` event before view is removing from dom.
+     * @return {[type]} [description]
+     */
+    View.prototype.detach = function() {
+        log.info('Destroy view');
+
+        this.emit('view.detach');
+
+        this.$el.detach();
+
+        if (this.__coupled) {
+            //Uncouple other participate
+            if (this.__coupled.obj.__coupled && this.__coupled.obj.__coupled.obj === this) {
+                this.__coupled.obj.__coupled.uncouple();
+            }
+            
+            this.__coupled.uncouple();
+        }
+
+        //TODO remove all events
+        
+        log.info('View ' + this.name + ' has been destroyed');
     };
 
     /**

@@ -211,12 +211,13 @@
             return log.error('Could not couple model with view. Second arg is not a valid model!');
         }
 
-        log.info('Couple model', model.name, 'with', view.name);
-
         if (model.__coupled) {
+            console.log('UNCOUPLE MODEL', view === model.__coupled.obj);
             model.__coupled.uncouple();
             // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
         }
+
+        log.info('Couple model', model.name, 'with', view.name);
 
         model.__coupled = {
             obj: view,
@@ -276,12 +277,12 @@
             return log.error('Could not couple list with view. Second arg is not a valid list!');
         }
 
-        log.info('Couple list', list.name, 'with', view.name);
-
         if (list.__coupled) {
             list.__coupled.uncouple();
             // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
         }
+
+        log.info('Couple list', list.name, 'with', view.name);
 
         list.__coupled = {
             obj: view,
@@ -345,12 +346,13 @@
             return log.error('Could not couple list with view. Second arg is not a valid model or list!');
         }
 
-        log.info('Couple view', view.name, 'with', model.name);
-
         if (view.__coupled) {
+            console.log('UNCOUPLE VIEW', model === model.__coupled.obj);
             view.__coupled.uncouple();
             // return log.error('Model or List', model.name, 'already coupled with', model.__coupled.obj.name, '. Only one view can be coupled with a model or a list !');
         }
+
+        log.info('Couple view', view.name, 'with', model.name);
 
         view.__coupled = {
             obj: model,

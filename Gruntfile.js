@@ -37,7 +37,7 @@ module.exports = function(grunt) {
                     'src/xqcore-readystate.js',
                     'src/xqcore-presenter.js',
                     'src/sync/xqcore-sync.js',
-                    'src/model/xqcore-model.js',
+                    'src/xqcore-model.js',
                     'src/getset/xqcore-getset.js',
                     'src/tmpl/xqcore-tmpl.js',
                     'src/xqcore-view.js',

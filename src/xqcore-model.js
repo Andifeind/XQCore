@@ -1,5 +1,15 @@
 /**
  * XQCore Model
+ *
+ * This module organizes your data.
+ * A model has different states and changes it on a specific action.
+ *
+ * States:
+ * starting | Before initialization
+ * ready    | Initial state
+ * valid    | Validation was successfull
+ * invalid  | Validation failed
+ * 
  *  
  * @module  XQCore.Model
  * @requires XQCore.Utils
@@ -149,15 +159,6 @@
     };
 
     /**
-     * Init
-     * @deprecated v0.10.0
-     * @method init
-     */
-    Model.prototype.init = function() {
-        console.warn('Model.init is deprecated since v0.10.0');
-    };
-
-    /**
      * Change the model state
      *
      * @method state
@@ -205,6 +206,8 @@
      * @param {String} key
      * @param {Object} value Data value
      * @param {Object} options Options
+     *
+     * @returns {Object} Returns a promise object
      */
     Model.prototype.set = function(key, value, options) {
         var newData = {},
@@ -307,7 +310,7 @@
      * @param {String} key Data key
      * @param {Object} options Set options
      *
-     * @return {Object}     model dataset
+     * @returns {Object}    Returns the whole model or a filtered dataset
      */
     Model.prototype.get = function(key, options) {
         if (options === undefined) {
@@ -461,7 +464,7 @@
         this.log('Reset model');
         var oldData = this.get();
         this.properties = XQCore.extend({}, this.defaults);
-        this.state('starting');
+        this.state('ready');
         if (!options.silent) {
             this.emit('data.reset', oldData);
         }

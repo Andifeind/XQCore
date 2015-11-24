@@ -35,8 +35,8 @@ module.exports = function(grunt) {
                     'src/xqcore-logger.js',
                     'src/xqcore-event.js',
                     'src/xqcore-readystate.js',
-                    'src/xqcore-presenter.js',
                     'src/sync/xqcore-sync.js',
+                    'src/xqcore-presenter.js',
                     'src/xqcore-model.js',
                     'src/getset/xqcore-getset.js',
                     'src/tmpl/xqcore-tmpl.js',
@@ -47,7 +47,8 @@ module.exports = function(grunt) {
                     'src/xqcore-socket.js',
                     'src/syncmodel/xqcore-syncmodel.js',
                     'src/list/xqcore-list.js',
-                    'src/synclist/xqcore-synclist.js'
+                    'src/synclist/xqcore-synclist.js',
+                    'src/xqcore-service.js'
                 ],
                 dest: 'xqcore.js'
             }

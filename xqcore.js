@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.12.1-215
+ * XQCore - +0.12.1-224
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-11-21
+ * Creation Date: 2015-11-24
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.12.1-215',
+        version: '0.12.1-224',
         
         /**
          * Defines a default route
@@ -462,6 +462,28 @@ var XQCore;
             }
             
             return promise;
+        };
+
+        var chain = [];
+
+        promise.push = function(fn) {
+            chain.push(fn);
+            return this;
+        };
+
+        promise.each = function(data) {
+            var p = chain.shift();
+            if (p === null) {
+                return promise.resolve(data);
+            }
+
+            p(data).then(function(data) {
+                promise.each(data);
+            }).catch(function(err) {
+                promise.reject(err);
+            });
+
+            return this;
         };
 
         return promise;
@@ -961,6 +983,285 @@ var XQCore;
 })(XQCore);
 
 /**
+ * XQCore.Sync
+ *
+ * @module  XQCore.Sync
+ */
+(function(XQCore, undefined) {
+    'use strict';
+
+    var $ = XQCore.require('jquery');
+
+    var Sync = function() {
+        /**
+         * Sets a server URI
+         *
+         * This URI is used by all send methods as default server URI
+         * @property {String} server
+         */
+        this.server = null;
+
+    };
+
+    /**
+     * Called on before sending an ajax request
+     * You can use this function to manipulate all data they be send to the server
+     *
+     * @param {Object} data The data to send to the server
+     * @return {Object} data
+     */
+    Sync.prototype.onSend = function(data) {
+        return data;
+    };
+
+    /**
+     * Send an ajax request to the webserver.
+     *
+     * You must set the server URI first with model.server = 'http://example.com/post'
+     *
+     * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
+     * @param {String} url Server URL (optional, then model.server must be set)
+     * @param {Object} data The data to sent to the server
+     * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
+     */
+    Sync.prototype.send = function(method, url, data, callback) {
+        var self = this;
+
+        if (typeof url === 'object') {
+            callback = data;
+            data = url;
+            url = this.server;
+            method = method;
+        }
+        else if (typeof data === 'function') {
+            callback = data;
+            data = this.toJSON ? this.toJSON() : null;
+        }
+        else if (data === undefined) {
+            data = this.toJSON ? this.toJSON() : null;
+        }
+
+        if (method === undefined) {
+            method = 'POST';
+        }
+
+        if (!url) {
+            url = this.server;
+        }
+
+        if (method === 'GET' && Array.isArray(data)) {
+            url = url.replace(/\/$/, '') + '/' + data.join('/');
+            data = null;
+        }
+
+        //Handle onSend
+        if (typeof this.onSend === 'function') {
+            data = this.onSend.call(this, data);
+        }
+
+        this.log('Send an ajax call to ', url, 'with data: ', data);
+        this.state('syncing');
+
+        var promise = new Promise(function(resolve, reject) {
+            $.ajax({
+                url: url,
+                type: method,
+                data: XQCore.isEmpty(data) ? null : JSON.stringify(data),
+                dataType: 'json',
+                contentType: 'application/json',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                success: function(data, status, jqXHR) {
+                    if (typeof callback === 'function') {
+                        callback.call(self, null, data, status, jqXHR);
+                    }
+                    self.state('success');
+                    resolve(data);
+                },
+                error: function(jqXHR, status, error) {
+                    if (typeof callback === 'function') {
+                        callback.call(self, {
+                            type: status,
+                            http: error
+                        }, null, status, jqXHR);
+                    }
+                    self.state('failed');
+                    reject({
+                        type: status,
+                        http: error
+                    });
+                }
+            });
+        });
+
+        return promise;
+    };
+
+    /**
+     * Sends a POST to the Datastore
+     *
+     * @param {String} url Server URL (optional, then model.server must be set)
+     * @param  {Object}   data     Dato to sending
+     * @param  {Function} callback Calling on response
+     *
+     * callback: void function(err, data, status, jqXHR)
+     *
+     */
+    Sync.prototype.sendPOST = function(url, data, callback) {
+        return this.send('POST', url, data, callback);
+    };
+
+    /**
+     * Sends a GET to the Datastore
+     *
+     * @param {String} url Server URL (optional, then model.server must be set)
+     * @param  {Object}   data     Dato to sending
+     * @param  {Function} callback Calling on response
+     *
+     * callback: void function(err, data, status, jqXHR)
+     *
+     */
+    Sync.prototype.sendGET = function(url, data, callback) {
+        return this.send('GET', url, data, callback);
+    };
+
+    /**
+     * Sends a PUT to the Datastore
+     *
+     * @param {String} url Server URL (optional, then model.server must be set)
+     * @param  {Object}   data     Dato to sending
+     * @param  {Function} callback Calling on response
+     *
+     * callback: void function(err, data, status, jqXHR)
+     *
+     */
+    Sync.prototype.sendPUT = function(url, data, callback) {
+        return this.send('PUT', url, data, callback);
+    };
+
+    /**
+     * Sends a DELETE to the Datastore
+     *
+     * @param {String} url Server URL (optional, then model.server must be set)
+     * @param  {Object}   data     Dato to sending
+     * @param  {Function} callback Calling on response
+     *
+     * callback: void function(err, data, status, jqXHR)
+     *
+     */
+    Sync.prototype.sendDELETE = function(url, data, callback) {
+        return this.send('DELETE', url, data, callback);
+    };
+
+    /**
+     * Fetch data from server
+     *
+     * @param {Object} query MongoDB query 
+     * @param {Function} callback Callback function
+     */
+    Sync.prototype.fetch = function(query, callback) {
+        return this.sendGET(query, callback);
+    };
+
+    /**
+     * Save a model if it's valid
+     */
+    Sync.prototype.save = function(data, callback) {
+        if (typeof data === 'function') {
+            callback = data;
+            data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.toJSON();
+        }
+
+        if (this.isValid()) {
+            return this.sendPOST(data, callback);
+        }
+        else {
+            if (typeof callback === 'function') {
+                callback({
+                    msg: 'Model isn\'t valid. Cancle save'
+                });
+            }
+            else {
+                return Promise.reject({
+                    msg: 'Model isn\'t valid. Cancle save'
+                });
+            }
+        }
+    };
+
+    /**
+     * Update a model if it's valid
+     */
+    Sync.prototype.update = function(data, callback) {
+        if (typeof data === 'function') {
+            callback = data;
+            data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.toJSON();
+        }
+
+        if (this.isValid()) {
+            this.sendPUT(data, callback);
+        }
+        else {
+            if (typeof callback === 'function') {
+                callback({
+                    msg: 'Model isn\'t valid. Cancel update'
+                });
+            }
+        }
+    };
+
+    /**
+     * To be called when a form was submited in a coupled model
+     *
+     * This method merges submited form data with model.
+     * If validation doesn't fail, update or save methode have to be called.
+     * It calls update if data.id is not undefined, otherwise it calls save
+     * Override this function if this behavior isn't desired 
+     * 
+     * @method sync
+     * @override
+     * @param  {Any} data     data
+     */
+    Sync.prototype.submit = function(data) {
+        var self = this;
+
+        var promise = new Promise(function(resolve, reject) {
+            self.set(data, { extend: true })
+            .then(function() {
+                if (self.server) {
+                    if (self.get('id') === undefined || self.get('id') === null) {
+                        self.save(data)
+                        .then(function(result) {
+                            resolve(result);
+                            self.emit('data.submit', result);
+                        })
+                        .catch(function(err) {
+                            reject(err);
+                        });
+                    }
+                    else {
+                        self.update(data)
+                        .then(function(result) {
+                            resolve(result);
+                            self.emit('data.submit', result);
+                        })
+                        .catch(function(err) {
+                            reject(err);
+                        });
+                    }
+                }
+
+            });
+        });
+        
+        return promise;
+    };
+
+    XQCore.Sync = Sync;
+
+})(XQCore);
+/**
  * XQCore Presenter
  *
  * A presenter controlls your models, lists and views.
@@ -1455,6 +1756,8 @@ var XQCore;
         return this;
     };
 
+    Presenter.prototype.send = XQCore.Sync.prototype.send;
+
     /**
      * Return Presenter
      */
@@ -1462,285 +1765,6 @@ var XQCore;
 
 })(XQCore);
 
-/**
- * XQCore.Sync
- *
- * @module  XQCore.Sync
- */
-(function(XQCore, undefined) {
-    'use strict';
-
-    var $ = XQCore.require('jquery');
-
-    var Sync = function() {
-        /**
-         * Sets a server URI
-         *
-         * This URI is used by all send methods as default server URI
-         * @property {String} server
-         */
-        this.server = null;
-
-    };
-
-    /**
-     * Called on before sending an ajax request
-     * You can use this function to manipulate all data they be send to the server
-     *
-     * @param {Object} data The data to send to the server
-     * @return {Object} data
-     */
-    Sync.prototype.onSend = function(data) {
-        return data;
-    };
-
-    /**
-     * Send an ajax request to the webserver.
-     *
-     * You must set the server URI first with model.server = 'http://example.com/post'
-     *
-     * @param {String} Method send method, GET, POST, PUT, DELETE (default POST)
-     * @param {String} url Server URL (optional, then model.server must be set)
-     * @param {Object} data The data to sent to the server
-     * @param {Function} callback Calls callback(err, data, status, jqXHR) if response was receiving
-     */
-    Sync.prototype.send = function(method, url, data, callback) {
-        var self = this;
-
-        if (typeof url === 'object') {
-            callback = data;
-            data = url;
-            url = this.server;
-            method = method;
-        }
-        else if (typeof data === 'function') {
-            callback = data;
-            data = this.toJSON();
-        }
-        else if (data === undefined) {
-            data = this.toJSON();
-        }
-
-        if (method === undefined) {
-            method = 'POST';
-        }
-
-        if (!url) {
-            url = this.server;
-        }
-
-        if (method === 'GET' && Array.isArray(data)) {
-            url = url.replace(/\/$/, '') + '/' + data.join('/');
-            data = null;
-        }
-
-        //Handle onSend
-        if (typeof this.onSend === 'function') {
-            data = this.onSend.call(this, data);
-        }
-
-        this.log('Send an ajax call to ', url, 'with data: ', data);
-        this.state('syncing');
-
-        var promise = new Promise(function(resolve, reject) {
-            $.ajax({
-                url: url,
-                type: method,
-                data: XQCore.isEmpty(data) ? null : JSON.stringify(data),
-                dataType: 'json',
-                contentType: 'application/json',
-                headers: {
-                    'Accept': 'application/json'
-                },
-                success: function(data, status, jqXHR) {
-                    if (typeof callback === 'function') {
-                        callback.call(self, null, data, status, jqXHR);
-                    }
-                    self.state('success');
-                    resolve(data);
-                },
-                error: function(jqXHR, status, error) {
-                    if (typeof callback === 'function') {
-                        callback.call(self, {
-                            type: status,
-                            http: error
-                        }, null, status, jqXHR);
-                    }
-                    self.state('failed');
-                    reject({
-                        type: status,
-                        http: error
-                    });
-                }
-            });
-        });
-
-        return promise;
-    };
-
-    /**
-     * Sends a POST to the Datastore
-     *
-     * @param {String} url Server URL (optional, then model.server must be set)
-     * @param  {Object}   data     Dato to sending
-     * @param  {Function} callback Calling on response
-     *
-     * callback: void function(err, data, status, jqXHR)
-     *
-     */
-    Sync.prototype.sendPOST = function(url, data, callback) {
-        return this.send('POST', url, data, callback);
-    };
-
-    /**
-     * Sends a GET to the Datastore
-     *
-     * @param {String} url Server URL (optional, then model.server must be set)
-     * @param  {Object}   data     Dato to sending
-     * @param  {Function} callback Calling on response
-     *
-     * callback: void function(err, data, status, jqXHR)
-     *
-     */
-    Sync.prototype.sendGET = function(url, data, callback) {
-        return this.send('GET', url, data, callback);
-    };
-
-    /**
-     * Sends a PUT to the Datastore
-     *
-     * @param {String} url Server URL (optional, then model.server must be set)
-     * @param  {Object}   data     Dato to sending
-     * @param  {Function} callback Calling on response
-     *
-     * callback: void function(err, data, status, jqXHR)
-     *
-     */
-    Sync.prototype.sendPUT = function(url, data, callback) {
-        return this.send('PUT', url, data, callback);
-    };
-
-    /**
-     * Sends a DELETE to the Datastore
-     *
-     * @param {String} url Server URL (optional, then model.server must be set)
-     * @param  {Object}   data     Dato to sending
-     * @param  {Function} callback Calling on response
-     *
-     * callback: void function(err, data, status, jqXHR)
-     *
-     */
-    Sync.prototype.sendDELETE = function(url, data, callback) {
-        return this.send('DELETE', url, data, callback);
-    };
-
-    /**
-     * Fetch data from server
-     *
-     * @param {Object} query MongoDB query 
-     * @param {Function} callback Callback function
-     */
-    Sync.prototype.fetch = function(query, callback) {
-        return this.sendGET(query, callback);
-    };
-
-    /**
-     * Save a model if it's valid
-     */
-    Sync.prototype.save = function(data, callback) {
-        if (typeof data === 'function') {
-            callback = data;
-            data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.toJSON();
-        }
-
-        if (this.isValid()) {
-            return this.sendPOST(data, callback);
-        }
-        else {
-            if (typeof callback === 'function') {
-                callback({
-                    msg: 'Model isn\'t valid. Cancle save'
-                });
-            }
-            else {
-                return Promise.reject({
-                    msg: 'Model isn\'t valid. Cancle save'
-                });
-            }
-        }
-    };
-
-    /**
-     * Update a model if it's valid
-     */
-    Sync.prototype.update = function(data, callback) {
-        if (typeof data === 'function') {
-            callback = data;
-            data = this.schema ? this.getByKeys(Object.keys(this.schema)) : this.toJSON();
-        }
-
-        if (this.isValid()) {
-            this.sendPUT(data, callback);
-        }
-        else {
-            if (typeof callback === 'function') {
-                callback({
-                    msg: 'Model isn\'t valid. Cancel update'
-                });
-            }
-        }
-    };
-
-    /**
-     * To be called when a form was submited in a coupled model
-     *
-     * This method merges submited form data with model.
-     * If validation doesn't fail, update or save methode have to be called.
-     * It calls update if data.id is not undefined, otherwise it calls save
-     * Override this function if this behavior isn't desired 
-     * 
-     * @method sync
-     * @override
-     * @param  {Any} data     data
-     */
-    Sync.prototype.submit = function(data) {
-        var self = this;
-
-        var promise = new Promise(function(resolve, reject) {
-            self.set(data, { extend: true })
-            .then(function() {
-                if (self.server) {
-                    if (data.id === undefined || data.id === null) {
-                        self.save(data)
-                        .then(function(result) {
-                            resolve(result);
-                            self.emit('data.submit', result);
-                        })
-                        .catch(function(err) {
-                            reject(err);
-                        });
-                    }
-                    else {
-                        self.update(data)
-                        .then(function(result) {
-                            resolve(result);
-                            self.emit('data.submit', result);
-                        })
-                        .catch(function(err) {
-                            reject(err);
-                        });
-                    }
-                }
-
-            });
-        });
-        
-        return promise;
-    };
-
-    XQCore.Sync = Sync;
-
-})(XQCore);
 /**
  * XQCore Model
  *
@@ -2441,15 +2465,15 @@ var XQCore;
     };
 
     /**
-     * Update a dataset
+     * Updates a dataset
      * @development
      * 
-     * @method update
+     * @method modify
      * @param {String} path Parent path
-     * @param {Number|Object} match Search match or index to find the to be updated item
+     * @param {Number|Object} match Search match or index to find the to be modifyd item
      * @param {Object} data Update date
      */
-    Model.prototype.update = function(path, match, data, options) {
+    Model.prototype.modify = function(path, match, data, options) {
         var item;
 
         options = options || {};
@@ -2466,12 +2490,12 @@ var XQCore;
             XQCore.extend(item, data);
 
             if (options.silent !== true) {
-                this.emit('data.update', path, match, data, oldData);
+                this.emit('data.modify', path, match, data, oldData);
                 this.emit('data.change', this.properties);
             }
 
             if (!options.noSync && typeof this.sync === 'function') {
-                this.sync('update', path, match, data);
+                this.sync('modify', path, match, data);
             }
         }
     };
@@ -3343,6 +3367,11 @@ var XQCore;
      * @override
      */
     View.prototype.onStateChange = function(state) {
+        if (!this.el) {
+            this.__initialState = state;
+            return;
+        }
+
         var classNames = this.el.className.split(' ');
         classNames = classNames.filter(function(cssClass) {
             return !/^xq-state-/.test(cssClass);
@@ -4169,6 +4198,11 @@ var XQCore;
 
             if (self.forms) {
                 self.formSetup();
+            }
+
+            if (self.__initialState) {
+                self.onStateChange(self.__initialState);
+                delete self.__initialState;
             }
         });
     };
@@ -5807,4 +5841,148 @@ var XQCore;
     };
 
     XQCore.SyncList = SyncList;
+})(XQCore);
+/**
+ * XQCore Service
+ *
+ * This module organizes your data.
+ * A model has different states and changes it on a specific action.
+ *
+ * States:
+ * starting | Before initialization
+ * ready    | Initial state
+ * valid    | Validation was successfull
+ * invalid  | Validation failed
+ * 
+ *  
+ * @module  XQCore.Service
+ * @requires XQCore.Utils
+ * @requires XQCore.Event
+ * @requires XQCore.Logger
+ */
+(function(XQCore, undefined) {
+    'use strict';
+    var Service;
+
+    /**
+     * XQCore.Service base class
+     *
+     * @class XQCore.Service
+     * @constructor
+     *
+     * @uses XQCore.Logger
+     * @uses XQCore.Event
+     *
+     * @param {Object} conf Service extend object
+     */
+    Service = function(name, conf) {
+        //Call Event constructor
+        XQCore.Event.call(this);
+        
+        if (typeof arguments[0] === 'object') {
+            conf = name;
+            name = conf.name;
+        }
+
+        /**
+         * Enable debug mode
+         * @public
+         * @type {Boolean}
+         */
+        this.logLevel = XQCore.logLevel;
+
+        if (conf === undefined) {
+            conf = {};
+        }
+
+        if (typeof conf === 'function') {
+            conf.call(this, this);
+        }
+        else {
+            XQCore.extend(this, conf);
+        }
+
+        this.conf = conf;
+
+        this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
+        
+        this.__state = 'ready';
+    };
+
+
+    //Extend with ready state
+    // XQCore.extend(Service.prototype, XQCore.ReadyState.prototype);
+    // XQCore.extend(Service.prototype, XQCore.Event.prototype);
+
+    XQCore.extend(Service.prototype, XQCore.Event.prototype);
+    XQCore.extend(Service.prototype, new XQCore.Logger());
+    XQCore.extend(Service.prototype, XQCore.Sync.prototype);
+
+
+    /**
+     * Inherits a model prototype
+     * @method inherit
+     * @param  {String} name    model name
+     * @param  {Object} options Service properties
+     * @return {Object}         Returns a XQCore.Service prototype
+     */
+    Service.inherit = function(name, options) {
+        if (typeof name === 'object') {
+            options = name;
+            name = undefined;
+        }
+
+        var Proto = function(_name, _options) {
+            //TODO call this later, ready state will be set before _options had been run
+            XQCore.Service.call(this, name, options);
+
+            if (_name) {
+                if (typeof _name === 'string') {
+                    name = _name;
+                }
+                else {
+                    _options = _name;
+                }
+
+                if (typeof _options === 'function') {
+                    _options.call(this, this);
+                }
+                else if (typeof _options === 'object') {
+                    XQCore.extend(this, _options);
+                }
+            }
+        };
+
+        Proto.prototype = Object.create(XQCore.Service.prototype);
+        Proto.prototype.constructor = Proto;
+        return Proto;
+    };
+
+    /**
+     * Change the model state
+     *
+     * @method state
+     * @param {String} state New state
+     */
+    Service.prototype.state = function(state) {
+        this.__state = state;
+        this.emit('state.' + state);
+        this.emit('state.change', state);
+    };
+
+    /**
+     * Get the current model state
+     *
+     * @method getState
+     */
+    Service.prototype.getState = function() {
+        return this.__state;
+    };
+    
+
+    // Service.prototype.toJSON = function() {
+    //     return {};
+    // };
+
+    XQCore.Service = Service;
 })(XQCore);

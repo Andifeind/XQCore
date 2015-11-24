@@ -343,6 +343,11 @@
      * @override
      */
     View.prototype.onStateChange = function(state) {
+        if (!this.el) {
+            this.__initialState = state;
+            return;
+        }
+
         var classNames = this.el.className.split(' ');
         classNames = classNames.filter(function(cssClass) {
             return !/^xq-state-/.test(cssClass);
@@ -1169,6 +1174,11 @@
 
             if (self.forms) {
                 self.formSetup();
+            }
+
+            if (self.__initialState) {
+                self.onStateChange(self.__initialState);
+                delete self.__initialState;
             }
         });
     };

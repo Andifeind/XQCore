@@ -139,6 +139,28 @@
             return promise;
         };
 
+        var chain = [];
+
+        promise.push = function(fn) {
+            chain.push(fn);
+            return this;
+        };
+
+        promise.each = function(data) {
+            var p = chain.shift();
+            if (p === null) {
+                return promise.resolve(data);
+            }
+
+            p(data).then(function(data) {
+                promise.each(data);
+            }).catch(function(err) {
+                promise.reject(err);
+            });
+
+            return this;
+        };
+
         return promise;
     };
     

@@ -698,15 +698,15 @@
     };
 
     /**
-     * Update a dataset
+     * Updates a dataset
      * @development
      * 
-     * @method update
+     * @method modify
      * @param {String} path Parent path
-     * @param {Number|Object} match Search match or index to find the to be updated item
+     * @param {Number|Object} match Search match or index to find the to be modifyd item
      * @param {Object} data Update date
      */
-    Model.prototype.update = function(path, match, data, options) {
+    Model.prototype.modify = function(path, match, data, options) {
         var item;
 
         options = options || {};
@@ -723,12 +723,12 @@
             XQCore.extend(item, data);
 
             if (options.silent !== true) {
-                this.emit('data.update', path, match, data, oldData);
+                this.emit('data.modify', path, match, data, oldData);
                 this.emit('data.change', this.properties);
             }
 
             if (!options.noSync && typeof this.sync === 'function') {
-                this.sync('update', path, match, data);
+                this.sync('modify', path, match, data);
             }
         }
     };

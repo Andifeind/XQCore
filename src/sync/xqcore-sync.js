@@ -51,10 +51,10 @@
         }
         else if (typeof data === 'function') {
             callback = data;
-            data = this.toJSON();
+            data = this.toJSON ? this.toJSON() : null;
         }
         else if (data === undefined) {
-            data = this.toJSON();
+            data = this.toJSON ? this.toJSON() : null;
         }
 
         if (method === undefined) {
@@ -246,7 +246,7 @@
             self.set(data, { extend: true })
             .then(function() {
                 if (self.server) {
-                    if (data.id === undefined || data.id === null) {
+                    if (self.get('id') === undefined || self.get('id') === null) {
                         self.save(data)
                         .then(function(result) {
                             resolve(result);

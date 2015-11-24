@@ -493,6 +493,8 @@
         return this;
     };
 
+    Presenter.prototype.send = XQCore.Sync.prototype.send;
+
     /**
      * Return Presenter
      */

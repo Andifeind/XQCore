@@ -1,0 +1,12 @@
+form onSubmit=add-item
+	p
+		select name=kind
+			option value=fruits
+				Fruits
+			option value=vegetables
+				Vegetables
+	
+		input type=text name=name
+	p
+		button type=submit
+			Submit

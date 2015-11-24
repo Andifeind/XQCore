@@ -1,0 +1,137 @@
+v0.7.0
+	- Tmpl and Hbs
+
+v0.8.0
+	
+	- DONE - Better view inject
+	- Use FireTPL scope tags
+	- Event logging
+
+
+Tests:
+	- Comparsion with other frameworks
+	- Green unit tests
+	- Tests for all components
+
+Docu:
+	- Main
+	- Presenter
+		- Routing
+		- Load views
+	- Model
+		- Sync
+	- View
+	- Event
+	- SyncModel
+	- Template Engines
+	- Utils
+	- Config
+	- CLI
+
+Model
+    - groupBy method ( Example: devopts browserListingModel )
+    - mapReduce method
+    - distinct method ( Make an array unique )
+Routing
+	- PopStateEvent not supportet in old browsers (e.g <= Android 4)
+
+XQArray ( Extended Array Object )
+
+Tmpl
+	- Animations
+	- Drag n Drop support
+	- Inline functions
+	- DONE - i18n support
+Logging
+	- Global log levels
+
+Tools
+	- DONE - Precompiler
+	- HTML/Hbs to Tmpl
+
+v2.0.0
+	- data cache
+
+
+
+------------------------------------ T·O·D·O ------------------------------------
+
+o Find all Components
+   o Routes
+   o Forms
+   o Views
+   o Model states
+o Document Modules
+   o Document Core
+   o Document Presenter
+   o Document Model
+   o Document View
+   o Document Event
+   ✔ Document Logger
+   o Document Router
+   ✔ Document Socket
+   o Document Sync
+   o Document Syncmodel
+   o Document Tmpl
+   o Document Utils
+o Fix skiped tests
+   o Core tests
+   o Presenter tests
+   ✔ Model tests
+   o View tests
+   o Event tests
+   ✔ Logger tests
+   o Router tests
+   o Socket tests
+   o Sync tests
+   o Syncmodel tests
+   o Tmpl tests
+   o Utils tests
+o Increase code coverage
+   o Core coverage more than 80%
+   o Presenter coverage more than 80%
+   ✔ Model coverage more than 80%
+   o View coverage more than 80%
+   o Event coverage more than 80%
+   ✔ Logger coverage more than 80%
+   o Router coverage more than 80%
+   o Socket coverage more than 80%
+   o Sync coverage more than 80%
+   o Syncmodel coverage more than 80%
+   o Tmpl coverage more than 80%
+   o Utils coverage more than 80%
+o Examples for all Components
+   o Write examples for Core
+   o Write examples for Presenter
+   o Write examples for Model
+   o Write examples for View
+   o Write examples for Event
+   o Write examples for Logger
+   o Write examples for Router
+   o Write examples for Socket
+   o Write examples for Sync
+   o Write examples for Syncmodel
+   o Write examples for Tmpl
+   o Write examples for Utils
+o Document Tools
+o Make comparsions with other Frameworks
+o Add tests to build progress
+
+o Publish on github
+o Publish XQNode on github
+
+
+User Guide
+----------
+
+o Including
+o Core features
+o Logging
+o Components (Presenter, Lists, Models and Views)
+o Using routes
+o Our first presenter
+o Say Hello, using views (FireTPL, HBS)
+o List or model?
+o Events
+o Using Forms
+o Stay syncron

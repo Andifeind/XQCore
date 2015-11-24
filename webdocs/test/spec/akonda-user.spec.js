@@ -1,1 +1,0 @@
-/home/andi/Webprojects/akonda/webdocs/js/akonda-user.spec.js

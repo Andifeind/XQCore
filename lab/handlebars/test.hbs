@@ -1,0 +1,14 @@
+<div class="{{className}}">
+	{{#if details}}
+		Hello World!
+	{{else}}
+		Good by World!
+	{{/if}}
+
+	<h1>Each</h1>
+	<ul class="listing">
+	{{#each listing}}
+		<li>{{name}}, {{surname}}</li>
+	{{/each}}
+	</ul>
+</div>

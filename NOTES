@@ -1,0 +1,124 @@
+* Model state
+model.state(<String state>)
+Setzt einen model state. Gekoppelte views können den State verarbeiten.
+Jedes model.state feuert ein state.mystate event
+
+States:
+ - none		Default state
+ - ready		State after init was done
+ - syncing		On sending a request
+ - progress		On doing a long job
+ - success		On server result or long job was success
+ - invalid		On validation failed
+ - valid		On validation succeeds
+ - failed		On request to server or long job failed
+
+
+Gekoppelt:
+presenter lauscht auf state.mystate und ruft dann in der view onStateChange auf
+
+
+Form cyclus:
+-----------------------------------------------------------------------------------------
+Action                      Model state                           Model event
+
+Render Form                 ready
+Submit, validation failed   invalid
+Submit, validation succeeds valid
+Sync with BE                syncing
+Sync was success            success
+Sync failed                 failed
+
+
+
+* Leite events an die view
+Gekoppelt:
+in der view wird auf ein event gelauscht.
+events: {
+	'submit #myform': 'createItem'
+}
+
+sofern createItem im presenter nicht existiert leite an model weiter und rufe dort createItem als funktion auf. Übergeben wird nur data.
+
+model.createItem = function(data) {
+	
+}
+
+
+* Events
+
+Model func                       Event                 View func        -------------------------------------------------------------------------------
+ set(data)					             data.change           render
+ set(key, data)			 	          *item.change          *update
+~append(path, data)			        *subset.append        *append
+~prepend(path, data)			      *subset.prepend       *prepend
+~remove(path, index)			      *subset.remove        *remove
+*insert(path, index, data)	    *subset.insert        *insert
+
+
+
+Parse
+- - - - - - - - - - - - - - - - - - -
+Template:
+
+<h1 id="item001">$title</h1>
+<div class="listingContainer">
+  <if $listing id="scope001">
+    <h2>Listing>
+    <each $listing class="scope002">
+      <if $image class="scope003">
+        <img src="$image" id="item002">
+      </if>
+      <span class="name" id="item003">$name</span>
+    </each>
+  </if>
+</div>
+
+title {
+  item001: Object
+}
+
+listing: {
+  scope001: Object
+  scope002: Object
+}
+
+listing[].image: {
+  scope003: Object,
+  item002: Object
+}
+
+listing[].name: {
+  item003: Object
+}
+
+change:title => title.item001.replaceWith(value);
+listing:change => listing.scope001.replaceWith(value);
+listing:change => listing.scope002.replaceWith(value);
+
+listing:append => listing.scope001 ignore
+listing:append => listing.scope002.replaceWith(value);
+
+
+Model live cicle:
+-----------------
+
+
+Action      | Method          |  State |  Events
+----------------------------------------
+      Fetch | set             |  data.change
+                              |  data.replace
+
+
+Form Submit | setData => set  |  validation.error
+
+Form Submit | setData => set  |  data.change
+                              |  data.replace
+                              |  -> sync()
+
+
+
+Sync Events       Sync method        Sync event
+---------------------------------------------------
+data.change
+

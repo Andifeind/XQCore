@@ -1,0 +1,9 @@
+div class=example
+	h1 $title
+	div class=description
+		$description
+	:each $listing : ul class=listing
+		li
+			span class=name $name
+			:if $image : span class=image
+				img src=$image

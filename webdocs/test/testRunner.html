@@ -1,22 +1,23 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Core Test Runner</title>
+  <title>XQCore Test Runner</title>
   <link rel="stylesheet" href="mocha/mocha.css" />
   <link rel="stylesheet" href="jscov/reporter.css" />
-  <link rel="stylesheet" href="core-testrunner.css" />
+  <link rel="stylesheet" href="xqcore-testrunner.css" />
 </head>
 <body>
   
-  <!-- <div id="navigation">
-    <a href="http://akonda.lc:3000/test/testRunner.html" class="active">Akonda Test runner</a>
+  <div id="navigation">
+    <a href="http://akonda.lc:3000/test/testRunner.html">Akonda Test runner</a>
     <a href="http://apps.akonda.lc:3001/test/testRunner.html">Akonda Apps Test runner</a>
+    <a href="http://xqcore.lc/test/testRunner.html" class="active">XQCore Test runner</a>
     <form style="display: inline">
       <label for="enableCoverage">
         <input type="checkbox" id="enableCoverage" value="1" /> Enable Coverage
       </label>
     </form>
-  </div> -->
+  </div>
 
   <div id="mocha"></div>
   <div id="coverage"></div> 
@@ -31,16 +32,28 @@
   <script type="text/javascript" src="mocha/expect.js"></script>
   <script type="text/javascript" src="mocha/jquery.expect.js"></script>
   <script type="text/javascript" src="mocha/sinon.js"></script>
+  <script type="text/javascript" src="mocha/sinon-expect.js"></script>
   <script type="text/javascript" src="mocha/mocha.js"></script>
-  <script type="text/javascript" src="http://files.akonda.lc/js/EventEmitter.js"></script>
+  <script type="text/javascript" src="mocha/mocha-globals.js"></script>
+  <script type="text/javascript" src="/lib/EventEmitter.js"></script>
+  <script type="text/javascript" src="/lib/handlebars.js"></script>
+  <script type="text/javascript" src="/lib/history.js"></script>
   <script type="text/javascript">mocha.setup('bdd')</script>
 
   <script type="text/javascript">
     var files = [
-      'core'
+      'xqcore-core',
+      'xqcore-event',
+      'xqcore-logger',
+      'xqcore-getset',
+      'xqcore-presenter',
+      'xqcore-model',
+      'xqcore-view',
+      'xqcore-util',
+      'xqcore-router'
     ];
 
-    var withCoverage = localStorage.getItem('core-test-with-coverage') || false;
+    var withCoverage = localStorage.getItem('xqcore-test-with-coverage') || false;
 
     if (withCoverage) {
       document.getElementById('enableCoverage').checked = true;
@@ -48,10 +61,10 @@
 
     document.getElementById('enableCoverage').addEventListener('change', function() {
       if (document.getElementById('enableCoverage').checked) {
-        localStorage.setItem('core-test-with-coverage', true);
+        localStorage.setItem('xqcore-test-with-coverage', true);
       }
       else {
-       localStorage.removeItem('core-test-with-coverage'); 
+       localStorage.removeItem('xqcore-test-with-coverage'); 
       }
     });
 
@@ -66,6 +79,7 @@
       }
     });
   </script>
+  <script type="text/javascript" src="spec/instance-tests.spec.js"></script>
 
   <script type="text/javascript">
     if (withCoverage) {

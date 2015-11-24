@@ -1,0 +1,9 @@
+h1
+	Main View
+button type=button onClick=show-fruits data-key=1
+	Fruits
+button type=button onClick=show-vegetables data-key=1
+	Vegetables
+button type=button onClick=show-add data-key=1
+	+ Add item
+div class=listing

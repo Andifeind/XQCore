@@ -212,7 +212,6 @@
         }
 
         if (model.__coupled) {
-            console.log('UNCOUPLE MODEL', view === model.__coupled.obj);
             model.__coupled.uncouple();
             // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
         }
@@ -257,8 +256,6 @@
         //Initial view render with current model data
         view.render(model.get());
 
-        console.log('VIEW', view);
-        console.log('MODEL', model);
     };
 
     /**
@@ -326,8 +323,6 @@
         //Initial view render with current list data
         view.render(list.toArray());
 
-        console.log('VIEW', view);
-        console.log('LIST', list);
     };
 
     /**
@@ -347,7 +342,6 @@
         }
 
         if (view.__coupled) {
-            console.log('UNCOUPLE VIEW', model === model.__coupled.obj);
             view.__coupled.uncouple();
             // return log.error('Model or List', model.name, 'already coupled with', model.__coupled.obj.name, '. Only one view can be coupled with a model or a list !');
         }
@@ -403,8 +397,6 @@
             }
         }
 
-        console.log('VIEW', view);
-        console.log('MODE or LIST', model);
     };
 
     /**

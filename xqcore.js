@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.12.1-224
+ * XQCore - +0.12.1-233
  * 
  * Model View Presenter Javascript Framework
  *
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.12.1-224',
+        version: '0.12.1-233',
         
         /**
          * Defines a default route
@@ -467,23 +467,27 @@ var XQCore;
         var chain = [];
 
         promise.push = function(fn) {
+            if (typeof fn !== 'function') {
+                throw new Error('Could not create a promise chain! First arg is not a function in promise.push().');
+            }
+
             chain.push(fn);
             return this;
         };
 
         promise.each = function(data) {
             var p = chain.shift();
-            if (p === null) {
-                return promise.resolve(data);
+            if (!p) {
+                promise.resolve(data);
+                return;
             }
-
             p(data).then(function(data) {
                 promise.each(data);
             }).catch(function(err) {
                 promise.reject(err);
             });
 
-            return this;
+            return promise;
         };
 
         return promise;

@@ -629,7 +629,6 @@
             }
         });
 
-        console.log('Scopes map', this.scopesMap);
         this.emit('content.change', data);
 
         this.registerListener(this.$el);
@@ -639,7 +638,6 @@
     };
 
     View.prototype.replaceScopes = function($el, scope, data, path, fullPath) {
-        console.log('Replace scope', scope, data, path);
         var self = this;
         var scopeData = path && path !== '_ftl_root' ? data[path] : data;
         var html = self.scopes[scope](scopeData, data);
@@ -697,7 +695,6 @@
     };
 
     View.prototype.replaceNode = function($el, fullPath) {
-        console.log('Replace node', fullPath);
         var self = this;
         var nodeData = $el.html();
 
@@ -744,8 +741,6 @@
 
     View.prototype.registerListener = function($el) {
         var self = this;
-
-        console.log('REGISTER VIEW LISTENER');
 
         $el.find('[on]').addBack('[on]').each(function() {
             var $cur = $(this);
@@ -839,9 +834,7 @@
      */
     View.prototype.insert = function(path, index, data) {
         var self = this;
-        console.log('INSERT new item', path, index, data);
         if (path in this.scopesMap) {
-            console.log(' matched items', this.scopesMap[path]);
             this.scopesMap[path].forEach(function(scope) {
                 var $html = self.renderScope(scope, path, [data]);
                 if (index === -1) {
@@ -892,9 +885,7 @@
      * @param  {Number} index Index of the item
      */
     View.prototype.remove = function(path, index) {
-        console.log('REMOVE item', path, index);
         if (path in this.scopesMap) {
-            console.log(' matched items', this.scopesMap[path]);
             this.scopesMap[path].forEach(function(scope) {
                 var els = scope.childs[index];
                 if (Array.isArray(els)) {
@@ -924,7 +915,6 @@
 
         this.ready(function() {
             if (path in this.scopesMap) {
-                console.log(' change item', this.scopesMap[path]);
                 this.scopesMap[path].forEach(function(scope) {
                     if (scope.type === 'node') {
                         self.renderNode(scope, path, value);
@@ -943,9 +933,7 @@
     View.prototype.formSetup = function(model, $el) {
         var self = this;
 
-        console.log('VIEW FORMSET UP INIT');
         this.ready(function() {
-        console.log('VIEW FORMSET UP RUN');
             // var errClassName = 'xq-invalid',
                 // disabledClass = 'xq-disabled';
 

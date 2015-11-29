@@ -847,16 +847,26 @@
      */
     Model.prototype.validate = function(data, schema) {
         var self = this,
-            failed = [];
+            failed = [],
+            subFailed;
             
         schema = schema || this.schema;
 
         if (schema) {
             Object.keys(schema).forEach(function(key) {
                 if (typeof data[key] === 'object' && typeof schema[key].type === 'undefined') {
-                    var subFailed = self.validate(XQCore.extend({}, data[key]), XQCore.extend({}, schema[key]));
-                    if (Array.isArray(subFailed) && subFailed.length > 0) {
-                        failed = failed.concat(subFailed);
+                    if (schema[key].ref && schema[key].schema) {
+                        console.log('Has a subref to %s', schema[key].ref);
+                        subFailed = self.validate(data, schema[key].schema);
+                        if (subFailed) {
+                            failed = failed.concat(subFailed);
+                        }
+                    }
+                    else {
+                        subFailed = self.validate(XQCore.extend({}, data[key]), XQCore.extend({}, schema[key]));
+                        if (Array.isArray(subFailed) && subFailed.length > 0) {
+                            failed = failed.concat(subFailed);
+                        }
                     }
                     return;
                 }

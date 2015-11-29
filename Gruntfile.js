@@ -127,6 +127,30 @@ module.exports = function(grunt) {
                 beforeRelease: ['build']
             }
         },
+        superjoin: {
+            build: {
+                options: {
+                    main: './src/xqcore-core.js',
+                    umd: 'xqcore',
+                    banner:'/*!\n' +
+                        ' * XQCore - v<%= pkg.version %>\n' +
+                        ' * \n' +
+                        ' * <%= pkg.description %>\n' +
+                        ' *\n' +
+                        ' * XQCore is licenced under MIT Licence\n' +
+                        ' * http://opensource.org/licenses/MIT\n' +
+                        ' *\n' +
+                        ' * Copyright (c) 2012 - <%= grunt.template.today("yyyy") %> Noname Media, http://noname-media.com\n' +
+                        ' * Author Andi Heinkelein <andifeind@noname-media.com>\n' +
+                        ' *\n' +
+                        ' * Creation date: <%= grunt.template.today("yyyy-mm-dd") %>\n' +
+                        ' * \n' +
+                        ' */\n'
+                },
+                src: [],
+                dest: 'xqcore.js'
+            }
+        },
         version: {
             component: {
                 src: ['../component-builds/xqcore/component.json']
@@ -155,6 +179,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-available-tasks');
     grunt.loadNpmTasks('grunt-bumpup');
     grunt.loadNpmTasks('grunt-release');
+    grunt.loadNpmTasks('grunt-superjoin');
     grunt.loadNpmTasks('grunt-version');
     
     grunt.registerTask('default', ['availabletasks']);

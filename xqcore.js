@@ -4,7 +4,7 @@
  */
 
 /*!
- * XQCore - +0.12.1-233
+ * XQCore - +0.12.2-0
  * 
  * Model View Presenter Javascript Framework
  *
@@ -14,7 +14,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein
  *
- * Creation Date: 2015-11-24
+ * Creation Date: 2015-11-29
  * 
  */
 
@@ -47,7 +47,7 @@ var XQCore;
          * Contains the current XQCore version
          * @property {String} version
          */
-        version: '0.12.1-233',
+        version: '0.12.2-0',
         
         /**
          * Defines a default route
@@ -481,6 +481,7 @@ var XQCore;
                 promise.resolve(data);
                 return;
             }
+            
             p(data).then(function(data) {
                 promise.each(data);
             }).catch(function(err) {
@@ -1479,7 +1480,6 @@ var XQCore;
         }
 
         if (model.__coupled) {
-            console.log('UNCOUPLE MODEL', view === model.__coupled.obj);
             model.__coupled.uncouple();
             // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
         }
@@ -1524,8 +1524,6 @@ var XQCore;
         //Initial view render with current model data
         view.render(model.get());
 
-        console.log('VIEW', view);
-        console.log('MODEL', model);
     };
 
     /**
@@ -1593,8 +1591,6 @@ var XQCore;
         //Initial view render with current list data
         view.render(list.toArray());
 
-        console.log('VIEW', view);
-        console.log('LIST', list);
     };
 
     /**
@@ -1614,7 +1610,6 @@ var XQCore;
         }
 
         if (view.__coupled) {
-            console.log('UNCOUPLE VIEW', model === model.__coupled.obj);
             view.__coupled.uncouple();
             // return log.error('Model or List', model.name, 'already coupled with', model.__coupled.obj.name, '. Only one view can be coupled with a model or a list !');
         }
@@ -1670,8 +1665,6 @@ var XQCore;
             }
         }
 
-        console.log('VIEW', view);
-        console.log('MODE or LIST', model);
     };
 
     /**
@@ -3657,7 +3650,6 @@ var XQCore;
             }
         });
 
-        console.log('Scopes map', this.scopesMap);
         this.emit('content.change', data);
 
         this.registerListener(this.$el);
@@ -3667,7 +3659,6 @@ var XQCore;
     };
 
     View.prototype.replaceScopes = function($el, scope, data, path, fullPath) {
-        console.log('Replace scope', scope, data, path);
         var self = this;
         var scopeData = path && path !== '_ftl_root' ? data[path] : data;
         var html = self.scopes[scope](scopeData, data);
@@ -3725,7 +3716,6 @@ var XQCore;
     };
 
     View.prototype.replaceNode = function($el, fullPath) {
-        console.log('Replace node', fullPath);
         var self = this;
         var nodeData = $el.html();
 
@@ -3772,8 +3762,6 @@ var XQCore;
 
     View.prototype.registerListener = function($el) {
         var self = this;
-
-        console.log('REGISTER VIEW LISTENER');
 
         $el.find('[on]').addBack('[on]').each(function() {
             var $cur = $(this);
@@ -3867,9 +3855,7 @@ var XQCore;
      */
     View.prototype.insert = function(path, index, data) {
         var self = this;
-        console.log('INSERT new item', path, index, data);
         if (path in this.scopesMap) {
-            console.log(' matched items', this.scopesMap[path]);
             this.scopesMap[path].forEach(function(scope) {
                 var $html = self.renderScope(scope, path, [data]);
                 if (index === -1) {
@@ -3920,9 +3906,7 @@ var XQCore;
      * @param  {Number} index Index of the item
      */
     View.prototype.remove = function(path, index) {
-        console.log('REMOVE item', path, index);
         if (path in this.scopesMap) {
-            console.log(' matched items', this.scopesMap[path]);
             this.scopesMap[path].forEach(function(scope) {
                 var els = scope.childs[index];
                 if (Array.isArray(els)) {
@@ -3952,7 +3936,6 @@ var XQCore;
 
         this.ready(function() {
             if (path in this.scopesMap) {
-                console.log(' change item', this.scopesMap[path]);
                 this.scopesMap[path].forEach(function(scope) {
                     if (scope.type === 'node') {
                         self.renderNode(scope, path, value);
@@ -3971,9 +3954,7 @@ var XQCore;
     View.prototype.formSetup = function(model, $el) {
         var self = this;
 
-        console.log('VIEW FORMSET UP INIT');
         this.ready(function() {
-        console.log('VIEW FORMSET UP RUN');
             // var errClassName = 'xq-invalid',
                 // disabledClass = 'xq-disabled';
 

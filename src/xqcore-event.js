@@ -1,5 +1,5 @@
 /**
- * XQCore EventEmitter
+ * XQCore Event
  *
  * A powerfull event emitter
  *
@@ -36,7 +36,7 @@ var log = new XQCore.Logger('EventEmitter');
  * Each event registration is an instance of EventListener
  *
  * @constructor
- * @group EventListener
+ * @group XQCore.Event.EventListener
  * @private
  * @method  EventListener
  */
@@ -47,7 +47,7 @@ var EventListener = function(ee, event, fn) {
 
     /**
      * Removes this event listener
-     * @group EventListener
+     * @group XQCore.Event.EventListener
      * @private
      * @method remove
      * @return {Boolean} Returns true if event was removed

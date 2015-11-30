@@ -1,6 +1,4 @@
 XQCore
 ------
 
-v0.10.0
-
-* Added XQCore.List
+XQCore is a MVP (Model, View, Presenter) Javascript framework to build webapps.

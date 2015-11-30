@@ -4,45 +4,32 @@
  * @module XQCore.Tmpl
  */
 
-/*global define:false */
-(function (root, factory) {
-	'use strict';
+'use strict';
 
-	if (typeof define === 'function' && define.amd) {
-		define('xqcore', [XQCore.templateEngine], factory);
-	} else if (typeof module !== 'undefined' && module.exports) {
-		module.exports = factory(require(XQCore.templateEngine));
-	} else {
-		var engine = XQCore.templateEngine === 'firetpl' ? 'FireTPL' : 'Handlebars';
-		root.XQCore = factory(root[engine]);
-	}
+var XQCore = require('./xqcore-core');
+var FireTPL = require('firetpl');
 
-}(this, function (TemplateEngine) {
-	'use strict';
+var Tmpl = {
+    type: 'firetpl',
+    compile: FireTPL.compile,
+    getTemplate: function(viewName, options) {
+        options = options || {};
+        if (FireTPL.templateCache && FireTPL.templateCache[viewName]) {
+            return FireTPL.templateCache[viewName];
+        }
+        else if(!FireTPL.loadFile) {
+            throw new Error('FireTPL runtime is being used. Please preload the ' + viewName + 'View');
+        }
+        else {
+            var viewDir = options.viewDir || XQCore.viewsDir;
+            var tmpl = FireTPL.readFile(viewDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
+            return FireTPL.compile(tmpl, {
+                eventAttrs: true
+            });
+        }
+    }
+};
 
-	XQCore.Tmpl = {
-		type: XQCore.templateEngine,
-		compile: TemplateEngine.compile,
-		getTemplate: function(viewName, options) {
-			options = options || {};
-			if (XQCore.templateEngine === 'firetpl') {
-				var FireTPL = TemplateEngine;
-				if (FireTPL.templateCache && FireTPL.templateCache[viewName]) {
-					return FireTPL.templateCache[viewName];
-				}
-				else if(!FireTPL.loadFile) {
-					throw new Error('FireTPL runtime is being used. Please preload the ' + viewName + 'View');
-				}
-				else {
-					var viewDir = options.viewDir || XQCore.viewsDir;
-					var tmpl = FireTPL.readFile(viewDir.replace(/\/$/, '') + '/' + viewName + '.' + XQCore.viewExt.replace(/^\./, ''));
-					return FireTPL.compile(tmpl, {
-						eventAttrs: true
-					});
-				}
-			}
-		}
-	};
+//--
 
-	return XQCore;
-}));
+module.exports = Tmpl;

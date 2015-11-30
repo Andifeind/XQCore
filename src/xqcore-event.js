@@ -36,6 +36,8 @@ var log = new XQCore.Logger('EventEmitter');
  * Each event registration is an instance of EventListener
  *
  * @constructor
+ * @group EventListener
+ * @private
  * @method  EventListener
  */
 var EventListener = function(ee, event, fn) {
@@ -45,7 +47,9 @@ var EventListener = function(ee, event, fn) {
 
     /**
      * Removes this event listener
-     * @method  remove
+     * @group EventListener
+     * @private
+     * @method remove
      * @return {Boolean} Returns true if event was removed
      */
     this.remove = function() {
@@ -59,7 +63,7 @@ var EventListener = function(ee, event, fn) {
  * Event emitter constructor
  *
  * @constructor
- * @method  EventEmitter
+ * @method EventEmitter
  */
 var EventEmitter = function() {
     this.__events = {};
@@ -192,5 +196,7 @@ EventEmitter.prototype.off = function(event, fn) {
 EventEmitter.prototype.clearEvents = function() {
     this.__events = {};
 };
+
+//--
 
 module.exports = EventEmitter;

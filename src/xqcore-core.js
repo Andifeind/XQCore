@@ -5,6 +5,7 @@
  * @module XQCore
  */
 
+var $ = require('jquery');
 
 /**
  * XQCore main object
@@ -43,12 +44,6 @@ var XQCore = {
      * @property {String} hashBang
      */
     hashBang: '#!',
-
-    //TODO Check whether we need this property
-    callerEvent: 'callerEvent',
-
-    //TODO Do we need this?
-    objectIdPattern: /^[a-zA-Z0-9]{24}$/,
 
     /**
      * Sets the default template engine
@@ -109,16 +104,26 @@ var XQCore = {
  * //Returns {a: 'A1', b: 'B2', c: 'C2'}
  *  
  */
-XQCore.extend = jQuery.extend;
-
-
-XQCore.isPlainObject = jQuery.isPlainObject;
-XQCore.isFunction = jQuery.isFunction;
+XQCore.extend = $.extend;
 
 /**
- * Module storage
+ * Checks whether an value is a plain object
+ * @method isPlainObject
+ *
+ * @param {Object} obj The value which should be checked
+ * @returns {Boolean} Returns true if value is a function, otherwise returns false
  */
-XQCore.__moduleCache = {};
+XQCore.isPlainObject = $.isPlainObject;
+
+
+/**
+ * Checks whether an value is a function
+ * @method isPlainObject
+ *
+ * @param {Object} obj The value which should be checked
+ * @returns {Boolean} Returns true if value is a plain object, otherwise returns false
+ */
+XQCore.isFunction = $.isFunction;
 
 /**
  * Checks for a valid ObjectId
@@ -128,69 +133,7 @@ XQCore.__moduleCache = {};
  * @return {Boolean} Returns true if value is an valid objectId
  */
 XQCore.isObjectId = function(value) {
-    return this.objectIdPattern.test(value);
-};
-
-/**
- * Defines module names for different module loading mechanisms
- * @type {Object}
- */
-XQCore.modules = {
-    jquery: {
-        cjs: 'jquery',
-        amd: 'jquery',
-        win: 'jQuery',
-    },
-    firetpl: {
-        cjs: 'firetpl',
-        amd: 'firetpl',
-        win: 'fireTpl',
-    },
-    sockjs: {
-        cjs: 'xqcore/lib/sockjs.js',
-        amd: 'xqcore/lib/sockjs.js',
-        win: 'SockJS',
-    }
-};
-
-
-/**
- * Import a module name, uses current used module load or load from window
- * @param  {String} moduleName Module name
- * @return {Any}            Returns the module
- */
-XQCore.require = function(moduleName) {
-    if (XQCore.__moduleCache[moduleName]) {
-        return XQCore.__moduleCache[moduleName];
-    }
-
-    var loadMechanism = 'win';
-    if (typeof module !== 'undefined' && module.exports && typeof require === 'function') {
-        loadMechanism = 'cjs';
-    }
-    else if (typeof define === 'function' && define.amd) {
-        loadMechanism = 'amd';
-    }
-
-    if (XQCore.modules[moduleName][loadMechanism]) {
-        moduleName = XQCore.modules[moduleName][loadMechanism];
-    }
-
-    try {
-        if (loadMechanism === 'cjs' || loadMechanism === 'amd') {
-            try {
-                return require(moduleName);
-            }
-            catch (err) {
-                console.warn('Module not registered as a ' + (loadMechanism === 'cjs' ? 'CommonJS' : 'AMD') + ' module! Try to load from window object', moduleName);
-            }
-        }
-        
-        return window[moduleName];
-    }
-    catch(err) {
-        console.error('Could not load module!', moduleName, err);
-    }
+    return /^[a-zA-Z0-9]{24}$/.test(value);
 };
 
 /**
@@ -235,7 +178,7 @@ XQCore.logLevel = 1;
 
 /**
  * Returns one or all queries
- * Converts all numberic items to a Number
+ * Converts all numeric items to a Number
  *
  * @method getQuery
  * @param  {String} name Query name
@@ -262,9 +205,9 @@ XQCore.getQuery = function(name) {
 };
 
 /**
- * Checks wether an object is an empty object
+ * Checks whether an object is an empty object
  * @param  {Object}  obj Object which should be checked
- * @return {Boolean}     Returns tru if object is empty
+ * @return {Boolean}     Returns true if object is empty
  */
 XQCore.isEmptyObject = function(obj) {
     var name;
@@ -276,7 +219,7 @@ XQCore.isEmptyObject = function(obj) {
 };
 
 /**
- * Checks wether an object is an empty object or an empty array
+ * Checks whether an object is an empty object or an empty array
  * @param  {Object|Array}  obj Object which should be checked
  * @return {Boolean}     Returns true if obj is empty
  */
@@ -289,5 +232,5 @@ XQCore.isEmpty = function(obj) {
 };
 
 //--
+
 module.exports = XQCore;
-module.exports.Event = require('./xqcore-event');

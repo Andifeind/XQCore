@@ -130,8 +130,13 @@ module.exports = function(grunt) {
         superjoin: {
             build: {
                 options: {
-                    main: './src/xqcore-core.js',
+                    main: './xqcore-init.js',
                     umd: 'xqcore',
+                    umdDependencies: {
+                        'jquery': ['jquery', 'jquery', 'jQuery'],
+                        'firetpl': ['firetpl', 'firetpl', 'FireTPL'],
+                        'sockjs': ['sockjs', 'sockjs', 'SockJS']
+                    },
                     banner:'/*!\n' +
                         ' * XQCore - v<%= pkg.version %>\n' +
                         ' * \n' +

@@ -124,7 +124,7 @@ module.exports = function(grunt) {
                 tagName: 'v<%= version %>', //default: '<%= version %>'
                 commitMessage: 'Release v<%= version %>', //default: 'release <%= version %>'
                 tagMessage: 'Tagging release v<%= version %>', //default: 'Version <%= version %>',
-                beforeRelease: ['build']
+                beforeRelease: ['version']
             }
         },
         superjoin: {
@@ -157,8 +157,8 @@ module.exports = function(grunt) {
             }
         },
         version: {
-            component: {
-                src: ['../component-builds/xqcore/component.json']
+            xqcore: {
+                src: ['src/xqcore-core.js']
             }
         },
         watch: {
@@ -190,10 +190,10 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['availabletasks']);
     grunt.registerTask('test', 'xqcoretest');
     grunt.registerTask('build', [
+        'bumpup:prerelease',
         'less',
         'jshint:files',
         'concat:build',
         'uglify',
-        'bumpup:prerelease'
     ]);
 };

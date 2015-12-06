@@ -18,7 +18,7 @@ var XQCore = {
      * Contains the current XQCore version
      * @property {String} version
      */
-    version: '<%= pkg.version %>',
+    version: '0.13.1',
     
     /**
      * Defines a default route
@@ -73,7 +73,8 @@ var XQCore = {
 
     /**
      * Sets max length of event listener
-     * @property {Number} eventListenerMaxLength=1328
+     * @property {Number} eventListenerMaxLength
+     * @default  1328
      */
     eventListenerMaxLength: 1328
 };

@@ -28,7 +28,7 @@
 
 var XQCore = require('./xqcore-core');
 
-var log = new XQCore.Logger('EventEmitter');
+var log;
 
 /**
  * An EventListener represents a single event.
@@ -66,6 +66,7 @@ var EventListener = function(ee, event, fn) {
  * @method EventEmitter
  */
 var EventEmitter = function() {
+    log  = new XQCore.Logger('EventEmitter');
     this.__events = {};
     this.__logger = log;
     

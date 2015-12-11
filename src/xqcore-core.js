@@ -134,7 +134,7 @@ XQCore.isFunction = $.isFunction;
  * @return {Boolean} Returns true if value is an valid objectId
  */
 XQCore.isObjectId = function(value) {
-    return /^[a-zA-Z0-9]{24}$/.test(value);
+    return (/^[a-zA-Z0-9]{24}$/).test(value);
 };
 
 /**

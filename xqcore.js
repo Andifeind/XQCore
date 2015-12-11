@@ -1,5 +1,5 @@
 /*!
- * XQCore - v0.13.1-1
+ * XQCore - v0.13.1-4
  * 
  * Model View Presenter Javascript Framework
  *
@@ -9,7 +9,7 @@
  * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
  * Author Andi Heinkelein <andifeind@noname-media.com>
  *
- * Creation date: 2015-11-30
+ * Creation date: 2015-12-10
  * 
  */
 
@@ -120,6 +120,7 @@
 
 require.register('./xqcore-init.js', function(module, exports, require) {
 var XQCore = require('./src/xqcore-core');
+XQCore.Promise = require('./src/xqcore-promise');
 XQCore.Logger = require('./src/xqcore-logger');
 XQCore.ReadyState = require('./src/xqcore-readystate');
 XQCore.Event = require('./src/xqcore-event');
@@ -162,7 +163,7 @@ var XQCore = {
      * Contains the current XQCore version
      * @property {String} version
      */
-    version: '<%= pkg.version %>',
+    version: '0.13.1',
     
     /**
      * Defines a default route
@@ -188,12 +189,6 @@ var XQCore = {
      * @property {String} hashBang
      */
     hashBang: '#!',
-
-    //TODO Check whether we need this property
-    callerEvent: 'callerEvent',
-
-    //TODO Do we need this?
-    objectIdPattern: /^[a-zA-Z0-9]{24}$/,
 
     /**
      * Sets the default template engine
@@ -223,7 +218,8 @@ var XQCore = {
 
     /**
      * Sets max length of event listener
-     * @property {Number} eventListenerMaxLength=1328
+     * @property {Number} eventListenerMaxLength
+     * @default  1328
      */
     eventListenerMaxLength: 1328
 };
@@ -256,14 +252,24 @@ var XQCore = {
  */
 XQCore.extend = $.extend;
 
-
+/**
+ * Checks whether an value is a plain object
+ * @method isPlainObject
+ *
+ * @param {Object} obj The value which should be checked
+ * @returns {Boolean} Returns true if value is a function, otherwise returns false
+ */
 XQCore.isPlainObject = $.isPlainObject;
-XQCore.isFunction = $.isFunction;
+
 
 /**
- * Module storage
+ * Checks whether an value is a function
+ * @method isPlainObject
+ *
+ * @param {Object} obj The value which should be checked
+ * @returns {Boolean} Returns true if value is a plain object, otherwise returns false
  */
-XQCore.__moduleCache = {};
+XQCore.isFunction = $.isFunction;
 
 /**
  * Checks for a valid ObjectId
@@ -273,7 +279,7 @@ XQCore.__moduleCache = {};
  * @return {Boolean} Returns true if value is an valid objectId
  */
 XQCore.isObjectId = function(value) {
-    return this.objectIdPattern.test(value);
+    return (/^[a-zA-Z0-9]{24}$/).test(value);
 };
 
 /**
@@ -318,7 +324,7 @@ XQCore.logLevel = 1;
 
 /**
  * Returns one or all queries
- * Converts all numberic items to a Number
+ * Converts all numeric items to a Number
  *
  * @method getQuery
  * @param  {String} name Query name
@@ -345,9 +351,9 @@ XQCore.getQuery = function(name) {
 };
 
 /**
- * Checks wether an object is an empty object
+ * Checks whether an object is an empty object
  * @param  {Object}  obj Object which should be checked
- * @return {Boolean}     Returns tru if object is empty
+ * @return {Boolean}     Returns true if object is empty
  */
 XQCore.isEmptyObject = function(obj) {
     var name;
@@ -359,7 +365,7 @@ XQCore.isEmptyObject = function(obj) {
 };
 
 /**
- * Checks wether an object is an empty object or an empty array
+ * Checks whether an object is an empty object or an empty array
  * @param  {Object|Array}  obj Object which should be checked
  * @return {Boolean}     Returns true if obj is empty
  */
@@ -374,6 +380,87 @@ XQCore.isEmpty = function(obj) {
 //--
 
 module.exports = XQCore;
+
+});
+require.register('./src/xqcore-promise.js', function(module, exports, require) {
+'use strict';
+
+// var callAll = function(fnStack, data, done) {
+//   var next = function() {
+//     var nextFn = fnStack.unshift();
+//     if (!nextFn) {
+//       done();
+//     }
+//     else {
+//       next();
+//     }
+//   };
+
+//   next();
+// };
+
+var Promise = function(fn) {
+  this._fullFillFuncs = [];
+  this._rejectsFuncs = [];
+  this.state = 'pending';
+  this.value = null;
+
+  this.onFullFill = function(value) {
+    this.state = 'fulfilled';
+    this.value = value;
+    this._fullFillFuncs.forEach(function(fn) {
+      fn(value);
+    });
+  }.bind(this);
+
+  this.onReject = function(reason) {
+    this.state = 'rejected';
+    this.reason = reason;
+    this._rejectsFuncs.forEach(function(fn) {
+      fn(reason);
+    });
+  }.bind(this);
+
+  fn(this.onFullFill, this.onReject);
+};
+
+Promise.resolve = function(value) {
+  var promise = new Promise(function(resolve) {
+    resolve(value);
+  });
+  
+  return promise;
+};
+
+Promise.reject = function(reason) {
+  var promise = new Promise(function(resolve, reject) {
+    reject(reason);
+  });
+
+  return promise;
+};
+
+Promise.prototype.then = function(fn) {
+  if (this.state === 'pending') {
+    this._fullFillFuncs.push(fn);
+  }
+  else if (this.state === 'fulfilled') {
+    fn(this.value);
+  }
+  return this;
+};
+
+Promise.prototype.catch = function(fn) {
+  if (this.state === 'pending') {
+    this._rejectsFuncs.push(fn);
+  }
+  else if (this.state === 'rejected') {
+    fn(this.reason);
+  }
+  return this;
+};
+
+module.exports = Promise;
 
 });
 require.register('./src/xqcore-logger.js', function(module, exports, require) {
@@ -582,21 +669,20 @@ Logger.prototype.timer = function(name) {
 // --- new methods
 
 Logger.prototype.dev = function() {
-    var args;
-
-    if (this.debug) {
-        args = Array.prototype.slice.call(arguments);
-        if (this.loggerName) {
-            args.unshift('[' + this.loggerName + ']');
-        }
-        
-        console.debug.apply(console, args);
-    }
+    this.warn('Logger.dev() is deprcated since v0.13! Use Logger.debug() instead');
+    this.debug.call(arguments);
 };
 
 Logger.prototype.req = Logger.prototype.log;
 Logger.prototype.res = Logger.prototype.log;
 
+/**
+ * Returns a human readable time format
+ * @method getHumanTime
+ * @private
+ * @param  {Number}     time Time in milliseconds
+ * @return {String}          Returns a readable time string
+ */
 Logger.prototype.getHumanTime = function(time) {
     if (time < 1000) {
         return time + 'ms';
@@ -608,6 +694,8 @@ Logger.prototype.getHumanTime = function(time) {
         return (Math.round(time / 60000)) + 'min ' + Math.round(time % 60000 / 1000) + 'sec';
     }
 };
+
+//--
 
 module.exports = Logger;
 
@@ -676,7 +764,7 @@ module.exports = ReadyState;
 });
 require.register('./src/xqcore-event.js', function(module, exports, require) {
 /**
- * XQCore EventEmitter
+ * XQCore Event
  *
  * A powerfull event emitter
  *
@@ -705,7 +793,7 @@ require.register('./src/xqcore-event.js', function(module, exports, require) {
 
 var XQCore = require('./xqcore-core');
 
-var log = new XQCore.Logger('EventEmitter');
+var log;
 
 /**
  * An EventListener represents a single event.
@@ -713,6 +801,8 @@ var log = new XQCore.Logger('EventEmitter');
  * Each event registration is an instance of EventListener
  *
  * @constructor
+ * @group XQCore.Event.EventListener
+ * @private
  * @method  EventListener
  */
 var EventListener = function(ee, event, fn) {
@@ -722,7 +812,9 @@ var EventListener = function(ee, event, fn) {
 
     /**
      * Removes this event listener
-     * @method  remove
+     * @group XQCore.Event.EventListener
+     * @private
+     * @method remove
      * @return {Boolean} Returns true if event was removed
      */
     this.remove = function() {
@@ -736,9 +828,10 @@ var EventListener = function(ee, event, fn) {
  * Event emitter constructor
  *
  * @constructor
- * @method  EventEmitter
+ * @method EventEmitter
  */
 var EventEmitter = function() {
+    log  = new XQCore.Logger('EventEmitter');
     this.__events = {};
     this.__logger = log;
     
@@ -869,6 +962,8 @@ EventEmitter.prototype.off = function(event, fn) {
 EventEmitter.prototype.clearEvents = function() {
     this.__events = {};
 };
+
+//--
 
 module.exports = EventEmitter;
 
@@ -1224,6 +1319,10 @@ var List = function(name, conf) {
 
     this.__unfiltered = {};
 
+    /**
+     * List name
+     * @property {String} name
+     */
     this.name = (name ? name.replace(/List$/, '') : 'Nameless') + 'List';
 
     /**
@@ -1241,13 +1340,15 @@ var List = function(name, conf) {
 
     /**
      * Sets the Model to be used to create new models in push and unshift methods.
-
      * @property {Object} model
      */
     if (!this.model) {
         this.model = XQCore.Model;
     }
 
+    /*!
+     * Mapping of initial conf
+     */
     if (typeof conf === 'function') {
         conf.call(this, self);
     }
@@ -1266,6 +1367,9 @@ var List = function(name, conf) {
         });
     }
     
+    /*!
+     * Sets ready state
+     */
     this.state('ready');
     this.setReady();
 };
@@ -1644,8 +1748,6 @@ List.prototype.remove = function(match, options) {
     return removedItem;
 };
 
-
-
 /**
  * Clears the whole list
  * @param  {Object} options Options object
@@ -1683,12 +1785,22 @@ List.prototype.clear = function(options) {
     return oldValue.length;
 };
 
+/**
+ * Returns list items as an array
+ * @method toArray
+ * @return {Array} Returns an array of list items
+ */
 List.prototype.toArray = function() {
     return this.items.map(function(model) {
         return model.properties;
     });
 };
 
+/**
+ * Compatibility, does the same as toArray()
+ * @method toJSON   
+ * @return {Array} Returns an array of list items
+ */
 List.prototype.toJSON = function() {
     return this.toArray();
 };
@@ -1864,10 +1976,11 @@ var Model = function(name, conf) {
     /**
      * Contains last validation errors if state is invalid
      * @type {Array}
-     * @property lastValidationErr
+     * @property lastValidationError
      */
-    this.lastValidationErr = null;
+    this.lastValidationError = null;
 
+    //-- Initial conf mapping
     if (conf === undefined) {
         conf = {};
     }
@@ -1881,16 +1994,20 @@ var Model = function(name, conf) {
 
     this.__state = 'starting';
     this.__unfiltered = {};
+    this.__isValid = false;
 
     this.customValidate = conf.validate;
     delete conf.validate;
 
     this.conf = conf;
 
+    /**
+     * Model name
+     * @property {String} name
+     */
     this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
-    this.__isValid = false;
 
-    //Add default values
+    //-- Add default values
     if (this.defaults && !XQCore.isEmptyObject(this.defaults)) {
         this.set(this.defaults, {
             silent: true,
@@ -1898,7 +2015,7 @@ var Model = function(name, conf) {
         });
     }
 
-    //Add schema props as default values
+    //-- Add schema props as default values
     if (this.schema) {
         Object.keys(this.schema).forEach(function(key) {
             if (!(key in this.properties)) {
@@ -1926,6 +2043,7 @@ if (XQCore.Sync) {
 /**
  * Inherits a model prototype
  * @method inherit
+ * @static
  * @param  {String} name    model name
  * @param  {Object} options Model properties
  * @return {Object}         Returns a XQCore.Model prototype
@@ -2073,7 +2191,7 @@ Model.prototype.set = function(key, value, options) {
                 this.emit('validation.error', validationResult, newData);
             }
 
-            return Promise.reject({
+            return XQCore.Promise.reject({
                 msg: 'validation.error',
                 err: validationResult
             });
@@ -2102,7 +2220,7 @@ Model.prototype.set = function(key, value, options) {
         this.emit('data.change', newData, oldData);
     }
 
-    return Promise.resolve(newData);
+    return XQCore.Promise.resolve(newData);
 };
 
 /**
@@ -2658,7 +2776,8 @@ Model.prototype.validate = function(data, schema) {
 
     if (schema) {
         Object.keys(schema).forEach(function(key) {
-            if (typeof data[key] === 'object' && typeof schema[key].type === 'undefined') {
+            console.log('KEY', key);
+            if (typeof schema[key] === 'object' && typeof schema[key].type === 'undefined') {
                 if (schema[key].ref && schema[key].schema) {
                     console.log('Has a subref to %s', schema[key].ref);
                     subFailed = self.validate(data, schema[key].schema);
@@ -2667,7 +2786,9 @@ Model.prototype.validate = function(data, schema) {
                     }
                 }
                 else {
+                    console.log('SUBVAL');
                     subFailed = self.validate(XQCore.extend({}, data[key]), XQCore.extend({}, schema[key]));
+                    console.log('RES', subFailed);
                     if (Array.isArray(subFailed) && subFailed.length > 0) {
                         failed = failed.concat(subFailed);
                     }
@@ -2689,13 +2810,13 @@ Model.prototype.validate = function(data, schema) {
 
     if (failed.length === 0) {
         this.__isValid = true;
-        this.lastValidationErr = null;
+        this.lastValidationError = null;
         this.state('valid');
         return null;
     }
     else {
         this.__isValid = false;
-        this.lastValidationErr = failed;
+        this.lastValidationError = failed;
         this.state('invalid');
         return failed;
     }
@@ -2718,7 +2839,17 @@ Model.prototype.validate = function(data, schema) {
  */
 Model.prototype.validateOne = function(schema, value, propName) {
     var failed,
-        schemaType = typeof schema.type === 'function' ? typeof schema.type() : schema.type.toLowerCase();
+        schemaType;
+
+    if (schema.type === undefined) {
+        if ( !schema.ref) {
+            throw new Error('No schema type are set!');
+        }
+
+        schemaType = 'ref';
+    } else {
+        schemaType = schema.type.toLowerCase();
+    }
 
     if (value === '' && schema.noEmpty === true) {
         value = undefined;
@@ -3013,9 +3144,16 @@ Model.prototype.__registeredValidations = {
     }
 };
 
+/**
+ * Returns model as JSON
+ * @method toJSON
+ * @return {Object} Returns model data as JSON
+ */
 Model.prototype.toJSON = function() {
     return this.get();
 };
+
+//--
 
 module.exports = Model;
 
@@ -3084,6 +3222,7 @@ var Presenter = function(name, fn) {
      */
     this.__views = {};
 
+    //-- Initial config mapping
     if (typeof fn === 'function') {
         fn.call(this, self, log);
     }
@@ -3092,15 +3231,9 @@ var Presenter = function(name, fn) {
 XQCore.extend(Presenter.prototype, new XQCore.Event());
 
 /**
- * Initialize a presenter
- *
- * @method init
- */
-Presenter.prototype.init = function() {
-};
-
-/**
  * Add a history item to the browser history
+ *
+ * @method pushState
  *
  * @param {String} url Page URL (Optional) defaults to the curent URL
  * @param {Object} data Data object
@@ -3119,6 +3252,8 @@ Presenter.prototype.pushState = function(url, data) {
 /**
  * Add a history item to the browser history
  *
+ * @method replaceState
+ *
  * @param {String} url Page URL (Optional) defaults to the current URL
  * @param {Object} data Data object
  */
@@ -3131,6 +3266,8 @@ Presenter.prototype.replaceState = function(url, data) {
 
 /**
  * Navigates to a given route
+ *
+ * @method  navigateTo
  *
  * Options: {
  *  replace: <Boolean> Replace current history entry with route (Only when html5 routes are enabled)
@@ -3471,10 +3608,6 @@ Presenter.prototype.initView = function(viewName, container, options) {
     return view;
 };
 
-Presenter.prototype.initFormView = function(model, selector, options) {
-    
-};
-
 /**
  * Register a route listener
  *
@@ -3509,8 +3642,6 @@ Presenter.prototype.route = function(route, callback) {
 
     return this;
 };
-
-Presenter.prototype.send = XQCore.Sync.prototype.send;
 
 //--
 
@@ -4377,7 +4508,7 @@ SyncList.inherit = function(name, options) {
 SyncList.prototype.connectToSocket = function() {
     var socketServer = this.server + ':' + this.port + '/' + this.path;
     if (!this.socket) {
-        this.dev('Connect to socket:', socketServer);
+        this.debug('Connect to socket:', socketServer);
         this.socket = new XQCore.Socket(socketServer, this.channel);
     }
 };
@@ -4392,7 +4523,7 @@ SyncList.prototype.register = function(enableSync) {
         this.syncEnabled = enableSync;
     }
 
-    self.dev('Register synclist at server:', self.name);
+    self.debug('Register synclist at server:', self.name);
 
     var opts = {
         noSync: true
@@ -4433,7 +4564,7 @@ SyncList.prototype.register = function(enableSync) {
 };
 
 SyncList.prototype.unregister = function() {
-    this.dev('Unregister synclist at server:', this.name);
+    this.debug('Unregister synclist at server:', this.name);
     this.socket.send('synclist.unregister', {
         name: this.name
     });
@@ -4541,7 +4672,7 @@ SyncModel.inherit = function(name, options) {
 SyncModel.prototype.connectToSocket = function() {
     var socketServer = this.server + ':' + this.port + '/' + this.path;
     if (!this.socket) {
-        this.dev('Connect to socket:', socketServer);
+        this.debug('Connect to socket:', socketServer);
         this.socket = new XQCore.Socket(socketServer, this.channel);
     }
 };
@@ -4551,7 +4682,7 @@ SyncModel.prototype.register = function(enableSync) {
 
     this.syncEnabled = !!enableSync;
 
-    self.dev('Register syncmodel at server:', self.name);
+    self.debug('Register syncmodel at server:', self.name);
 
     var opts = {
         noSync: true
@@ -6005,7 +6136,7 @@ XQCore.uid = function(len) {
 XQCore.promise = function(callback) {
 
     var s, r;
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new XQCore.Promise(function(resolve, reject) {
         s = resolve;
         r = reject;
     });

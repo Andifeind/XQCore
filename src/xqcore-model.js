@@ -61,9 +61,9 @@ var Model = function(name, conf) {
     /**
      * Contains last validation errors if state is invalid
      * @type {Array}
-     * @property lastValidationErr
+     * @property lastValidationError
      */
-    this.lastValidationErr = null;
+    this.lastValidationError = null;
 
     //-- Initial conf mapping
     if (conf === undefined) {
@@ -276,7 +276,7 @@ Model.prototype.set = function(key, value, options) {
                 this.emit('validation.error', validationResult, newData);
             }
 
-            return Promise.reject({
+            return XQCore.Promise.reject({
                 msg: 'validation.error',
                 err: validationResult
             });
@@ -305,7 +305,7 @@ Model.prototype.set = function(key, value, options) {
         this.emit('data.change', newData, oldData);
     }
 
-    return Promise.resolve(newData);
+    return XQCore.Promise.resolve(newData);
 };
 
 /**
@@ -861,7 +861,8 @@ Model.prototype.validate = function(data, schema) {
 
     if (schema) {
         Object.keys(schema).forEach(function(key) {
-            if (typeof data[key] === 'object' && typeof schema[key].type === 'undefined') {
+            console.log('KEY', key);
+            if (typeof schema[key] === 'object' && typeof schema[key].type === 'undefined') {
                 if (schema[key].ref && schema[key].schema) {
                     console.log('Has a subref to %s', schema[key].ref);
                     subFailed = self.validate(data, schema[key].schema);
@@ -870,7 +871,9 @@ Model.prototype.validate = function(data, schema) {
                     }
                 }
                 else {
+                    console.log('SUBVAL');
                     subFailed = self.validate(XQCore.extend({}, data[key]), XQCore.extend({}, schema[key]));
+                    console.log('RES', subFailed);
                     if (Array.isArray(subFailed) && subFailed.length > 0) {
                         failed = failed.concat(subFailed);
                     }
@@ -892,13 +895,13 @@ Model.prototype.validate = function(data, schema) {
 
     if (failed.length === 0) {
         this.__isValid = true;
-        this.lastValidationErr = null;
+        this.lastValidationError = null;
         this.state('valid');
         return null;
     }
     else {
         this.__isValid = false;
-        this.lastValidationErr = failed;
+        this.lastValidationError = failed;
         this.state('invalid');
         return failed;
     }
@@ -921,7 +924,17 @@ Model.prototype.validate = function(data, schema) {
  */
 Model.prototype.validateOne = function(schema, value, propName) {
     var failed,
-        schemaType = typeof schema.type === 'function' ? typeof schema.type() : schema.type.toLowerCase();
+        schemaType;
+
+    if (schema.type === undefined) {
+        if ( !schema.ref) {
+            throw new Error('No schema type are set!');
+        }
+
+        schemaType = 'ref';
+    } else {
+        schemaType = schema.type.toLowerCase();
+    }
 
     if (value === '' && schema.noEmpty === true) {
         value = undefined;

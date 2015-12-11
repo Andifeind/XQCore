@@ -117,7 +117,7 @@ XQCore.uid = function(len) {
 XQCore.promise = function(callback) {
 
     var s, r;
-    var promise = new Promise(function(resolve, reject) {
+    var promise = new XQCore.Promise(function(resolve, reject) {
         s = resolve;
         r = reject;
     });

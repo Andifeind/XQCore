@@ -61,19 +61,17 @@ var Service = function(name, conf) {
 
     this.conf = conf;
 
-    this.name = (name ? name.replace(/Model$/, '') : 'Nameless') + 'Model';
+    this.name = (name ? name.replace(/Service$/, '') : 'Nameless') + 'Service';
     
     this.__state = 'ready';
 };
 
 
 //Extend with ready state
-// XQCore.extend(Service.prototype, XQCore.ReadyState.prototype);
-// XQCore.extend(Service.prototype, XQCore.Event.prototype);
-
+XQCore.extend(Service.prototype, XQCore.ReadyState.prototype);
 XQCore.extend(Service.prototype, XQCore.Event.prototype);
 XQCore.extend(Service.prototype, new XQCore.Logger());
-XQCore.extend(Service.prototype, XQCore.Sync.prototype);
+// XQCore.extend(Service.prototype, XQCore.Sync.prototype);
 
 
 /**

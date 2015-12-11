@@ -1,4 +1,5 @@
 var XQCore = require('./src/xqcore-core');
+XQCore.Promise = require('./src/xqcore-promise');
 XQCore.Logger = require('./src/xqcore-logger');
 XQCore.ReadyState = require('./src/xqcore-readystate');
 XQCore.Event = require('./src/xqcore-event');

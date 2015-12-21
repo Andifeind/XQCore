@@ -26,6 +26,9 @@ log.logLevel = 5;
  * });
  */
 var Socket = function(url, channel) {
+    //Call Event constructor
+    XQCore.Event.call(this);
+    
     this.__isReady = false;
     this.__onReadyCallbacks = [];
 
@@ -35,7 +38,7 @@ var Socket = function(url, channel) {
     // this.connect(url, channel);
 };
 
-XQCore.extend(Socket.prototype, new XQCore.Event());
+XQCore.extend(Socket.prototype, XQCore.Event.prototype);
 
 /**
  * Sends a socket message to a connected socket server

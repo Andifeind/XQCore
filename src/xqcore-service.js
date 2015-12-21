@@ -62,7 +62,27 @@ var Service = function(name, conf) {
     this.conf = conf;
 
     this.name = (name ? name.replace(/Service$/, '') : 'Nameless') + 'Service';
+
+    if (!this.model && !this.list) {
+        throw new Error('Service is not connected to any model or list!');
+    }
+
+    if (this.model && this.list) {
+        throw new Error('Service is connected to a model and a list. This is not allowed!');
+    }
     
+    this.isListService = false;
+    if (this.model) {
+        this.schema = this.schema || this.model.schema || null;
+    } else {
+        this.schema = this.schema || null;
+        if (!this.schema && typeof this.list.model === 'function') {
+            var model = new this.list.model();
+            this.schema = model.schema;
+        }
+        this.isListService = true;
+    }
+
     this.__state = 'ready';
 };
 

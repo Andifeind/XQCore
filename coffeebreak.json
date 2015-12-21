@@ -12,5 +12,8 @@
 	"watch": [
 		"src/*.js",
 		"tests/*.spec.js"
-	]
+	],
+    "grunt": {
+        "task": ["superjoin"]
+    }
 }

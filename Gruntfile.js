@@ -136,7 +136,7 @@ module.exports = function(grunt) {
                     umdDependencies: {
                         'jquery': ['jquery', 'jquery', 'jQuery'],
                         'firetpl': ['firetpl', 'firetpl', 'FireTPL'],
-                        'sockjs': ['sockjs', 'sockjs', 'SockJS']
+                        'sockjs': ['./lib/sockjs', './lib/sockjs', 'SockJS']
                     },
                     banner:'/*!\n' +
                         ' * XQCore - v<%= pkg.version %>\n' +

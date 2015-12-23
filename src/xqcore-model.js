@@ -33,6 +33,9 @@ var XQCore = require('./xqcore-core');
  * @param {Object} conf Model extend object
  */
 var Model = function(name, conf) {
+    //Call XQCore.Logger constructor
+    XQCore.Logger.call(this);
+
     //Call XQCore.ReadyState constructor
     XQCore.ReadyState.call(this);
 
@@ -117,8 +120,7 @@ var Model = function(name, conf) {
 //Extend with ready state
 XQCore.extend(Model.prototype, XQCore.ReadyState.prototype);
 XQCore.extend(Model.prototype, XQCore.Event.prototype);
-
-XQCore.extend(Model.prototype, new XQCore.Logger());
+XQCore.extend(Model.prototype, XQCore.Logger.prototype);
 
 if (XQCore.Sync) {
     XQCore.extend(Model.prototype, XQCore.Sync.prototype);

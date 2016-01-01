@@ -8,7 +8,7 @@
 'use strict';
 
 var XQCore = require('./xqcore-core');
-var SockJS = require('sockjs');
+var SockJS = require('../lib/sockjs');
 
 var log = new XQCore.Logger('SocketConnection');
 

@@ -1,6 +1,6 @@
-describe.only('XQCore.Service', function() {
+describe('XQCore.Service', function() {
     'use strict';
-    
+
     describe('Instance', function() {
         it('Should be an instance of XQCore.Service', function() {
             expect(XQCore.Service).to.be.a('function');

@@ -5,8 +5,6 @@
  * @module XQCore
  */
 
-var $ = require('jquery');
-
 /**
  * XQCore main object
  *
@@ -19,7 +17,7 @@ var XQCore = {
      * @property {String} version
      */
     version: '0.13.1',
-    
+
     /**
      * Defines a default route
      * @property {String} defaultRoute
@@ -83,7 +81,7 @@ var XQCore = {
 /**
  * Merges the properties from one or more objects together into a target object
  * Its simply an alias for jQuery.extend.
- * 
+ *
  * @method extend
  * @param {Boolean} [deep] If true, a deep merge is using
  * @param {Object} target Target object. This object will be extended with new properties
@@ -103,7 +101,7 @@ var XQCore = {
  *
  * extend(target, obj1);
  * //Returns {a: 'A1', b: 'B2', c: 'C2'}
- *  
+ *
  */
 Object.defineProperty(XQCore, 'extend', {
     enumerable: false,
@@ -132,19 +130,24 @@ Object.defineProperty(XQCore, 'extend', {
                 }
             }
         }
-        
+
         return to;
     }
 });
 
 /**
  * Checks whether an value is a plain object
+ *
+ * Tests if an value is an object and was declared with `{}` and it hasn't any prototyped properties
+ *
  * @method isPlainObject
  *
  * @param {Object} obj The value which should be checked
  * @returns {Boolean} Returns true if value is a function, otherwise returns false
  */
-XQCore.isPlainObject = $.isPlainObject;
+XQCore.isPlainObject = function(obj) {
+    
+};
 
 
 /**
@@ -158,7 +161,7 @@ XQCore.isFunction = $.isFunction;
 
 /**
  * Checks for a valid ObjectId
- * 
+ *
  * The pattern of an objectId can be overwritten by setting the XQCore.objectIdPattern property
  *
  * @return {Boolean} Returns true if value is an valid objectId
@@ -169,7 +172,7 @@ XQCore.isObjectId = function(value) {
 
 /**
  * Set a local for the current session
- * 
+ *
  * @method setLocale
  * @param  {String}  locale Local string
  */
@@ -202,7 +205,7 @@ XQCore.getLocale = function() {
  * 3 = info
  * 4 = debug
  * 5 = trace
- * 
+ *
  * @property {String} logLevel
  */
 XQCore.logLevel = 1;

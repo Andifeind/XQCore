@@ -5,6 +5,8 @@
  * @module XQCore
  */
 
+var $ = require('jquery');
+
 /**
  * XQCore main object
  *
@@ -146,7 +148,7 @@ Object.defineProperty(XQCore, 'extend', {
  * @returns {Boolean} Returns true if value is a function, otherwise returns false
  */
 XQCore.isPlainObject = function(obj) {
-    
+
 };
 
 

@@ -1,12 +1,12 @@
 /**
- * XQCore Event
+ * XQFire Event
  *
  * A powerfull event emitter
  *
- * @module XQCore.Event
+ * @module XQFire.Event
  *
  * @example {js}
- * var ee = new XQCore.Event();
+ * var ee = new XQFire.Event();
  * ee.on('echo', function(msg) {
  *     console.log('Msg:', msg);
  * });
@@ -17,16 +17,17 @@
  * @example {js}
  * var MyModule = function() {
  *     //Call Event constructor
- *     XQCore.Event.call(this);
+ *     XQFire.Event.call(this);
  * };
  *
  * //Extend MyModule with event emitter methods
- * XQCore.extend(MyModule.prototype, XQCore.Event.prototype);
+ * XQFire.extend(MyModule.prototype, XQFire.Event.prototype);
  */
 
 'use strict';
 
-var XQCore = require('./xqcore-core');
+var XQFire = require('./xqcore-core');
+var Logger = require('./xqcore-logger');
 
 var log;
 
@@ -36,7 +37,7 @@ var log;
  * Each event registration is an instance of EventListener
  *
  * @constructor
- * @group XQCore.Event.EventListener
+ * @group XQFire.Event.EventListener
  * @private
  * @method  EventListener
  */
@@ -47,7 +48,7 @@ var EventListener = function(ee, event, fn) {
 
     /**
      * Removes this event listener
-     * @group XQCore.Event.EventListener
+     * @group XQFire.Event.EventListener
      * @private
      * @method remove
      * @return {Boolean} Returns true if event was removed
@@ -66,15 +67,15 @@ var EventListener = function(ee, event, fn) {
  * @method EventEmitter
  */
 var EventEmitter = function() {
-    log  = new XQCore.Logger('EventEmitter');
+    log  = new Logger('EventEmitter');
     this.__events = {};
     this.__logger = log;
-    
+
     /**
      * Sets max length of event listeners
      * @property {Number} maxLength
      */
-    this.maxLength = XQCore.eventListenerMaxLength;
+    this.maxLength = XQFire.eventListenerMaxLength;
 };
 
 /**
@@ -173,7 +174,7 @@ EventEmitter.prototype.off = function(event, fn) {
                 this.__events[event].splice(i, 1);
                 removed++;
                 //Do not break at this point, to remove duplicated events
-                
+
                 if (this.__events[event].length === 0) {
                     delete this.__events[event];
                 }

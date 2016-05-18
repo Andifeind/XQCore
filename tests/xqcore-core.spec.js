@@ -1,4 +1,4 @@
-describe.only('XQCore.Core', function() {
+describe.skip('XQCore.Core', function() {
     'use strict';
 
     describe('XQCore', function() {

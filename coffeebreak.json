@@ -3,12 +3,17 @@
 	"browser": true,
     "libs": [
         "lib/firetpl.js",
-        "tests/mocks/sockjs.mock.js"
+        "tests/mocks/sockjs.mock.js",
+        "lib/testberry.js",
+        "lib/inspect.js"
     ],
     "files": [
         "xqcore.js"
     ],
-	"tests": "tests/*.spec.js",
+	"tests": [
+        "tests/*.spec.js",
+        "tests/testberry/*.spec.js"
+    ],
 	"watch": [
 		"src/*.js",
 		"tests/*.spec.js"

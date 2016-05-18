@@ -10,14 +10,8 @@ class InputElement extends RootElement {
     };
   }
 
-  listener() {
-    this.el.addEventListener('change', ev => this.$change({
-      value: ev.value
-    }, ev));
-  }
-
-  onChange() {
-
+  $change(ev) {
+    return ev.value;
   }
 }
 

@@ -29,6 +29,13 @@ class RootElement extends EventEmitter {
     let tagName = this.constructor.name;
     this.el = document.createElement(this.tag);
     this.el.className = tagName;
+    this.render({});
+
+    if (this.$change) {
+      this.el.addEventListener('change', ev => {
+        this.emit('change', this.$change(ev), ev);
+      });
+    }
   }
 
   append(el) {
@@ -41,6 +48,17 @@ class RootElement extends EventEmitter {
     }
 
     this.el.appendChild(el.el);
+  }
+
+  render(data) {
+    if (this.tmpl) {
+      let html = this.tmpl;
+      if (typeof html === 'function') {
+        html = html(data);
+      }
+
+      this.el.innerHTML = html;
+    }
   }
 }
 

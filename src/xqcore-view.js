@@ -12,7 +12,8 @@ let Logger = require('./xqcore-logger');
 let HTMLElements = {
   RootElement: require('./elements/root'),
   NotFoundElement: require('./elements/notFound'),
-  InputElement: require('./elements/input'),
+  Input: require('./elements/input'),
+  List: require('./elements/list'),
   PageSection: require('./elements/pageSection'),
   PageRoot: require('./elements/pageRoot'),
   PageHeader: require('./elements/pageHeader'),
@@ -57,6 +58,10 @@ class View {
     }
 
     this.el.el.appendChild(el.el.el);
+  }
+
+  static registerHTMLComponent(name, component) {
+    HTMLElements[name] = component;
   }
 }
 

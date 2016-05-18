@@ -177,7 +177,7 @@ XQCore.promise = function(callback) {
  * @return {object|array}  Returns a resolved tree response
  */
 XQCore.recurse = function(tree, fn) {
-  console.log('REC', tree.length, tree);
+  console.log('REC', tree);
   if (Array.isArray(tree)) {
     let res = [];
 

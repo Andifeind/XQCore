@@ -485,11 +485,40 @@ Presenter.prototype.createView = function (viewTree) {
   log.debug('Render view tree', viewTree);
 
   let tree = XQCore.recurse([viewTree], function(data, next) {
-    var tagName = Object.keys(data)[0];
+    var tagName = data.name;
     var view = new XQCore.View(tagName);
-    var childs = next(data[tagName].childs);
+    var childs = next(data.childs);
     if (childs) {
       view.append(childs);
+    }
+
+    if (data.model) {
+      let model = new XQCore.__models[data.model]();
+
+      if (view.el.$change) {
+        view.el.on('change', evData => {
+          if (data.prop) {
+            model.set(data.prop, evData);
+          }
+        });
+      }
+    }
+    else if (data.list) {
+      let list = new XQCore.__lists[data.list]();
+
+      if (view.el.$change) {
+        view.el.on('change', evData => {
+          if (data.prop) {
+            let listItem = {};
+            listItem[data.prop] = evData;
+            list.add(listItem);
+          }
+        });
+      }
+
+      list.on('item.push', data => {
+        view.el.push(data);
+      });
     }
 
     return view;

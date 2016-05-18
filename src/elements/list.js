@@ -12,17 +12,15 @@ class ListElement extends RootElement {
 
   render(data) {
     if (Array.isArray(data)) {
-      let html = '';
       for (let item of data) {
-        html += '<li>' + item + '</li>';
+        this.push(item);
       }
-
-      this.el.innerHTML = html;
     }
   }
 
   push(data) {
-    this.el.innerHTML += '<li>' + data + '</li>';
+    let item = this.item;
+    this.append(item(data));
   }
 }
 

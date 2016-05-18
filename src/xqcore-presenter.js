@@ -516,15 +516,20 @@ Presenter.prototype.createView = function (viewTree) {
         });
       }
 
-      list.on('item.push', data => {
-        view.el.push(data);
-      });
+      if (view.el.push) {
+        list.on('item.push', data => {
+          view.el.push(data);
+        });
+
+        list.each(model => {
+          view.el.push(model.get());
+        });
+      }
     }
 
     return view;
   });
 
-  console.log('TREE', tree);
   document.addEventListener('DOMContentLoaded', () => {
     tree[0].injectInto(document.body);
   });

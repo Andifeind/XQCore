@@ -46,8 +46,18 @@ class RootElement extends EventEmitter {
 
       return;
     }
-
-    this.el.appendChild(el.el);
+    else if (typeof el === 'string') {
+      let docFrac = document.createDocumentFragment();
+      let div = document.createElement('div');
+      div.innerHTML = el;
+      for (let item of div.children) {
+        docFrac.appendChild(item);
+      }
+      this.el.appendChild(docFrac);
+    }
+    else {
+      this.el.appendChild(el.el);
+    }
   }
 
   render(data) {

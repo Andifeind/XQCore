@@ -517,8 +517,8 @@ Presenter.prototype.createView = function (viewTree) {
       }
 
       if (view.el.push) {
-        list.on('item.push', data => {
-          view.el.push(data);
+        list.on('item.push', model => {
+          view.el.push(model[0].get());
         });
 
         list.each(model => {

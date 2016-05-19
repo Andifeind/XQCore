@@ -8,6 +8,10 @@ class ListElement extends RootElement {
     this.attrs = {
       type: 'text'
     };
+
+    this.item = function(data) {
+      return '<li>' + data + '</li>';
+    };
   }
 
   render(data) {

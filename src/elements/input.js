@@ -11,7 +11,7 @@ class InputElement extends RootElement {
   }
 
   $change(ev) {
-    return ev.value;
+    return ev.currentTarget.value;
   }
 }
 

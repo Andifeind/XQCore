@@ -3,13 +3,13 @@
  *
  * A view renders a .fire or .hbs template and injects the result into the dom.
  *
- * @module XQCore.View
+ * @module View
  * @returns {object} Returns a XQCore.View prototype object
  */
 'use strict';
 
-let Logger = require('./xqcore-logger');
-let HTMLElements = {
+var Logger = require('./xqcore-logger');
+var HTMLElements = {
   RootElement: require('./elements/root'),
   NotFoundElement: require('./elements/notFound'),
   Input: require('./elements/input'),
@@ -20,17 +20,36 @@ let HTMLElements = {
   PageFooter: require('./elements/pageFooter')
 };
 
-let log;
+var log;
 
 /**
  * XQCore.View
  *
- * @class XQCore.View
+ * @class View
  * @constructor
  *
  * @param {object} conf View configuration
  */
-class View {
+function View(tag) {
+
+}
+
+/**
+ * Sets a view state
+ * @param {[type]} state [description]
+ */
+View.prototype.setState = function (state) {
+  if (this.state) {
+    this.removeClass('state-' + this.state);
+  }
+
+  this.state = state;
+  this.addClass('state-' + this.state);
+  return this;
+};
+
+/*
+class XView {
   constructor(tag) {
     log = new Logger(tag + 'View');
 
@@ -64,7 +83,7 @@ class View {
     HTMLElements[name] = component;
   }
 }
-
+*/
 //--
 
 module.exports = View;

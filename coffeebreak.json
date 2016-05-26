@@ -1,6 +1,7 @@
 {
 	"project": "XQCore",
 	"browser": true,
+    "commonjs": true,
     "libs": [
         "lib/firetpl.js",
         "tests/mocks/sockjs.mock.js",

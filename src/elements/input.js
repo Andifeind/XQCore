@@ -1,18 +1,16 @@
-let RootElement = require('./root');
+let Core = require('./core');
 
-class InputElement extends RootElement {
-  constructor() {
-    super();
+function Input () {
+  Core.call(this);
 
-    this.tag = 'input';
-    this.attrs = {
-      type: 'text'
-    };
-  }
-
-  $change(ev) {
-    return ev.currentTarget.value;
-  }
+  this.tag = 'input';
+  this.attrs = {
+    type: 'text'
+  };
 }
 
-module.exports = InputElement;
+Input.prototype.$change = function(ev) {
+  this.setValue(ev.currentTarget.value);
+}
+
+module.exports = Input;

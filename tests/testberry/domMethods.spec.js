@@ -1,5 +1,7 @@
 'use strict';
 
+var testberry = require('testberry');
+
 /*eslint no-undef: 0 */
 describe('Testberry tests', function() {
   let TESTLIST = '<li>Test list I</li><li>Test list II</li><li>Test list III</li>' +

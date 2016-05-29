@@ -11,6 +11,7 @@ describe('XQCore List', function() {
         });
 
         it('Should be a function', function() {
+            console.log('XQC', XQCore);
             expect(XQCore.List).to.be.a('function');
         });
 
@@ -179,7 +180,7 @@ describe('XQCore List', function() {
                 a: 'CC',
                 b: 'DD'
             });
-            
+
             expect(list.items[2].properties).to.eql({
                 a: 'EE',
                 b: 'FF'
@@ -242,7 +243,7 @@ describe('XQCore List', function() {
                 a: 'CC',
                 b: 'DD'
             });
-            
+
             expect(list.items[2].properties).to.eql({
                 a: 'EE',
                 b: 'FF'
@@ -370,7 +371,7 @@ describe('XQCore List', function() {
         });
     });
 
-    
+
 
     describe('unshift', function() {
         it('Should add one item to the beginning of the list', function() {
@@ -416,7 +417,7 @@ describe('XQCore List', function() {
                 a: 'CC',
                 b: 'DD'
             });
-            
+
             expect(list.items[2].properties).to.eql({
                 a: 'AA',
                 b: 'BB'
@@ -479,7 +480,7 @@ describe('XQCore List', function() {
                 a: 'CC',
                 b: 'DD'
             });
-            
+
             expect(list.items[2].properties).to.eql({
                 a: 'AA',
                 b: 'BB'
@@ -649,7 +650,7 @@ describe('XQCore List', function() {
             expect(removed).to.be.a('object');
             expect(removed).to.be.equal(model1);
             expect(list.items).to.have.length(0);
-            
+
             removed = list.pop();
             expect(removed).to.be.equal(null);
             expect(list.items).to.have.length(0);
@@ -732,7 +733,7 @@ describe('XQCore List', function() {
             expect(removed).to.be.a('object');
             expect(removed).to.be.equal(model3);
             expect(list.items).to.have.length(0);
-            
+
             removed = list.shift();
             expect(removed).to.be.equal(null);
             expect(list.items).to.have.length(0);
@@ -974,7 +975,7 @@ describe('XQCore List', function() {
             var initial = {
                 str: ''
             };
-            
+
             var res = list.each(initial, fnSpy);
 
             expect(counter).to.eql(3);

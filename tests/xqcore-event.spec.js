@@ -107,7 +107,7 @@ describe('XQCore.Event', function() {
             expect(fn).to.be.calledWith({data: 'aa'});
 
             ee.emit('test', { data: 'bb'});
-            
+
             expect(fn).to.be.calledTwice();
             expect(fn).to.be.calledWith({data: 'aa'});
             expect(fn).to.be.calledWith({data: 'bb'});
@@ -330,7 +330,7 @@ describe('XQCore.Event', function() {
             ee.on('test', fn);
             ee.on('test', fn);
             ee.on('test', fn);
-            
+
             expect(warnStub).to.be.notCalled();
             ee.on('test', fn);
 
@@ -352,7 +352,7 @@ describe('XQCore.Event', function() {
         var ee,
             logStub,
             debugStub;
-            
+
 
         beforeEach(function() {
             ee = new XQCore.Event();
@@ -363,15 +363,15 @@ describe('XQCore.Event', function() {
         });
 
         afterEach(function() {
-            logStub.restore();    
-            debugStub.restore();    
+            logStub.restore();
+            debugStub.restore();
         });
 
         it('Should log each registration of an event', function() {
             ee.on('test', function() {});
             expect(logStub).to.be.calledOnce();
             expect(logStub).to.be.calledWith('Register new `test` event');
-            
+
             logStub.restore();
         });
 
@@ -383,7 +383,7 @@ describe('XQCore.Event', function() {
             expect(logStub).to.be.calledOnce();
             expect(debugStub).to.be.calledOnce();
             expect(logStub).to.be.calledWith('Emit `test` event to', 1, 'listener');
-            expect(debugStub).to.be.calledWith(' ... data:', { a: 'aa' });
+            expect(debugStub).to.be.calledWith(' ... emit data:', { a: 'aa' });
         });
 
         it('Should log an emit failed message if no event of this type were registered', function() {

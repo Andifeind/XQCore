@@ -5,7 +5,8 @@
     "libs": [
         "lib/firetpl.js",
         "tests/mocks/sockjs.mock.js",
-        "lib/testberry.js",
+        "jquery",
+        "testberry",
         "lib/inspect.js"
     ],
     "files": [

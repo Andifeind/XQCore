@@ -1,4 +1,4 @@
-describe('XQCore List', function() {
+describe.skip('XQCore List', function() {
     'use strict';
 
     describe('instance', function() {

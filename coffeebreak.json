@@ -2,16 +2,6 @@
 	"project": "XQCore",
 	"browser": true,
     "commonjs": true,
-    "libs": [
-        "lib/firetpl.js",
-        "tests/mocks/sockjs.mock.js",
-        "jquery",
-        "testberry",
-        "lib/inspect.js"
-    ],
-    "files": [
-        "xqcore.js"
-    ],
 	"tests": [
         "tests/*.spec.js",
         "tests/testberry/*.spec.js"

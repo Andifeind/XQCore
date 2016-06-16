@@ -1,4 +1,4 @@
-describe('XQCore Presenter', function() {
+describe.skip('XQCore Presenter', function() {
     'use strict';
 
     describe('initialize', function() {
@@ -59,9 +59,9 @@ describe('XQCore Presenter', function() {
             expect(coupleListStub).to.be.notCalled();
             expect(coupleViewStub).to.be.calledOnce();
 
-            coupleModelStub.restore();    
-            coupleListStub.restore();    
-            coupleViewStub.restore();    
+            coupleModelStub.restore();
+            coupleListStub.restore();
+            coupleViewStub.restore();
        });
 
         it('Should couple a list and a view', function() {
@@ -79,9 +79,9 @@ describe('XQCore Presenter', function() {
             expect(coupleListStub).to.be.calledOnce();
             expect(coupleViewStub).to.be.calledOnce();
 
-            coupleModelStub.restore();    
-            coupleListStub.restore();    
-            coupleViewStub.restore();    
+            coupleModelStub.restore();
+            coupleListStub.restore();
+            coupleViewStub.restore();
        });
     });
 
@@ -91,7 +91,7 @@ describe('XQCore Presenter', function() {
             var presenter = new XQCore.Presenter('test');
             var model = new XQCore.Model('test');
             var view = new XQCore.View('test');
-            
+
             presenter.coupleModel(view, model);
 
             expect(model.__coupled).to.be.an('object');
@@ -107,7 +107,7 @@ describe('XQCore Presenter', function() {
             var presenter = new XQCore.Presenter('test');
             var model = new XQCore.Model('test');
             var view = new XQCore.View('test');
-            
+
             presenter.coupleModel(view, model);
 
             expect(model.__coupled).to.be.an('object');
@@ -127,7 +127,7 @@ describe('XQCore Presenter', function() {
             var presenter = new XQCore.Presenter('test');
             var list = new XQCore.List('test');
             var view = new XQCore.View('test');
-            
+
             presenter.coupleList(view, list);
 
             expect(list.__coupled).to.be.an('object');
@@ -143,7 +143,7 @@ describe('XQCore Presenter', function() {
             var presenter = new XQCore.Presenter('test');
             var list = new XQCore.List('test');
             var view = new XQCore.View('test');
-            
+
             presenter.coupleList(view, list);
 
             expect(list.__coupled).to.be.an('object');
@@ -163,7 +163,7 @@ describe('XQCore Presenter', function() {
             var presenter = new XQCore.Presenter('test');
             var model = new XQCore.Model('test');
             var view = new XQCore.View('test');
-            
+
             presenter.coupleView(view, model);
 
             expect(model.__coupled).to.be(undefined);
@@ -179,7 +179,7 @@ describe('XQCore Presenter', function() {
             var presenter = new XQCore.Presenter('test');
             var list = new XQCore.List('test');
             var view = new XQCore.View('test');
-            
+
             presenter.coupleView(view, list);
 
             expect(list.__coupled).to.be(undefined);
@@ -195,7 +195,7 @@ describe('XQCore Presenter', function() {
             var presenter = new XQCore.Presenter('test');
             var model = new XQCore.Model('test');
             var view = new XQCore.View('test');
-            
+
             presenter.coupleView(view, model);
 
             expect(view.__coupled).to.be.an('object');
@@ -213,7 +213,7 @@ describe('XQCore Presenter', function() {
             var presenter = new XQCore.Presenter('test');
             var list = new XQCore.List('test');
             var view = new XQCore.View('test');
-            
+
             presenter.coupleView(view, list);
 
             expect(view.__coupled).to.be.an('object');
@@ -256,7 +256,7 @@ describe('XQCore Presenter', function() {
         it('Should register a routing listener', function() {
             var indexStub = sinon.stub();
             var addStub = sinon.stub();
-            
+
             var presenter = new XQCore.Presenter('Test', function(self) {
                 self.route('index', indexStub);
                 self.route('add', addStub);
@@ -274,7 +274,7 @@ describe('XQCore Presenter', function() {
         it('Should register an array of routes with the same listener', function() {
             var indexStub = sinon.stub();
             var addStub = sinon.stub();
-            
+
             var presenter = new XQCore.Presenter('Test', function(self) {
                 self.route('index', indexStub);
                 self.route(['add', 'new'], addStub);

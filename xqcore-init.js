@@ -15,6 +15,7 @@ XQCore.SyncList = require('./src/xqcore-synclist');
 XQCore.SyncModel = require('./src/xqcore-syncmodel');
 XQCore.Tmpl = require('./src/xqcore-tmpl');
 XQCore.View = require('./src/xqcore-view');
+XQCore.Component = require('./src/xqcore-component');
 
 require('./src/xqcore-utils');
 

@@ -1,0 +1,55 @@
+.pageMain {
+  margin: 0;
+  font-size: 13px;
+  font-family: sans-serif;
+}
+
+.pageLeft {
+  background-color: #eee;
+  padding: 10px;
+  position: absolute;
+  width: 200px;
+  box-sizing: border-box;
+}
+
+.pageBody {
+  padding: 10px;
+  margin-left: 200px;
+}
+
+.componentsListing {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.componentItem {
+}
+
+.link:link,
+.link:visited {
+  padding: 2px 5px;
+  color: #000;
+  display: inline-block;
+  text-decoration: none;
+  text-transform: capitalize;
+}
+
+.link:hover {
+  color: #000;
+  background-color: #ddd;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.cmpName {
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.cmpSandbox {
+  background-color: #eee;
+  padding: 10px;
+  border-radius: 5px;
+  color: #333;
+}

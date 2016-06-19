@@ -248,7 +248,7 @@ XQCore.getQuery = function(name) {
 XQCore.isEmptyObject = function(obj) {
     var name;
     //jshint forin:false
-    for ( name in obj ) {
+    for (name in obj) {
         return false;
     }
     return true;

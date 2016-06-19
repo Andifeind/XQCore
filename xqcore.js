@@ -1,124 +1,3 @@
-/*!
- * XQCore - v0.13.1-11
- * 
- * Model View Presenter Javascript Framework
- *
- * XQCore is licenced under MIT Licence
- * http://opensource.org/licenses/MIT
- *
- * Copyright (c) 2012 - 2015 Noname Media, http://noname-media.com
- * Author Andi Heinkelein <andifeind@noname-media.com>
- *
- * Creation date: 2015-12-23
- * 
- */
-
-(function (root, factory) {
-    /*global define:false */
-    'use strict';
-
-    if (typeof define === 'function' && define.amd) {
-        define('xqcore', ['jquery', 'firetpl', './lib/sockjs'], factory);
-    } else if (typeof module !== 'undefined' && module.exports) {
-        module.exports = factory(require('jquery'), require('firetpl'), require('./lib/sockjs'));
-    } else {
-        root.XQCore = factory(window.jQuery, window.FireTPL, window.SockJS);
-    }
-}(this, function () {
-    'use strict';
-
-    var deps = ['jquery', 'firetpl', 'sockjs'],
-        args = Array.prototype.slice.call(arguments);
-    
-    var lastCache;
-    var require = function(file) {
-
-        if (deps.indexOf(file) !== -1) {
-            return args[deps.indexOf(file)];
-        }
-
-        if (require.alias && require.alias[file]) {
-            file = require.alias[file];
-        }
-
-        file = require.resolve(file, this ? this.file : null);
-
-        var module = {
-            exports: {},
-            file: file
-        };
-
-        lastCache = require.cache;
-        if (require.cache[file]) {
-            
-            if (require.cache[file].obj) {
-                return require.cache[file].obj;
-            }
-
-            require.cache[file].fn(module, module.exports, require.bind(module));
-            require.cache[file].obj = module.exports || {};
-            return require.cache[file].obj;
-        }
-        else {
-            throw new Error('Module ' + file + ' not found!');
-        }
-    };
-
-    require.resolve = function(path, parent) {
-        parent = parent || '';
-
-        var resolved = [];
-        if (path.charAt(0) === '.') {
-            var newPath = parent;
-            newPath = newPath.split('/');
-            newPath.pop();
-            newPath = newPath.concat(path.split('/'));
-
-            newPath.forEach(function(p) {
-                if (p === '..') {
-                    resolved.pop();
-                    return;
-                }
-                else if (p === '.' || p === '') {
-                    return;
-                }
-
-                resolved.push(p);
-            });
-
-            if (!parent ||parent.charAt(0) === '.') {
-                resolved.unshift('.');
-            }
-        }
-        else {
-            return path;
-        }
-
-        resolved = resolved.join('/');
-        if (!/\.js(on)?$/.test(resolved)) {
-            resolved += '.js';
-        }
-
-        return resolved;
-    };
-
-    require.register = function(alias, path, fn) {
-        if (arguments.length === 2) {
-            fn = path;
-            path = alias;
-            alias= null;
-        }
-
-        require.cache[path] = {fn: fn, calls: 0};
-        if (alias) {
-            require.alias[alias] = path;
-        }
-    };
-
-    require.cache = {};
-    require.alias = {};
-
-require.register('./xqcore-init.js', function(module, exports, require) {
 var XQCore = require('./src/xqcore-core');
 XQCore.Promise = require('./src/xqcore-promise');
 XQCore.Logger = require('./src/xqcore-logger');
@@ -136,13 +15,12 @@ XQCore.SyncList = require('./src/xqcore-synclist');
 XQCore.SyncModel = require('./src/xqcore-syncmodel');
 XQCore.Tmpl = require('./src/xqcore-tmpl');
 XQCore.View = require('./src/xqcore-view');
+XQCore.Component = require('./src/xqcore-component');
 
 require('./src/xqcore-utils');
 
 module.exports = XQCore;
 
-});
-require.register('./src/xqcore-core.js', function(module, exports, require) {
 'use strict';
 
 /**
@@ -164,7 +42,7 @@ var XQCore = {
      * @property {String} version
      */
     version: '0.13.1',
-    
+
     /**
      * Defines a default route
      * @property {String} defaultRoute
@@ -228,7 +106,7 @@ var XQCore = {
 /**
  * Merges the properties from one or more objects together into a target object
  * Its simply an alias for jQuery.extend.
- * 
+ *
  * @method extend
  * @param {Boolean} [deep] If true, a deep merge is using
  * @param {Object} target Target object. This object will be extended with new properties
@@ -248,7 +126,7 @@ var XQCore = {
  *
  * extend(target, obj1);
  * //Returns {a: 'A1', b: 'B2', c: 'C2'}
- *  
+ *
  */
 Object.defineProperty(XQCore, 'extend', {
     enumerable: false,
@@ -277,19 +155,24 @@ Object.defineProperty(XQCore, 'extend', {
                 }
             }
         }
-        
+
         return to;
     }
 });
 
 /**
  * Checks whether an value is a plain object
+ *
+ * Tests if an value is an object and was declared with `{}` and it hasn't any prototyped properties
+ *
  * @method isPlainObject
  *
  * @param {Object} obj The value which should be checked
  * @returns {Boolean} Returns true if value is a function, otherwise returns false
  */
-XQCore.isPlainObject = $.isPlainObject;
+XQCore.isPlainObject = function(obj) {
+
+};
 
 
 /**
@@ -303,7 +186,7 @@ XQCore.isFunction = $.isFunction;
 
 /**
  * Checks for a valid ObjectId
- * 
+ *
  * The pattern of an objectId can be overwritten by setting the XQCore.objectIdPattern property
  *
  * @return {Boolean} Returns true if value is an valid objectId
@@ -314,7 +197,7 @@ XQCore.isObjectId = function(value) {
 
 /**
  * Set a local for the current session
- * 
+ *
  * @method setLocale
  * @param  {String}  locale Local string
  */
@@ -347,7 +230,7 @@ XQCore.getLocale = function() {
  * 3 = info
  * 4 = debug
  * 5 = trace
- * 
+ *
  * @property {String} logLevel
  */
 XQCore.logLevel = 1;
@@ -388,7 +271,7 @@ XQCore.getQuery = function(name) {
 XQCore.isEmptyObject = function(obj) {
     var name;
     //jshint forin:false
-    for ( name in obj ) {
+    for (name in obj) {
         return false;
     }
     return true;
@@ -411,89 +294,6 @@ XQCore.isEmpty = function(obj) {
 
 module.exports = XQCore;
 
-});
-require.register('./src/xqcore-promise.js', function(module, exports, require) {
-'use strict';
-
-// var callAll = function(fnStack, data, done) {
-//   var next = function() {
-//     var nextFn = fnStack.unshift();
-//     if (!nextFn) {
-//       done();
-//     }
-//     else {
-//       next();
-//     }
-//   };
-
-//   next();
-// };
-
-var Promise = function(fn) {
-  this._fullFillFuncs = [];
-  this._rejectsFuncs = [];
-  this.state = 'pending';
-  this.value = null;
-
-  this.onFullFill = function(value) {
-    this.state = 'fulfilled';
-    this.value = value;
-    this._fullFillFuncs.forEach(function(fn) {
-      fn(value);
-    });
-  }.bind(this);
-
-  this.onReject = function(reason) {
-    this.state = 'rejected';
-    this.reason = reason;
-    this._rejectsFuncs.forEach(function(fn) {
-      fn(reason);
-    });
-  }.bind(this);
-
-  fn(this.onFullFill, this.onReject);
-};
-
-Promise.resolve = function(value) {
-  var promise = new Promise(function(resolve) {
-    resolve(value);
-  });
-  
-  return promise;
-};
-
-Promise.reject = function(reason) {
-  var promise = new Promise(function(resolve, reject) {
-    reject(reason);
-  });
-
-  return promise;
-};
-
-Promise.prototype.then = function(fn) {
-  if (this.state === 'pending') {
-    this._fullFillFuncs.push(fn);
-  }
-  else if (this.state === 'fulfilled') {
-    fn(this.value);
-  }
-  return this;
-};
-
-Promise.prototype.catch = function(fn) {
-  if (this.state === 'pending') {
-    this._rejectsFuncs.push(fn);
-  }
-  else if (this.state === 'rejected') {
-    fn(this.reason);
-  }
-  return this;
-};
-
-module.exports = Promise;
-
-});
-require.register('./src/xqcore-logger.js', function(module, exports, require) {
 /**
  * XQCore Logger module
  *
@@ -729,79 +529,219 @@ Logger.prototype.getHumanTime = function(time) {
 
 module.exports = Logger;
 
-});
-require.register('./src/xqcore-readystate.js', function(module, exports, require) {
+/**
+ * Extends XQCore with some usefull functions
+ *
+ * @module  XQCore.Utils
+ */
 'use strict';
 
-/**
- * XQCore.ReadyState module
- * 
- * Holds a function call until a state becomes ready
- * 
- * @module XQCore.ReadyState
- */
-var ReadyState = function() {
-    this.__isReady = false;
-    this.__readyFuncs = [];
+var XQCore = require('./xqcore-core');
+
+XQCore.undotify = function(path, obj) {
+  if(path) {
+    path = path.split('.');
+    path.forEach(function(key) {
+      obj = obj ? obj[key] : undefined;
+    });
+  }
+
+  return obj;
 };
 
 /**
- * Wait till view is ready
+ * Creates a object from an dotified key and a value
  *
- * @method ready
- * @param {Function} fn FUnction to be called if state becomes ready
+ * @public
+ * @method dedotify
+ *
+ * @param {Object} obj Add new value to obj. This param is optional.
+ * @param {String} key The dotified key
+ * @param {Any} value The value
+ *
+ * @returns {Object} Returns the extended object if obj was set otherwis a new object will be returned
  */
-ReadyState.prototype.ready = function(fn) {
-    if (this.__isReady) {
-        fn.call(this);
-    }
-    else {
-        this.__readyFuncs.push(fn);
-    }
+XQCore.dedotify = function(obj, key, value) {
+
+  if (typeof obj === 'string') {
+    value = key;
+    key = obj;
+    obj = {};
+  }
+
+  var newObj = obj;
+
+  if(key) {
+    key = key.split('.');
+    var len = key.length;
+    key.forEach(function(k, i) {
+      if (i === len - 1) {
+        if (/\[\]$/.test(k)) {
+          k = k.substr(0, k.length - 2);
+          if (!obj[k]) {
+            obj[k] = [];
+          }
+          obj[k].push(value);
+          return;
+        }
+
+        obj[k] = value;
+        return;
+      }
+
+      if (!obj[k]) {
+        obj[k] = {};
+      }
+
+      obj = obj[k];
+    });
+  }
+
+  obj = value;
+
+  return newObj;
 };
 
 /**
- * Sets a state ready and calls all retained functions
- * 
- * @method setReady
+ * Creates a unique id
+ *
+ * @param {Number} len (Optional) String length. Defaults to 7
+ * @returns {String} Unique string
  */
-ReadyState.prototype.setReady = function() {
-    var self = this;
+XQCore.uid = function(len) {
+  len = len || 7;
+  var str = '';
 
-    this.__isReady = true;
-    
-    if (this.__readyFuncs) {
-        this.__readyFuncs.forEach(function(fn) {
-            fn.call(self);
-        });
-        this.__readyFuncs = [];
+  while (str.length < len) {
+    var part = Math.random().toString(36).substr(2);
+    str += part;
+  }
+
+  return str.substr(0, len);
+};
+
+/**
+ * Returns a promise object
+ *
+ * the returning object has two extra methods
+ *
+ * `resolve` to resolv the promise
+ * `reject` to reject the promise
+ *
+ * If callback is set it will be called, when promise will be resolved or rejected.
+ * Gets the reject data as first argument and the resolve data as second argument
+ *
+ * @example {js}
+ * var promise = XQCore.promise();
+ * promise.then(function() {
+ *     console.log('Resolve');
+ * });
+ *
+ * setTimeout(function() {
+ *     promise.resolve();
+ * }, 100);
+ *
+ * @method promise
+ * @param  {Function} [callback] Callback function, to be called on resolv or rejecting the promise
+ * @return {Object} Returns a promise object
+ */
+XQCore.promise = function(callback) {
+
+  var s, r;
+  var promise = new XQCore.Promise(function(resolve, reject) {
+    s = resolve;
+    r = reject;
+  });
+
+  promise.resolve = function(data) {
+    s(data);
+    if (typeof callback === 'function') {
+      callback(null, data);
     }
+
+    return promise;
+  };
+
+  promise.reject = function(data) {
+    r(data);
+    if (typeof callback === 'function') {
+      callback(data);
+    }
+
+    return promise;
+  };
+
+  var chain = [];
+
+  promise.push = function(fn) {
+    if (typeof fn !== 'function') {
+      throw new Error('Could not create a promise chain! First arg is not a function in promise.push().');
+    }
+
+    chain.push(fn);
+    return this;
+  };
+
+  promise.each = function(data) {
+    var p = chain.shift();
+    if (!p) {
+      promise.resolve(data);
+      return;
+    }
+
+    p(data).then(function(data) {
+      promise.each(data);
+    }).catch(function(err) {
+      promise.reject(err);
+    });
+
+    return promise;
+  };
+
+  return promise;
 };
 
 /**
- * Unsets a ready state
- * 
- * @method unsetReady
+ * Walks recursive through a nested object tree
+ * @param  {object|array}  tree Tree object
+ * @param  {Function} fn   Call function on each item
+ * @return {object|array}  Returns a resolved tree response
  */
-ReadyState.prototype.unsetReady = function() {
-    this.__isReady = false;
+XQCore.recurse = function(tree, fn) {
+  console.log('REC', tree);
+  if (Array.isArray(tree)) {
+    let res = [];
+
+    for (let i = 0; i < tree.length; i++) {
+       res.push(fn(tree[i], function(data) {
+         return XQCore.recurse(data, fn)
+       }));
+    }
+
+    return res;
+  }
+  else if (tree && typeof tree === 'object') {
+    let keys = Object.keys(tree);
+    let res = {};
+
+    for (let i = 0; i < keys.length; i++) {
+       res[keys]= fn(tree[keys[i]], fn);
+    }
+
+    return res;
+  }
+
 };
 
-//--
-
-module.exports = ReadyState;
-
-});
-require.register('./src/xqcore-event.js', function(module, exports, require) {
 /**
- * XQCore Event
+ * XQFire Event
  *
  * A powerfull event emitter
  *
- * @module XQCore.Event
+ * @module XQFire.Event
  *
  * @example {js}
- * var ee = new XQCore.Event();
+ * var ee = new XQFire.Event();
  * ee.on('echo', function(msg) {
  *     console.log('Msg:', msg);
  * });
@@ -812,16 +752,17 @@ require.register('./src/xqcore-event.js', function(module, exports, require) {
  * @example {js}
  * var MyModule = function() {
  *     //Call Event constructor
- *     XQCore.Event.call(this);
+ *     XQFire.Event.call(this);
  * };
  *
  * //Extend MyModule with event emitter methods
- * XQCore.extend(MyModule.prototype, XQCore.Event.prototype);
+ * XQFire.extend(MyModule.prototype, XQFire.Event.prototype);
  */
 
 'use strict';
 
-var XQCore = require('./xqcore-core');
+var XQFire = require('./xqcore-core');
+var Logger = require('./xqcore-logger');
 
 var log;
 
@@ -831,7 +772,7 @@ var log;
  * Each event registration is an instance of EventListener
  *
  * @constructor
- * @group XQCore.Event.EventListener
+ * @group XQFire.Event.EventListener
  * @private
  * @method  EventListener
  */
@@ -842,7 +783,7 @@ var EventListener = function(ee, event, fn) {
 
     /**
      * Removes this event listener
-     * @group XQCore.Event.EventListener
+     * @group XQFire.Event.EventListener
      * @private
      * @method remove
      * @return {Boolean} Returns true if event was removed
@@ -861,15 +802,15 @@ var EventListener = function(ee, event, fn) {
  * @method EventEmitter
  */
 var EventEmitter = function() {
-    log  = new XQCore.Logger('EventEmitter');
+    log  = new Logger('EventEmitter');
     this.__events = {};
     this.__logger = log;
-    
+
     /**
      * Sets max length of event listeners
      * @property {Number} maxLength
      */
-    this.maxLength = XQCore.eventListenerMaxLength;
+    this.maxLength = XQFire.eventListenerMaxLength;
 };
 
 /**
@@ -968,7 +909,7 @@ EventEmitter.prototype.off = function(event, fn) {
                 this.__events[event].splice(i, 1);
                 removed++;
                 //Do not break at this point, to remove duplicated events
-                
+
                 if (this.__events[event].length === 0) {
                     delete this.__events[event];
                 }
@@ -997,8 +938,66 @@ EventEmitter.prototype.clearEvents = function() {
 
 module.exports = EventEmitter;
 
-});
-require.register('./src/xqcore-sync.js', function(module, exports, require) {
+'use strict';
+
+/**
+ * XQCore.ReadyState module
+ * 
+ * Holds a function call until a state becomes ready
+ * 
+ * @module XQCore.ReadyState
+ */
+var ReadyState = function() {
+    this.__isReady = false;
+    this.__readyFuncs = [];
+};
+
+/**
+ * Wait till view is ready
+ *
+ * @method ready
+ * @param {Function} fn FUnction to be called if state becomes ready
+ */
+ReadyState.prototype.ready = function(fn) {
+    if (this.__isReady) {
+        fn.call(this);
+    }
+    else {
+        this.__readyFuncs.push(fn);
+    }
+};
+
+/**
+ * Sets a state ready and calls all retained functions
+ * 
+ * @method setReady
+ */
+ReadyState.prototype.setReady = function() {
+    var self = this;
+
+    this.__isReady = true;
+    
+    if (this.__readyFuncs) {
+        this.__readyFuncs.forEach(function(fn) {
+            fn.call(self);
+        });
+        this.__readyFuncs = [];
+    }
+};
+
+/**
+ * Unsets a ready state
+ * 
+ * @method unsetReady
+ */
+ReadyState.prototype.unsetReady = function() {
+    this.__isReady = false;
+};
+
+//--
+
+module.exports = ReadyState;
+
 /**
  * XQCore.Sync
  *
@@ -1279,670 +1278,547 @@ Sync.prototype.submit = function(data) {
 
 module.exports = Sync;
 
-});
-require.register('./src/xqcore-list.js', function(module, exports, require) {
 /**
- * XQCore List
- *  
- * @module  XQCore.List
- * @requires XQCore.Event
- * @requires XQCore.Logger
- * @example
- * 
- * var Model = XQCore.Model.inherit({
- *     schema: {
- *         title: { type: 'string', min: 3, max 100 },
- *         content: { type: 'string', min: 3, max 1000 }
- *     }
- * });
- * 
- * var list new XQCore.List('myList', function(self) { {
- *     self.model = Model
- * }});
+ * XQCore Presenter
  *
- * list.push({
- *     title: 'Item 1',
- *     content: 'This is my first list item'
- * });
- * 
+ * A presenter controlls your models, lists and views.
+ * It renders views as long as any data had been changed.
+ *
+ * @module XQCore.Presenter
  */
 
 'use strict';
 
 var XQCore = require('./xqcore-core');
 
+var log;
+
 /**
- * XQCore.List base class
+ * XQCore.Presenter base class
  *
- * @class XQCore.List
+ * @class XQCore.Presenter
  * @constructor
  *
  * @uses XQCore.Logger
  * @uses XQCore.Event
  *
- * @param {Object} conf List extend object
+ * @param {String} name Presenter name
+ * @param {Function} fn Init callback and presenter scope method. To be called during the instantiating progress
  */
-var List = function(name, conf) {
-    //Call XQCore.ReadyState constructor
-    XQCore.ReadyState.call(this);
+var Presenter = function(name, fn) {
+  var self = this;
 
-    //Call Event constructor
-    XQCore.Event.call(this);
+  if (typeof arguments[0] === 'function') {
+    fn = name;
+    name = null;
+  }
 
-    var self = this;
+  /**
+   * Set presenter name
+   * @public
+   * @type {String}
+   */
+  this.name = name || 'Nameless';
 
-    if (typeof arguments[0] === 'object') {
-        conf = name;
-        name = conf.name;
-    }
+  /**
+   * Router instance
+   * @private
+   * @type {Object}
+   */
+  this.router = XQCore.Router.getInstance();
 
-    /**
-     * Enable debug mode
-     * @public
-     * @type {Boolean}
-     */
-    this.debug = XQCore.debug;
+  /**
+   * Logger instance
+   * @ignore
+   * @type {Object}
+   */
+  log = new XQCore.Logger(this.name + 'Presenter');
 
-    if (conf === undefined) {
-        conf = {};
-    }
+  /**
+   * Stores registered views
+   * @private
+   * @type {Object}
+   */
+  this.__views = {};
 
-    this.__unfiltered = {};
-
-    /**
-     * List name
-     * @property {String} name
-     */
-    this.name = (name ? name.replace(/List$/, '') : 'Nameless') + 'List';
-
-    /**
-     * Contains list items
-     * @property {Array} items
-     */
-    this.items = [];
-
-    /**
-     * Sets a maxlength of items
-     * @property {Number} maxlength
-     * @default null
-     */
-    this.maxLength = null;
-
-    /**
-     * Sets the Model to be used to create new models in push and unshift methods.
-     * @property {Object} model
-     */
-    if (!this.model) {
-        this.model = XQCore.Model;
-    }
-
-    /*!
-     * Mapping of initial conf
-     */
-    if (typeof conf === 'function') {
-        conf.call(this, self);
-    }
-    else {
-        XQCore.extend(this, conf);
-    }
-
-    /**
-     * Sets default values
-     * @property {Object|Array} defaults
-     */
-    if (this.defaults && !XQCore.isEmpty(this.defaults)) {
-        this.push(this.defaults, {
-            silent: true,
-            noValidation: true
-        });
-    }
-    
-    /*!
-     * Sets ready state
-     */
-    this.state('ready');
-    this.setReady();
+  //-- Initial config mapping
+  if (typeof fn === 'function') {
+    fn.call(this, self, log);
+  }
 };
 
-//Extend with ready state
-XQCore.extend(List.prototype, XQCore.ReadyState.prototype);
-XQCore.extend(List.prototype, XQCore.Event.prototype);
-
-XQCore.extend(List.prototype, new XQCore.Logger());
-
-if (XQCore.Sync) {
-    XQCore.extend(List.prototype, XQCore.Sync.prototype);
-}
+XQCore.extend(Presenter.prototype, new XQCore.Event());
 
 /**
- * Inherits a list prototype
- * @method inherit
- * @param  {String} name    list name
- * @param  {Object} options Model properties
- * @return {Object}         Returns a XQCore.Model prototype
+ * Add a history item to the browser history
+ *
+ * @method pushState
+ *
+ * @param {String} url Page URL (Optional) defaults to the curent URL
+ * @param {Object} data Data object
  */
-List.inherit = function(name, options) {
-    if (typeof name === 'object') {
-        options = name;
-        name = undefined;
-    }
+Presenter.prototype.pushState = function(url, data) {
+  // log.info('Check State', data, history.state, XQCore.compare(data, history.state));
+  // if (XQCore.compare(data, history.state)) {
+  //     this.warn('Abborting history.pushState because data are equale to current history state');
+  // }
+  var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
+  url = hash + url;
+  history.pushState(data, '', url || null);
+  log.info('Update history with pushState. New URL: ' + data, url);
+};
 
-    var Proto = function() {
-        XQCore.List.call(this, name, options);
+/**
+ * Add a history item to the browser history
+ *
+ * @method replaceState
+ *
+ * @param {String} url Page URL (Optional) defaults to the current URL
+ * @param {Object} data Data object
+ */
+Presenter.prototype.replaceState = function(url, data) {
+  var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
+  url = hash + url;
+  history.replaceState(data, '', url || null);
+  log.info('Update history with replaceState. New URL: ' + data, url);
+};
+
+/**
+ * Navigates to a given route
+ *
+ * @method  navigateTo
+ *
+ * Options: {
+ *  replace: <Boolean> Replace current history entry with route (Only when html5 routes are enabled)
+ *  noPush: <Boolean> Set this to false to surpress a route change when new route equals to old route
+ * }
+ *
+ * @param {String} route Route url
+ * @param {Object} options Options
+ */
+Presenter.prototype.navigateTo = function(route, options) {
+  //TODO check route trigger
+  options = options || {};
+  if (XQCore.html5Routes) {
+    this.router.callRoute(route, options);
+  }
+  else {
+    location.hash = XQCore.hashBang + route;
+    this.router.callRoute(route, options);
+  }
+};
+
+/**
+ * Navigate back
+ *
+ * @method navigateBack
+ */
+Presenter.prototype.navigateBack = function() {
+  history.back();
+};
+
+/**
+ * Gets a view by it's name
+ *
+ * @method getView
+ * @param {String} viewName Required view name
+ * @return {Object} Returns view object or null if no view was found
+ */
+Presenter.prototype.getView = function(viewName) {
+  return this.__views[viewName] || null;
+};
+
+/**
+ * Returns the current hash
+ *
+ * @method getHash
+ * @returns {String} Returns the current value from location.hash
+ */
+Presenter.prototype.getHash = function() {
+  return location.hash;
+};
+
+/**
+ * Returns the current pathname
+ *
+ * @method getPathname
+ * @returns {String} Returns the current value from location.pathname
+ */
+Presenter.prototype.getPathname = function() {
+  return location.pathname;
+};
+
+/**
+ * Couple a model with a view
+ *
+ * @method couple
+ * @chainable
+ * @param {Object} conf Configuration object
+ *
+ * conf: {
+ *   model: String modelname
+ *   view: String viewname
+ *   route String routename
+ * }
+ */
+Presenter.prototype.couple = function(view, model, conf) {
+  conf = conf || {};
+
+  if (model instanceof XQCore.List) {
+    this.coupleList(view, model, conf);
+  }
+  else {
+    this.coupleModel(view, model, conf);
+  }
+
+  this.coupleView(view, model, conf);
+};
+
+/**
+ * Couples a view onto a model
+ *
+ * @method coupleModel
+ * @param {Object} view XQCore.View instance
+ * @param {Object} model XQCore.Model instance
+ */
+Presenter.prototype.coupleModel = function(view, model, conf) {
+  conf = conf || {};
+
+  if (!(view instanceof XQCore.View)) {
+    return log.error('Could not couple model with view. First arg is not a valid view!');
+  }
+
+  if (!(model instanceof XQCore.Model)) {
+    return log.error('Could not couple model with view. Second arg is not a valid model!');
+  }
+
+  if (model.__coupled) {
+    model.__coupled.uncouple();
+    // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
+  }
+
+  log.info('Couple model', model.name, 'with', view.name);
+
+  model.__coupled = {
+    obj: view,
+    events: [],
+    uncouple: function() {
+      log.info('Uncouple model', model.name, 'from', view.name);
+      model.__coupled.events.forEach(function(ev) {
+        ev.remove();
+      });
+
+      delete model.__coupled;
+    }
+  };
+
+  var eventsMap = {
+    'data.replace': 'render',
+    'data.set': 'render',
+    'value.set': 'change',
+    // 'item.insert': 'xrender',
+    'item.remove': 'remove',
+    'validation.error': 'validationFailed',
+    'state.change': 'onStateChange'
+  };
+
+  var listener = function(listener, func) {
+    var fn = typeof func === 'function' ? func : view[func].bind(view);
+    var handler = model.on(listener, fn);
+    model.__coupled.events.push(handler);
+  };
+
+  for (var key in eventsMap) {
+    if (eventsMap.hasOwnProperty(key)) {
+      listener(key, eventsMap[key]);
+    }
+  }
+
+  //Initial view render with current model data
+  view.render(model.get());
+
+};
+
+/**
+ * Couples a listwith a view
+ *
+ * @method coupleList
+ * @param {Object} view XQCore.View instance
+ * @param {Object} model XQCore.Model instance
+ */
+Presenter.prototype.coupleList = function(view, list) {
+  if (!(view instanceof XQCore.View)) {
+    return log.error('Could not couple list with view. First arg is not a valid view!');
+  }
+
+  if (!(list instanceof XQCore.List)) {
+    return log.error('Could not couple list with view. Second arg is not a valid list!');
+  }
+
+  if (list.__coupled) {
+    list.__coupled.uncouple();
+    // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
+  }
+
+  log.info('Couple list', list.name, 'with', view.name);
+
+  list.__coupled = {
+    obj: view,
+    events: [],
+    uncouple: function() {
+      log.info('Uncouple list', list.name, 'from', view.name);
+      list.__coupled.events.forEach(function(ev) {
+        ev.remove();
+      });
+
+      delete list.__coupled;
+    }
+  };
+
+  var eventsMap = {
+    'item.push': function(data) {
+      view.append('_ftl_root', data[0].toJSON());
+    },
+    'item.unshift': 'prepend',
+    'item.pop': 'removeLast',
+    'item.shift': 'removeFirst',
+    'item.update': 'update',
+    'item.remove': function(item, index) {
+      view.remove('_ftl_root', index);
+    },
+    'state.change': 'onStateChange'
+  };
+
+  var listener = function(listener, func) {
+    var fn = typeof func === 'function' ? func : view[func].bind(view);
+    var handler = list.on(listener, fn);
+    list.__coupled.events.push(handler);
+  };
+
+  for (var key in eventsMap) {
+    if (eventsMap.hasOwnProperty(key)) {
+      listener(key, eventsMap[key]);
+    }
+  }
+
+  //Initial view render with current list data
+  view.render(list.toArray());
+
+};
+
+/**
+ * Couples a view with a model or a list
+ *
+ * @method coupleView
+ * @param {Object} view XQCore.View instance
+ * @param {Object} model XQCore.Model or XQCore.List instance
+ */
+Presenter.prototype.coupleView = function(view, model) {
+  if (!(view instanceof XQCore.View)) {
+    return log.error('Could not couple list with view. First arg is not a valid view!');
+  }
+
+  if (!(model instanceof XQCore.Model) && !(model instanceof XQCore.List)) {
+    return log.error('Could not couple list with view. Second arg is not a valid model or list!');
+  }
+
+  if (view.__coupled) {
+    view.__coupled.uncouple();
+    // return log.error('Model or List', model.name, 'already coupled with', model.__coupled.obj.name, '. Only one view can be coupled with a model or a list !');
+  }
+
+  log.info('Couple view', view.name, 'with', model.name);
+
+  view.__coupled = {
+    obj: model,
+    events: [],
+    uncouple: function(onlySelf) {
+      log.info('Uncouple view', view.name, 'from', model.name);
+      view.__coupled.events.forEach(function(ev) {
+        ev.remove();
+      });
+
+      delete view.__coupled;
+    }
+  };
+
+  var eventsMap;
+  if (model instanceof XQCore.Model) {
+    eventsMap = {
+      'form.submit': 'submit',
+      'input.change': 'set',
+      'input.edit': function(key, value) {
+        var check = model.checkValidation(key, value);
+        if (check) {
+          view.validationSucceeded(key, value);
+        }
+        else {
+          view.validationFailed([{
+            property: name
+          }]);
+        }
+      }
     };
+  }
+  else {
+    eventsMap = {
+      'form.submit': 'submit'
+    };
+  }
 
-    Proto.prototype = Object.create(XQCore.List.prototype);
-    Proto.prototype.constructor = Proto;
-    return Proto;
-};
+  var listener = function(listener, func) {
+    var fn = typeof func === 'function' ? func : model[func].bind(model);
+    var handler = view.on(listener, fn);
+    view.__coupled.events.push(handler);
+  };
 
-/**
- * Contains the length of the list
- * @property length
- * @type {Number}
- */
-Object.defineProperty(List.prototype, 'length', {
-    get: function() {
-        return this.items.length;
+  for (var key in eventsMap) {
+    if (eventsMap.hasOwnProperty(key)) {
+      listener(key, eventsMap[key]);
     }
-});
+  }
 
-/**
- * Change the list state
- *
- * @method state
- * @param {String} state New state
- */
-List.prototype.state = function(state) {
-    this.__state = state;
-    this.emit('state.' + state);
-    this.emit('state.change', state);
 };
 
 /**
- * Get the current list state
+ * Initialize a new view into the presenter scope
  *
- * @method getState
- */
-List.prototype.getState = function() {
-    return this.__state;
-};
-
-/**
- * Adds one ore more items to the end of a list.
- * You can pass a XQCore.Model or a plain data object.
- * A data object will be converted into a XQCore.Model.
- * The model must be valid to be added to the list.
- * 
- * @param {Object|Array} data Model instance or a plain data object. Add multiple models by using an array of items
- * @param {Object} options Options object
- * {
- *     silent: true,    //Disable event emitting
- *     noSync: true     //Don't call sync method
+ * options: {
+ *   mode: String       Insert mode, (append, prepend or replace) replace is default
+ *   inject: Boolean    Set to false to disable injecting view into the DOM
+ *   forms: Boolean|String     View has forms. Add a selector here or set this to true to find all forms
  * }
  *
- * @returns {Boolean} Returns true if validation was succesfully and all items were added
+ * @method initView
+ * @public
+ * @param  {String} viewName  Name of the view
+ * @param  {String} container Container selector, default is 'body'
+ * @param  {Object} options   View options
+ * @return {Object}           Returns a view object
  */
-List.prototype.push = function(data, options) {
-    var models = [],
-        model,
-        item;
+Presenter.prototype.initView = function(viewName, container, options) {
+  options = options || {};
+  var tmplOptions = {};
 
-    options = options || {};
+  if (options.viewDir) {
+    tmplOptions.viewDir = options.viewDir;
+  }
 
-    if (!Array.isArray(data)) {
-        data = [data];
+  var view = new XQCore.View(viewName, function(self) {
+    self.template = XQCore.Tmpl.getTemplate(viewName, tmplOptions);
+    self.mode = options.mode || 'replace';
+    self.container = container || 'body';
+    self.hidden = !!options.hidden;
+    self.forms = options.forms;
+    if (options.inject === false) {
+      self.autoInject = false;
     }
+  });
 
-    for (var i = 0, len = data.length; i < len; i++) {
-        item = data[i];
-    
-        if (item instanceof XQCore.Model) {
-            model = item;
-        }
-        else {
-            model = new this.model('ListItem');
-            model.set(item, {
-                noSync: true,
-                silent: true
-            });
-        }
+  this.__views[viewName] = view;
 
-        if (model.isValid()) {
-            models.push(model);
-        }
-        else {
-            return false;
-        }
-    }
-
-    //No validation error has been ocured.
-    var length = this.items.push.apply(this.items, models);
-
-    if (length) {
-        if (this.maxLength && this.items.length > this.maxLength) {
-            this.items.splice(0, this.items.length - this.maxLength);
-        }
-
-        if (!options.silent) {
-            this.emit('item.push', models, length);
-        }
-
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('push', models);
-            }
-        }
-    }
-
-    return true;
-};
-
-/**
- * Adds one ore more items to the beginning of a list.
- * You can pass a XQCore.Model or a plain data object.
- * A data object will be converted into a XQCore.Model.
- * The model must be valid to be added to the list.
- * 
- * @param {Object|Array} data Model instance or a plain data object. Add multiple models by using an array of items
- * @param {Object} options Options object
- * {
- *     silent: true,    //Disable event emitting
- *     noSync: true     //Don't call sync method
- * }
- * @returns {Boolean} Returns true if validation was succesfully and all items were added
- */
-List.prototype.unshift = function(data, options) {
-    var models = [],
-        model,
-        item;
-
-    options = options || {};
-
-    if (!Array.isArray(data)) {
-        data = [data];
-    }
-
-    for (var i = 0, len = data.length; i < len; i++) {
-        item = data[i];
-    
-        if (item instanceof XQCore.Model) {
-            model = item;
-        }
-        else {
-            model = new this.model('ListItem');
-            model.set(item, {
-                noSync: true,
-                silent: true
-            });
-        }
-
-        if (model.isValid()) {
-            models.unshift(model);
-        }
-        else {
-            return false;
-        }
-    }
-
-    //No validation error has been ocured.
-    var length = this.items.unshift.apply(this.items, models);
-
-    if (length) {
-        if (this.maxLength && this.items.length > this.maxLength) {
-            this.items.splice(this.maxLength);
-        }
-
-        if (!options.silent) {
-            this.emit('item.unshift', models, length);
-        }
-
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('unshift', models);
-            }
-        }
-    }
-
-    return true;
-};
-
-/**
- * Removes the last item from a list and returns it.
- *
- * @event item.remove Emits an item.remove event. The removed item will be passed as the first argument
- * 
- * @param {Object} options Options object
- * {
- *     silent: true,    //Disable event emitting
- *     noSync: true     //Don't call sync method
- * }
- *
- * @returns {Object} Returns the removed item
- */
-List.prototype.pop = function(options) {
-    var model;
-
-    options = options || {};
-
-    model = this.items.pop() || null;
-    if (model === undefined) {
-        return null;
-    }
-
-    if (!options.silent) {
-        this.emit('item.pop', model);
-    }
-
-    if (!options.noSync) {
-        if (typeof this.sync === 'function') {
-            this.sync('pop', model);
-        }
-    }
-
-    return model;
-};
-
-/**
- * Removes the first item from a list and returns it.
- *
- * @event item.shift Emits an item.shift event. The removed item will be passed as the first argument
- * 
- * @param {Object} options Options object
- * {
- *     silent: true,    //Disable event emitting
- *     noSync: true     //Don't call sync method
- * }
- *
- * @returns {Object} Returns the removed item
- */
-List.prototype.shift = function(options) {
-    var model;
-
-    options = options || {};
-
-    model = this.items.shift() || null;
-    if (model === undefined) {
-        return null;
-    }
-
-    if (!options.silent) {
-        this.emit('item.shift', model);
-    }
-
-    if (!options.noSync) {
-        if (typeof this.sync === 'function') {
-            this.sync('shift', model);
-        }
-    }
-
-    return model;
-};
-
-/**
- * Updates a list item or pushs it to the end
- * You can pass a XQCore.Model or a plain data object.
- * A data object will be converted into a XQCore.Model.
- * The model must be valid to be added to the list.
- *
- * @param {Object|Number} match Match to find element which should be updated
- * @param {Object} data Model instance or a plain data object.
- * @param {Object} options Options object
- * {
- *     silent: true,    //Disable event emitting
- *     noSync: true     //Don't call sync method
- * }
- *
- * @fires item.update
- * Fires an item.update event if item was succesfully updated. Othwewise fires an item.push event
- *
- * @returns {Object} Returns the updated item
- */
-List.prototype.update = function(match, data, options) {
-    options = options || {};
-
-    var updateItem;
-    if (typeof match === 'number') {
-
-        updateItem = this.items[match];
-    }
-    else {
-        updateItem = this.findOne(match);
-    }
-
-    if (updateItem) {
-        updateItem.set(data, { noSync: true, silent: true });
-        
-        if (!options.silent) {
-            this.emit('item.update', updateItem);
-        }
-
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('update', match, data);
-            }
-        }
-    }
-
-    return updateItem;
-};
-
-/**
- * Removes an item at a given position
- *
- * @param {Object|Number} match Match to find element which should be removed
- * @param {Object} options Options object
- * {
- *     silent: true,    //Disable event emitting
- *     noSync: true     //Don't call sync method
- * }
- *
- * @fires item.remove
- * Fires an item.remove event if item was succesfully removed.
- *
- * @returns {Object} Returns the removed item
- */
-List.prototype.remove = function(match, options) {
-    options = options || {};
-
-    var removedItem,
-        index = 0;
-    if (typeof match === 'number') {
-        removedItem = this.items[match];
-        index = match;
-    }
-    else {
-        removedItem = this.findOne(match);
-        for (var i = 0, len = this.items.length; i < len; i++) {
-            if (this.items[i] === removedItem) {
-                index = i;
-                break;
-            }
-        }
-    }
-
-    if (removedItem) {
-        this.items.splice(index, 1);
-        
-        if (!options.silent) {
-            this.emit('item.remove', removedItem, index);
-        }
-
-        if (!options.noSync) {
-            if (typeof this.sync === 'function') {
-                this.sync('remove', match, index);
-            }
-        }
-    }
-
-    return removedItem;
-};
-
-/**
- * Clears the whole list
- * @param  {Object} options Options object
- * {
- *     silent: true,    //Disable event emitting
- *     noSync: true     //Don't call sync method
- * }
- *
- * @fires item.clear
- * Fires an item.clear event if item was succesfully cleared. It will not fire any events on an empty list
- *
- * @returns {Number} Returns the amount of removed items
- */
-List.prototype.clear = function(options) {
-    options = options || {};
-
-    if (this.items.length === 0) {
-        return 0;
-    }
-    
-    var oldValue = this.toArray();
-
-    this.items = [];
-
-    if (!options.silent) {
-        this.emit('item.clear', oldValue);
-    }
-
-    if (!options.noSync) {
-        if (typeof this.sync === 'function') {
-            this.sync('clear', oldValue);
-        }
-    }
-
-    return oldValue.length;
-};
-
-/**
- * Returns list items as an array
- * @method toArray
- * @return {Array} Returns an array of list items
- */
-List.prototype.toArray = function() {
-    return this.items.map(function(model) {
-        return model.properties;
+  var self = this;
+  if (XQCore.html5Routes) {
+    view.on('xqcore.navigate', function(url) {
+      self.router.callRoute(url);
     });
+  }
+
+  return view;
 };
 
 /**
- * Compatibility, does the same as toArray()
- * @method toJSON   
- * @return {Array} Returns an array of list items
- */
-List.prototype.toJSON = function() {
-    return this.toArray();
-};
-
-/**
- * Search through list items and returns the first matching item
+ * Register a route listener
  *
- * @method findOne
- * @param {Object} searchfor Searching for object
- * @return {Object} Returns the first matched item or null. The returning item is a XQCore.Model object
+ * @public
+ * @method route
+ * @chainable
+ * @param {String | Array} route Route string
+ * @param {Function} callback Callback function
+ * @returns {Object} Returns this value
  */
-List.prototype.findOne = function(query) {
-    var parent;
+Presenter.prototype.route = function(route, callback) {
+  var self = this;
 
-    parent = this.items;
+  if (typeof callback === 'string') {
+    callback = this[callback];
+  }
 
-    if (parent) {
-        for (var i = 0; i < parent.length; i++) {
-            var prop = parent[i],
-                matching;
-
-            for (var p in query) {
-                if (query.hasOwnProperty(p)) {
-                    if (prop.properties[p] && prop.properties[p] === query[p]) {
-                        matching = true;
-                        break;
-                    }
-                    else {
-                        matching = false;
-                    }
-                }
-            }
-
-            if (matching === true) {
-                return prop;
-            }
-        }
+  if (typeof callback === 'function') {
+    if (typeof route === 'string') {
+      this.router.addRoute(route, callback);
     }
+    else if (Array.isArray(route)) {
+      route.forEach(function(r) {
+        self.router.addRoute(r, callback);
+      });
+    }
+  }
+  else {
+    log.warn('Router callback isn\'t a function', callback, 'of route', route);
+  }
 
-    return null;
+  return this;
 };
 
-/**
- * Search through list items and returns all matching items
- *
- * @method find
- * @param {Object} searchfor Searching for object
- * @return {Object} Returns all matched item or an empty array.
- * The returning value is an array of XQCore.Model objects
- */
-List.prototype.find = function(query) {
-    var parent,
-        res = [];
+Presenter.prototype.createView = function (viewTree) {
+  log.debug('Render view tree', viewTree);
 
-    parent = this.items;
-    
-    if (parent) {
-        for (var i = 0; i < parent.length; i++) {
-            var prop = parent[i],
-                matching;
-
-            for (var p in query) {
-                if (query.hasOwnProperty(p)) {
-                    if (prop.properties[p] && prop.properties[p] === query[p]) {
-                        matching = true;
-                        break;
-                    }
-                    else {
-                        matching = false;
-                    }
-                }
-            }
-
-            if (matching === true) {
-                res.push(prop);
-            }
-
-        }
+  let tree = XQCore.recurse([viewTree], function(data, next) {
+    var tagName = data.name;
+    var view = new XQCore.View(tagName);
+    var childs = next(data.childs);
+    if (childs) {
+      view.append(childs);
     }
 
-    return res;
-};
+    if (data.model) {
+      let model = new XQCore.__models[data.model]();
 
-/**
- * Calls a function on each item.
- * Optionally traverse the `initial` object through all methods and returns it at the end.
- *
- * @method each
- * @param  {Object}   initial Object which will be traversed and returned at the end
- * @param  {Function} fn      Funtion to be called on each item. Gets the model as first arg and the traversing object as second arg.
- * @returns {Object}          Returns a traversed object
- */
-List.prototype.each = function(initial, fn) {
-    if (typeof initial === 'function') {
-        fn = initial;
-        initial = {};
+      if (view.el.$change) {
+        view.el.on('change', evData => {
+          if (data.prop) {
+            model.set(data.prop, evData);
+          }
+        });
+      }
+    }
+    else if (data.list) {
+      let list = new XQCore.__lists[data.list]();
+
+      if (view.el.$change) {
+        view.el.on('change', evData => {
+          if (data.prop) {
+            let listItem = {};
+            listItem[data.prop] = evData;
+            list.add(listItem);
+          }
+        });
+      }
+
+      if (view.el.push) {
+        list.on('item.push', model => {
+          view.el.push(model[0].get());
+        });
+
+        list.each(model => {
+          view.el.push(model.get());
+        });
+      }
     }
 
-    var data = initial;
-    for (var i = 0, len = this.items.length; i < len; i++) {
-        data = fn(this.items[i], data);
-    }
+    return view;
+  });
 
-    return data;
+  document.addEventListener('DOMContentLoaded', () => {
+    tree[0].injectInto(document.body);
+  });
 };
 
 //--
 
-module.exports = List;
+module.exports = Presenter;
 
-});
-require.register('./src/xqcore-model.js', function(module, exports, require) {
 /**
  * XQCore Model
  *
@@ -3189,1635 +3065,6 @@ Model.prototype.toJSON = function() {
 
 module.exports = Model;
 
-});
-require.register('./src/xqcore-presenter.js', function(module, exports, require) {
-/**
- * XQCore Presenter
- *
- * A presenter controlls your models, lists and views.
- * It renders views as long as any data had been changed.
- *
- * @module XQCore.Presenter
- */
-
-'use strict';
-
-var XQCore = require('./xqcore-core');
-
-var log;
-
-/**
- * XQCore.Presenter base class
- *
- * @class XQCore.Presenter
- * @constructor
- *
- * @uses XQCore.Logger
- * @uses XQCore.Event
- *
- * @param {String} name Presenter name
- * @param {Function} fn Init callback and presenter scope method. To be called during the instantiating progress
- */
-var Presenter = function(name, fn) {
-    var self = this;
-
-    if (typeof arguments[0] === 'function') {
-        fn = name;
-        name = null;
-    }
-
-    /**
-     * Set presenter name
-     * @public
-     * @type {String}
-     */
-    this.name = name || 'Nameless';
-
-    /**
-     * Router instance
-     * @private
-     * @type {Object}
-     */
-    this.router = XQCore.Router.getInstance();
-
-    /**
-     * Logger instance
-     * @ignore
-     * @type {Object}
-     */
-    log = new XQCore.Logger(this.name + 'Presenter');
-    
-    /**
-     * Stores registered views
-     * @private
-     * @type {Object}
-     */
-    this.__views = {};
-
-    //-- Initial config mapping
-    if (typeof fn === 'function') {
-        fn.call(this, self, log);
-    }
-};
-
-XQCore.extend(Presenter.prototype, new XQCore.Event());
-
-/**
- * Add a history item to the browser history
- *
- * @method pushState
- *
- * @param {String} url Page URL (Optional) defaults to the curent URL
- * @param {Object} data Data object
- */
-Presenter.prototype.pushState = function(url, data) {
-    // log.info('Check State', data, history.state, XQCore.compare(data, history.state));
-    // if (XQCore.compare(data, history.state)) {
-    //     this.warn('Abborting history.pushState because data are equale to current history state');
-    // }
-    var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
-    url = hash + url;
-    history.pushState(data, '', url || null);
-    log.info('Update history with pushState. New URL: ' + data, url);
-};
-
-/**
- * Add a history item to the browser history
- *
- * @method replaceState
- *
- * @param {String} url Page URL (Optional) defaults to the current URL
- * @param {Object} data Data object
- */
-Presenter.prototype.replaceState = function(url, data) {
-    var hash = XQCore.html5Routes || url.charAt(0) === '/' ? '' : XQCore.hashBang;
-    url = hash + url;
-    history.replaceState(data, '', url || null);
-    log.info('Update history with replaceState. New URL: ' + data, url);
-};
-
-/**
- * Navigates to a given route
- *
- * @method  navigateTo
- *
- * Options: {
- *  replace: <Boolean> Replace current history entry with route (Only when html5 routes are enabled)
- *  noPush: <Boolean> Set this to false to surpress a route change when new route equals to old route
- * }
- *
- * @param {String} route Route url
- * @param {Object} options Options
- */
-Presenter.prototype.navigateTo = function(route, options) {
-    //TODO check route trigger
-    options = options || {};
-    if (XQCore.html5Routes) {
-        this.router.callRoute(route, options);
-    }
-    else {
-        location.hash = XQCore.hashBang + route;
-        this.router.callRoute(route, options);
-    }
-};
-
-/**
- * Navigate back
- * 
- * @method navigateBack
- */
-Presenter.prototype.navigateBack = function() {
-    history.back();
-};
-
-/**
- * Gets a view by it's name
- *
- * @method getView
- * @param {String} viewName Required view name
- * @return {Object} Returns view object or null if no view was found
- */
-Presenter.prototype.getView = function(viewName) {
-    return this.__views[viewName] || null;
-};
-
-/**
- * Returns the current hash
- *
- * @method getHash
- * @returns {String} Returns the current value from location.hash
- */
-Presenter.prototype.getHash = function() {
-    return location.hash;
-};
-
-/**
- * Returns the current pathname
- *
- * @method getPathname
- * @returns {String} Returns the current value from location.pathname
- */
-Presenter.prototype.getPathname = function() {
-    return location.pathname;
-};
-
-/**
- * Couple a model with a view
- *
- * @method couple
- * @chainable
- * @param {Object} conf Configuration object
- *
- * conf: {
- *   model: String modelname
- *   view: String viewname
- *   route String routename
- * }
- */
-Presenter.prototype.couple = function(view, model, conf) {
-    conf = conf || {};
-
-    if (model instanceof XQCore.List) {
-        this.coupleList(view, model, conf);
-    }
-    else {
-        this.coupleModel(view, model, conf);
-    }
-
-    this.coupleView(view, model, conf);
-};
-
-/**
- * Couples a view onto a model
- *
- * @method coupleModel
- * @param {Object} view XQCore.View instance
- * @param {Object} model XQCore.Model instance
- */
-Presenter.prototype.coupleModel = function(view, model, conf) {
-    conf = conf || {};
-
-    if (!(view instanceof XQCore.View)) {
-        return log.error('Could not couple model with view. First arg is not a valid view!');
-    }
-
-    if (!(model instanceof XQCore.Model)) {
-        return log.error('Could not couple model with view. Second arg is not a valid model!');
-    }
-
-    if (model.__coupled) {
-        model.__coupled.uncouple();
-        // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
-    }
-
-    log.info('Couple model', model.name, 'with', view.name);
-
-    model.__coupled = {
-        obj: view,
-        events: [],
-        uncouple: function() {
-            log.info('Uncouple model', model.name, 'from', view.name);
-            model.__coupled.events.forEach(function(ev) {
-                ev.remove();
-            });
-
-            delete model.__coupled;
-        }
-    };
-
-    var eventsMap = {
-        'data.replace': 'render',
-        'data.set': 'render',
-        'value.set': 'change',
-        // 'item.insert': 'xrender',
-        'item.remove': 'remove',
-        'validation.error': 'validationFailed',
-        'state.change': 'onStateChange'
-    };
-
-    var listener = function(listener, func) {
-        var fn = typeof func === 'function' ? func : view[func].bind(view);
-        var handler = model.on(listener, fn);
-        model.__coupled.events.push(handler);
-    };
-    
-    for (var key in eventsMap) {
-        if (eventsMap.hasOwnProperty(key)) {
-            listener(key, eventsMap[key]);
-        }
-    }
-
-    //Initial view render with current model data
-    view.render(model.get());
-
-};
-
-/**
- * Couples a listwith a view
- *
- * @method coupleList
- * @param {Object} view XQCore.View instance
- * @param {Object} model XQCore.Model instance
- */
-Presenter.prototype.coupleList = function(view, list) {
-    if (!(view instanceof XQCore.View)) {
-        return log.error('Could not couple list with view. First arg is not a valid view!');
-    }
-
-    if (!(list instanceof XQCore.List)) {
-        return log.error('Could not couple list with view. Second arg is not a valid list!');
-    }
-
-    if (list.__coupled) {
-        list.__coupled.uncouple();
-        // return log.error('View', view.name, 'already coupled with', view.__coupled.obj.name, '. Only one model or list can be coupled with a view!');
-    }
-
-    log.info('Couple list', list.name, 'with', view.name);
-
-    list.__coupled = {
-        obj: view,
-        events: [],
-        uncouple: function() {
-            log.info('Uncouple list', list.name, 'from', view.name);
-            list.__coupled.events.forEach(function(ev) {
-                ev.remove();
-            });
-
-            delete list.__coupled;
-        }
-    };
-
-    var eventsMap = {
-        'item.push': function(data) {
-            view.append('_ftl_root', data[0].toJSON());
-        },
-        'item.unshift': 'prepend',
-        'item.pop': 'removeLast',
-        'item.shift': 'removeFirst',
-        'item.update': 'update',
-        'item.remove': function(item, index) {
-            view.remove('_ftl_root', index);
-        },
-        'state.change': 'onStateChange'
-    };
-
-    var listener = function(listener, func) {
-        var fn = typeof func === 'function' ? func : view[func].bind(view);
-        var handler = list.on(listener, fn);
-        list.__coupled.events.push(handler);
-    };
-    
-    for (var key in eventsMap) {
-        if (eventsMap.hasOwnProperty(key)) {
-            listener(key, eventsMap[key]);
-        }
-    }
-
-    //Initial view render with current list data
-    view.render(list.toArray());
-
-};
-
-/**
- * Couples a view with a model or a list
- *
- * @method coupleView
- * @param {Object} view XQCore.View instance
- * @param {Object} model XQCore.Model or XQCore.List instance
- */
-Presenter.prototype.coupleView = function(view, model) {
-    if (!(view instanceof XQCore.View)) {
-        return log.error('Could not couple list with view. First arg is not a valid view!');
-    }
-
-    if (!(model instanceof XQCore.Model) && !(model instanceof XQCore.List)) {
-        return log.error('Could not couple list with view. Second arg is not a valid model or list!');
-    }
-
-    if (view.__coupled) {
-        view.__coupled.uncouple();
-        // return log.error('Model or List', model.name, 'already coupled with', model.__coupled.obj.name, '. Only one view can be coupled with a model or a list !');
-    }
-
-    log.info('Couple view', view.name, 'with', model.name);
-
-    view.__coupled = {
-        obj: model,
-        events: [],
-        uncouple: function(onlySelf) {
-            log.info('Uncouple view', view.name, 'from', model.name);
-            view.__coupled.events.forEach(function(ev) {
-                ev.remove();
-            });
-
-            delete view.__coupled;
-        }
-    };
-
-    var eventsMap;
-    if (model instanceof XQCore.Model) {
-        eventsMap = {
-           'form.submit': 'submit',
-           'input.change': 'set',
-           'input.edit': function(key, value) {
-                var check = model.checkValidation(key, value);
-                if (check) {
-                    view.validationSucceeded(key, value);
-                }
-                else {
-                    view.validationFailed([{
-                        property: name
-                    }]);
-                }
-           }
-        };
-    }
-    else {
-        eventsMap = {
-           'form.submit': 'submit'
-        };
-    }
-
-    var listener = function(listener, func) {
-        var fn = typeof func === 'function' ? func : model[func].bind(model);
-        var handler = view.on(listener, fn);
-        view.__coupled.events.push(handler);
-    };
-    
-    for (var key in eventsMap) {
-        if (eventsMap.hasOwnProperty(key)) {
-            listener(key, eventsMap[key]);
-        }
-    }
-
-};
-
-/**
- * Initialize a new view into the presenter scope
- *
- * options: {
- *   mode: String       Insert mode, (append, prepend or replace) replace is default
- *   inject: Boolean    Set to false to disable injecting view into the DOM
- *   forms: Boolean|String     View has forms. Add a selector here or set this to true to find all forms
- * }
- * 
- * @method initView
- * @public
- * @param  {String} viewName  Name of the view
- * @param  {String} container Container selector, default is 'body'
- * @param  {Object} options   View options
- * @return {Object}           Returns a view object
- */
-Presenter.prototype.initView = function(viewName, container, options) {
-    options = options || {};
-    var tmplOptions = {};
-
-    if (options.viewDir) {
-        tmplOptions.viewDir = options.viewDir;
-    }
-
-    var view = new XQCore.View(viewName, function(self) {
-        self.template = XQCore.Tmpl.getTemplate(viewName, tmplOptions);
-        self.mode = options.mode || 'replace';
-        self.container = container || 'body';
-        self.hidden = !!options.hidden;
-        self.forms = options.forms;
-        if (options.inject === false) {
-            self.autoInject = false;
-        }
-    });
-
-    this.__views[viewName] = view;
-
-    var self = this;
-    if (XQCore.html5Routes) {
-        view.on('xqcore.navigate', function(url) {
-            self.router.callRoute(url);
-        });
-    }
-
-    return view;
-};
-
-/**
- * Register a route listener
- *
- * @public
- * @method route
- * @chainable
- * @param {String | Array} route Route string
- * @param {Function} callback Callback function
- * @returns {Object} Returns this value
- */
-Presenter.prototype.route = function(route, callback) {
-    var self = this;
-
-    if (typeof callback === 'string') {
-        callback = this[callback];
-    }
-
-    if (typeof callback === 'function') {
-        if (typeof route === 'string') {
-            this.router.addRoute(route, callback);
-        }
-        else if (Array.isArray(route)) {
-            route.forEach(function(r) {
-                self.router.addRoute(r, callback);
-            });
-        }
-
-    }
-    else {
-        log.warn('Router callback isn\'t a function', callback, 'of route', route);
-    }
-
-    return this;
-};
-
-//--
-
-module.exports = Presenter;
-
-});
-require.register('./src/xqcore-router.js', function(module, exports, require) {
-/**
- * XQCore router
- * 
- * Based on router.js v2.1.0
- * Copyright Aaron Blohowiak and TJ Holowaychuk 2011.
- * https://github.com/aaronblohowiak/routes.js
- *
- * @module  XQCore.Router
- *
- * @example
- *
- * var router = XQCore.Router.getInstance(); //Returns a singelton
- * router.addRoute('/index', function() {
- *     // index route was called
- * });
- *
- * router.addRoute('/foo/:name', function(data) {
- *     // data.name contains the name part
- * });
- *
- * 
- */
-
-'use strict';
-
-var XQCore = require('./xqcore-core');
-var $ = require('jquery');
-
-var log = new XQCore.Logger('Router');
-
-/**
- * Convert path to route object
- *
- * A string or RegExp should be passed,
- * will return { re, src, keys} obj
- *
- * @param  {String / RegExp} path
- * @return {Object}
- */
-
-/**
- * Normalize the given path string,
- * returning a regular expression.
- *
- * An empty array should be passed,
- * which will contain the placeholder
- * key names. For example "/user/:id" will
- * then contain ["id"].
- *
- * @ignore
- * @param  {String} path
- * @param  {Array} keys
- * @return {RegExp}
- */
-var pathToRegExp = function(path, keys) {
-    path = path
-        .concat('/?')
-        .replace(/\/\(/g, '(?:/')
-        .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?|\*/g, function(_, slash, format, key, capture, optional) {
-            if (_ === '*') {
-                keys.push(undefined);
-                return _;
-            }
-
-            keys.push(key);
-            slash = slash || '';
-            return '' + (optional ? '' : slash) + '(?:' + (optional ? slash : '') + (format || '') + (capture || '([^/]+?)') + ')' + (optional || '');
-        })
-        .replace(/([\/.])/g, '\\$1')
-        .replace(/\*/g, '(.*)');
-    return new RegExp('^' + path + '$', 'i');
-};
-
-var Route = function(path) {
-    var src, re, keys = [];
-    log.logLevel = XQCore.logLevel;
-
-    if (path instanceof RegExp) {
-        re = path;
-        src = path.toString();
-    } else {
-        re = pathToRegExp(path, keys);
-        src = path;
-    }
-
-    return {
-        re: re,
-        src: path.toString(),
-        keys: keys
-    };
-};
-
-
-/**
- * Attempt to match the given request to
- * one of the routes. When successful
- * a  {fn, params, splats} obj is returned
- *
- * @param  {Array} routes
- * @param  {String} uri
- * @return {Object}
- */
-var match = function(routes, uri, startAt) {
-    var captures, i = startAt || 0;
-
-    for (var len = routes.length; i < len; ++i) {
-        var route = routes[i],
-            re = route.re,
-            keys = route.keys,
-            splats = [],
-            params = {};
-
-        captures = uri.match(re);
-        if (captures) {
-            for (var j = 1, cLen = captures.length; j < cLen; ++j) {
-                var key = keys[j - 1],
-                    val = typeof captures[j] === 'string' ? unescape(captures[j]) : captures[j];
-                if (key) {
-                    params[key] = val;
-                } else {
-                    splats.push(val);
-                }
-            }
-            return {
-                params: params,
-                splats: splats,
-                route: route.src,
-                next: i + 1
-            };
-        }
-    }
-};
-
-/**
- * Router constructor
- *
- * @constructor
- */
-var Router = function(options) {
-    options = options || {};
-
-    /**
-     * Contains all registered routes
-     *
-     * @property {Array} routes
-     * @private
-     */
-    this.routes = [];
-
-    this.routeMap = {};
-
-    if (!options.noListener) {
-        this.registerListener();
-    }
-
-    var self = this;
-    $(function() {
-        //Call current page
-        self.callRoute(self.getPath(), {
-            initialCall: true
-        });
-    });
-};
-
-var instance;
-
-/**
- * Returns a singelton instance of XQCore.Router
- * @return {[type]} [description]
- */
-Router.getInstance = function() {
-    if (!instance) {
-        instance = new XQCore.Router();
-    }
-
-    return instance;
-};
-
-Router.prototype.registerListener = function() {
-    if (XQCore.html5Routes) {
-        window.addEventListener('popstate', this.onPopStateHandler.bind(this));
-    }
-    else {
-        window.addEventListener('hashchange', this.onPopStateHandler.bind(this));
-    }
-};
-
-Router.prototype.onPopStateHandler = function(e) {
-    var path = this.getPath();
-    this.callRoute(path, {
-        noPush: true
-    });
-};
-
-Router.prototype.getPath = function() {
-    var path;
-    if (XQCore.html5Routes) {
-        path = location.pathname;
-        return path.replace(new RegExp('^' + XQCore.basePath), '');
-    }
-    else {
-        path = location.hash;
-        path = path.replace(new RegExp('^' + XQCore.hashBang), '');
-        path = '/' + path;
-        return path;
-    }
-};
-
-/**
- * Registers a new route
- *
- * @method addRoute
- * @param {String}   path Route path
- * @param {Function} fn   Function to be called when addRoute will be called
- * @returns {Object} Returns this value
- * @chainable
- */
-Router.prototype.addRoute = function(path, fn) {
-    log.info('Register new route:', path, fn);
-    
-    if (!path) {
-        throw new Error(' route requires a path');
-    }
-    
-    if (!fn) {
-        throw new Error(' route ' + path.toString() + ' requires a callback');
-    }
-
-    if (this.routeMap[path]) {
-        throw new Error('path is already defined: ' + path);
-    }
-
-    if (typeof path === 'string') {
-        path = path.replace(/\/$/, '');
-        if (path.charAt(0) !== '/') {
-            path = '/' + path;
-        }
-    }
-    
-    var route = new Route(path);
-    route.fn = fn;
-
-    this.routes.push(route);
-    this.routeMap[path] = fn;
-
-    return this;
-};
-
-/**
- * Removes a route
- *
- * @method removeRoute
- * @param  {String} path Path to be removed
- * @return {Object}      Returns this value
- * @chainable
- */
-Router.prototype.removeRoute = function(path) {
-    if (!path) {
-        throw new Error(' route requires a path');
-    }
-
-    if (!this.routeMap[path]) {
-        log.warn('Can not remove route! Route does not exists: ' + path);
-        return this;
-    }
-
-    for (var i = 0; i < this.routes.length; i++) {
-        var route = this.routes[i];
-        if (route.src === path) {
-            this.routes.splice(i, 1);
-        }
-    }
-
-    delete this.routeMap[path];
-    return this;
-};
-
-Router.prototype.match = function(pathname, startAt) {
-    var route = match(this.routes, pathname, startAt);
-    if (route) {
-        route.fn = this.routeMap[route.route];
-        route.next = this.match.bind(this, pathname, route.next);
-    }
-    return route;
-};
-
-/**
- * Calls a route
- *
- * Options:
- * --------
- * **noRoute** Doesn't add a push state item
- * **replace** Add a replace state item
- * 
- *
- * @method callRoute
- * @param  {String} path Route path
- * @param {Object} [options] Set options for route call
- * 
- */
-Router.prototype.callRoute = function(path, options) {
-    options = options || {};
-
-    log.info('Call route', path);
-
-    if (path === undefined) {
-        throw new Error('XQCore.Router error! Path is undefined in callRoute()!');
-    }
-
-    var route = this.match(path);
-    if (!route) {
-        log.warn('Could not call any route! No route were found! Called path: ' + path);
-        return;
-    }
-
-    route.path = path;
-
-    route.initialCall = !!options.initialCall;
-
-    if (XQCore.html5Routes && !options.noPush && !options.replace) {
-        history.pushState(null, '', path);
-    }
-    else if (XQCore.html5Routes && options.replace) {
-        history.replaceState(null, '', path);
-    }
-
-    var next = function() {
-        log.info('... trigger route', this.route, this.fn, this.next);
-        this.fn.call(this, this.params, this.splats, function() {
-            var nextRoute = this.next();
-            if (nextRoute) {
-                next.call(nextRoute);
-            }
-        }.bind(this));
-    };
-
-    next.call(route);
-
-};
-
-module.exports = Router;
-
-});
-require.register('./src/xqcore-service.js', function(module, exports, require) {
-/**
- * XQCore Service
- *
- * This module organizes your data.
- * A model has different states and changes it on a specific action.
- *
- * States:
- * starting | Before initialization
- * ready    | Initial state
- * valid    | Validation was successfull
- * invalid  | Validation failed
- * 
- *  
- * @module  XQCore.Service
- * @requires XQCore.Utils
- * @requires XQCore.Event
- * @requires XQCore.Logger
- */
-
-'use strict';
-
-var XQCore = require('./xqcore-core');
-
-/**
- * XQCore.Service base class
- *
- * @class XQCore.Service
- * @constructor
- *
- * @uses XQCore.Logger
- * @uses XQCore.Event
- *
- * @param {Object} conf Service extend object
- */
-var Service = function(name, conf) {
-    //Call Event constructor
-    XQCore.Event.call(this);
-    
-    if (typeof arguments[0] === 'object') {
-        conf = name;
-        name = conf.name;
-    }
-
-    /**
-     * Enable debug mode
-     * @public
-     * @type {Boolean}
-     */
-    this.logLevel = XQCore.logLevel;
-
-    if (conf === undefined) {
-        conf = {};
-    }
-
-    if (typeof conf === 'function') {
-        conf.call(this, this);
-    }
-    else {
-        XQCore.extend(this, conf);
-    }
-
-    this.conf = conf;
-
-    this.name = (name ? name.replace(/Service$/, '') : 'Nameless') + 'Service';
-
-    if (!this.model && !this.list) {
-        throw new Error('Service is not connected to any model or list!');
-    }
-
-    if (this.model && this.list) {
-        throw new Error('Service is connected to a model and a list. This is not allowed!');
-    }
-    
-    this.isListService = false;
-    if (this.model) {
-        this.schema = this.schema || this.model.schema || null;
-    } else {
-        this.schema = this.schema || null;
-        if (!this.schema && typeof this.list.model === 'function') {
-            var model = new this.list.model();
-            this.schema = model.schema;
-        }
-        this.isListService = true;
-    }
-
-    this.__state = 'ready';
-};
-
-
-//Extend with ready state
-XQCore.extend(Service.prototype, XQCore.ReadyState.prototype);
-XQCore.extend(Service.prototype, XQCore.Event.prototype);
-XQCore.extend(Service.prototype, new XQCore.Logger());
-// XQCore.extend(Service.prototype, XQCore.Sync.prototype);
-
-
-/**
- * Inherits a model prototype
- * @method inherit
- * @param  {String} name    model name
- * @param  {Object} options Service properties
- * @return {Object}         Returns a XQCore.Service prototype
- */
-Service.inherit = function(name, options) {
-    if (typeof name === 'object') {
-        options = name;
-        name = undefined;
-    }
-
-    var Proto = function(_name, _options) {
-        //TODO call this later, ready state will be set before _options had been run
-        XQCore.Service.call(this, name, options);
-
-        if (_name) {
-            if (typeof _name === 'string') {
-                name = _name;
-            }
-            else {
-                _options = _name;
-            }
-
-            if (typeof _options === 'function') {
-                _options.call(this, this);
-            }
-            else if (typeof _options === 'object') {
-                XQCore.extend(this, _options);
-            }
-        }
-    };
-
-    Proto.prototype = Object.create(XQCore.Service.prototype);
-    Proto.prototype.constructor = Proto;
-    return Proto;
-};
-
-/**
- * Change the model state
- *
- * @method state
- * @param {String} state New state
- */
-Service.prototype.state = function(state) {
-    this.__state = state;
-    this.emit('state.' + state);
-    this.emit('state.change', state);
-};
-
-/**
- * Get the current model state
- *
- * @method getState
- */
-Service.prototype.getState = function() {
-    return this.__state;
-};
-
-
-// Service.prototype.toJSON = function() {
-//     return {};
-// };
-
-//--
-
-module.exports = Service;
-
-});
-require.register('./src/xqcore-socket-connection.js', function(module, exports, require) {
-/**
- * Socket connection
- * Creates a socket connection to a socket server. Only one connection is used per server/port combination.
- *
- * @module XQCore.SocketConnection
- */
-
-'use strict';
-
-var XQCore = require('./xqcore-core');
-var SockJS = require('sockjs');
-
-var log = new XQCore.Logger('SocketConnection');
-
-var instances = {};
-
-/**
- * SocetConnection object
- * Handles a socket connection
- *
- * @singelton
- * @constructor
- *
- * @example {js}
- * var conn = new XQCore.SocketConnection('http://localhost:9889/xqsocket');
- * conn.ready(function() {
- *     //Connection was successfull
- * });
- */
-var SocketConnection = function(url) {
-    if (instances[url]) {
-        return instances[url];
-    }
-
-    //Only one instance per socket server
-    instances[url] = this;
-
-    this.__isReady = false;
-    this.__onReadyCallbacks = [];
-    
-    /**
-     * Holds all registered channels
-     * @type {Object} __channels
-     */
-    this.__channels = {};
-
-    /**
-     * Holds the SockJS instance
-     * @private
-     * @type {Object} SockJS instance
-     */
-    this.conn = null;
-
-    this.connect(url);
-
-    /**
-     * Reconnect if connection gets lost
-     * @property {Boolean} autoReconnect
-     */
-    this.autoReconnect = true;
-
-    /**
-     * Defines a reconnection interval
-     * @type {Number}
-     */
-    this.reconnectionInterval = 1500;
-};
-
-/**
- * Connects to a socket server
- * @param  {String} url Socket server url
- */
-SocketConnection.prototype.connect = function(url) {
-    var self = this;
-
-    if (!this.conn || this.connectionState === 'disconnected') {
-        log.info('Connect to socket server ', url);
-        this.conn = new SockJS(url, null, {
-            debug: log.logLevel >= 4
-        });
-
-        this.connectionState = 'connecting';
-        this.conn.onopen = function() {
-            log.info('Connection was successful!');
-            self.setReady();
-            self.connectionState = 'connected';
-        };
-
-        this.conn.onmessage = function(e) {
-            var msg;
-
-            try {
-                msg = JSON.parse(e.data);
-            }
-            catch(err) {
-                console.error('Could not parse socket message!', e.data);
-            }
-
-            if (!msg.channel) {
-                throw new Error('No socket channel was sent!');
-            }
-
-            log.info('Got socket message', msg.eventName, 'in channel ' + msg.channel, msg.args);
-            var args = msg.args || [];
-            args.unshift(msg.eventName);
-            if (self.__channels[msg.channel]) {
-                self.__channels[msg.channel].emit.apply(self.__channels[msg.channel], args);
-            }
-            else {
-                log.info(' ... channel not found!', msg.channel);
-            }
-        };
-
-        this.conn.onclose = function(err) {
-            self.connectionState = 'disconnected';
-            self.unsetReady();
-            log.warn('Connection to ' + url + ' closed!', err);
-            
-            if (self.autoReconnect) {
-                log.info('Try to reconnect to ' + url);
-
-                setTimeout(function() {
-                    self.connect(url);
-                }, self.reconnectionInterval);
-            }
-        };
-    }
-};
-
-/**
- * Register a channel
- * @param  {String} channel  Channel name
- * @param  {Object} listener Socket object
- */
-SocketConnection.prototype.registerChannel = function(channel, listener) {
-    log.info('Register new channel', channel);
-    if (this.__channels[channel]) {
-        log.info(' ... channel already registered!');
-    } else {
-        this.__channels[channel] = listener;
-    }
-};
-
-/**
- * Unregister a channel
- * @param  {String} channel  Channel name
- * @param  {Object} listener Socket object
- */
-SocketConnection.prototype.unregisterChannel = function(channel) {
-    log.info('Unregister channel', channel);
-    if (this.__channels[channel]) {
-        delete this.__channels[channel];
-    } else {
-        log.info(' ... channel not found!');
-    }
-};
-
-/**
- * Sends a socket message to a connected socket server
- *
- * @method send
- * @param {String} channel   Channel name
- * @param {String} eventName Event name
- * @param {Object} data      Data
- * 
- */
-SocketConnection.prototype.send = function(channel, eventName, data) {
-    var self = this;
-
-    var args = Array.prototype.slice.call(arguments, 2);
-
-    this.ready(function() {
-        log.info('Send socket message to channel ' + channel, eventName, args);
-        self.conn.send(JSON.stringify({
-            channel: channel,
-            eventName: eventName,
-            args: args
-        }));
-    });
-};
-
-/**
- * Call function fn when socket is connected
- *
- * @method ready
- * @param  {Function} fn Function to be called if socket is ready
- */
-SocketConnection.prototype.ready = function(fn) {
-    if (this.__isReady) {
-        fn.call(this);
-    }
-    else {
-        this.__onReadyCallbacks.push(fn);
-    }
-};
-
-/**
- * Sets readyState and calls all queued functions
- *
- * @method setReady
- * @private
- */
-SocketConnection.prototype.setReady = function() {
-    var self = this;
-    
-    this.__isReady = true;
-    this.__onReadyCallbacks.forEach(function(fn) {
-        fn.call(self);
-    });
-
-    this.__onReadyCallbacks = [];
-};
-
-SocketConnection.prototype.unsetReady = function() {
-    this.__isReady = false;
-};
-
-//--
-
-module.exports = SocketConnection;
-
-});
-require.register('./src/xqcore-socket.js', function(module, exports, require) {
-/**
- * XQCore socket module handles socket connections to a socket server
- * 
- * @module XQCore.Socket
- * @requires XQCore.Logger
- * @requires sockJS-client
- *
- */
-'use strict';
-
-var XQCore = require('./xqcore-core');
-
-var log = new XQCore.Logger('Socket');
-log.logLevel = 5;
-
-/**
- * Socket connection module
- * @param {String} url     Socket server uri
- * @param {String} channel Socket channel
- *
- * 
- * @example {js}
- * var socket = new XQCore.Socket('http://mysocket.io:9889', 'mychannel');
- * socket.on('data', function() {
- *   console.log('Got data from server');
- * });
- */
-var Socket = function(url, channel) {
-    //Call Event constructor
-    XQCore.Event.call(this);
-    
-    this.__isReady = false;
-    this.__onReadyCallbacks = [];
-
-    this.channel = channel;
-    this.socket = new XQCore.SocketConnection(url);
-    this.socket.registerChannel(channel, this);
-    // this.connect(url, channel);
-};
-
-XQCore.extend(Socket.prototype, XQCore.Event.prototype);
-
-/**
- * Sends a socket message to a connected socket server
- *
- * @method send
- * @param {String} eventName Event name
- * @param {Object} data      Event data, multiple args are allowed
- */
-Socket.prototype.send = function(eventName, data) {
-    var args = Array.prototype.slice.call(arguments);
-    args.unshift(this.channel);
-    this.socket.send.apply(this.socket, args);
-};
-
-module.exports = Socket;
-
-});
-require.register('./src/xqcore-synclist.js', function(module, exports, require) {
-/**
- * XQCore.SyncList - Syncronized list
- *
- * @module  XQCore.SyncList
- * @requires XQCore.List
- * @requires XQCore.Socket
- *
- * @example
- *
- * var syncList = new XQCore.SyncList('mylist', {
- *     port: 3434,
- *     server: 'http://socket.xqcore.com'
- * });
- *
- * This call connects to a socket server
- * http://socket.xqcore.com/xqsocket/mylist
- *
- * A <code>synclist.register</code> event will be fiered to the socket server
- * These data will be send:
- * <code class="json">
- * {
- *     name: this.name
- * }
- *
- * Registers a few listeners:
- * synclist.push, synclist.shift, synclist.pop, synclist.unshift
- * 
- * </code>
- */
-'use strict';
-
-var XQCore = require('./xqcore-core');
-
-
-var SyncList = function(name, conf) {
-    /**
-     * @property {Boolean} noAutoRegister Disables auto registration. SyncList.register() must be called manually to register the list at the socket server.
-     */
-    this.noAutoRegister = false;
-
-    //Call XQCore.List constructor
-    XQCore.List.call(this, name, conf);
-
-    this.server = this.server || location.protocol + '//' + location.hostname;
-    this.port = this.port || XQCore.socketPort;
-    this.path = this.path || 'xqsocket';
-    this.channel = this.channel || this.name.toLowerCase();
-    this.syncEnabled = false;
-    this.connectToSocket();
-    if (!this.noAutoRegister) {
-        this.register();
-    }
-};
-
-SyncList.prototype = Object.create(XQCore.List.prototype);
-SyncList.prototype.constructor = SyncList;
-
-
-/**
- * Inherits a sync model prototype
- * @method inherit
- * @param  {String} name    model name
- * @param  {Object} options SyncList properties
- * @return {Object}         Returns a XQCore.SyncList prototype
- */
-SyncList.inherit = function(name, options) {
-    if (typeof name === 'object') {
-        options = name;
-        name = undefined;
-    }
-
-    var Proto = function() {
-        XQCore.SyncList.call(this, name, options);
-    };
-
-    Proto.prototype = Object.create(XQCore.SyncList.prototype);
-    Proto.prototype.constructor = Proto;
-    return Proto;
-};
-/**
- * Connect to a socket server
- *
- * @method connectToSocket
- */
-SyncList.prototype.connectToSocket = function() {
-    var socketServer = this.server + ':' + this.port + '/' + this.path;
-    if (!this.socket) {
-        this.debug('Connect to socket:', socketServer);
-        this.socket = new XQCore.Socket(socketServer, this.channel);
-    }
-};
-
-/**
- * Register a sync list at the socket server. This action is called automatically except the noAutoRegister option is set.
- * @param  {Boolean} enableSync Enables/Disables the initial sync. Defaults to false
- */
-SyncList.prototype.register = function(enableSync) {
-    var self = this;
-    if (typeof enableSync === 'boolean') {
-        this.syncEnabled = enableSync;
-    }
-
-    self.debug('Register synclist at server:', self.name);
-
-    var opts = {
-        noSync: true
-    };
-    
-    self.socket.on('synclist.push', function(data) {
-        self.push(data, opts);
-    });
-    
-    self.socket.on('synclist.unshift', function(data) {
-        self.push(data, opts);
-    });
-    
-    self.socket.on('synclist.pop', function() {
-        self.push(opts);
-    });
-    
-    self.socket.on('synclist.shift', function() {
-        self.push(opts);
-    });
-    
-    self.socket.on('synclist.update', function(match, data) {
-        self.update(match, data, opts);
-    });
-    
-    self.socket.on('synclist.clear', function() {
-        self.clear(opts);
-    });
-    
-    self.socket.on('synclist.init', function(data) {
-        console.log('Got initial data request:', data);
-        self.push(data, opts);
-    });
-
-    self.socket.send('synclist.register', {
-        name: self.name
-    });
-};
-
-SyncList.prototype.unregister = function() {
-    this.debug('Unregister synclist at server:', this.name);
-    this.socket.send('synclist.unregister', {
-        name: this.name
-    });
-
-    this.socket.off('synclist.push');
-    this.socket.off('synclist.unshift');
-    this.socket.off('synclist.pop');
-    this.socket.off('synclist.shift');
-    this.socket.off('synclist.update');
-    this.socket.off('synclist.clear');
-    this.socket.off('synclist.init');
-};
-
-/**
- * Send a socket message to the server
- * @param  {String} eventName Event name
- * @param  {Object} data      Data object
- */
-SyncList.prototype.emitRemote = function(eventName, data) {
-    this.socket.send(eventName, data);
-};
-
-SyncList.prototype.sync = function(method) {
-    if (!this.syncEnabled) {
-        return;
-    }
-
-    var args = Array.prototype.slice.call(arguments, 1);
-    args.unshift('syncmodel.' + method);
-    this.emitRemote.apply(this, args);
-};
-
-SyncList.prototype.fetchList = function() {
-    this.emitRemote('synclist.fetch');
-};
-
-//--
-
-module.exports = SyncList;
-
-});
-require.register('./src/xqcore-syncmodel.js', function(module, exports, require) {
-/**
- * XQCore Syncronniced module module
- *
- * @module XQCore.SyncModel
- * @requires XQCore.Model
- * @requires XQCore.Socket
- */
-    'use strict';
-
-var XQCore = require('./xqcore-core');
-
-
-var SyncModel = function(name, conf) {
-    /**
-     * @property {Boolean} noAutoRegister Disables auto registration. SyncList.register() must be called manually to register the list at the socket server.
-     */
-    this.noAutoRegister = false;
-
-    //Call XQCore.Model constructor
-    XQCore.Model.call(this, name, conf);
-
-    this.server = this.server || location.protocol + '//' + location.hostname;
-    this.port = this.port || XQCore.socketPort;
-    this.path = this.path || 'xqsocket';
-    this.channel = this.channel || this.name.toLowerCase();
-    this.syncEnabled = false;
-    this.connectToSocket();
-    if (!this.noAutoRegister) {
-        this.register();
-    }
-};
-
-SyncModel.prototype = Object.create(XQCore.Model.prototype);
-SyncModel.prototype.constructor = SyncModel;
-
-/**
- * Inherits a sync model prototype
- * @method inherit
- * @param  {String} name    model name
- * @param  {Object} options SyncModel properties
- * @return {Object}         Returns a XQCore.SyncModel prototype
- */
-SyncModel.inherit = function(name, options) {
-    if (typeof name === 'object') {
-        options = name;
-        name = undefined;
-    }
-
-    var Proto = function() {
-        XQCore.SyncModel.call(this, name, options);
-    };
-
-    Proto.prototype = Object.create(XQCore.SyncModel.prototype);
-    Proto.prototype.constructor = Proto;
-    return Proto;
-};
-
-/**
- * Connect to a socket server
- *
- * @method connectToSocket
- */
-SyncModel.prototype.connectToSocket = function() {
-    var socketServer = this.server + ':' + this.port + '/' + this.path;
-    if (!this.socket) {
-        this.debug('Connect to socket:', socketServer);
-        this.socket = new XQCore.Socket(socketServer, this.channel);
-    }
-};
-
-SyncModel.prototype.register = function(enableSync) {
-    var self = this;
-
-    this.syncEnabled = !!enableSync;
-
-    self.debug('Register syncmodel at server:', self.name);
-
-    var opts = {
-        noSync: true
-    };
-
-    self.socket.on('syncmodel.set', function(data) {
-        self.set(data, opts);
-    });
-
-    self.socket.on('syncmodel.replace', function(data) {
-        opts.replace = true;
-        self.set(data, opts);
-    });
-
-    self.socket.on('syncmodel.item', function(key, value) {
-        self.set(key, value, opts);
-    });
-
-    self.socket.on('syncmodel.insert', function(path, index, data) {
-        self.insert(path, index, data, opts);
-    });
-
-    self.socket.on('syncmodel.remove', function(path, index, data) {
-        self.remove(path, index, data, opts);
-    });
-
-    self.socket.on('syncmodel.reset', function() {
-        self.reset(opts);
-    });
-
-    self.socket.on('syncmodel.init', function(data) {
-        console.log('Got initial data request:', data);
-        self.set(data, opts);
-    });
-
-    self.socket.send('syncmodel.register', {
-        name: self.name
-    });
-};
-
-SyncModel.prototype.unregister = function() {
-    var modelName = this.conf.syncWith || this.name.replace(/Model$/,'');
-    this.socket.send('syncmodel.unregister', {
-        name: modelName
-    });
-
-    this.socket.off('syncmodel.set');
-    this.socket.off('syncmodel.replace');
-    this.socket.off('syncmodel.item');
-    this.socket.off('syncmodel.insert');
-    this.socket.off('syncmodel.remove');
-    this.socket.off('syncmodel.reset');
-    this.socket.off('syncmodel.init');
-};
-
-/**
- * Send a socket message to the server
- * @param  {String} eventName Event name
- * @param  {Object} data      Data object
- */
-SyncModel.prototype.emitRemote = function(eventName, data) {
-    this.socket.send(eventName, data);
-};
-
-SyncModel.prototype.sync = function(method) {
-    if (!this.syncEnabled) {
-        return;
-    }
-
-    var args = Array.prototype.slice.call(arguments, 1);
-    args.unshift('syncmodel.' + method);
-    this.emitRemote.apply(this, args);
-};
-
-SyncModel.prototype.fetchModel = function() {
-    this.emitRemote('syncmodel.fetch');
-};
-
-module.exports = SyncModel;
-
-});
-require.register('./src/xqcore-tmpl.js', function(module, exports, require) {
 /**
  * Template module
  *
@@ -4854,8 +3101,6 @@ var Tmpl = {
 
 module.exports = Tmpl;
 
-});
-require.register('./src/xqcore-view.js', function(module, exports, require) {
 /**
  * XQCore View module
  *
@@ -6068,181 +4313,1787 @@ View.prototype.isElementInDOM = function(el) {
 
 module.exports = View;
 
-});
-require.register('./src/xqcore-utils.js', function(module, exports, require) {
 /**
- * Extends XQCore with some usefull functions
+ * XQCore router
+ * 
+ * Based on router.js v2.1.0
+ * Copyright Aaron Blohowiak and TJ Holowaychuk 2011.
+ * https://github.com/aaronblohowiak/routes.js
  *
- * @module  XQCore.Utils
+ * @module  XQCore.Router
+ *
+ * @example
+ *
+ * var router = XQCore.Router.getInstance(); //Returns a singelton
+ * router.addRoute('/index', function() {
+ *     // index route was called
+ * });
+ *
+ * router.addRoute('/foo/:name', function(data) {
+ *     // data.name contains the name part
+ * });
+ *
+ * 
+ */
+
+'use strict';
+
+var XQCore = require('./xqcore-core');
+var $ = require('jquery');
+
+var log = new XQCore.Logger('Router');
+
+/**
+ * Convert path to route object
+ *
+ * A string or RegExp should be passed,
+ * will return { re, src, keys} obj
+ *
+ * @param  {String / RegExp} path
+ * @return {Object}
+ */
+
+/**
+ * Normalize the given path string,
+ * returning a regular expression.
+ *
+ * An empty array should be passed,
+ * which will contain the placeholder
+ * key names. For example "/user/:id" will
+ * then contain ["id"].
+ *
+ * @ignore
+ * @param  {String} path
+ * @param  {Array} keys
+ * @return {RegExp}
+ */
+var pathToRegExp = function(path, keys) {
+    path = path
+        .concat('/?')
+        .replace(/\/\(/g, '(?:/')
+        .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?|\*/g, function(_, slash, format, key, capture, optional) {
+            if (_ === '*') {
+                keys.push(undefined);
+                return _;
+            }
+
+            keys.push(key);
+            slash = slash || '';
+            return '' + (optional ? '' : slash) + '(?:' + (optional ? slash : '') + (format || '') + (capture || '([^/]+?)') + ')' + (optional || '');
+        })
+        .replace(/([\/.])/g, '\\$1')
+        .replace(/\*/g, '(.*)');
+    return new RegExp('^' + path + '$', 'i');
+};
+
+var Route = function(path) {
+    var src, re, keys = [];
+    log.logLevel = XQCore.logLevel;
+
+    if (path instanceof RegExp) {
+        re = path;
+        src = path.toString();
+    } else {
+        re = pathToRegExp(path, keys);
+        src = path;
+    }
+
+    return {
+        re: re,
+        src: path.toString(),
+        keys: keys
+    };
+};
+
+
+/**
+ * Attempt to match the given request to
+ * one of the routes. When successful
+ * a  {fn, params, splats} obj is returned
+ *
+ * @param  {Array} routes
+ * @param  {String} uri
+ * @return {Object}
+ */
+var match = function(routes, uri, startAt) {
+    var captures, i = startAt || 0;
+
+    for (var len = routes.length; i < len; ++i) {
+        var route = routes[i],
+            re = route.re,
+            keys = route.keys,
+            splats = [],
+            params = {};
+
+        captures = uri.match(re);
+        if (captures) {
+            for (var j = 1, cLen = captures.length; j < cLen; ++j) {
+                var key = keys[j - 1],
+                    val = typeof captures[j] === 'string' ? unescape(captures[j]) : captures[j];
+                if (key) {
+                    params[key] = val;
+                } else {
+                    splats.push(val);
+                }
+            }
+            return {
+                params: params,
+                splats: splats,
+                route: route.src,
+                next: i + 1
+            };
+        }
+    }
+};
+
+/**
+ * Router constructor
+ *
+ * @constructor
+ */
+var Router = function(options) {
+    options = options || {};
+
+    /**
+     * Contains all registered routes
+     *
+     * @property {Array} routes
+     * @private
+     */
+    this.routes = [];
+
+    this.routeMap = {};
+
+    if (!options.noListener) {
+        this.registerListener();
+    }
+
+    var self = this;
+    $(function() {
+        //Call current page
+        self.callRoute(self.getPath(), {
+            initialCall: true
+        });
+    });
+};
+
+var instance;
+
+/**
+ * Returns a singelton instance of XQCore.Router
+ * @return {[type]} [description]
+ */
+Router.getInstance = function() {
+    if (!instance) {
+        instance = new XQCore.Router();
+    }
+
+    return instance;
+};
+
+Router.prototype.registerListener = function() {
+    if (XQCore.html5Routes) {
+        window.addEventListener('popstate', this.onPopStateHandler.bind(this));
+    }
+    else {
+        window.addEventListener('hashchange', this.onPopStateHandler.bind(this));
+    }
+};
+
+Router.prototype.onPopStateHandler = function(e) {
+    var path = this.getPath();
+    this.callRoute(path, {
+        noPush: true
+    });
+};
+
+Router.prototype.getPath = function() {
+    var path;
+    if (XQCore.html5Routes) {
+        path = location.pathname;
+        return path.replace(new RegExp('^' + XQCore.basePath), '');
+    }
+    else {
+        path = location.hash;
+        path = path.replace(new RegExp('^' + XQCore.hashBang), '');
+        path = '/' + path;
+        return path;
+    }
+};
+
+/**
+ * Registers a new route
+ *
+ * @method addRoute
+ * @param {String}   path Route path
+ * @param {Function} fn   Function to be called when addRoute will be called
+ * @returns {Object} Returns this value
+ * @chainable
+ */
+Router.prototype.addRoute = function(path, fn) {
+    log.info('Register new route:', path, fn);
+    
+    if (!path) {
+        throw new Error(' route requires a path');
+    }
+    
+    if (!fn) {
+        throw new Error(' route ' + path.toString() + ' requires a callback');
+    }
+
+    if (this.routeMap[path]) {
+        throw new Error('path is already defined: ' + path);
+    }
+
+    if (typeof path === 'string') {
+        path = path.replace(/\/$/, '');
+        if (path.charAt(0) !== '/') {
+            path = '/' + path;
+        }
+    }
+    
+    var route = new Route(path);
+    route.fn = fn;
+
+    this.routes.push(route);
+    this.routeMap[path] = fn;
+
+    return this;
+};
+
+/**
+ * Removes a route
+ *
+ * @method removeRoute
+ * @param  {String} path Path to be removed
+ * @return {Object}      Returns this value
+ * @chainable
+ */
+Router.prototype.removeRoute = function(path) {
+    if (!path) {
+        throw new Error(' route requires a path');
+    }
+
+    if (!this.routeMap[path]) {
+        log.warn('Can not remove route! Route does not exists: ' + path);
+        return this;
+    }
+
+    for (var i = 0; i < this.routes.length; i++) {
+        var route = this.routes[i];
+        if (route.src === path) {
+            this.routes.splice(i, 1);
+        }
+    }
+
+    delete this.routeMap[path];
+    return this;
+};
+
+Router.prototype.match = function(pathname, startAt) {
+    var route = match(this.routes, pathname, startAt);
+    if (route) {
+        route.fn = this.routeMap[route.route];
+        route.next = this.match.bind(this, pathname, route.next);
+    }
+    return route;
+};
+
+/**
+ * Calls a route
+ *
+ * Options:
+ * --------
+ * **noRoute** Doesn't add a push state item
+ * **replace** Add a replace state item
+ * 
+ *
+ * @method callRoute
+ * @param  {String} path Route path
+ * @param {Object} [options] Set options for route call
+ * 
+ */
+Router.prototype.callRoute = function(path, options) {
+    options = options || {};
+
+    log.info('Call route', path);
+
+    if (path === undefined) {
+        throw new Error('XQCore.Router error! Path is undefined in callRoute()!');
+    }
+
+    var route = this.match(path);
+    if (!route) {
+        log.warn('Could not call any route! No route were found! Called path: ' + path);
+        return;
+    }
+
+    route.path = path;
+
+    route.initialCall = !!options.initialCall;
+
+    if (XQCore.html5Routes && !options.noPush && !options.replace) {
+        history.pushState(null, '', path);
+    }
+    else if (XQCore.html5Routes && options.replace) {
+        history.replaceState(null, '', path);
+    }
+
+    var next = function() {
+        log.info('... trigger route', this.route, this.fn, this.next);
+        this.fn.call(this, this.params, this.splats, function() {
+            var nextRoute = this.next();
+            if (nextRoute) {
+                next.call(nextRoute);
+            }
+        }.bind(this));
+    };
+
+    next.call(route);
+
+};
+
+module.exports = Router;
+
+/**
+ * Socket connection
+ * Creates a socket connection to a socket server. Only one connection is used per server/port combination.
+ *
+ * @module XQCore.SocketConnection
+ */
+
+'use strict';
+
+var XQCore = require('./xqcore-core');
+var SockJS = require('../lib/sockjs');
+
+var log = new XQCore.Logger('SocketConnection');
+
+var instances = {};
+
+/**
+ * SocetConnection object
+ * Handles a socket connection
+ *
+ * @singelton
+ * @constructor
+ *
+ * @example {js}
+ * var conn = new XQCore.SocketConnection('http://localhost:9889/xqsocket');
+ * conn.ready(function() {
+ *     //Connection was successfull
+ * });
+ */
+var SocketConnection = function(url) {
+    if (instances[url]) {
+        return instances[url];
+    }
+
+    //Only one instance per socket server
+    instances[url] = this;
+
+    this.__isReady = false;
+    this.__onReadyCallbacks = [];
+    
+    /**
+     * Holds all registered channels
+     * @type {Object} __channels
+     */
+    this.__channels = {};
+
+    /**
+     * Holds the SockJS instance
+     * @private
+     * @type {Object} SockJS instance
+     */
+    this.conn = null;
+
+    this.connect(url);
+
+    /**
+     * Reconnect if connection gets lost
+     * @property {Boolean} autoReconnect
+     */
+    this.autoReconnect = true;
+
+    /**
+     * Defines a reconnection interval
+     * @type {Number}
+     */
+    this.reconnectionInterval = 1500;
+};
+
+/**
+ * Connects to a socket server
+ * @param  {String} url Socket server url
+ */
+SocketConnection.prototype.connect = function(url) {
+    var self = this;
+
+    if (!this.conn || this.connectionState === 'disconnected') {
+        log.info('Connect to socket server ', url);
+        this.conn = new SockJS(url, null, {
+            debug: log.logLevel >= 4
+        });
+
+        this.connectionState = 'connecting';
+        this.conn.onopen = function() {
+            log.info('Connection was successful!');
+            self.setReady();
+            self.connectionState = 'connected';
+        };
+
+        this.conn.onmessage = function(e) {
+            var msg;
+
+            try {
+                msg = JSON.parse(e.data);
+            }
+            catch(err) {
+                console.error('Could not parse socket message!', e.data);
+            }
+
+            if (!msg.channel) {
+                throw new Error('No socket channel was sent!');
+            }
+
+            log.info('Got socket message', msg.eventName, 'in channel ' + msg.channel, msg.args);
+            var args = msg.args || [];
+            args.unshift(msg.eventName);
+            if (self.__channels[msg.channel]) {
+                self.__channels[msg.channel].emit.apply(self.__channels[msg.channel], args);
+            }
+            else {
+                log.info(' ... channel not found!', msg.channel);
+            }
+        };
+
+        this.conn.onclose = function(err) {
+            self.connectionState = 'disconnected';
+            self.unsetReady();
+            log.warn('Connection to ' + url + ' closed!', err);
+            
+            if (self.autoReconnect) {
+                log.info('Try to reconnect to ' + url);
+
+                setTimeout(function() {
+                    self.connect(url);
+                }, self.reconnectionInterval);
+            }
+        };
+    }
+};
+
+/**
+ * Register a channel
+ * @param  {String} channel  Channel name
+ * @param  {Object} listener Socket object
+ */
+SocketConnection.prototype.registerChannel = function(channel, listener) {
+    log.info('Register new channel', channel);
+    if (this.__channels[channel]) {
+        log.info(' ... channel already registered!');
+    } else {
+        this.__channels[channel] = listener;
+    }
+};
+
+/**
+ * Unregister a channel
+ * @param  {String} channel  Channel name
+ * @param  {Object} listener Socket object
+ */
+SocketConnection.prototype.unregisterChannel = function(channel) {
+    log.info('Unregister channel', channel);
+    if (this.__channels[channel]) {
+        delete this.__channels[channel];
+    } else {
+        log.info(' ... channel not found!');
+    }
+};
+
+/**
+ * Sends a socket message to a connected socket server
+ *
+ * @method send
+ * @param {String} channel   Channel name
+ * @param {String} eventName Event name
+ * @param {Object} data      Data
+ * 
+ */
+SocketConnection.prototype.send = function(channel, eventName, data) {
+    var self = this;
+
+    var args = Array.prototype.slice.call(arguments, 2);
+
+    this.ready(function() {
+        log.info('Send socket message to channel ' + channel, eventName, args);
+        self.conn.send(JSON.stringify({
+            channel: channel,
+            eventName: eventName,
+            args: args
+        }));
+    });
+};
+
+/**
+ * Call function fn when socket is connected
+ *
+ * @method ready
+ * @param  {Function} fn Function to be called if socket is ready
+ */
+SocketConnection.prototype.ready = function(fn) {
+    if (this.__isReady) {
+        fn.call(this);
+    }
+    else {
+        this.__onReadyCallbacks.push(fn);
+    }
+};
+
+/**
+ * Sets readyState and calls all queued functions
+ *
+ * @method setReady
+ * @private
+ */
+SocketConnection.prototype.setReady = function() {
+    var self = this;
+    
+    this.__isReady = true;
+    this.__onReadyCallbacks.forEach(function(fn) {
+        fn.call(self);
+    });
+
+    this.__onReadyCallbacks = [];
+};
+
+SocketConnection.prototype.unsetReady = function() {
+    this.__isReady = false;
+};
+
+//--
+
+module.exports = SocketConnection;
+
+/**
+ * XQCore socket module handles socket connections to a socket server
+ * 
+ * @module XQCore.Socket
+ * @requires XQCore.Logger
+ * @requires sockJS-client
+ *
  */
 'use strict';
 
 var XQCore = require('./xqcore-core');
 
-XQCore.undotify = function(path, obj) {
-    if(path) {
-        path = path.split('.');
-        path.forEach(function(key) {
-            obj = obj ? obj[key] : undefined;
-        });
-    }
-
-    return obj;
-};
+var log = new XQCore.Logger('Socket');
+log.logLevel = 5;
 
 /**
- * Creates a object from an dotified key and a value
+ * Socket connection module
+ * @param {String} url     Socket server uri
+ * @param {String} channel Socket channel
  *
- * @public
- * @method dedotify
  * 
- * @param {Object} obj Add new value to obj. This param is optional.
- * @param {String} key The dotified key
- * @param {Any} value The value
- *
- * @returns {Object} Returns the extended object if obj was set otherwis a new object will be returned
- */
-XQCore.dedotify = function(obj, key, value) {
-
-    if (typeof obj === 'string') {
-        value = key;
-        key = obj;
-        obj = {};
-    }
-
-    var newObj = obj;
-
-    if(key) {
-        key = key.split('.');
-        var len = key.length;
-        key.forEach(function(k, i) {
-            if (i === len - 1) {
-                if (/\[\]$/.test(k)) {
-                    k = k.substr(0, k.length - 2);
-                    if (!obj[k]) {
-                        obj[k] = [];
-                    }
-                    obj[k].push(value);
-                    return;
-                }
-
-                obj[k] = value;
-                return;
-            }
-
-            if (!obj[k]) {
-                obj[k] = {};
-            }
-
-            obj = obj[k];
-        });
-    }
-
-    obj = value;
-
-    return newObj;
-};
-
-/**
- * Creates a unique id
- *
- * @param {Number} len (Optional) String length. Defaults to 7
- * @returns {String} Unique string
- */
-XQCore.uid = function(len) {
-    len = len || 7;
-    var str = '';
-
-    while (str.length < len) {
-        var part = Math.random().toString(36).substr(2);
-        str += part;
-    }
-
-    return str.substr(0, len);
-};
-
-/**
- * Returns a promise object
- *
- * the returning object has two extra methods
- *
- * `resolve` to resolv the promise
- * `reject` to reject the promise
- *
- * If callback is set it will be called, when promise will be resolved or rejected.
- * Gets the reject data as first argument and the resolve data as second argument
- *
  * @example {js}
- * var promise = XQCore.promise();
- * promise.then(function() {
- *     console.log('Resolve');
+ * var socket = new XQCore.Socket('http://mysocket.io:9889', 'mychannel');
+ * socket.on('data', function() {
+ *   console.log('Got data from server');
  * });
- * 
- * setTimeout(function() {
- *     promise.resolve();
- * }, 100);
- *     
- * @method promise
- * @param  {Function} [callback] Callback function, to be called on resolv or rejecting the promise
- * @return {Object} Returns a promise object
  */
-XQCore.promise = function(callback) {
+var Socket = function(url, channel) {
+    //Call Event constructor
+    XQCore.Event.call(this);
+    
+    this.__isReady = false;
+    this.__onReadyCallbacks = [];
 
-    var s, r;
-    var promise = new XQCore.Promise(function(resolve, reject) {
-        s = resolve;
-        r = reject;
+    this.channel = channel;
+    this.socket = new XQCore.SocketConnection(url);
+    this.socket.registerChannel(channel, this);
+    // this.connect(url, channel);
+};
+
+XQCore.extend(Socket.prototype, XQCore.Event.prototype);
+
+/**
+ * Sends a socket message to a connected socket server
+ *
+ * @method send
+ * @param {String} eventName Event name
+ * @param {Object} data      Event data, multiple args are allowed
+ */
+Socket.prototype.send = function(eventName, data) {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift(this.channel);
+    this.socket.send.apply(this.socket, args);
+};
+
+module.exports = Socket;
+
+/**
+ * XQCore Syncronniced module module
+ *
+ * @module XQCore.SyncModel
+ * @requires XQCore.Model
+ * @requires XQCore.Socket
+ */
+    'use strict';
+
+var XQCore = require('./xqcore-core');
+
+
+var SyncModel = function(name, conf) {
+    /**
+     * @property {Boolean} noAutoRegister Disables auto registration. SyncList.register() must be called manually to register the list at the socket server.
+     */
+    this.noAutoRegister = false;
+
+    //Call XQCore.Model constructor
+    XQCore.Model.call(this, name, conf);
+
+    this.server = this.server || location.protocol + '//' + location.hostname;
+    this.port = this.port || XQCore.socketPort;
+    this.path = this.path || 'xqsocket';
+    this.channel = this.channel || this.name.toLowerCase();
+    this.syncEnabled = false;
+    this.connectToSocket();
+    if (!this.noAutoRegister) {
+        this.register();
+    }
+};
+
+SyncModel.prototype = Object.create(XQCore.Model.prototype);
+SyncModel.prototype.constructor = SyncModel;
+
+/**
+ * Inherits a sync model prototype
+ * @method inherit
+ * @param  {String} name    model name
+ * @param  {Object} options SyncModel properties
+ * @return {Object}         Returns a XQCore.SyncModel prototype
+ */
+SyncModel.inherit = function(name, options) {
+    if (typeof name === 'object') {
+        options = name;
+        name = undefined;
+    }
+
+    var Proto = function() {
+        XQCore.SyncModel.call(this, name, options);
+    };
+
+    Proto.prototype = Object.create(XQCore.SyncModel.prototype);
+    Proto.prototype.constructor = Proto;
+    return Proto;
+};
+
+/**
+ * Connect to a socket server
+ *
+ * @method connectToSocket
+ */
+SyncModel.prototype.connectToSocket = function() {
+    var socketServer = this.server + ':' + this.port + '/' + this.path;
+    if (!this.socket) {
+        this.debug('Connect to socket:', socketServer);
+        this.socket = new XQCore.Socket(socketServer, this.channel);
+    }
+};
+
+SyncModel.prototype.register = function(enableSync) {
+    var self = this;
+
+    this.syncEnabled = !!enableSync;
+
+    self.debug('Register syncmodel at server:', self.name);
+
+    var opts = {
+        noSync: true
+    };
+
+    self.socket.on('syncmodel.set', function(data) {
+        self.set(data, opts);
     });
 
-    promise.resolve = function(data) {
-        s(data);
-        if (typeof callback === 'function') {
-            callback(null, data);
-        }
-        
-        return promise;
-    };
+    self.socket.on('syncmodel.replace', function(data) {
+        opts.replace = true;
+        self.set(data, opts);
+    });
 
-    promise.reject = function(data) {
-        r(data);
-        if (typeof callback === 'function') {
-            callback(data);
-        }
-        
-        return promise;
-    };
+    self.socket.on('syncmodel.item', function(key, value) {
+        self.set(key, value, opts);
+    });
 
-    var chain = [];
+    self.socket.on('syncmodel.insert', function(path, index, data) {
+        self.insert(path, index, data, opts);
+    });
 
-    promise.push = function(fn) {
-        if (typeof fn !== 'function') {
-            throw new Error('Could not create a promise chain! First arg is not a function in promise.push().');
-        }
+    self.socket.on('syncmodel.remove', function(path, index, data) {
+        self.remove(path, index, data, opts);
+    });
 
-        chain.push(fn);
-        return this;
-    };
+    self.socket.on('syncmodel.reset', function() {
+        self.reset(opts);
+    });
 
-    promise.each = function(data) {
-        var p = chain.shift();
-        if (!p) {
-            promise.resolve(data);
-            return;
-        }
-        
-        p(data).then(function(data) {
-            promise.each(data);
-        }).catch(function(err) {
-            promise.reject(err);
-        });
+    self.socket.on('syncmodel.init', function(data) {
+        console.log('Got initial data request:', data);
+        self.set(data, opts);
+    });
 
-        return promise;
-    };
-
-    return promise;
+    self.socket.send('syncmodel.register', {
+        name: self.name
+    });
 };
 
-});
-return require('./xqcore-init.js');
+SyncModel.prototype.unregister = function() {
+    var modelName = this.conf.syncWith || this.name.replace(/Model$/,'');
+    this.socket.send('syncmodel.unregister', {
+        name: modelName
+    });
 
-}));
+    this.socket.off('syncmodel.set');
+    this.socket.off('syncmodel.replace');
+    this.socket.off('syncmodel.item');
+    this.socket.off('syncmodel.insert');
+    this.socket.off('syncmodel.remove');
+    this.socket.off('syncmodel.reset');
+    this.socket.off('syncmodel.init');
+};
+
+/**
+ * Send a socket message to the server
+ * @param  {String} eventName Event name
+ * @param  {Object} data      Data object
+ */
+SyncModel.prototype.emitRemote = function(eventName, data) {
+    this.socket.send(eventName, data);
+};
+
+SyncModel.prototype.sync = function(method) {
+    if (!this.syncEnabled) {
+        return;
+    }
+
+    var args = Array.prototype.slice.call(arguments, 1);
+    args.unshift('syncmodel.' + method);
+    this.emitRemote.apply(this, args);
+};
+
+SyncModel.prototype.fetchModel = function() {
+    this.emitRemote('syncmodel.fetch');
+};
+
+module.exports = SyncModel;
+
+/**
+ * XQCore List
+ *  
+ * @module  XQCore.List
+ * @requires XQCore.Event
+ * @requires XQCore.Logger
+ * @example
+ * 
+ * var Model = XQCore.Model.inherit({
+ *     schema: {
+ *         title: { type: 'string', min: 3, max 100 },
+ *         content: { type: 'string', min: 3, max 1000 }
+ *     }
+ * });
+ * 
+ * var list new XQCore.List('myList', function(self) { {
+ *     self.model = Model
+ * }});
+ *
+ * list.push({
+ *     title: 'Item 1',
+ *     content: 'This is my first list item'
+ * });
+ * 
+ */
+
+'use strict';
+
+var XQCore = require('./xqcore-core');
+
+/**
+ * XQCore.List base class
+ *
+ * @class XQCore.List
+ * @constructor
+ *
+ * @uses XQCore.Logger
+ * @uses XQCore.Event
+ *
+ * @param {Object} conf List extend object
+ */
+var List = function(name, conf) {
+    //Call XQCore.ReadyState constructor
+    XQCore.ReadyState.call(this);
+
+    //Call Event constructor
+    XQCore.Event.call(this);
+
+    var self = this;
+
+    if (typeof arguments[0] === 'object') {
+        conf = name;
+        name = conf.name;
+    }
+
+    /**
+     * Enable debug mode
+     * @public
+     * @type {Boolean}
+     */
+    this.debug = XQCore.debug;
+
+    if (conf === undefined) {
+        conf = {};
+    }
+
+    this.__unfiltered = {};
+
+    /**
+     * List name
+     * @property {String} name
+     */
+    this.name = (name ? name.replace(/List$/, '') : 'Nameless') + 'List';
+
+    /**
+     * Contains list items
+     * @property {Array} items
+     */
+    this.items = [];
+
+    /**
+     * Sets a maxlength of items
+     * @property {Number} maxlength
+     * @default null
+     */
+    this.maxLength = null;
+
+    /**
+     * Sets the Model to be used to create new models in push and unshift methods.
+     * @property {Object} model
+     */
+    if (!this.model) {
+        this.model = XQCore.Model;
+    }
+
+    /*!
+     * Mapping of initial conf
+     */
+    if (typeof conf === 'function') {
+        conf.call(this, self);
+    }
+    else {
+        XQCore.extend(this, conf);
+    }
+
+    /**
+     * Sets default values
+     * @property {Object|Array} defaults
+     */
+    if (this.defaults && !XQCore.isEmpty(this.defaults)) {
+        this.push(this.defaults, {
+            silent: true,
+            noValidation: true
+        });
+    }
+    
+    /*!
+     * Sets ready state
+     */
+    this.state('ready');
+    this.setReady();
+};
+
+//Extend with ready state
+XQCore.extend(List.prototype, XQCore.ReadyState.prototype);
+XQCore.extend(List.prototype, XQCore.Event.prototype);
+
+XQCore.extend(List.prototype, new XQCore.Logger());
+
+if (XQCore.Sync) {
+    XQCore.extend(List.prototype, XQCore.Sync.prototype);
+}
+
+/**
+ * Inherits a list prototype
+ * @method inherit
+ * @param  {String} name    list name
+ * @param  {Object} options Model properties
+ * @return {Object}         Returns a XQCore.Model prototype
+ */
+List.inherit = function(name, options) {
+    if (typeof name === 'object') {
+        options = name;
+        name = undefined;
+    }
+
+    var Proto = function() {
+        XQCore.List.call(this, name, options);
+    };
+
+    Proto.prototype = Object.create(XQCore.List.prototype);
+    Proto.prototype.constructor = Proto;
+    return Proto;
+};
+
+/**
+ * Contains the length of the list
+ * @property length
+ * @type {Number}
+ */
+Object.defineProperty(List.prototype, 'length', {
+    get: function() {
+        return this.items.length;
+    }
+});
+
+/**
+ * Change the list state
+ *
+ * @method state
+ * @param {String} state New state
+ */
+List.prototype.state = function(state) {
+    this.__state = state;
+    this.emit('state.' + state);
+    this.emit('state.change', state);
+};
+
+/**
+ * Get the current list state
+ *
+ * @method getState
+ */
+List.prototype.getState = function() {
+    return this.__state;
+};
+
+/**
+ * Adds one ore more items to the end of a list.
+ * You can pass a XQCore.Model or a plain data object.
+ * A data object will be converted into a XQCore.Model.
+ * The model must be valid to be added to the list.
+ * 
+ * @param {Object|Array} data Model instance or a plain data object. Add multiple models by using an array of items
+ * @param {Object} options Options object
+ * {
+ *     silent: true,    //Disable event emitting
+ *     noSync: true     //Don't call sync method
+ * }
+ *
+ * @returns {Boolean} Returns true if validation was succesfully and all items were added
+ */
+List.prototype.push = function(data, options) {
+    var models = [],
+        model,
+        item;
+
+    options = options || {};
+
+    if (!Array.isArray(data)) {
+        data = [data];
+    }
+
+    for (var i = 0, len = data.length; i < len; i++) {
+        item = data[i];
+    
+        if (item instanceof XQCore.Model) {
+            model = item;
+        }
+        else {
+            model = new this.model('ListItem');
+            model.set(item, {
+                noSync: true,
+                silent: true
+            });
+        }
+
+        if (model.isValid()) {
+            models.push(model);
+        }
+        else {
+            return false;
+        }
+    }
+
+    //No validation error has been ocured.
+    var length = this.items.push.apply(this.items, models);
+
+    if (length) {
+        if (this.maxLength && this.items.length > this.maxLength) {
+            this.items.splice(0, this.items.length - this.maxLength);
+        }
+
+        if (!options.silent) {
+            this.emit('item.push', models, length);
+        }
+
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('push', models);
+            }
+        }
+    }
+
+    return true;
+};
+
+/**
+ * Adds one ore more items to the beginning of a list.
+ * You can pass a XQCore.Model or a plain data object.
+ * A data object will be converted into a XQCore.Model.
+ * The model must be valid to be added to the list.
+ * 
+ * @param {Object|Array} data Model instance or a plain data object. Add multiple models by using an array of items
+ * @param {Object} options Options object
+ * {
+ *     silent: true,    //Disable event emitting
+ *     noSync: true     //Don't call sync method
+ * }
+ * @returns {Boolean} Returns true if validation was succesfully and all items were added
+ */
+List.prototype.unshift = function(data, options) {
+    var models = [],
+        model,
+        item;
+
+    options = options || {};
+
+    if (!Array.isArray(data)) {
+        data = [data];
+    }
+
+    for (var i = 0, len = data.length; i < len; i++) {
+        item = data[i];
+    
+        if (item instanceof XQCore.Model) {
+            model = item;
+        }
+        else {
+            model = new this.model('ListItem');
+            model.set(item, {
+                noSync: true,
+                silent: true
+            });
+        }
+
+        if (model.isValid()) {
+            models.unshift(model);
+        }
+        else {
+            return false;
+        }
+    }
+
+    //No validation error has been ocured.
+    var length = this.items.unshift.apply(this.items, models);
+
+    if (length) {
+        if (this.maxLength && this.items.length > this.maxLength) {
+            this.items.splice(this.maxLength);
+        }
+
+        if (!options.silent) {
+            this.emit('item.unshift', models, length);
+        }
+
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('unshift', models);
+            }
+        }
+    }
+
+    return true;
+};
+
+/**
+ * Removes the last item from a list and returns it.
+ *
+ * @event item.remove Emits an item.remove event. The removed item will be passed as the first argument
+ * 
+ * @param {Object} options Options object
+ * {
+ *     silent: true,    //Disable event emitting
+ *     noSync: true     //Don't call sync method
+ * }
+ *
+ * @returns {Object} Returns the removed item
+ */
+List.prototype.pop = function(options) {
+    var model;
+
+    options = options || {};
+
+    model = this.items.pop() || null;
+    if (model === undefined) {
+        return null;
+    }
+
+    if (!options.silent) {
+        this.emit('item.pop', model);
+    }
+
+    if (!options.noSync) {
+        if (typeof this.sync === 'function') {
+            this.sync('pop', model);
+        }
+    }
+
+    return model;
+};
+
+/**
+ * Removes the first item from a list and returns it.
+ *
+ * @event item.shift Emits an item.shift event. The removed item will be passed as the first argument
+ * 
+ * @param {Object} options Options object
+ * {
+ *     silent: true,    //Disable event emitting
+ *     noSync: true     //Don't call sync method
+ * }
+ *
+ * @returns {Object} Returns the removed item
+ */
+List.prototype.shift = function(options) {
+    var model;
+
+    options = options || {};
+
+    model = this.items.shift() || null;
+    if (model === undefined) {
+        return null;
+    }
+
+    if (!options.silent) {
+        this.emit('item.shift', model);
+    }
+
+    if (!options.noSync) {
+        if (typeof this.sync === 'function') {
+            this.sync('shift', model);
+        }
+    }
+
+    return model;
+};
+
+/**
+ * Updates a list item or pushs it to the end
+ * You can pass a XQCore.Model or a plain data object.
+ * A data object will be converted into a XQCore.Model.
+ * The model must be valid to be added to the list.
+ *
+ * @param {Object|Number} match Match to find element which should be updated
+ * @param {Object} data Model instance or a plain data object.
+ * @param {Object} options Options object
+ * {
+ *     silent: true,    //Disable event emitting
+ *     noSync: true     //Don't call sync method
+ * }
+ *
+ * @fires item.update
+ * Fires an item.update event if item was succesfully updated. Othwewise fires an item.push event
+ *
+ * @returns {Object} Returns the updated item
+ */
+List.prototype.update = function(match, data, options) {
+    options = options || {};
+
+    var updateItem;
+    if (typeof match === 'number') {
+
+        updateItem = this.items[match];
+    }
+    else {
+        updateItem = this.findOne(match);
+    }
+
+    if (updateItem) {
+        updateItem.set(data, { noSync: true, silent: true });
+        
+        if (!options.silent) {
+            this.emit('item.update', updateItem);
+        }
+
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('update', match, data);
+            }
+        }
+    }
+
+    return updateItem;
+};
+
+/**
+ * Removes an item at a given position
+ *
+ * @param {Object|Number} match Match to find element which should be removed
+ * @param {Object} options Options object
+ * {
+ *     silent: true,    //Disable event emitting
+ *     noSync: true     //Don't call sync method
+ * }
+ *
+ * @fires item.remove
+ * Fires an item.remove event if item was succesfully removed.
+ *
+ * @returns {Object} Returns the removed item
+ */
+List.prototype.remove = function(match, options) {
+    options = options || {};
+
+    var removedItem,
+        index = 0;
+    if (typeof match === 'number') {
+        removedItem = this.items[match];
+        index = match;
+    }
+    else {
+        removedItem = this.findOne(match);
+        for (var i = 0, len = this.items.length; i < len; i++) {
+            if (this.items[i] === removedItem) {
+                index = i;
+                break;
+            }
+        }
+    }
+
+    if (removedItem) {
+        this.items.splice(index, 1);
+        
+        if (!options.silent) {
+            this.emit('item.remove', removedItem, index);
+        }
+
+        if (!options.noSync) {
+            if (typeof this.sync === 'function') {
+                this.sync('remove', match, index);
+            }
+        }
+    }
+
+    return removedItem;
+};
+
+/**
+ * Clears the whole list
+ * @param  {Object} options Options object
+ * {
+ *     silent: true,    //Disable event emitting
+ *     noSync: true     //Don't call sync method
+ * }
+ *
+ * @fires item.clear
+ * Fires an item.clear event if item was succesfully cleared. It will not fire any events on an empty list
+ *
+ * @returns {Number} Returns the amount of removed items
+ */
+List.prototype.clear = function(options) {
+    options = options || {};
+
+    if (this.items.length === 0) {
+        return 0;
+    }
+    
+    var oldValue = this.toArray();
+
+    this.items = [];
+
+    if (!options.silent) {
+        this.emit('item.clear', oldValue);
+    }
+
+    if (!options.noSync) {
+        if (typeof this.sync === 'function') {
+            this.sync('clear', oldValue);
+        }
+    }
+
+    return oldValue.length;
+};
+
+/**
+ * Returns list items as an array
+ * @method toArray
+ * @return {Array} Returns an array of list items
+ */
+List.prototype.toArray = function() {
+    return this.items.map(function(model) {
+        return model.properties;
+    });
+};
+
+/**
+ * Compatibility, does the same as toArray()
+ * @method toJSON   
+ * @return {Array} Returns an array of list items
+ */
+List.prototype.toJSON = function() {
+    return this.toArray();
+};
+
+/**
+ * Search through list items and returns the first matching item
+ *
+ * @method findOne
+ * @param {Object} searchfor Searching for object
+ * @return {Object} Returns the first matched item or null. The returning item is a XQCore.Model object
+ */
+List.prototype.findOne = function(query) {
+    var parent;
+
+    parent = this.items;
+
+    if (parent) {
+        for (var i = 0; i < parent.length; i++) {
+            var prop = parent[i],
+                matching;
+
+            for (var p in query) {
+                if (query.hasOwnProperty(p)) {
+                    if (prop.properties[p] && prop.properties[p] === query[p]) {
+                        matching = true;
+                        break;
+                    }
+                    else {
+                        matching = false;
+                    }
+                }
+            }
+
+            if (matching === true) {
+                return prop;
+            }
+        }
+    }
+
+    return null;
+};
+
+/**
+ * Search through list items and returns all matching items
+ *
+ * @method find
+ * @param {Object} searchfor Searching for object
+ * @return {Object} Returns all matched item or an empty array.
+ * The returning value is an array of XQCore.Model objects
+ */
+List.prototype.find = function(query) {
+    var parent,
+        res = [];
+
+    parent = this.items;
+    
+    if (parent) {
+        for (var i = 0; i < parent.length; i++) {
+            var prop = parent[i],
+                matching;
+
+            for (var p in query) {
+                if (query.hasOwnProperty(p)) {
+                    if (prop.properties[p] && prop.properties[p] === query[p]) {
+                        matching = true;
+                        break;
+                    }
+                    else {
+                        matching = false;
+                    }
+                }
+            }
+
+            if (matching === true) {
+                res.push(prop);
+            }
+
+        }
+    }
+
+    return res;
+};
+
+/**
+ * Calls a function on each item.
+ * Optionally traverse the `initial` object through all methods and returns it at the end.
+ *
+ * @method each
+ * @param  {Object}   initial Object which will be traversed and returned at the end
+ * @param  {Function} fn      Funtion to be called on each item. Gets the model as first arg and the traversing object as second arg.
+ * @returns {Object}          Returns a traversed object
+ */
+List.prototype.each = function(initial, fn) {
+    if (typeof initial === 'function') {
+        fn = initial;
+        initial = {};
+    }
+
+    var data = initial;
+    for (var i = 0, len = this.items.length; i < len; i++) {
+        data = fn(this.items[i], data);
+    }
+
+    return data;
+};
+
+//--
+
+module.exports = List;
+
+/**
+ * XQCore.SyncList - Syncronized list
+ *
+ * @module  XQCore.SyncList
+ * @requires XQCore.List
+ * @requires XQCore.Socket
+ *
+ * @example
+ *
+ * var syncList = new XQCore.SyncList('mylist', {
+ *     port: 3434,
+ *     server: 'http://socket.xqcore.com'
+ * });
+ *
+ * This call connects to a socket server
+ * http://socket.xqcore.com/xqsocket/mylist
+ *
+ * A <code>synclist.register</code> event will be fiered to the socket server
+ * These data will be send:
+ * <code class="json">
+ * {
+ *     name: this.name
+ * }
+ *
+ * Registers a few listeners:
+ * synclist.push, synclist.shift, synclist.pop, synclist.unshift
+ * 
+ * </code>
+ */
+'use strict';
+
+var XQCore = require('./xqcore-core');
+
+
+var SyncList = function(name, conf) {
+    /**
+     * @property {Boolean} noAutoRegister Disables auto registration. SyncList.register() must be called manually to register the list at the socket server.
+     */
+    this.noAutoRegister = false;
+
+    //Call XQCore.List constructor
+    XQCore.List.call(this, name, conf);
+
+    this.server = this.server || location.protocol + '//' + location.hostname;
+    this.port = this.port || XQCore.socketPort;
+    this.path = this.path || 'xqsocket';
+    this.channel = this.channel || this.name.toLowerCase();
+    this.syncEnabled = false;
+    this.connectToSocket();
+    if (!this.noAutoRegister) {
+        this.register();
+    }
+};
+
+SyncList.prototype = Object.create(XQCore.List.prototype);
+SyncList.prototype.constructor = SyncList;
+
+
+/**
+ * Inherits a sync model prototype
+ * @method inherit
+ * @param  {String} name    model name
+ * @param  {Object} options SyncList properties
+ * @return {Object}         Returns a XQCore.SyncList prototype
+ */
+SyncList.inherit = function(name, options) {
+    if (typeof name === 'object') {
+        options = name;
+        name = undefined;
+    }
+
+    var Proto = function() {
+        XQCore.SyncList.call(this, name, options);
+    };
+
+    Proto.prototype = Object.create(XQCore.SyncList.prototype);
+    Proto.prototype.constructor = Proto;
+    return Proto;
+};
+/**
+ * Connect to a socket server
+ *
+ * @method connectToSocket
+ */
+SyncList.prototype.connectToSocket = function() {
+    var socketServer = this.server + ':' + this.port + '/' + this.path;
+    if (!this.socket) {
+        this.debug('Connect to socket:', socketServer);
+        this.socket = new XQCore.Socket(socketServer, this.channel);
+    }
+};
+
+/**
+ * Register a sync list at the socket server. This action is called automatically except the noAutoRegister option is set.
+ * @param  {Boolean} enableSync Enables/Disables the initial sync. Defaults to false
+ */
+SyncList.prototype.register = function(enableSync) {
+    var self = this;
+    if (typeof enableSync === 'boolean') {
+        this.syncEnabled = enableSync;
+    }
+
+    self.debug('Register synclist at server:', self.name);
+
+    var opts = {
+        noSync: true
+    };
+    
+    self.socket.on('synclist.push', function(data) {
+        self.push(data, opts);
+    });
+    
+    self.socket.on('synclist.unshift', function(data) {
+        self.push(data, opts);
+    });
+    
+    self.socket.on('synclist.pop', function() {
+        self.push(opts);
+    });
+    
+    self.socket.on('synclist.shift', function() {
+        self.push(opts);
+    });
+    
+    self.socket.on('synclist.update', function(match, data) {
+        self.update(match, data, opts);
+    });
+    
+    self.socket.on('synclist.clear', function() {
+        self.clear(opts);
+    });
+    
+    self.socket.on('synclist.init', function(data) {
+        console.log('Got initial data request:', data);
+        self.push(data, opts);
+    });
+
+    self.socket.send('synclist.register', {
+        name: self.name
+    });
+};
+
+SyncList.prototype.unregister = function() {
+    this.debug('Unregister synclist at server:', this.name);
+    this.socket.send('synclist.unregister', {
+        name: this.name
+    });
+
+    this.socket.off('synclist.push');
+    this.socket.off('synclist.unshift');
+    this.socket.off('synclist.pop');
+    this.socket.off('synclist.shift');
+    this.socket.off('synclist.update');
+    this.socket.off('synclist.clear');
+    this.socket.off('synclist.init');
+};
+
+/**
+ * Send a socket message to the server
+ * @param  {String} eventName Event name
+ * @param  {Object} data      Data object
+ */
+SyncList.prototype.emitRemote = function(eventName, data) {
+    this.socket.send(eventName, data);
+};
+
+SyncList.prototype.sync = function(method) {
+    if (!this.syncEnabled) {
+        return;
+    }
+
+    var args = Array.prototype.slice.call(arguments, 1);
+    args.unshift('syncmodel.' + method);
+    this.emitRemote.apply(this, args);
+};
+
+SyncList.prototype.fetchList = function() {
+    this.emitRemote('synclist.fetch');
+};
+
+//--
+
+module.exports = SyncList;
+
+/**
+ * XQCore Service
+ *
+ * This module organizes your data.
+ * A model has different states and changes it on a specific action.
+ *
+ * States:
+ * starting | Before initialization
+ * ready    | Initial state
+ * valid    | Validation was successfull
+ * invalid  | Validation failed
+ * 
+ *  
+ * @module  XQCore.Service
+ * @requires XQCore.Utils
+ * @requires XQCore.Event
+ * @requires XQCore.Logger
+ */
+
+'use strict';
+
+var XQCore = require('./xqcore-core');
+
+/**
+ * XQCore.Service base class
+ *
+ * @class XQCore.Service
+ * @constructor
+ *
+ * @uses XQCore.Logger
+ * @uses XQCore.Event
+ *
+ * @param {Object} conf Service extend object
+ */
+var Service = function(name, conf) {
+    //Call Event constructor
+    XQCore.Event.call(this);
+    
+    if (typeof arguments[0] === 'object') {
+        conf = name;
+        name = conf.name;
+    }
+
+    /**
+     * Enable debug mode
+     * @public
+     * @type {Boolean}
+     */
+    this.logLevel = XQCore.logLevel;
+
+    if (conf === undefined) {
+        conf = {};
+    }
+
+    if (typeof conf === 'function') {
+        conf.call(this, this);
+    }
+    else {
+        XQCore.extend(this, conf);
+    }
+
+    this.conf = conf;
+
+    this.name = (name ? name.replace(/Service$/, '') : 'Nameless') + 'Service';
+
+    if (!this.model && !this.list) {
+        throw new Error('Service is not connected to any model or list!');
+    }
+
+    if (this.model && this.list) {
+        throw new Error('Service is connected to a model and a list. This is not allowed!');
+    }
+    
+    this.isListService = false;
+    if (this.model) {
+        this.schema = this.schema || this.model.schema || null;
+    } else {
+        this.schema = this.schema || null;
+        if (!this.schema && typeof this.list.model === 'function') {
+            var model = new this.list.model();
+            this.schema = model.schema;
+        }
+        this.isListService = true;
+    }
+
+    this.__state = 'ready';
+};
+
+
+//Extend with ready state
+XQCore.extend(Service.prototype, XQCore.ReadyState.prototype);
+XQCore.extend(Service.prototype, XQCore.Event.prototype);
+XQCore.extend(Service.prototype, new XQCore.Logger());
+// XQCore.extend(Service.prototype, XQCore.Sync.prototype);
+
+
+/**
+ * Inherits a model prototype
+ * @method inherit
+ * @param  {String} name    model name
+ * @param  {Object} options Service properties
+ * @return {Object}         Returns a XQCore.Service prototype
+ */
+Service.inherit = function(name, options) {
+    if (typeof name === 'object') {
+        options = name;
+        name = undefined;
+    }
+
+    var Proto = function(_name, _options) {
+        //TODO call this later, ready state will be set before _options had been run
+        XQCore.Service.call(this, name, options);
+
+        if (_name) {
+            if (typeof _name === 'string') {
+                name = _name;
+            }
+            else {
+                _options = _name;
+            }
+
+            if (typeof _options === 'function') {
+                _options.call(this, this);
+            }
+            else if (typeof _options === 'object') {
+                XQCore.extend(this, _options);
+            }
+        }
+    };
+
+    Proto.prototype = Object.create(XQCore.Service.prototype);
+    Proto.prototype.constructor = Proto;
+    return Proto;
+};
+
+/**
+ * Change the model state
+ *
+ * @method state
+ * @param {String} state New state
+ */
+Service.prototype.state = function(state) {
+    this.__state = state;
+    this.emit('state.' + state);
+    this.emit('state.change', state);
+};
+
+/**
+ * Get the current model state
+ *
+ * @method getState
+ */
+Service.prototype.getState = function() {
+    return this.__state;
+};
+
+
+// Service.prototype.toJSON = function() {
+//     return {};
+// };
+
+//--
+
+module.exports = Service;

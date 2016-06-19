@@ -1,0 +1,30 @@
+/**
+ * Styles input fields
+ * @property .xq-input
+ */
+.xq-input {
+  border: 2px solid #ddd;
+  border-radius: 3px;
+  font-size: 13px;
+  padding: 5px 2px;
+  background-color: #fefefe;
+}
+.xq-input:focus {
+  border-color: #bbb;
+}
+.xq-input.xq-invalid {
+  border-color: #d00;
+}
+/**
+ * Forms
+ */
+.xq-forms dl {
+  margin-top: 5px;
+}
+.xq-forms dt {
+  font-size: 11px;
+  color: #777;
+}
+.xq-forms dd {
+  margin-left: 0;
+}

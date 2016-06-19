@@ -131,6 +131,7 @@ module.exports = function(grunt) {
         superjoin: {
             build: {
                 options: {
+                    verbose: true,
                     main: './xqcore-init.js',
                     umd: 'xqcore',
                     umdDependencies: {
@@ -187,7 +188,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-release');
     grunt.loadNpmTasks('grunt-superjoin');
     grunt.loadNpmTasks('grunt-version');
-    
+
     grunt.registerTask('default', ['availabletasks']);
     grunt.registerTask('test', 'xqcoretest');
     grunt.registerTask('build', [
@@ -195,6 +196,6 @@ module.exports = function(grunt) {
         'less',
         'jshint:files',
         'concat:build',
-        'uglify',
+        'uglify'
     ]);
 };

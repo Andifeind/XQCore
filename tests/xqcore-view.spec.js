@@ -3,7 +3,7 @@
 var inspect = require('inspect.js');
 var XQCore = require('../xqcore-init');
 
-describe.only('View', function() {
+describe.only('XQCore.View', function() {
   describe('Instance', function() {
     it('Should create a view instance', function() {
       var view = new XQCore.View('Core');
@@ -12,9 +12,9 @@ describe.only('View', function() {
 
     it('Should create a view with a Core element', function() {
       var view = new XQCore.View('Core');
-      inspect(view.el).isObject();
       inspect.print(view);
-      inspect(view.tag).isEql('section');
+      inspect(view.el).isObject();
+      inspect(view.el.tag).isEql('section');
     });
   });
 });

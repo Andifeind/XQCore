@@ -10,14 +10,14 @@
 
 var Logger = require('./xqcore-logger');
 var HTMLElements = {
-  RootElement: require('./elements/root'),
-  NotFoundElement: require('./elements/notFound'),
-  Input: require('./elements/input'),
-  List: require('./elements/list'),
-  PageSection: require('./elements/pageSection'),
-  PageRoot: require('./elements/pageRoot'),
-  PageHeader: require('./elements/pageHeader'),
-  PageFooter: require('./elements/pageFooter')
+  RootElement: require('./components/root'),
+  NotFoundElement: require('./components/notFound'),
+  Input: require('./components/input'),
+  List: require('./components/list'),
+  PageSection: require('./components/pageSection'),
+  PageRoot: require('./components/pageRoot'),
+  PageHeader: require('./components/pageHeader'),
+  PageFooter: require('./components/pageFooter')
 };
 
 var log;

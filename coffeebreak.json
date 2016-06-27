@@ -1,16 +1,14 @@
 {
 	"project": "XQCore",
 	"browser": true,
-    "commonjs": true,
+	"libs": [
+
+	],
 	"tests": [
-        "tests/*.spec.js",
-        "tests/testberry/*.spec.js"
-    ],
+    "tests/*.spec.js"
+  ],
 	"watch": [
 		"src/*.js",
 		"tests/*.spec.js"
-	],
-    "grunt": {
-        "task": ["superjoin"]
-    }
+	]
 }

@@ -8,7 +8,7 @@
 'use strict';
 
 var XQCore = require('./xqcore-core');
-var SockJS = require('../lib/sockjs');
+var SockJS = require('sockjs');
 
 var log = new XQCore.Logger('SocketConnection');
 
@@ -37,7 +37,7 @@ var SocketConnection = function(url) {
 
     this.__isReady = false;
     this.__onReadyCallbacks = [];
-    
+
     /**
      * Holds all registered channels
      * @type {Object} __channels
@@ -115,7 +115,7 @@ SocketConnection.prototype.connect = function(url) {
             self.connectionState = 'disconnected';
             self.unsetReady();
             log.warn('Connection to ' + url + ' closed!', err);
-            
+
             if (self.autoReconnect) {
                 log.info('Try to reconnect to ' + url);
 
@@ -162,7 +162,7 @@ SocketConnection.prototype.unregisterChannel = function(channel) {
  * @param {String} channel   Channel name
  * @param {String} eventName Event name
  * @param {Object} data      Data
- * 
+ *
  */
 SocketConnection.prototype.send = function(channel, eventName, data) {
     var self = this;
@@ -202,7 +202,7 @@ SocketConnection.prototype.ready = function(fn) {
  */
 SocketConnection.prototype.setReady = function() {
     var self = this;
-    
+
     this.__isReady = true;
     this.__onReadyCallbacks.forEach(function(fn) {
         fn.call(self);

@@ -1,4 +1,4 @@
-let Core = require('./core');
+var Core = require('./core');
 
 function Input () {
   Core.call(this);
@@ -8,6 +8,9 @@ function Input () {
     type: 'text'
   };
 }
+
+Input.prototype = Object.create(Core.prototype);
+Input.prototype.constructor = Input;
 
 Input.prototype.$change = function(ev) {
   this.setValue(ev.currentTarget.value);

@@ -1,31 +1,32 @@
-let RootElement = require('./root');
+var Core = require('./core');
 
-class ListElement extends RootElement {
-  constructor() {
-    super();
+function List() {
+  Core.call(this);
 
-    this.tag = 'ul';
-    this.attrs = {
-      type: 'text'
-    };
+  this.tag = 'ul';
+  this.attrs = {
+    type: 'text'
+  };
 
-    this.item = function(data) {
-      return '<li>' + data + '</li>';
-    };
-  }
+  this.item = function(data) {
+    return '<li>' + data + '</li>';
+  };
+}
 
-  render(data) {
-    if (Array.isArray(data)) {
-      for (let item of data) {
-        this.push(item);
-      }
-    }
-  }
+List.prototype = Object.create(Core.prototype);
+List.prototype.constructor = List;
 
-  push(data) {
-    let item = this.item;
-    this.append(item(data));
+List.prototype.render = function(data) {
+  if (Array.isArray(data)) {
+    data.forEach(function(item) {
+      this.push(item);
+    }, this);
   }
 }
 
-module.exports = ListElement;
+List.prototype.push = function(data) {
+  var item = this.item;
+  this.append(item(data));
+}
+
+module.exports = List;

@@ -9,11 +9,12 @@
 'use strict';
 
 var Logger = require('./xqcore-logger');
-var HTMLElements = {
-  RootElement: require('./components/root'),
-  NotFoundElement: require('./components/notFound'),
+var cmpElements = {
+  Core: require('./components/core'),
   Input: require('./components/input'),
   List: require('./components/list'),
+
+  NotFoundElement: require('./components/notFound'),
   PageSection: require('./components/pageSection'),
   PageRoot: require('./components/pageRoot'),
   PageHeader: require('./components/pageHeader'),
@@ -34,11 +35,11 @@ function Component(tag) {
   log = new Logger(tag + 'Component');
 
   log.debug('Create new view');
-  if (!HTMLElements[tag]) {
+  if (!cmpElements[tag]) {
     tag = 'NotFoundElement';
   }
 
-  let el = new HTMLElements[tag]();
+  let el = new cmpElements[tag]();
   el.create();
   this.el = el;
 }
@@ -55,6 +56,14 @@ Component.prototype.setState = function (state) {
   this.state = state;
   this.addClass('state-' + this.state);
   return this;
+};
+
+Component.prototype.appendTo = function(container) {
+  container.appendChild(this.el.el);
+};
+
+Component.prototype.toHTML = function () {
+  return this.el.el.outerHTML;
 };
 
 /*

@@ -1,16 +1,15 @@
 (function (root, factory) {
     /*global define:false */
-    'use strict';
 
     if (typeof define === 'function' && define.amd) {
-        define('xqcore', ['jquery', 'firetpl', 'sockjs-client'], factory);
+        define('XQCore', ['jquery', 'firetpl', 'sockjs-client'], factory);
     } else if (typeof module !== 'undefined' && module.exports) {
         module.exports = factory(require('jquery'), require('firetpl'), require('sockjs-client'));
     } else {
-        root.xqcore = factory(window.jQuery, window.FireTPL, window.SockJS);
+        root.XQCore = factory(window.jQuery, window.FireTPL, window.SockJS);
     }
 }(this, function () {
-    'use strict';
+    // 'use strict';
 
     var deps = ['jquery', 'firetpl', 'sockjs'],
         args = Array.prototype.slice.call(arguments);
@@ -6107,11 +6106,12 @@ require.register('./src/xqcore-component.js', function(module, exports, require)
 'use strict';
 
 var Logger = require('./xqcore-logger');
-var HTMLElements = {
-  RootElement: require('./components/root'),
-  NotFoundElement: require('./components/notFound'),
+var cmpElements = {
+  Core: require('./components/core'),
   Input: require('./components/input'),
   List: require('./components/list'),
+
+  NotFoundElement: require('./components/notFound'),
   PageSection: require('./components/pageSection'),
   PageRoot: require('./components/pageRoot'),
   PageHeader: require('./components/pageHeader'),
@@ -6132,11 +6132,11 @@ function Component(tag) {
   log = new Logger(tag + 'Component');
 
   log.debug('Create new view');
-  if (!HTMLElements[tag]) {
+  if (!cmpElements[tag]) {
     tag = 'NotFoundElement';
   }
 
-  let el = new HTMLElements[tag]();
+  let el = new cmpElements[tag]();
   el.create();
   this.el = el;
 }
@@ -6153,6 +6153,14 @@ Component.prototype.setState = function (state) {
   this.state = state;
   this.addClass('state-' + this.state);
   return this;
+};
+
+Component.prototype.appendTo = function(container) {
+  container.appendChild(this.el.el);
+};
+
+Component.prototype.toHTML = function () {
+  return this.el.el.outerHTML;
 };
 
 /*
@@ -6194,117 +6202,6 @@ class XQComponent {
 //--
 
 module.exports = Component;
-
-});
-require.register('./src/components/root.js', function(module, exports, require) { let EventEmitter = require('../xqcore-event');
-
-/**
- * Root element
- *
- * @class RootElement
- * @extends XQFire.Event
- */
-class RootElement extends EventEmitter {
-
-  /**
-   * Element constructor
-   *
-   * @chainable
-   * @return {object} Returns this value
-   */
-  constructor() {
-    super();
-    this.tag = 'section'
-  }
-
-  /**
-   * Creates dom element
-   *
-   * @chainable
-   * @return {object} Returns this value
-   */
-  create() {
-    let tagName = this.constructor.name;
-    this.el = document.createElement(this.tag);
-    this.el.className = tagName;
-    this.render({});
-
-    if (this.$change) {
-      this.el.addEventListener('change', ev => {
-        this.emit('change', this.$change(ev), ev);
-      });
-    }
-  }
-
-  append(el) {
-    if (Array.isArray(el)) {
-      for (var i = 0; i < el.length; i++) {
-        this.el.appendChild(el[i].el);
-      }
-
-      return;
-    }
-    else if (typeof el === 'string') {
-      let docFrac = document.createDocumentFragment();
-      let div = document.createElement('div');
-      div.innerHTML = el;
-      for (let item of div.children) {
-        docFrac.appendChild(item);
-      }
-      this.el.appendChild(docFrac);
-    }
-    else {
-      this.el.appendChild(el.el);
-    }
-  }
-
-  render(data) {
-    if (this.tmpl) {
-      let html = this.tmpl;
-      if (typeof html === 'function') {
-        html = html(data);
-      }
-
-      this.el.innerHTML = html;
-    }
-  }
-}
-
-module.exports = RootElement
-
-});
-require.register('./src/components/notFound.js', function(module, exports, require) { let RootElement = require('./root');
-
-class NotFoundElement extends RootElement {
-  constructor() {
-    super();
-
-    this.className = 'element-error element-not-found'
-    this.attrs = {
-      title: 'Element was not found!'
-    }
-  }
-}
-
-module.exports = NotFoundElement;
-
-});
-require.register('./src/components/input.js', function(module, exports, require) { let Core = require('./core');
-
-function Input () {
-  Core.call(this);
-
-  this.tag = 'input';
-  this.attrs = {
-    type: 'text'
-  };
-}
-
-Input.prototype.$change = function(ev) {
-  this.setValue(ev.currentTarget.value);
-}
-
-module.exports = Input;
 
 });
 require.register('./src/components/core.js', function(module, exports, require) { /**
@@ -6405,37 +6302,152 @@ Core.prototype.append = function(el) {
 module.exports = Core;
 
 });
-require.register('./src/components/list.js', function(module, exports, require) { let RootElement = require('./root');
+require.register('./src/components/input.js', function(module, exports, require) { var Core = require('./core');
 
-class ListElement extends RootElement {
-  constructor() {
-    super();
+function Input () {
+  Core.call(this);
 
-    this.tag = 'ul';
-    this.attrs = {
-      type: 'text'
-    };
+  this.tag = 'input';
+  this.attrs = {
+    type: 'text'
+  };
+}
 
-    this.item = function(data) {
-      return '<li>' + data + '</li>';
-    };
-  }
+Input.prototype = Object.create(Core.prototype);
+Input.prototype.constructor = Input;
 
-  render(data) {
-    if (Array.isArray(data)) {
-      for (let item of data) {
-        this.push(item);
-      }
-    }
-  }
+Input.prototype.$change = function(ev) {
+  this.setValue(ev.currentTarget.value);
+}
 
-  push(data) {
-    let item = this.item;
-    this.append(item(data));
+module.exports = Input;
+
+});
+require.register('./src/components/list.js', function(module, exports, require) { var Core = require('./core');
+
+function List() {
+  Core.call(this);
+
+  this.tag = 'ul';
+  this.attrs = {
+    type: 'text'
+  };
+
+  this.item = function(data) {
+    return '<li>' + data + '</li>';
+  };
+}
+
+List.prototype = Object.create(Core.prototype);
+List.prototype.constructor = List;
+
+List.prototype.render = function(data) {
+  if (Array.isArray(data)) {
+    data.forEach(function(item) {
+      this.push(item);
+    }, this);
   }
 }
 
-module.exports = ListElement;
+List.prototype.push = function(data) {
+  var item = this.item;
+  this.append(item(data));
+}
+
+module.exports = List;
+
+});
+require.register('./src/components/notFound.js', function(module, exports, require) { let RootElement = require('./root');
+
+class NotFoundElement extends RootElement {
+  constructor() {
+    super();
+
+    this.className = 'element-error element-not-found'
+    this.attrs = {
+      title: 'Element was not found!'
+    }
+  }
+}
+
+module.exports = NotFoundElement;
+
+});
+require.register('./src/components/root.js', function(module, exports, require) { let EventEmitter = require('../xqcore-event');
+
+/**
+ * Root element
+ *
+ * @class RootElement
+ * @extends XQFire.Event
+ */
+class RootElement extends EventEmitter {
+
+  /**
+   * Element constructor
+   *
+   * @chainable
+   * @return {object} Returns this value
+   */
+  constructor() {
+    super();
+    this.tag = 'section'
+  }
+
+  /**
+   * Creates dom element
+   *
+   * @chainable
+   * @return {object} Returns this value
+   */
+  create() {
+    let tagName = this.constructor.name;
+    this.el = document.createElement(this.tag);
+    this.el.className = tagName;
+    this.render({});
+
+    if (this.$change) {
+      this.el.addEventListener('change', ev => {
+        this.emit('change', this.$change(ev), ev);
+      });
+    }
+  }
+
+  append(el) {
+    if (Array.isArray(el)) {
+      for (var i = 0; i < el.length; i++) {
+        this.el.appendChild(el[i].el);
+      }
+
+      return;
+    }
+    else if (typeof el === 'string') {
+      let docFrac = document.createDocumentFragment();
+      let div = document.createElement('div');
+      div.innerHTML = el;
+      for (let item of div.children) {
+        docFrac.appendChild(item);
+      }
+      this.el.appendChild(docFrac);
+    }
+    else {
+      this.el.appendChild(el.el);
+    }
+  }
+
+  render(data) {
+    if (this.tmpl) {
+      let html = this.tmpl;
+      if (typeof html === 'function') {
+        html = html(data);
+      }
+
+      this.el.innerHTML = html;
+    }
+  }
+}
+
+module.exports = RootElement
 
 });
 require.register('./src/components/pageSection.js', function(module, exports, require) { let RootElement = require('./root');

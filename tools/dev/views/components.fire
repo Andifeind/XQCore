@@ -16,5 +16,6 @@ html
                 li class="componentItem"
                     a class="link" href="?name=$name" $name
         section class="pageBody"
-            h2 class="cmpName"$name
+            h2 class="cmpName" $name
             section class="cmpSandbox"
+            section class="cmpCodebox"

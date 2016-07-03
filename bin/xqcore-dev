@@ -5,7 +5,8 @@ let path = require('path');
 let fs = require('fs');
 
 let program = require('commander');
-let log = require('logtopus').getLogger('xqcore-dev');
+let logtopus = require('logtopus');
+let log = logtopus.getLogger('xqcore-dev');
 let pkg = require('../package.json');
 
 log.setLevel('sys');
@@ -34,14 +35,23 @@ function getComponents() {
 
 let express = require('express');
 let app = express();
+
+app.use(logtopus.express({
+  logLevel: 'debug'
+}));
+
 app.set('view engine', 'fire');
 app.set('views', path.join(__dirname, '../tools/dev/views'));
 app.engine('fire', require('firetpl').__express);
 app.use(express.static(path.join(__dirname, '../tools/dev/public')));
 
+app.get('/', (req, res) => {
+  res.redirect('/components');
+});
+
 app.get('/components', (req, res) => {
   res.render('components', {
-    name: req.search,
+    name: req.query.name,
     components: getComponents()
   });
 });

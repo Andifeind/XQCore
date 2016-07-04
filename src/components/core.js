@@ -69,8 +69,10 @@ Core.prototype.render = function(data) {
  * @return {Object}    Returns this value
  */
 Core.prototype.append = function(el) {
+  var i;
+  
   if (Array.isArray(el)) {
-    for (var i = 0; i < el.length; i++) {
+    for (i = 0; i < el.length; i++) {
       this.el.appendChild(el[i].el);
     }
 
@@ -80,9 +82,9 @@ Core.prototype.append = function(el) {
     var docFrac = document.createDocumentFragment();
     var div = document.createElement('div');
     div.innerHTML = el;
-    div.children.forEach(function(item) {
-      docFrac.appendChild(item);
-    });
+    for (i = 0; i < div.children.length; i++) {
+      docFrac.appendChild(div.children[i]);
+    }
 
     this.el.appendChild(docFrac);
   }

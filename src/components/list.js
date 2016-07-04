@@ -29,4 +29,15 @@ List.prototype.push = function(data) {
   this.append(item(data));
 }
 
+List.prototype.child = function (el) {
+  if (typeof el === 'string') {
+    this.item = function(data) {
+      return '<li>' + data + '</li>';
+    };
+  }
+  else {
+    this.item = el.render;
+  }
+};
+
 module.exports = List;

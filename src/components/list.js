@@ -4,12 +4,14 @@ function List() {
   Core.call(this);
 
   this.tag = 'ul';
+  this.cssClass = 'xq-list';
+
   this.attrs = {
     type: 'text'
   };
 
   this.item = function(data) {
-    return '<li>' + data + '</li>';
+    return '<li class="item">' + data.value + '</li>';
   };
 }
 
@@ -32,7 +34,7 @@ List.prototype.push = function(data) {
 List.prototype.child = function (el) {
   if (typeof el === 'string') {
     this.item = function(data) {
-      return '<li>' + data + '</li>';
+      return '<li>' + data.value + '</li>';
     };
   }
   else {

@@ -17,5 +17,6 @@ html
                     a class="link" href="?name=$name" $name
         section class="pageBody"
             h2 class="cmpName" $name
+            section class="mdlViewbox"
             section class="cmpSandbox"
             section class="cmpCodebox"

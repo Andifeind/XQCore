@@ -3368,6 +3368,24 @@ Presenter.prototype.couple = function(view, model, conf) {
   this.coupleView(view, model, conf);
 };
 
+Presenter.prototype.coupleComponent = function(cmp, model) {
+  if (model instanceof XQCore.List) {
+    var list = model;
+    list.on('item.push', function(item) {
+      console.log('push item', item);
+      var val = item[0].get();
+      console.log('value', val);
+      cmp.push(val);
+    });
+  }
+  else {
+    cmp.on('value.change', function(data) {
+      console.log('CMP CHANGE', data);
+      model.set(data.name, data.value);
+    });
+  }
+};
+
 /**
  * Couples a view onto a model
  *
@@ -3658,7 +3676,7 @@ Presenter.prototype.route = function(route, callback) {
 Presenter.prototype.createView = function (viewTree) {
   log.debug('Render view tree', viewTree);
 
-  let tree = XQCore.recurse([viewTree], function(data, next) {
+  var tree = XQCore.recurse([viewTree], function(data, next) {
     var tagName = data.name;
     var view = new XQCore.View(tagName);
     var childs = next(data.childs);
@@ -3667,10 +3685,10 @@ Presenter.prototype.createView = function (viewTree) {
     }
 
     if (data.model) {
-      let model = new XQCore.__models[data.model]();
+      var model = new XQCore.__models[data.model]();
 
       if (view.el.$change) {
-        view.el.on('change', evData => {
+        view.el.on('change', function(evData) {
           if (data.prop) {
             model.set(data.prop, evData);
           }
@@ -3678,12 +3696,12 @@ Presenter.prototype.createView = function (viewTree) {
       }
     }
     else if (data.list) {
-      let list = new XQCore.__lists[data.list]();
+      var list = new XQCore.__lists[data.list]();
 
       if (view.el.$change) {
-        view.el.on('change', evData => {
+        view.el.on('change', function(evData) {
           if (data.prop) {
-            let listItem = {};
+            var listItem = {};
             listItem[data.prop] = evData;
             list.add(listItem);
           }
@@ -3691,11 +3709,11 @@ Presenter.prototype.createView = function (viewTree) {
       }
 
       if (view.el.push) {
-        list.on('item.push', model => {
+        list.on('item.push', function(model) {
           view.el.push(model[0].get());
         });
 
-        list.each(model => {
+        list.each(function(model) {
           view.el.push(model.get());
         });
       }
@@ -3704,7 +3722,7 @@ Presenter.prototype.createView = function (viewTree) {
     return view;
   });
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
     tree[0].injectInto(document.body);
   });
 };
@@ -6106,6 +6124,7 @@ require.register('./src/xqcore-component.js', function(module, exports, require)
 'use strict';
 
 var Logger = require('./xqcore-logger');
+var EventEmitter = require('./xqcore-event');
 var cmpElements = {
   Core: require('./components/core'),
   Input: require('./components/input'),
@@ -6128,7 +6147,9 @@ var log;
  *
  * @param {object} conf Component configuration
  */
-function Component(tag) {
+function Component(tag, name) {
+  EventEmitter.call(this);
+
   log = new Logger(tag + 'Component');
 
   log.debug('Create new view');
@@ -6136,10 +6157,15 @@ function Component(tag) {
     tag = 'NotFoundElement';
   }
 
-  let el = new cmpElements[tag]();
+  var el = new cmpElements[tag](name);
   el.create();
   this.el = el;
+
+  this.registerEventListener();
 }
+
+Component.prototype = Object.create(EventEmitter.prototype);
+Component.prototype.constructor = Component;
 
 /**
  * Sets a view state
@@ -6156,12 +6182,25 @@ Component.prototype.setState = function (state) {
 };
 
 Component.prototype.appendTo = function(container) {
-  container.appendChild(this.el.el);
+  container.appendChild(this.el.domEl);
 };
 
 Component.prototype.toHTML = function () {
-  return this.el.el.outerHTML;
+  return this.el.domEl.outerHTML;
 };
+
+Component.prototype.push = function(item) {
+  this.el.push(item);
+}
+
+Component.prototype.registerEventListener = function() {
+  if (this.el.$change) {
+    var self = this;
+    this.el.$change(function(data, ev) {
+      self.emit('value.change', data);
+    });
+  }
+}
 
 /*
 class XQComponent {
@@ -6217,12 +6256,6 @@ function Core() {
   this.tag = 'section';
 }
 
-var EVENT_LISTENERS = [
-  'change',
-  'click',
-  'keydown',
-  'keyup'
-];
 /**
  * Creates the element
  * @method create
@@ -6231,16 +6264,22 @@ var EVENT_LISTENERS = [
  */
 Core.prototype.create = function() {
   var tagName = this.constructor.name;
-  this.el = document.createElement(this.tag);
-  this.el.className = tagName;
-  this.render({});
+  this.domEl = document.createElement(this.tag);
+  var cssClass = tagName;
+  if (this.cssClass) {
+    cssClass += ' ' + this.cssClass;
+  }
 
-  EVENT_LISTENERS.forEach(function(eventName) {
-    var methodName = '$' + eventName;
-    if (typeof this[methodName] === 'function') {
-      this.el.addEventListener(eventName, methodName);
+  if (this.attrs) {
+    for (var attr in this.attrs) {
+      if (this.attrs.hasOwnProperty(attr)) {
+        this.domEl.setAttribute(attr, this.attrs[attr]);
+      }
     }
-  });
+  }
+
+  this.domEl.className = cssClass;
+  this.render({});
 }
 
 /**
@@ -6259,7 +6298,7 @@ Core.prototype.render = function(data) {
       html = html(data);
     }
 
-    this.el.innerHTML = html;
+    this.domEl.innerHTML = html;
   }
 
   return this;
@@ -6276,10 +6315,10 @@ Core.prototype.render = function(data) {
  */
 Core.prototype.append = function(el) {
   var i;
-  
+
   if (Array.isArray(el)) {
     for (i = 0; i < el.length; i++) {
-      this.el.appendChild(el[i].el);
+      this.domEl.appendChild(el[i].el);
     }
 
     return;
@@ -6292,10 +6331,10 @@ Core.prototype.append = function(el) {
       docFrac.appendChild(div.children[i]);
     }
 
-    this.el.appendChild(docFrac);
+    this.domEl.appendChild(docFrac);
   }
   else {
-    this.el.appendChild(el.el);
+    this.domEl.appendChild(el.domEl);
   }
 
   return this;
@@ -6306,20 +6345,28 @@ module.exports = Core;
 });
 require.register('./src/components/input.js', function(module, exports, require) { var Core = require('./core');
 
-function Input () {
+function Input (name) {
   Core.call(this);
 
   this.tag = 'input';
+  this.name = name || 'input';
   this.attrs = {
-    type: 'text'
+    type: 'text',
+    name: this.name
   };
 }
 
 Input.prototype = Object.create(Core.prototype);
 Input.prototype.constructor = Input;
 
-Input.prototype.$change = function(ev) {
-  this.setValue(ev.currentTarget.value);
+Input.prototype.$change = function(fn) {
+  this.domEl.addEventListener('change', function(ev) {
+    console.log('DOM', ev);
+    fn({
+      name: ev.target.name,
+      value: ev.target.value
+    }, ev);
+  });
 }
 
 module.exports = Input;
@@ -6331,12 +6378,14 @@ function List() {
   Core.call(this);
 
   this.tag = 'ul';
+  this.cssClass = 'xq-list';
+
   this.attrs = {
     type: 'text'
   };
 
   this.item = function(data) {
-    return '<li>' + data + '</li>';
+    return '<li class="item">' + data.value + '</li>';
   };
 }
 
@@ -6359,7 +6408,7 @@ List.prototype.push = function(data) {
 List.prototype.child = function (el) {
   if (typeof el === 'string') {
     this.item = function(data) {
-      return '<li>' + data + '</li>';
+      return '<li>' + data.value + '</li>';
     };
   }
   else {
@@ -6690,11 +6739,12 @@ XQCore.promise = function(callback) {
  * @return {object|array}  Returns a resolved tree response
  */
 XQCore.recurse = function(tree, fn) {
-  console.log('REC', tree);
+  var res;
+  var i;
   if (Array.isArray(tree)) {
-    let res = [];
+    res = [];
 
-    for (let i = 0; i < tree.length; i++) {
+    for (i = 0; i < tree.length; i++) {
        res.push(fn(tree[i], function(data) {
          return XQCore.recurse(data, fn)
        }));
@@ -6703,10 +6753,10 @@ XQCore.recurse = function(tree, fn) {
     return res;
   }
   else if (tree && typeof tree === 'object') {
-    let keys = Object.keys(tree);
-    let res = {};
+    var keys = Object.keys(tree);
+    res = {};
 
-    for (let i = 0; i < keys.length; i++) {
+    for (i = 0; i < keys.length; i++) {
        res[keys]= fn(tree[keys[i]], fn);
     }
 

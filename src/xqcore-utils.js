@@ -177,11 +177,12 @@ XQCore.promise = function(callback) {
  * @return {object|array}  Returns a resolved tree response
  */
 XQCore.recurse = function(tree, fn) {
-  console.log('REC', tree);
+  var res;
+  var i;
   if (Array.isArray(tree)) {
-    let res = [];
+    res = [];
 
-    for (let i = 0; i < tree.length; i++) {
+    for (i = 0; i < tree.length; i++) {
        res.push(fn(tree[i], function(data) {
          return XQCore.recurse(data, fn)
        }));
@@ -190,10 +191,10 @@ XQCore.recurse = function(tree, fn) {
     return res;
   }
   else if (tree && typeof tree === 'object') {
-    let keys = Object.keys(tree);
-    let res = {};
+    var keys = Object.keys(tree);
+    res = {};
 
-    for (let i = 0; i < keys.length; i++) {
+    for (i = 0; i < keys.length; i++) {
        res[keys]= fn(tree[keys[i]], fn);
     }
 

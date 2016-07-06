@@ -194,6 +194,32 @@ Presenter.prototype.couple = function(view, model, conf) {
   this.coupleView(view, model, conf);
 };
 
+Presenter.prototype.coupleComponent = function(cmp, model) {
+  if (model instanceof XQCore.List) {
+    var list = model;
+    list.on('item.push', function(item) {
+      console.log('push item', item);
+      var val = item[0].get();
+      console.log('value', val);
+      cmp.push(val);
+    });
+  }
+  else {
+    cmp.on('value.change', function(data) {
+      console.log('CMP CHANGE', data);
+      model.set(data.name, data.value);
+    });
+
+    model.on('validation.error', function(validationResult, other) {
+      console.log('VALIDATION', validationResult, other);
+    });
+
+    model.on('state.change', function(state) {
+      cmp.setState(state);
+    });
+  }
+};
+
 /**
  * Couples a view onto a model
  *
@@ -484,7 +510,7 @@ Presenter.prototype.route = function(route, callback) {
 Presenter.prototype.createView = function (viewTree) {
   log.debug('Render view tree', viewTree);
 
-  let tree = XQCore.recurse([viewTree], function(data, next) {
+  var tree = XQCore.recurse([viewTree], function(data, next) {
     var tagName = data.name;
     var view = new XQCore.View(tagName);
     var childs = next(data.childs);
@@ -493,10 +519,10 @@ Presenter.prototype.createView = function (viewTree) {
     }
 
     if (data.model) {
-      let model = new XQCore.__models[data.model]();
+      var model = new XQCore.__models[data.model]();
 
       if (view.el.$change) {
-        view.el.on('change', evData => {
+        view.el.on('change', function(evData) {
           if (data.prop) {
             model.set(data.prop, evData);
           }
@@ -504,12 +530,12 @@ Presenter.prototype.createView = function (viewTree) {
       }
     }
     else if (data.list) {
-      let list = new XQCore.__lists[data.list]();
+      var list = new XQCore.__lists[data.list]();
 
       if (view.el.$change) {
-        view.el.on('change', evData => {
+        view.el.on('change', function(evData) {
           if (data.prop) {
-            let listItem = {};
+            var listItem = {};
             listItem[data.prop] = evData;
             list.add(listItem);
           }
@@ -517,11 +543,11 @@ Presenter.prototype.createView = function (viewTree) {
       }
 
       if (view.el.push) {
-        list.on('item.push', model => {
+        list.on('item.push', function(model) {
           view.el.push(model[0].get());
         });
 
-        list.each(model => {
+        list.each(function(model) {
           view.el.push(model.get());
         });
       }
@@ -530,7 +556,7 @@ Presenter.prototype.createView = function (viewTree) {
     return view;
   });
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
     tree[0].injectInto(document.body);
   });
 };

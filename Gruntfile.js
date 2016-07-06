@@ -77,7 +77,7 @@ module.exports = function(grunt) {
                         dest: '../component-builds/xqcore/xqcore.js'
                     }, {
                         src: ['component.json'],
-                        dest: '../component-builds/xqcore/',
+                        dest: '../component-builds/xqcore/'
                     }, {
                         src: ['xqcore.css'],
                         dest: '../component-builds/xqcore/xqcore.css'
@@ -106,7 +106,7 @@ module.exports = function(grunt) {
                         dest: '../component-builds/xqcore/xqcore.css'
                     }
                 ]
-            },
+            }
         },
         less: {
             dist: {
@@ -114,7 +114,8 @@ module.exports = function(grunt) {
                     paths: 'less/'
                 },
                 files: {
-                    'xqcore.css': 'less/main.less'
+                    'xqcore.css': 'less/main.less',
+                    'tools/dev/public/css/xqcore.css': 'less/main.less'
                 }
             }
         },
@@ -166,7 +167,7 @@ module.exports = function(grunt) {
         watch: {
             js: {
                 files: 'src/**/*.js',
-                tasks: ['build']
+                tasks: ['superjoin']
             },
             styles: {
 

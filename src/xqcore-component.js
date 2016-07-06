@@ -9,6 +9,7 @@
 'use strict';
 
 var Logger = require('./xqcore-logger');
+var EventEmitter = require('./xqcore-event');
 var cmpElements = {
   Core: require('./components/core'),
   Input: require('./components/input'),
@@ -31,7 +32,9 @@ var log;
  *
  * @param {object} conf Component configuration
  */
-function Component(tag) {
+function Component(tag, name) {
+  EventEmitter.call(this);
+
   log = new Logger(tag + 'Component');
 
   log.debug('Create new view');
@@ -39,10 +42,15 @@ function Component(tag) {
     tag = 'NotFoundElement';
   }
 
-  let el = new cmpElements[tag]();
+  var el = new cmpElements[tag](name);
   el.create();
   this.el = el;
+
+  this.registerEventListener();
 }
+
+Component.prototype = Object.create(EventEmitter.prototype);
+Component.prototype.constructor = Component;
 
 /**
  * Sets a view state
@@ -59,13 +67,61 @@ Component.prototype.setState = function (state) {
 };
 
 Component.prototype.appendTo = function(container) {
-  container.appendChild(this.el.el);
+  container.appendChild(this.el.domEl);
 };
 
 Component.prototype.toHTML = function () {
-  return this.el.el.outerHTML;
+  return this.el.domEl.outerHTML;
 };
 
+Component.prototype.push = function(item) {
+  this.el.push(item);
+}
+
+Component.prototype.registerEventListener = function() {
+  if (this.el.$change) {
+    var self = this;
+    this.el.$change(function(data, ev) {
+      self.emit('value.change', data);
+    });
+  }
+}
+
+/**
+ * Sets a name attribute
+ * @method setName
+ * @version 1.0.0
+ *
+ * @param {string} name Attribute name
+ */
+Component.prototype.setName = function(name) {
+  this.el.domEl.setAttribute('name', name);
+};
+
+/**
+ * Gets a name attribute
+ * @method getName
+ * @version 1.0.0
+ *
+ * @param {string} name Attribute name
+ */
+Component.prototype.getName = function(name) {
+  return this.el.domEl.getAttribute('name');
+};
+
+
+
+/**
+ * Sets component state
+ * @method setState
+ * @version 1.0.0
+ *
+ * @param {string} state State name
+ */
+Component.prototype.setState = function(state) {
+  console.log('State', state);
+  this.el.domEl.setAttribute('name', name);
+};
 /*
 class XQComponent {
   constructor(tag) {

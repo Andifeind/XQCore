@@ -11,12 +11,6 @@ function Core() {
   this.tag = 'section';
 }
 
-var EVENT_LISTENERS = [
-  'change',
-  'click',
-  'keydown',
-  'keyup'
-];
 /**
  * Creates the element
  * @method create
@@ -25,16 +19,22 @@ var EVENT_LISTENERS = [
  */
 Core.prototype.create = function() {
   var tagName = this.constructor.name;
-  this.el = document.createElement(this.tag);
-  this.el.className = tagName;
-  this.render({});
+  this.domEl = document.createElement(this.tag);
+  var cssClass = tagName;
+  if (this.cssClass) {
+    cssClass += ' ' + this.cssClass;
+  }
 
-  EVENT_LISTENERS.forEach(function(eventName) {
-    var methodName = '$' + eventName;
-    if (typeof this[methodName] === 'function') {
-      this.el.addEventListener(eventName, methodName);
+  if (this.attrs) {
+    for (var attr in this.attrs) {
+      if (this.attrs.hasOwnProperty(attr)) {
+        this.domEl.setAttribute(attr, this.attrs[attr]);
+      }
     }
-  });
+  }
+
+  this.domEl.className = cssClass;
+  this.render({});
 }
 
 /**
@@ -53,7 +53,7 @@ Core.prototype.render = function(data) {
       html = html(data);
     }
 
-    this.el.innerHTML = html;
+    this.domEl.innerHTML = html;
   }
 
   return this;
@@ -70,10 +70,10 @@ Core.prototype.render = function(data) {
  */
 Core.prototype.append = function(el) {
   var i;
-  
+
   if (Array.isArray(el)) {
     for (i = 0; i < el.length; i++) {
-      this.el.appendChild(el[i].el);
+      this.domEl.appendChild(el[i].el);
     }
 
     return;
@@ -86,10 +86,10 @@ Core.prototype.append = function(el) {
       docFrac.appendChild(div.children[i]);
     }
 
-    this.el.appendChild(docFrac);
+    this.domEl.appendChild(docFrac);
   }
   else {
-    this.el.appendChild(el.el);
+    this.domEl.appendChild(el.domEl);
   }
 
   return this;

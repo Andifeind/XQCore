@@ -59,3 +59,44 @@
 .cmpCodebox {
   color: #00397e;
 }
+
+.mdlViewbox {
+  float: right;
+  width: 300px;
+  background-color: #eee;
+  border-radius: 5px;
+  position: relative;
+  padding: 10px;
+}
+
+.mdlViewbox .type-label {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: inline-block;
+  padding: 2px 5px;
+  color: #fff;
+  background-color: #00397e;
+  border-top-right-radius: 5px;
+}
+
+.mdlViewbox .label {
+  color: #222;
+  display: inline-block;
+  width: 80px;
+}
+
+.mdlViewbox .name,
+.mdlViewbox .state   {
+  display: inline-block;
+  width: 220px;
+}
+
+.mdlViewbox .value {
+  white-space: pre;
+  font-family: monospace;
+  padding: 5px;
+  margin-top: 10px;
+  background-color: #fbfbfb;
+  display: block;
+}

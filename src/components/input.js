@@ -7,7 +7,7 @@ function Input (name) {
   this.tag = 'div';
   this.tmpl = function(data) {
     self.errorLabel = document.createElement('span');
-    self.errorLabel.className = 'error-label';
+    self.errorLabel.className = 'xq-error-label';
 
     self.inputField = document.createElement('input');
     self.inputField.className = 'xq-input-field';
@@ -29,7 +29,7 @@ Input.prototype = Object.create(Core.prototype);
 Input.prototype.constructor = Input;
 
 Input.prototype.$change = function(fn) {
-  this.domEl.addEventListener('change', function(ev) {
+  this.listen('change', function(ev) {
     console.log('CHANGE', ev);
     fn({
       name: ev.target.name,
@@ -40,6 +40,9 @@ Input.prototype.$change = function(fn) {
 
 Input.prototype.setError = function (err) {
   this.errorLabel.innerHTML = err;
+  this.listenOnce('keydown', function() {
+    
+  }, this.errorLabel);
 };
 
 Input.prototype.getValue = function () {

@@ -5,7 +5,7 @@
 .xq-input {
     border: 2px solid #ddd;
     border-radius: 3px;
-    font-size: 13px;
+    font-size: 14px;
     padding: 5px 2px;
     background-color: #fefefe;
     display: inline-block;
@@ -17,6 +17,20 @@
 
     &.xq-invalid {
         border-color: #d00;
+    }
+
+    .xq-input-field {
+        border: 0;
+        padding: 0;
+    }
+
+    .xq-error-label {
+        position: absolute;
+        right: 5px;
+        bottom: -25px;
+        background-color: rgba(0, 0, 0, .8);
+        color: #fff;
+        padding: 5px 2px;
     }
 }
 

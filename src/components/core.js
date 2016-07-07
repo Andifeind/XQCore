@@ -105,4 +105,54 @@ Core.prototype.append = function(el) {
   return this;
 }
 
+Core.prototype.appendTo = function(container) {
+  container.appendChild(this.domEl);
+};
+
+Core.prototype.addClass = function(className) {
+  var classList = this.domEl.className;
+  if (!classList) {
+    this.domEl.className = className;
+    return;
+  }
+
+  var reg = new RegExp('\\b' + className + '\\b');
+  if (!reg.test(classList)) {
+    this.domEl.className += ' ' + className
+  }
+};
+
+Core.prototype.removeClass = function(className) {
+  var classList = this.domEl.className;
+  var reg = new RegExp(' ?\\b' + className + '\\b ?');
+  this.domEl.className = classList.replace(reg, '');
+};
+
+Core.prototype.toHTML = function() {
+  return this.domEl.outerHTML;
+};
+
+Core.prototype.listen = function(event, fn) {
+  this.domEl.addEventListener(event, fn);
+};
+
+Core.prototype.listenOnce = function(event, fn) {
+  var listener = function() {
+    this.domEl.removeEventListener(fn, listener);
+  };
+
+  this.domEl.addEventListener(event, fn);
+};
+
+Object.defineProperty(Core.prototype, 'state', {
+  get: function() {
+    return this.__state;
+  },
+  set: function(state) {
+    this.removeClass('xq-' + this.__state);
+    this.addClass('xq-' + state);
+    this.__state = state;
+  }
+});
+
 module.exports = Core;

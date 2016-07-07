@@ -8,6 +8,8 @@
  */
 'use strict';
 
+var XQCore = require('./xqcore-core');
+
 var Logger = require('./xqcore-logger');
 var EventEmitter = require('./xqcore-event');
 var cmpElements = {
@@ -22,7 +24,7 @@ var cmpElements = {
   PageFooter: require('./components/pageFooter')
 };
 
-var log;
+var cmps = {};
 
 /**
  * XQCore.Component
@@ -33,100 +35,37 @@ var log;
  * @param {object} conf Component configuration
  */
 function Component(tag, name) {
-  EventEmitter.call(this);
-
-  log = new Logger(tag + 'Component');
-
-  log.debug('Create new view');
   if (!cmpElements[tag]) {
     tag = 'NotFoundElement';
   }
 
-  var el = new cmpElements[tag](name);
-  el.create();
-  this.el = el;
+  if (!cmps[tag]) {
+    var Cmp = function() {
+      cmpElements[tag].call(this, name);
+      EventEmitter.call(this);
+      this.cmpType = tag;
+    };
 
-  this.registerEventListener();
-}
-
-Component.prototype = Object.create(EventEmitter.prototype);
-Component.prototype.constructor = Component;
-
-/**
- * Sets a view state
- * @param {[type]} state [description]
- */
-Component.prototype.setState = function (state) {
-  if (this.state) {
-    this.removeClass('state-' + this.state);
+    Cmp.prototype = Object.create(cmpElements[tag].prototype);
+    XQCore.assign(Cmp.prototype, EventEmitter.prototype);
+    XQCore.assign(Cmp.prototype, new Logger(tag + 'Component'));
   }
 
-  this.state = state;
-  this.addClass('state-' + this.state);
-  return this;
-};
 
-Component.prototype.appendTo = function(container) {
-  container.appendChild(this.el.domEl);
-};
+  var el = new Cmp(name);
+  el.create();
 
-Component.prototype.toHTML = function () {
-  return this.el.domEl.outerHTML;
-};
-
-Component.prototype.push = function(item) {
-  this.el.push(item);
+  this.registerEventListener(el);
+  return el;
 }
 
-Component.prototype.registerEventListener = function() {
-  if (this.el.$change) {
-    var self = this;
-    this.el.$change(function(data, ev) {
-      self.emit('value.change', data);
+Component.prototype.registerEventListener = function(el) {
+  if (el.$change) {
+    el.$change(function(data, ev) {
+      el.emit('value.change', data);
     });
   }
 }
-
-/**
- * Sets component state
- * @method setState
- * @version 1.0.0
- *
- * @param {string} state State name
- */
-Component.prototype.setState = function(state) {
-  if (state === 'valid') {
-    this.removeClass('xq-invalid');
-  }
-  else if (state === 'invalid') {
-    this.removeClass('xq-valid');
-  }
-
-  this.addClass('xq-' + state);
-};
-
-Component.prototype.addClass = function (className) {
-  var classList = this.el.domEl.className;
-  if (!classList) {
-    this.el.domEl.className = className;
-    return;
-  }
-
-  var reg = new RegExp('\\b' + className + '\\b');
-  if (!reg.test(classList)) {
-    this.el.domEl.className += ' ' + className
-  }
-};
-
-Component.prototype.removeClass = function (className) {
-  var classList = this.el.domEl.className;
-  var reg = new RegExp(' ?\\b' + className + '\\b ?');
-  this.el.domEl.className = classList.replace(reg, '');
-};
-
-Component.prototype.setError = function(err) {
-  this.el.domEl.title = err;
-};
 
 /*
 class XQComponent {

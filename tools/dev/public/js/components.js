@@ -23,7 +23,7 @@ function loadSandbox() {
   var cmp = new XQCore.Component(cmpName.charAt(0).toUpperCase() + cmpName.substr(1), 'username');
   console.log('CMP', cmp); // eslint-disable-line
   cmp.appendTo(sandbox);
-  cmp.el.render();
+  cmp.render();
 
   if (cmpName === 'list') {
     var list = new XQCore.List('listing', function(self) {
@@ -59,12 +59,16 @@ function loadSandbox() {
       self.coupleComponent(cmp, model);
     });
 
-    renderModel(model);
-    model.on('state.change', renderModel.bind(null, model));
-    model.on('data.change', renderModel.bind(null, model));
-  }
 
-  codebox.textContent = cmp.toHTML();
+    var render = function() {
+      renderModel(model);
+      codebox.textContent = cmp.toHTML(true);
+    };
+
+    model.on('state.change', render);
+    model.on('data.change', render);
+    render();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', loadSandbox);

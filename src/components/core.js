@@ -47,12 +47,22 @@ Core.prototype.create = function() {
  * @return {object} Returns this value
  */
 Core.prototype.render = function(data) {
+  var html;
   if (this.tmpl) {
-    var html = this.tmpl;
-    if (typeof html === 'function') {
-      html = html(data);
+    html = this.tmpl;
+  }
+
+  if (typeof html === 'function') {
+    html = html(data);
+  }
+
+  if (typeof html === 'object') {
+    while (this.domEl.firstChild) {
+      this.domEl.removeChild(this.domEl.firstChild);
     }
 
+    this.domEl.appendChild(html);
+  } else {
     this.domEl.innerHTML = html;
   }
 
@@ -73,7 +83,7 @@ Core.prototype.append = function(el) {
 
   if (Array.isArray(el)) {
     for (i = 0; i < el.length; i++) {
-      this.domEl.appendChild(el[i].el);
+      this.domEl.appendChild(el[i].domEl);
     }
 
     return;

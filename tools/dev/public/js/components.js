@@ -20,7 +20,7 @@ function loadSandbox() {
   var codebox = document.getElementsByClassName('cmpCodebox')[0];
   var cmpName = document.getElementsByClassName('cmpName')[0].innerText;
 
-  var cmp = new XQCore.Component(cmpName.charAt(0).toUpperCase() + cmpName.substr(1), 'test');
+  var cmp = new XQCore.Component(cmpName.charAt(0).toUpperCase() + cmpName.substr(1), 'username');
   console.log('CMP', cmp); // eslint-disable-line
   cmp.appendTo(sandbox);
   cmp.el.render();
@@ -49,7 +49,9 @@ function loadSandbox() {
 
   if (cmpName === 'input') {
     var model = new XQCore.Model('input', function(self) {
-
+      self.schema = {
+        username: { type: 'string', min: 3, max: 25 }
+      };
     });
 
     var presenter; // eslint-disable-line

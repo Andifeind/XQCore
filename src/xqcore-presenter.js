@@ -212,6 +212,8 @@ Presenter.prototype.coupleComponent = function(cmp, model) {
 
     model.on('validation.error', function(validationResult, other) {
       console.log('VALIDATION', validationResult, other);
+      cmp.setState('invalid');
+      cmp.setError(validationResult[0].msg);
     });
 
     model.on('state.change', function(state) {

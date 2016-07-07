@@ -88,30 +88,6 @@ Component.prototype.registerEventListener = function() {
 }
 
 /**
- * Sets a name attribute
- * @method setName
- * @version 1.0.0
- *
- * @param {string} name Attribute name
- */
-Component.prototype.setName = function(name) {
-  this.el.domEl.setAttribute('name', name);
-};
-
-/**
- * Gets a name attribute
- * @method getName
- * @version 1.0.0
- *
- * @param {string} name Attribute name
- */
-Component.prototype.getName = function(name) {
-  return this.el.domEl.getAttribute('name');
-};
-
-
-
-/**
  * Sets component state
  * @method setState
  * @version 1.0.0
@@ -119,9 +95,39 @@ Component.prototype.getName = function(name) {
  * @param {string} state State name
  */
 Component.prototype.setState = function(state) {
-  console.log('State', state);
-  this.el.domEl.setAttribute('name', name);
+  if (state === 'valid') {
+    this.removeClass('xq-invalid');
+  }
+  else if (state === 'invalid') {
+    this.removeClass('xq-valid');
+  }
+
+  this.addClass('xq-' + state);
 };
+
+Component.prototype.addClass = function (className) {
+  var classList = this.el.domEl.className;
+  if (!classList) {
+    this.el.domEl.className = className;
+    return;
+  }
+
+  var reg = new RegExp('\\b' + className + '\\b');
+  if (!reg.test(classList)) {
+    this.el.domEl.className += ' ' + className
+  }
+};
+
+Component.prototype.removeClass = function (className) {
+  var classList = this.el.domEl.className;
+  var reg = new RegExp(' ?\\b' + className + '\\b ?');
+  this.el.domEl.className = classList.replace(reg, '');
+};
+
+Component.prototype.setError = function(err) {
+  this.el.domEl.title = err;
+};
+
 /*
 class XQComponent {
   constructor(tag) {

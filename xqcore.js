@@ -3383,6 +3383,16 @@ Presenter.prototype.coupleComponent = function(cmp, model) {
       console.log('CMP CHANGE', data);
       model.set(data.name, data.value);
     });
+
+    model.on('validation.error', function(validationResult, other) {
+      console.log('VALIDATION', validationResult, other);
+      cmp.setState('invalid');
+      cmp.setError(validationResult[0].msg);
+    });
+
+    model.on('state.change', function(state) {
+      cmp.setState(state);
+    });
   }
 };
 
@@ -6202,6 +6212,47 @@ Component.prototype.registerEventListener = function() {
   }
 }
 
+/**
+ * Sets component state
+ * @method setState
+ * @version 1.0.0
+ *
+ * @param {string} state State name
+ */
+Component.prototype.setState = function(state) {
+  if (state === 'valid') {
+    this.removeClass('xq-invalid');
+  }
+  else if (state === 'invalid') {
+    this.removeClass('xq-valid');
+  }
+
+  this.addClass('xq-' + state);
+};
+
+Component.prototype.addClass = function (className) {
+  var classList = this.el.domEl.className;
+  if (!classList) {
+    this.el.domEl.className = className;
+    return;
+  }
+
+  var reg = new RegExp('\\b' + className + '\\b');
+  if (!reg.test(classList)) {
+    this.el.domEl.className += ' ' + className
+  }
+};
+
+Component.prototype.removeClass = function (className) {
+  var classList = this.el.domEl.className;
+  var reg = new RegExp(' ?\\b' + className + '\\b ?');
+  this.el.domEl.className = classList.replace(reg, '');
+};
+
+Component.prototype.setError = function(err) {
+  this.el.domEl.title = err;
+};
+
 /*
 class XQComponent {
   constructor(tag) {
@@ -6292,12 +6343,22 @@ Core.prototype.create = function() {
  * @return {object} Returns this value
  */
 Core.prototype.render = function(data) {
+  var html;
   if (this.tmpl) {
-    var html = this.tmpl;
-    if (typeof html === 'function') {
-      html = html(data);
+    html = this.tmpl;
+  }
+
+  if (typeof html === 'function') {
+    html = html(data);
+  }
+
+  if (typeof html === 'object') {
+    while (this.domEl.firstChild) {
+      this.domEl.removeChild(this.domEl.firstChild);
     }
 
+    this.domEl.appendChild(html);
+  } else {
     this.domEl.innerHTML = html;
   }
 
@@ -6318,7 +6379,7 @@ Core.prototype.append = function(el) {
 
   if (Array.isArray(el)) {
     for (i = 0; i < el.length; i++) {
-      this.domEl.appendChild(el[i].el);
+      this.domEl.appendChild(el[i].domEl);
     }
 
     return;
@@ -6348,12 +6409,26 @@ require.register('./src/components/input.js', function(module, exports, require)
 function Input (name) {
   Core.call(this);
 
-  this.tag = 'input';
+  var self = this;
+  this.tag = 'div';
+  this.tmpl = function(data) {
+    self.errorLabel = document.createElement('span');
+    self.errorLabel.className = 'error-label';
+
+    self.inputField = document.createElement('input');
+    self.inputField.className = 'xq-input-field';
+    self.inputField.setAttribute('type', self.type);
+    self.inputField.setAttribute('name', self.name);
+
+    var docFrag = document.createDocumentFragment();
+    docFrag.appendChild(self.errorLabel);
+    docFrag.appendChild(self.inputField);
+    return docFrag;
+  }
+
   this.name = name || 'input';
-  this.attrs = {
-    type: 'text',
-    name: this.name
-  };
+  this.type = 'text';
+  this.cssClass = 'xq-input';
 }
 
 Input.prototype = Object.create(Core.prototype);
@@ -6361,13 +6436,25 @@ Input.prototype.constructor = Input;
 
 Input.prototype.$change = function(fn) {
   this.domEl.addEventListener('change', function(ev) {
-    console.log('DOM', ev);
+    console.log('CHANGE', ev);
     fn({
       name: ev.target.name,
       value: ev.target.value
     }, ev);
   });
 }
+
+Input.prototype.setError = function (err) {
+  this.errorLabel.innerHTML = err;
+};
+
+Input.prototype.getValue = function () {
+  return this.inputField.value;
+};
+
+Input.prototype.setValue = function (value) {
+  return this.inputField.value = value;
+};
 
 module.exports = Input;
 

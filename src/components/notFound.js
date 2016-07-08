@@ -1,3 +1,5 @@
+'use strict';
+
 let RootElement = require('./root');
 
 class NotFoundElement extends RootElement {

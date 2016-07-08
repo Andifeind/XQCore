@@ -1,3 +1,5 @@
+'use strict';
+
 let RootElement = require('./root');
 
 class PageHeader extends RootElement {

@@ -6141,12 +6141,9 @@ var cmpElements = {
   Core: require('./components/core'),
   Input: require('./components/input'),
   List: require('./components/list'),
+  Tooltip: require('./components/tooltip')
 
-  NotFoundElement: require('./components/notFound'),
-  PageSection: require('./components/pageSection'),
-  PageRoot: require('./components/pageRoot'),
-  PageHeader: require('./components/pageHeader'),
-  PageFooter: require('./components/pageFooter')
+  
 };
 
 var cmps = {};
@@ -6244,6 +6241,8 @@ require.register('./src/components/core.js', function(module, exports, require) 
  */
 function Core() {
   this.tag = 'section';
+
+  this.__active = true;
 }
 
 /**
@@ -6282,7 +6281,7 @@ Core.prototype.create = function() {
  * @return {object} Returns this value
  */
 Core.prototype.render = function(data) {
-  var html;
+  var html = '';
   if (this.tmpl) {
     html = this.tmpl;
   }
@@ -6387,6 +6386,22 @@ Object.defineProperty(Core.prototype, 'state', {
     this.removeClass('xq-' + this.__state);
     this.addClass('xq-' + state);
     this.__state = state;
+  }
+});
+
+Object.defineProperty(Core.prototype, 'active', {
+  get: function() {
+    return this.__active;
+  },
+  set: function(active) {
+    if (active) {
+      this.removeClass('xq-inactive');
+      this.__active = true;
+    }
+    else {
+      this.addClass('xq-inactive');
+      this.__active = false;
+    }
   }
 });
 
@@ -6498,145 +6513,29 @@ List.prototype.child = function (el) {
 module.exports = List;
 
 });
-require.register('./src/components/notFound.js', function(module, exports, require) { let RootElement = require('./root');
+require.register('./src/components/tooltip.js', function(module, exports, require) { var Core = require('./core');
 
-class NotFoundElement extends RootElement {
-  constructor() {
-    super();
+function Tooltip () {
+  Core.call(this);
 
-    this.className = 'element-error element-not-found'
-    this.attrs = {
-      title: 'Element was not found!'
-    }
-  }
+  this.tag = 'div';
+  this.cssClass = 'xq-tooltip';
 }
 
-module.exports = NotFoundElement;
+Tooltip.prototype = Object.create(Core.prototype);
+Tooltip.prototype.constructor = Tooltip;
 
+Object.defineProperty(Tooltip.prototype, 'content', {
+  get: function() {
+    return this.__content;
+  },
+  set: function(content) {
+    this.domEl.textContent = content;
+    this.__content = content;
+  }
 });
-require.register('./src/components/root.js', function(module, exports, require) { let EventEmitter = require('../xqcore-event');
 
-/**
- * Root element
- *
- * @class RootElement
- * @extends XQFire.Event
- */
-class RootElement extends EventEmitter {
-
-  /**
-   * Element constructor
-   *
-   * @chainable
-   * @return {object} Returns this value
-   */
-  constructor() {
-    super();
-    this.tag = 'section'
-  }
-
-  /**
-   * Creates dom element
-   *
-   * @chainable
-   * @return {object} Returns this value
-   */
-  create() {
-    let tagName = this.constructor.name;
-    this.el = document.createElement(this.tag);
-    this.el.className = tagName;
-    this.render({});
-
-    if (this.$change) {
-      this.el.addEventListener('change', ev => {
-        this.emit('change', this.$change(ev), ev);
-      });
-    }
-  }
-
-  append(el) {
-    if (Array.isArray(el)) {
-      for (var i = 0; i < el.length; i++) {
-        this.el.appendChild(el[i].el);
-      }
-
-      return;
-    }
-    else if (typeof el === 'string') {
-      let docFrac = document.createDocumentFragment();
-      let div = document.createElement('div');
-      div.innerHTML = el;
-      for (let item of div.children) {
-        docFrac.appendChild(item);
-      }
-      this.el.appendChild(docFrac);
-    }
-    else {
-      this.el.appendChild(el.el);
-    }
-  }
-
-  render(data) {
-    if (this.tmpl) {
-      let html = this.tmpl;
-      if (typeof html === 'function') {
-        html = html(data);
-      }
-
-      this.el.innerHTML = html;
-    }
-  }
-}
-
-module.exports = RootElement
-
-});
-require.register('./src/components/pageSection.js', function(module, exports, require) { let RootElement = require('./root');
-
-class PageSection extends RootElement {
-  constructor() {
-    super();
-  }
-}
-
-module.exports = PageSection;
-
-});
-require.register('./src/components/pageRoot.js', function(module, exports, require) { let RootElement = require('./root');
-
-class PageRoot extends RootElement {
-  constructor() {
-    super();
-  }
-}
-
-module.exports = PageRoot;
-
-});
-require.register('./src/components/pageHeader.js', function(module, exports, require) { let RootElement = require('./root');
-
-class PageHeader extends RootElement {
-  constructor() {
-    super();
-
-    this.tag = 'header';
-  }
-}
-
-module.exports = PageHeader;
-
-});
-require.register('./src/components/pageFooter.js', function(module, exports, require) { let RootElement = require('./root');
-
-class PageFooter extends RootElement {
-  constructor() {
-    super();
-
-    this.tag = 'footer';
-  }
-}
-
-module.exports = PageFooter;
+module.exports = Tooltip;
 
 });
 require.register('./src/xqcore-utils.js', function(module, exports, require) { /**

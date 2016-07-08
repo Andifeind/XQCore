@@ -9,6 +9,8 @@
  */
 function Core() {
   this.tag = 'section';
+
+  this.__active = true;
 }
 
 /**
@@ -47,7 +49,7 @@ Core.prototype.create = function() {
  * @return {object} Returns this value
  */
 Core.prototype.render = function(data) {
-  var html;
+  var html = '';
   if (this.tmpl) {
     html = this.tmpl;
   }
@@ -152,6 +154,22 @@ Object.defineProperty(Core.prototype, 'state', {
     this.removeClass('xq-' + this.__state);
     this.addClass('xq-' + state);
     this.__state = state;
+  }
+});
+
+Object.defineProperty(Core.prototype, 'active', {
+  get: function() {
+    return this.__active;
+  },
+  set: function(active) {
+    if (active) {
+      this.removeClass('xq-inactive');
+      this.__active = true;
+    }
+    else {
+      this.addClass('xq-inactive');
+      this.__active = false;
+    }
   }
 });
 

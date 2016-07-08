@@ -6367,6 +6367,18 @@ Core.prototype.toHTML = function() {
   return this.domEl.outerHTML;
 };
 
+Core.prototype.listen = function(event, fn) {
+  this.domEl.addEventListener(event, fn);
+};
+
+Core.prototype.listenOnce = function(event, fn) {
+  var listener = function() {
+    this.domEl.removeEventListener(fn, listener);
+  };
+
+  this.domEl.addEventListener(event, fn);
+};
+
 Object.defineProperty(Core.prototype, 'state', {
   get: function() {
     return this.__state;
@@ -6412,7 +6424,7 @@ Input.prototype = Object.create(Core.prototype);
 Input.prototype.constructor = Input;
 
 Input.prototype.$change = function(fn) {
-  this.domEl.addEventListener('change', function(ev) {
+  this.listen('change', function(ev) {
     console.log('CHANGE', ev);
     fn({
       name: ev.target.name,
@@ -6423,6 +6435,9 @@ Input.prototype.$change = function(fn) {
 
 Input.prototype.setError = function (err) {
   this.errorLabel.innerHTML = err;
+  this.listenOnce('keydown', function() {
+    
+  }, this.errorLabel);
 };
 
 Input.prototype.getValue = function () {

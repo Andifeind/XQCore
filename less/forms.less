@@ -31,6 +31,26 @@
         background-color: rgba(0, 0, 0, .8);
         color: #fff;
         padding: 5px 2px;
+        display: none;
+        text-align: center;
+
+        &::before {
+          content: '⏶';
+          color: rgba(0, 0, 0, .8);
+          font-size: 12px;
+          line-height: 12px;
+          margin: auto auto;
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+        }
+    }
+
+    &.xq-invalid {
+      .xq-error-label {
+        display: block;
+        animation: 1s xq-anim-popin;
+      }
     }
 }
 

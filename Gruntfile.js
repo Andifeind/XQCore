@@ -103,20 +103,9 @@ module.exports = function(grunt) {
                 files: [
                     {
                         src: ['xqcore.css'],
-                        dest: '../component-builds/xqcore/xqcore.css'
+                        dest: 'tools/dev/public/css/xqcore.css'
                     }
                 ]
-            }
-        },
-        less: {
-            dist: {
-                options: {
-                    paths: 'less/'
-                },
-                files: {
-                    'xqcore.css': 'less/main.less',
-                    'tools/dev/public/css/xqcore.css': 'less/main.less'
-                }
             }
         },
         release: {
@@ -127,6 +116,17 @@ module.exports = function(grunt) {
                 commitMessage: 'Release v<%= version %>', //default: 'release <%= version %>'
                 tagMessage: 'Tagging release v<%= version %>', //default: 'Version <%= version %>',
                 beforeRelease: ['version']
+            }
+        },
+        stylus: {
+            dist: {
+                options: {
+                    paths: ['node_modules/lyssl', 'styl'],
+                    compress: false
+                },
+                files: {
+                    'xqcore.css': 'styl/main.styl'
+                }
             }
         },
         superjoin: {
@@ -171,8 +171,8 @@ module.exports = function(grunt) {
             },
             styles: {
 
-                files: 'less/*.less',
-                tasks: ['less', 'copy:styles']
+                files: 'styl/*.styl',
+                tasks: ['stylus', 'copy:styles']
             }
         }
     });
@@ -180,7 +180,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-less');
+    grunt.loadNpmTasks('grunt-contrib-stylus');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
 

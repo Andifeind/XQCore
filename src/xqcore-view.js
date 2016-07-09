@@ -18,7 +18,7 @@ var $ = require('jquery'),
  *
  * @class XQCore.View
  * @constructor
- * 
+ *
  * @param {object} conf View configuration
  */
 var View = function(name, conf) {
@@ -52,7 +52,7 @@ var View = function(name, conf) {
      * Set the view element tag. If no tag are set, a tag dependent from its parent type will be created
      *
      * Tag types dependent from parent:
-     * 
+     *
      * | parent  | view tag |
      * ----------------------
      * | body    | section  |
@@ -184,7 +184,7 @@ View.prototype.show = function(hideOther) {
 
 /**
  * Hide view
- * 
+ *
  * @method hide
  * @chainable
  * @fires view.hide Fires a v`view.hide` event
@@ -225,7 +225,7 @@ View.prototype.active = function(inactivateOther) {
 
 /**
  * Marks a view as inactive
- * 
+ *
  * @method inactivate
  * @chainable
  * @fires view.inactive Fires a v`view.inactive` event
@@ -575,7 +575,7 @@ View.prototype.render = function(data) {
     log.info('Render view template of view ' + this.name, 'with data:', data);
 
     var template = typeof this.template === 'function' ? this.template : XQCore.Tmpl.compile(this.template);
-    
+
     this.scopes = {
         dataFn: function(path, data) {
             var d = data[path];
@@ -673,7 +673,7 @@ View.prototype.replaceScopes = function($el, scope, data, path, fullPath) {
         }
         var len = $html.length / scopeData.length;
         var out = [];
-        
+
         var next = [];
         $html.each(function() {
             next.push($(this).get(0));
@@ -881,7 +881,7 @@ View.prototype.prepend = function(path, data) {
 /**
  * Remove an item from a subset. Removes the item with the given index.
  * If index is negative number it will be removed from the end
- * 
+ *
  * @param  {String} path  data path
  * @param  {Number} index Index of the item
  */
@@ -945,14 +945,14 @@ View.prototype.formSetup = function(model, $el) {
         var changeHandler = function(e) {
             var value = e.target.value;
             var name = e.target.name;
-            
+
             self.emit('input.change', name, value);
         };
 
         var keyUpHandler = function(e) {
             var value = e.target.value;
             var name = e.target.name;
-            
+
             self.emit('input.edit', name, value);
         };
 
@@ -969,8 +969,8 @@ View.prototype.formSetup = function(model, $el) {
 };
 
 /**
- * Called on submiting a form. 
- * 
+ * Called on submiting a form.
+ *
  * @method onSubmit
  * @param {Object} data Form data
  * @param {Object} $form jQuery selector of the submited form
@@ -1002,12 +1002,12 @@ View.prototype.detach = function() {
         if (this.__coupled.obj.__coupled && this.__coupled.obj.__coupled.obj === this) {
             this.__coupled.obj.__coupled.uncouple();
         }
-        
+
         this.__coupled.uncouple();
     }
 
     //TODO remove all events
-    
+
     log.info('View ' + this.name + ' has been destroyed');
 };
 
@@ -1029,12 +1029,12 @@ View.prototype.destroy = function() {
         if (this.__coupled.obj.__coupled && this.__coupled.obj.__coupled.obj === this) {
             this.__coupled.obj.__coupled.uncouple();
         }
-        
+
         this.__coupled.uncouple();
     }
 
     //TODO remove all events
-    
+
     log.info('View ' + this.name + ' has been destroyed');
 };
 
@@ -1059,7 +1059,7 @@ View.prototype.addEvent = function(selector, events, callback) {
 
 /**
  * Defines a container -> view tag type mapping
- * 
+ *
  * @private true
  * @type {Object}
  */
@@ -1075,7 +1075,7 @@ View.prototype.__viewTagTypes = {
 
 /**
  * Creates new view element, based on *tag* option
- * 
+ *
  * @private true
  * @return {object} Returns a DOM element
  */
@@ -1107,7 +1107,7 @@ View.prototype.__createView = function() {
         //Create view element
         self.$ct = self.$ct || $(self.container);
         self.ct = self.$ct.get(0);
-        
+
         self.el = self.__createViewElement();
         self.$el = $(self.el);
         self.$el.data('view', self);
@@ -1120,7 +1120,7 @@ View.prototype.__createView = function() {
         if (self.className) {
             classNames.push(self.className);
         }
-        
+
         if (self.hidden === true) {
             classNames.push('xq-hidden');
             self.$el.hide();
@@ -1153,7 +1153,7 @@ View.prototype.__createView = function() {
                 if (!/^\/?[a-z]/.test(e.currentTarget.href)) {
                     return;
                 }
-                
+
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -1178,7 +1178,7 @@ View.prototype.registerForms = function() {
         if (typeof this.forms === 'string') {
             formSelector = this.forms;
         }
-        
+
         this.ready(function() {
             this.$forms = this.$el.find(formSelector);
             this.$forms.addClass('xq-forms');

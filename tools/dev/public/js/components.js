@@ -18,7 +18,7 @@ function renderModel(model) {
 function loadSandbox() {
   var sandbox = document.getElementsByClassName('cmpSandbox')[0];
   var codebox = document.getElementsByClassName('cmpCodebox')[0];
-  var cmpName = document.getElementsByClassName('cmpName')[0].innerText;
+  var cmpName = document.getElementsByClassName('cmpName')[0].innerText.toLowerCase();
 
   var cmp = new XQCore.Component(cmpName.charAt(0).toUpperCase() + cmpName.substr(1), 'username');
   console.log('CMP', cmp); // eslint-disable-line
@@ -46,8 +46,7 @@ function loadSandbox() {
       list.push({ value: 'Blubb' });
     }, 4000);
   }
-
-  if (cmpName === 'input') {
+  else if (cmpName === 'input') {
     var model = new XQCore.Model('input', function(self) {
       self.schema = {
         username: { type: 'string', min: 3, max: 25 }
@@ -62,12 +61,30 @@ function loadSandbox() {
 
     var render = function() {
       renderModel(model);
-      codebox.textContent = cmp.toHTML(true);
+      codebox.textContent = cmp.toHTML();
     };
 
     model.on('state.change', render);
     model.on('data.change', render);
     render();
+  }
+  else if(cmpName === 'tooltip') {
+    cmp.content = 'Tooltip message!';
+    codebox.textContent = cmp.toHTML();
+
+    // add toogle button
+    var stateToggle = document.createElement('button');
+    stateToggle.textContent = 'Set inactive';
+    stateToggle.style.marginTop = '40px';
+    stateToggle.addEventListener('click', function() {
+      cmp.active = !cmp.active;
+      stateToggle.textContent = cmp.active ? 'Set inactive' : 'Set active';
+    });
+
+    sandbox.appendChild(stateToggle);
+  }
+  else {
+    codebox.textContent = cmp.toHTML();
   }
 }
 

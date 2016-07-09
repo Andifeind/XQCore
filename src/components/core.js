@@ -9,6 +9,8 @@
  */
 function Core() {
   this.tag = 'section';
+
+  this
 }
 
 /**
@@ -47,7 +49,7 @@ Core.prototype.create = function() {
  * @return {object} Returns this value
  */
 Core.prototype.render = function(data) {
-  var html;
+  var html = '';
   if (this.tmpl) {
     html = this.tmpl;
   }
@@ -137,11 +139,13 @@ Core.prototype.listen = function(event, fn) {
 };
 
 Core.prototype.listenOnce = function(event, fn) {
-  var listener = function() {
-    this.domEl.removeEventListener(fn, listener);
+  var self = this;
+  var listener = function(ev) {
+    self.domEl.removeEventListener(event, listener);
+    fn(ev);
   };
 
-  this.domEl.addEventListener(event, fn);
+  this.domEl.addEventListener(event, listener);
 };
 
 Object.defineProperty(Core.prototype, 'state', {
@@ -152,6 +156,29 @@ Object.defineProperty(Core.prototype, 'state', {
     this.removeClass('xq-' + this.__state);
     this.addClass('xq-' + state);
     this.__state = state;
+  }
+});
+
+Object.defineProperty(Core.prototype, 'active', {
+  get: function() {
+    return this.__active;
+  },
+  set: function(active) {
+    if (active) {
+      this.domEl.style.display = '';
+      this.removeClass('xq-inactive');
+      this.__active = true;
+    }
+    else {
+      this.addClass('xq-inactive');
+      // var styles = window.getComputedStyle(this.domEl, null);
+      // if (styles.transitionDelay !== '0s' || styles.transitionDuration !== '0s') {
+      //   this.listenOnce('transitionend', function() {
+      //     this.domEl.style.display = 'none';
+      //   }.bind(this));
+      // }
+      this.__active = false;
+    }
   }
 });
 

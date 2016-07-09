@@ -16,12 +16,7 @@ var cmpElements = {
   Core: require('./components/core'),
   Input: require('./components/input'),
   List: require('./components/list'),
-
-  NotFoundElement: require('./components/notFound'),
-  PageSection: require('./components/pageSection'),
-  PageRoot: require('./components/pageRoot'),
-  PageHeader: require('./components/pageHeader'),
-  PageFooter: require('./components/pageFooter')
+  Tooltip: require('./components/tooltip')
 };
 
 var cmps = {};

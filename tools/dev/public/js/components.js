@@ -23,7 +23,7 @@ function loadSandbox() {
   var cmp = new XQCore.Component(cmpName.charAt(0).toUpperCase() + cmpName.substr(1), 'username');
   console.log('CMP', cmp); // eslint-disable-line
   cmp.appendTo(sandbox);
-  cmp.render();
+  // cmp.render();
 
   if (cmpName === 'list') {
     var list = new XQCore.List('listing', function(self) {

@@ -6141,7 +6141,12 @@ var cmpElements = {
   Core: require('./components/core'),
   Input: require('./components/input'),
   List: require('./components/list'),
-  Tooltip: require('./components/tooltip')
+
+  NotFoundElement: require('./components/notFound'),
+  PageSection: require('./components/pageSection'),
+  PageRoot: require('./components/pageRoot'),
+  PageHeader: require('./components/pageHeader'),
+  PageFooter: require('./components/pageFooter')
 };
 
 var cmps = {};
@@ -6239,8 +6244,6 @@ require.register('./src/components/core.js', function(module, exports, require) 
  */
 function Core() {
   this.tag = 'section';
-
-  this
 }
 
 /**
@@ -6389,29 +6392,6 @@ Object.defineProperty(Core.prototype, 'state', {
   }
 });
 
-Object.defineProperty(Core.prototype, 'active', {
-  get: function() {
-    return this.__active;
-  },
-  set: function(active) {
-    if (active) {
-      this.domEl.style.display = '';
-      this.removeClass('xq-inactive');
-      this.__active = true;
-    }
-    else {
-      this.addClass('xq-inactive');
-      var styles = window.getComputedStyle(this.domEl, null);
-      if (styles.transitionDelay !== '0s' || styles.transitionDuration !== '0s') {
-        this.listenOnce('transitionend', function() {
-          this.domEl.style.display = 'none';
-        }.bind(this));
-      }
-      this.__active = false;
-    }
-  }
-});
-
 module.exports = Core;
 
 });
@@ -6525,9 +6505,11 @@ require.register('./src/components/tooltip.js', function(module, exports, requir
 function Tooltip () {
   Core.call(this);
 
-  this.tag = 'div';
-  this.cssClass = 'xq-tooltip';
-  
+    this.className = 'element-error element-not-found'
+    this.attrs = {
+      title: 'Element was not found!'
+    }
+  }
 }
 
 Tooltip.prototype = Object.create(Core.prototype);

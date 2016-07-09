@@ -10,7 +10,7 @@
 function Core() {
   this.tag = 'section';
 
-  this
+  this.__active = true;
 }
 
 /**

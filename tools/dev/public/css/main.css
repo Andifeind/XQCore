@@ -100,3 +100,7 @@
   background-color: #fbfbfb;
   display: block;
 }
+
+button:focus {
+  outline: none;
+}

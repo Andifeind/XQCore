@@ -5,7 +5,6 @@ function Tooltip () {
 
   this.tag = 'div';
   this.cssClass = 'xq-tooltip';
-  
 }
 
 Tooltip.prototype = Object.create(Core.prototype);

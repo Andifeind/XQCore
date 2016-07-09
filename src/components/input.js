@@ -1,4 +1,5 @@
 var Core = require('./core');
+var Tooltip = require('./tooltip');
 
 function Input (name) {
   Core.call(this);
@@ -6,8 +7,9 @@ function Input (name) {
   var self = this;
   this.tag = 'div';
   this.tmpl = function(data) {
-    self.errorLabel = document.createElement('span');
-    self.errorLabel.className = 'xq-error-label';
+    self.errorLabel = new Tooltip();
+    self.errorLabel.create();
+    self.errorLabel.active = false;
 
     self.inputField = document.createElement('input');
     self.inputField.className = 'xq-input-field';
@@ -15,7 +17,7 @@ function Input (name) {
     self.inputField.setAttribute('name', self.name);
 
     var docFrag = document.createDocumentFragment();
-    docFrag.appendChild(self.errorLabel);
+    docFrag.appendChild(self.errorLabel.domEl);
     docFrag.appendChild(self.inputField);
     return docFrag;
   }
@@ -30,7 +32,6 @@ Input.prototype.constructor = Input;
 
 Input.prototype.$change = function(fn) {
   this.listen('change', function(ev) {
-    console.log('CHANGE', ev);
     fn({
       name: ev.target.name,
       value: ev.target.value
@@ -39,10 +40,7 @@ Input.prototype.$change = function(fn) {
 }
 
 Input.prototype.setError = function (err) {
-  this.errorLabel.innerHTML = err;
-  this.listenOnce('keydown', function() {
-    
-  }, this.errorLabel);
+  this.errorLabel.content = err;
 };
 
 Input.prototype.getValue = function () {
@@ -52,5 +50,16 @@ Input.prototype.getValue = function () {
 Input.prototype.setValue = function (value) {
   return this.inputField.value = value;
 };
+
+Object.defineProperty(Input.prototype, 'errMessage', {
+  get: function() {
+    return this.__errMessage;
+  },
+  set: function(errMessage) {
+    this.errorLabel.active = !!errMessage;
+    this.errorLabel.content = errMessage;
+    this.__errMessage = errMessage;
+  }
+});
 
 module.exports = Input;

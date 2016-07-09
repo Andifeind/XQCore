@@ -207,13 +207,17 @@ Presenter.prototype.coupleComponent = function(cmp, model) {
   else {
     cmp.on('value.change', function(data) {
       console.log('CMP CHANGE', data);
-      model.set(data.name, data.value);
+      model.set(data.name, data.value).then(function() {
+        cmp.errMessage = null;
+      }).catch(function(err) {
+        console.log('RES', err);
+        cmp.errMessage = err.err[0].msg;
+      });
     });
 
     model.on('validation.error', function(validationResult, other) {
       console.log('VALIDATION', validationResult, other);
       cmp.state = 'invalid';
-      cmp.setError(validationResult[0].msg);
     });
 
     model.on('state.change', function(state) {

@@ -3381,13 +3381,17 @@ Presenter.prototype.coupleComponent = function(cmp, model) {
   else {
     cmp.on('value.change', function(data) {
       console.log('CMP CHANGE', data);
-      model.set(data.name, data.value);
+      model.set(data.name, data.value).then(function() {
+        cmp.errMessage = null;
+      }).catch(function(err) {
+        console.log('RES', err);
+        cmp.errMessage = err.err[0].msg;
+      });
     });
 
     model.on('validation.error', function(validationResult, other) {
       console.log('VALIDATION', validationResult, other);
       cmp.state = 'invalid';
-      cmp.setError(validationResult[0].msg);
     });
 
     model.on('state.change', function(state) {
@@ -6141,12 +6145,7 @@ var cmpElements = {
   Core: require('./components/core'),
   Input: require('./components/input'),
   List: require('./components/list'),
-
-  NotFoundElement: require('./components/notFound'),
-  PageSection: require('./components/pageSection'),
-  PageRoot: require('./components/pageRoot'),
-  PageHeader: require('./components/pageHeader'),
-  PageFooter: require('./components/pageFooter')
+  Tooltip: require('./components/tooltip')
 };
 
 var cmps = {};
@@ -6244,6 +6243,8 @@ require.register('./src/components/core.js', function(module, exports, require) 
  */
 function Core() {
   this.tag = 'section';
+
+  this.__active = true;
 }
 
 /**
@@ -6392,10 +6393,34 @@ Object.defineProperty(Core.prototype, 'state', {
   }
 });
 
+Object.defineProperty(Core.prototype, 'active', {
+  get: function() {
+    return this.__active;
+  },
+  set: function(active) {
+    if (active) {
+      this.domEl.style.display = '';
+      this.removeClass('xq-inactive');
+      this.__active = true;
+    }
+    else {
+      this.addClass('xq-inactive');
+      // var styles = window.getComputedStyle(this.domEl, null);
+      // if (styles.transitionDelay !== '0s' || styles.transitionDuration !== '0s') {
+      //   this.listenOnce('transitionend', function() {
+      //     this.domEl.style.display = 'none';
+      //   }.bind(this));
+      // }
+      this.__active = false;
+    }
+  }
+});
+
 module.exports = Core;
 
 });
 require.register('./src/components/input.js', function(module, exports, require) { var Core = require('./core');
+var Tooltip = require('./tooltip');
 
 function Input (name) {
   Core.call(this);
@@ -6403,8 +6428,9 @@ function Input (name) {
   var self = this;
   this.tag = 'div';
   this.tmpl = function(data) {
-    self.errorLabel = document.createElement('span');
-    self.errorLabel.className = 'xq-error-label';
+    self.errorLabel = new Tooltip();
+    self.errorLabel.create();
+    self.errorLabel.active = false;
 
     self.inputField = document.createElement('input');
     self.inputField.className = 'xq-input-field';
@@ -6412,7 +6438,7 @@ function Input (name) {
     self.inputField.setAttribute('name', self.name);
 
     var docFrag = document.createDocumentFragment();
-    docFrag.appendChild(self.errorLabel);
+    docFrag.appendChild(self.errorLabel.domEl);
     docFrag.appendChild(self.inputField);
     return docFrag;
   }
@@ -6427,7 +6453,6 @@ Input.prototype.constructor = Input;
 
 Input.prototype.$change = function(fn) {
   this.listen('change', function(ev) {
-    console.log('CHANGE', ev);
     fn({
       name: ev.target.name,
       value: ev.target.value
@@ -6436,10 +6461,7 @@ Input.prototype.$change = function(fn) {
 }
 
 Input.prototype.setError = function (err) {
-  this.errorLabel.innerHTML = err;
-  this.listenOnce('keydown', function() {
-    
-  }, this.errorLabel);
+  this.errorLabel.content = err;
 };
 
 Input.prototype.getValue = function () {
@@ -6450,7 +6472,43 @@ Input.prototype.setValue = function (value) {
   return this.inputField.value = value;
 };
 
+Object.defineProperty(Input.prototype, 'errMessage', {
+  get: function() {
+    return this.__errMessage;
+  },
+  set: function(errMessage) {
+    this.errorLabel.active = !!errMessage;
+    this.errorLabel.content = errMessage;
+    this.__errMessage = errMessage;
+  }
+});
+
 module.exports = Input;
+
+});
+require.register('./src/components/tooltip.js', function(module, exports, require) { var Core = require('./core');
+
+function Tooltip () {
+  Core.call(this);
+
+  this.tag = 'div';
+  this.cssClass = 'xq-tooltip';
+}
+
+Tooltip.prototype = Object.create(Core.prototype);
+Tooltip.prototype.constructor = Tooltip;
+
+Object.defineProperty(Tooltip.prototype, 'content', {
+  get: function() {
+    return this.__content;
+  },
+  set: function(content) {
+    this.domEl.textContent = content;
+    this.__content = content;
+  }
+});
+
+module.exports = Tooltip;
 
 });
 require.register('./src/components/list.js', function(module, exports, require) { var Core = require('./core');
@@ -6498,34 +6556,6 @@ List.prototype.child = function (el) {
 };
 
 module.exports = List;
-
-});
-require.register('./src/components/tooltip.js', function(module, exports, require) { var Core = require('./core');
-
-function Tooltip () {
-  Core.call(this);
-
-    this.className = 'element-error element-not-found'
-    this.attrs = {
-      title: 'Element was not found!'
-    }
-  }
-}
-
-Tooltip.prototype = Object.create(Core.prototype);
-Tooltip.prototype.constructor = Tooltip;
-
-Object.defineProperty(Tooltip.prototype, 'content', {
-  get: function() {
-    return this.__content;
-  },
-  set: function(content) {
-    this.domEl.textContent = content;
-    this.__content = content;
-  }
-});
-
-module.exports = Tooltip;
 
 });
 require.register('./src/xqcore-utils.js', function(module, exports, require) { /**

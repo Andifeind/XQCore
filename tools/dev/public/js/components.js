@@ -76,6 +76,7 @@ function loadSandbox() {
     var stateToggle = document.createElement('button');
     stateToggle.textContent = 'Set inactive';
     stateToggle.style.marginTop = '40px';
+    stateToggle.style.width = '100px';
     stateToggle.addEventListener('click', function() {
       cmp.active = !cmp.active;
       stateToggle.textContent = cmp.active ? 'Set inactive' : 'Set active';

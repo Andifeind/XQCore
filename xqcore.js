@@ -6405,12 +6405,6 @@ Object.defineProperty(Core.prototype, 'active', {
     }
     else {
       this.addClass('xq-inactive');
-      // var styles = window.getComputedStyle(this.domEl, null);
-      // if (styles.transitionDelay !== '0s' || styles.transitionDuration !== '0s') {
-      //   this.listenOnce('transitionend', function() {
-      //     this.domEl.style.display = 'none';
-      //   }.bind(this));
-      // }
       this.__active = false;
     }
   }
@@ -6431,6 +6425,7 @@ function Input (name) {
     self.errorLabel = new Tooltip();
     self.errorLabel.create();
     self.errorLabel.active = false;
+    self.errorLabel.appendix = self.domEl;
 
     self.inputField = document.createElement('input');
     self.inputField.className = 'xq-input-field';
@@ -6496,7 +6491,16 @@ function Tooltip () {
 }
 
 Tooltip.prototype = Object.create(Core.prototype);
-Tooltip.prototype.constructor = Tooltip;
+Tooltip.prototype.constructor = Tooltip
+
+Tooltip.prototype.setPosition = function() {
+  console.log('POS', this.domEl.offsetHeight);
+  if (this.appendix) {
+    console.log('POS', this.appendix);
+  }
+
+  this.domEl.style.top = -this.domEl.offsetHeight + this.appendix.offsetTop - 10 + 'px';
+};
 
 Object.defineProperty(Tooltip.prototype, 'content', {
   get: function() {
@@ -6505,6 +6509,7 @@ Object.defineProperty(Tooltip.prototype, 'content', {
   set: function(content) {
     this.domEl.textContent = content;
     this.__content = content;
+    this.setPosition();
   }
 });
 

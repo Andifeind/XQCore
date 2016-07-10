@@ -171,12 +171,6 @@ Object.defineProperty(Core.prototype, 'active', {
     }
     else {
       this.addClass('xq-inactive');
-      // var styles = window.getComputedStyle(this.domEl, null);
-      // if (styles.transitionDelay !== '0s' || styles.transitionDuration !== '0s') {
-      //   this.listenOnce('transitionend', function() {
-      //     this.domEl.style.display = 'none';
-      //   }.bind(this));
-      // }
       this.__active = false;
     }
   }

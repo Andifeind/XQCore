@@ -10,6 +10,7 @@ function Input (name) {
     self.errorLabel = new Tooltip();
     self.errorLabel.create();
     self.errorLabel.active = false;
+    self.errorLabel.appendix = self.domEl;
 
     self.inputField = document.createElement('input');
     self.inputField.className = 'xq-input-field';

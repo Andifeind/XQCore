@@ -8,7 +8,16 @@ function Tooltip () {
 }
 
 Tooltip.prototype = Object.create(Core.prototype);
-Tooltip.prototype.constructor = Tooltip;
+Tooltip.prototype.constructor = Tooltip
+
+Tooltip.prototype.setPosition = function() {
+  console.log('POS', this.domEl.offsetHeight);
+  if (this.appendix) {
+    console.log('POS', this.appendix);
+  }
+
+  this.domEl.style.top = -this.domEl.offsetHeight + this.appendix.offsetTop - 10 + 'px';
+};
 
 Object.defineProperty(Tooltip.prototype, 'content', {
   get: function() {
@@ -17,6 +26,7 @@ Object.defineProperty(Tooltip.prototype, 'content', {
   set: function(content) {
     this.domEl.textContent = content;
     this.__content = content;
+    this.setPosition();
   }
 });
 

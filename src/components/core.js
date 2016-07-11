@@ -111,6 +111,17 @@ Core.prototype.appendTo = function(container) {
   container.appendChild(this.domEl);
 };
 
+Core.prototype.hasClass = function(className) {
+  var classList = this.domEl.className;
+  if (!classList) {
+    this.domEl.className = className;
+    return false;
+  }
+
+  var reg = new RegExp('\\b' + className + '\\b');
+  return reg.test(classList);
+};
+
 Core.prototype.addClass = function(className) {
   var classList = this.domEl.className;
   if (!classList) {

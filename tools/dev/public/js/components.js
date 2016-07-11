@@ -18,14 +18,15 @@ function renderModel(model) {
 function loadSandbox() {
   var sandbox = document.getElementsByClassName('cmpSandbox')[0];
   var codebox = document.getElementsByClassName('cmpCodebox')[0];
-  var cmpName = document.getElementsByClassName('cmpName')[0].innerText.toLowerCase();
+  var cmpName = document.getElementsByClassName('cmpName')[0].innerText;
+  cmpName = cmpName.charAt(0).toUpperCase() + cmpName.substr(1);
 
-  var cmp = new XQCore.Component(cmpName.charAt(0).toUpperCase() + cmpName.substr(1), 'username');
+  var cmp = new XQCore.Component(cmpName, 'username');
   console.log('CMP', cmp); // eslint-disable-line
   cmp.appendTo(sandbox);
   // cmp.render();
 
-  if (cmpName === 'list') {
+  if (cmpName === 'List') {
     var list = new XQCore.List('listing', function(self) {
 
     });
@@ -46,7 +47,7 @@ function loadSandbox() {
       list.push({ value: 'Blubb' });
     }, 4000);
   }
-  else if (cmpName === 'input') {
+  else if (cmpName === 'Input') {
     var model = new XQCore.Model('input', function(self) {
       self.schema = {
         username: { type: 'string', min: 3, max: 25 }
@@ -68,7 +69,7 @@ function loadSandbox() {
     model.on('data.change', render);
     render();
   }
-  else if(cmpName === 'tooltip') {
+  else if(cmpName === 'Tooltip') {
     cmp.content = 'Tooltip message!';
     codebox.textContent = cmp.toHTML();
 
@@ -83,6 +84,13 @@ function loadSandbox() {
     });
 
     sandbox.appendChild(stateToggle);
+  }
+  else if(cmpName === 'ProgressBar') {
+    cmp.value = 33;
+
+    setTimeout(function() {
+      cmp.value = 99;
+    }, 2000);
   }
   else {
     codebox.textContent = cmp.toHTML();

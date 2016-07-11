@@ -16,6 +16,7 @@ var cmpElements = {
   Core: require('./components/core'),
   Input: require('./components/input'),
   List: require('./components/list'),
+  ProgressBar: require('./components/progressBar'),
   Tooltip: require('./components/tooltip')
 };
 
@@ -30,10 +31,6 @@ var cmps = {};
  * @param {object} conf Component configuration
  */
 function Component(tag, name) {
-  if (!cmpElements[tag]) {
-    tag = 'NotFoundElement';
-  }
-
   if (!cmps[tag]) {
     var Cmp = function() {
       cmpElements[tag].call(this, name);

@@ -6145,6 +6145,7 @@ var cmpElements = {
   Core: require('./components/core'),
   Input: require('./components/input'),
   List: require('./components/list'),
+  ProgressBar: require('./components/progressBar'),
   Tooltip: require('./components/tooltip')
 };
 
@@ -6159,10 +6160,6 @@ var cmps = {};
  * @param {object} conf Component configuration
  */
 function Component(tag, name) {
-  if (!cmpElements[tag]) {
-    tag = 'NotFoundElement';
-  }
-
   if (!cmps[tag]) {
     var Cmp = function() {
       cmpElements[tag].call(this, name);
@@ -6343,6 +6340,17 @@ Core.prototype.append = function(el) {
 
 Core.prototype.appendTo = function(container) {
   container.appendChild(this.domEl);
+};
+
+Core.prototype.hasClass = function(className) {
+  var classList = this.domEl.className;
+  if (!classList) {
+    this.domEl.className = className;
+    return false;
+  }
+
+  var reg = new RegExp('\\b' + className + '\\b');
+  return reg.test(classList);
 };
 
 Core.prototype.addClass = function(className) {
@@ -6561,6 +6569,50 @@ List.prototype.child = function (el) {
 };
 
 module.exports = List;
+
+});
+require.register('./src/components/progressBar.js', function(module, exports, require) { var Core = require('./core');
+
+function ProgressBar () {
+  Core.call(this);
+
+  this.tag = 'span';
+  this.cssClass = 'xq-progress-bar';
+  this.__value = 0;
+
+  var self = this;
+  this.tmpl = function() {
+    self.bar = document.createElement('span');
+    self.bar.className = 'bar';
+    self.drawBar();
+
+    return self.bar;
+  }
+}
+
+ProgressBar.prototype = Object.create(Core.prototype);
+ProgressBar.prototype.constructor = ProgressBar;
+
+ProgressBar.prototype.drawBar = function() {
+  if (this.hasClass('vertical')) {
+    this.bar.style.height = this.__value + '%';
+  }
+  else {
+    this.bar.style.width = this.__value + '%';
+  }
+};
+
+Object.defineProperty(ProgressBar.prototype, 'value', {
+  get: function() {
+    return this.__value;
+  },
+  set: function(value) {
+    this.__value = Math.min(100, Math.max(value, 0));
+    this.drawBar();
+  }
+});
+
+module.exports = ProgressBar;
 
 });
 require.register('./src/xqcore-utils.js', function(module, exports, require) { /**

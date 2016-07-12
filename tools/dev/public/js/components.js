@@ -92,6 +92,18 @@ function loadSandbox() {
       cmp.value = 99;
     }, 2000);
   }
+  else if(cmpName === 'Counter') {
+    cmp.value = 0;
+
+    setInterval(function() {
+      cmp.value++;
+    }, 200);
+  }
+  else if(cmpName === 'Grid') {
+    ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'].forEach(function(item) {
+      cmp.push({ value: item });
+    });
+  }
   else {
     codebox.textContent = cmp.toHTML();
   }

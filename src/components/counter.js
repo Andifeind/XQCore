@@ -5,17 +5,19 @@ function Counter () {
 
   this.tag = 'span';
   this.cssClass = 'xq-counter';
+  this.__value = 0;
 }
 
 Counter.prototype = Object.create(Core.prototype);
 Counter.prototype.constructor = Counter
 
-Object.defineProperty(Counter.prototype, 'content', {
+Object.defineProperty(Counter.prototype, 'value', {
   get: function() {
-    return this.domEl.textContent;
+    return this.__value;
   },
-  set: function(content) {
-    this.domEl.textContent = content;
+  set: function(value) {
+    this.__value = value;
+    this.domEl.textContent = value;
   }
 });
 

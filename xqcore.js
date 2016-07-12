@@ -6143,6 +6143,9 @@ var Logger = require('./xqcore-logger');
 var EventEmitter = require('./xqcore-event');
 var cmpElements = {
   Core: require('./components/core'),
+
+  Counter: require('./components/counter'),
+  Grid: require('./components/grid'),
   Input: require('./components/input'),
   List: require('./components/list'),
   ProgressBar: require('./components/progressBar'),
@@ -6419,6 +6422,79 @@ Object.defineProperty(Core.prototype, 'active', {
 });
 
 module.exports = Core;
+
+});
+require.register('./src/components/counter.js', function(module, exports, require) { var Core = require('./core');
+
+function Counter () {
+  Core.call(this);
+
+  this.tag = 'span';
+  this.cssClass = 'xq-counter';
+  this.__value = 0;
+}
+
+Counter.prototype = Object.create(Core.prototype);
+Counter.prototype.constructor = Counter
+
+Object.defineProperty(Counter.prototype, 'value', {
+  get: function() {
+    return this.__value;
+  },
+  set: function(value) {
+    this.__value = value;
+    this.domEl.textContent = value;
+  }
+});
+
+module.exports = Counter;
+
+});
+require.register('./src/components/grid.js', function(module, exports, require) { var Core = require('./core');
+
+function Grid () {
+  Core.call(this);
+
+  this.tag = 'div';
+  this.cssClass = 'xq-grid';
+  this.__items = [];
+  this.child = function(data) {
+    return '<div class="item">' + data.value + '</div>';
+  };
+}
+
+Grid.prototype = Object.create(Core.prototype);
+Grid.prototype.constructor = Grid;
+
+Grid.prototype.push = function(data) {
+  this.__items.push(data);
+  this.append(this.child(data));
+}
+
+Grid.prototype.child = function (el) {
+  if (typeof el === 'string') {
+    this.item = function(data) {
+      return '<div>' + data.value + '</div>';
+    };
+  }
+  else {
+    this.item = el.render;
+  }
+};
+
+Object.defineProperty(Grid.prototype, 'items', {
+  get: function() {
+    return this.__items;
+  }
+});
+
+Object.defineProperty(Grid.prototype, 'length', {
+  get: function() {
+    return this.__items.length;
+  }
+});
+
+module.exports = Grid;
 
 });
 require.register('./src/components/input.js', function(module, exports, require) { var Core = require('./core');

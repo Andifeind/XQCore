@@ -104,3 +104,16 @@
 button:focus {
   outline: none;
 }
+
+.xq-grid {
+  margin-right: 300px;
+}
+
+.xq-grid .item {
+  border: 1px solid #00397e;
+  border-radius: 5px;
+  font-size: 30px;
+  font-weight: bold;
+  line-height: 80px;
+  color: #00397e;
+}

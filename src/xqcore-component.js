@@ -14,6 +14,9 @@ var Logger = require('./xqcore-logger');
 var EventEmitter = require('./xqcore-event');
 var cmpElements = {
   Core: require('./components/core'),
+
+  Counter: require('./components/counter'),
+  Grid: require('./components/grid'),
   Input: require('./components/input'),
   List: require('./components/list'),
   ProgressBar: require('./components/progressBar'),

@@ -104,9 +104,31 @@ function loadSandbox() {
       cmp.push({ value: item });
     });
   }
-  else {
-    codebox.textContent = cmp.toHTML();
+  else if(cmpName === 'Table') {
+    cmp.child = function(data) {
+      return '<tr><td>' + data.title + '</td><td>' + data.number + '</td><td>' + data.content + '</td></tr>';
+    };
+
+    cmp.push({
+      title: 'Row one',
+      number: '1',
+      content: 'This is the first row'
+    });
+
+    cmp.push({
+      title: 'Row two',
+      number: '2',
+      content: 'This is the second row'
+    });
+
+    cmp.push({
+      title: 'Row three',
+      number: '3',
+      content: 'This is the third row'
+    });
   }
+  
+  codebox.textContent = cmp.toHTML();
 }
 
 document.addEventListener('DOMContentLoaded', loadSandbox);

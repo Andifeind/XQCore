@@ -92,7 +92,8 @@ Core.prototype.append = function(el) {
   }
   else if (typeof el === 'string') {
     var docFrac = document.createDocumentFragment();
-    var div = document.createElement('div');
+    var elType = /^<tr/.test(el) ? 'table' : 'div';
+    var div = document.createElement(elType);
     div.innerHTML = el;
     for (i = 0; i < div.children.length; i++) {
       docFrac.appendChild(div.children[i]);

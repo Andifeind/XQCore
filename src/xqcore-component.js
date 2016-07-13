@@ -20,6 +20,7 @@ var cmpElements = {
   Input: require('./components/input'),
   List: require('./components/list'),
   ProgressBar: require('./components/progressBar'),
+  Table: require('./components/table'),
   Tooltip: require('./components/tooltip')
 };
 

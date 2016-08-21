@@ -56,5 +56,13 @@ app.get('/components', (req, res) => {
   });
 });
 
+app.get('/syncmodel', (req, res) => {
+  res.render('syncmodel', {
+    name: 'SyncModel'
+  });
+});
+
+
+
 app.listen(program.port || 5335);
 log.sys('Starting dev server on port', program.port || 5335)

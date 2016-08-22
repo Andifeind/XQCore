@@ -88,7 +88,7 @@ SyncModel.prototype.register = function(enableSync) {
         self.set(data, opts);
     });
 
-    self.socket.on('syncmodel.item', function(key, value) {
+    self.socket.on('syncmodel.value', function(key, value) {
         self.set(key, value, opts);
     });
 
@@ -105,7 +105,6 @@ SyncModel.prototype.register = function(enableSync) {
     });
 
     self.socket.on('syncmodel.init', function(data) {
-        console.log('Got initial data request:', data);
         self.set(data, opts);
     });
 
@@ -122,7 +121,7 @@ SyncModel.prototype.unregister = function() {
 
     this.socket.off('syncmodel.set');
     this.socket.off('syncmodel.replace');
-    this.socket.off('syncmodel.item');
+    this.socket.off('syncmodel.value');
     this.socket.off('syncmodel.insert');
     this.socket.off('syncmodel.remove');
     this.socket.off('syncmodel.reset');

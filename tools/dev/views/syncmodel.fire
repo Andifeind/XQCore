@@ -15,6 +15,8 @@ html
         section class="pageBody"
             h2 class="cmpName" $name
             section class="mdlViewbox"
-              div class="counter"
             section class="cmpSandbox"
+                div class="connections" "0"
+                div class="counter" "0"
+                button class="countLink" "+1"
             section class="cmpCodebox"

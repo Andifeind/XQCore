@@ -24,7 +24,7 @@
  *
  * Registers a few listeners:
  * synclist.push, synclist.shift, synclist.pop, synclist.unshift
- * 
+ *
  * </code>
  */
 'use strict';
@@ -105,33 +105,32 @@ SyncList.prototype.register = function(enableSync) {
     var opts = {
         noSync: true
     };
-    
+
     self.socket.on('synclist.push', function(data) {
         self.push(data, opts);
     });
-    
+
     self.socket.on('synclist.unshift', function(data) {
         self.push(data, opts);
     });
-    
+
     self.socket.on('synclist.pop', function() {
         self.push(opts);
     });
-    
+
     self.socket.on('synclist.shift', function() {
         self.push(opts);
     });
-    
+
     self.socket.on('synclist.update', function(match, data) {
         self.update(match, data, opts);
     });
-    
+
     self.socket.on('synclist.clear', function() {
         self.clear(opts);
     });
-    
+
     self.socket.on('synclist.init', function(data) {
-        console.log('Got initial data request:', data);
         self.push(data, opts);
     });
 

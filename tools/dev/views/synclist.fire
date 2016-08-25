@@ -17,7 +17,6 @@ html
             section class="mdlViewbox"
             section class="cmpSandbox"
                 div class="connections" "0"
-                div class="counter" "0"
-                button class="countLink" "+1"
-                div class="statuslog"
+                ul class="list"
+                
             section class="cmpCodebox"

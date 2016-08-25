@@ -8,7 +8,7 @@ html
         script type="text/javascript" src="/jquery.js"
         script type="text/javascript" src="/sockjs.js"
         script type="text/javascript" src="/xqcore.js"
-        script type="text/javascript" src="/js/syncmodel.js"
+        script type="text/javascript" src="/js/synclist.js"
     body class="pageMain"
         section class="pageHeader"
             div class="logo" "XQCore devt⚙⚙ls"
@@ -18,5 +18,8 @@ html
             section class="cmpSandbox"
                 div class="connections" "0"
                 ul class="list"
-                
+                div class="add-value"
+                    form class="add-value-form"
+                        input name="value" class="value-input"
+
             section class="cmpCodebox"

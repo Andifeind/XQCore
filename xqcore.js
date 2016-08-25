@@ -1266,19 +1266,19 @@ module.exports = Sync;
 });
 require.register('./src/xqcore-list.js', function(module, exports, require) { /**
  * XQCore List
- *  
+ *
  * @module  XQCore.List
  * @requires XQCore.Event
  * @requires XQCore.Logger
  * @example
- * 
+ *
  * var Model = XQCore.Model.inherit({
  *     schema: {
  *         title: { type: 'string', min: 3, max 100 },
  *         content: { type: 'string', min: 3, max 1000 }
  *     }
  * });
- * 
+ *
  * var list new XQCore.List('myList', function(self) { {
  *     self.model = Model
  * }});
@@ -1287,7 +1287,7 @@ require.register('./src/xqcore-list.js', function(module, exports, require) { /*
  *     title: 'Item 1',
  *     content: 'This is my first list item'
  * });
- * 
+ *
  */
 
 'use strict';
@@ -1306,6 +1306,9 @@ var XQCore = require('./xqcore-core');
  * @param {Object} conf List extend object
  */
 var List = function(name, conf) {
+    //Call XQCore.Logger constructor
+    XQCore.Logger.call(this);
+    
     //Call XQCore.ReadyState constructor
     XQCore.ReadyState.call(this);
 
@@ -1324,7 +1327,7 @@ var List = function(name, conf) {
      * @public
      * @type {Boolean}
      */
-    this.debug = XQCore.debug;
+    this.logLevel = XQCore.logLevel;
 
     if (conf === undefined) {
         conf = {};
@@ -1379,7 +1382,7 @@ var List = function(name, conf) {
             noValidation: true
         });
     }
-    
+
     /*!
      * Sets ready state
      */
@@ -1390,8 +1393,7 @@ var List = function(name, conf) {
 //Extend with ready state
 XQCore.extend(List.prototype, XQCore.ReadyState.prototype);
 XQCore.extend(List.prototype, XQCore.Event.prototype);
-
-XQCore.extend(List.prototype, new XQCore.Logger());
+XQCore.extend(List.prototype, XQCore.Logger.prototype);
 
 if (XQCore.Sync) {
     XQCore.extend(List.prototype, XQCore.Sync.prototype);
@@ -1456,7 +1458,7 @@ List.prototype.getState = function() {
  * You can pass a XQCore.Model or a plain data object.
  * A data object will be converted into a XQCore.Model.
  * The model must be valid to be added to the list.
- * 
+ *
  * @param {Object|Array} data Model instance or a plain data object. Add multiple models by using an array of items
  * @param {Object} options Options object
  * {
@@ -1479,7 +1481,7 @@ List.prototype.push = function(data, options) {
 
     for (var i = 0, len = data.length; i < len; i++) {
         item = data[i];
-    
+
         if (item instanceof XQCore.Model) {
             model = item;
         }
@@ -1526,7 +1528,7 @@ List.prototype.push = function(data, options) {
  * You can pass a XQCore.Model or a plain data object.
  * A data object will be converted into a XQCore.Model.
  * The model must be valid to be added to the list.
- * 
+ *
  * @param {Object|Array} data Model instance or a plain data object. Add multiple models by using an array of items
  * @param {Object} options Options object
  * {
@@ -1548,7 +1550,7 @@ List.prototype.unshift = function(data, options) {
 
     for (var i = 0, len = data.length; i < len; i++) {
         item = data[i];
-    
+
         if (item instanceof XQCore.Model) {
             model = item;
         }
@@ -1594,7 +1596,7 @@ List.prototype.unshift = function(data, options) {
  * Removes the last item from a list and returns it.
  *
  * @event item.remove Emits an item.remove event. The removed item will be passed as the first argument
- * 
+ *
  * @param {Object} options Options object
  * {
  *     silent: true,    //Disable event emitting
@@ -1630,7 +1632,7 @@ List.prototype.pop = function(options) {
  * Removes the first item from a list and returns it.
  *
  * @event item.shift Emits an item.shift event. The removed item will be passed as the first argument
- * 
+ *
  * @param {Object} options Options object
  * {
  *     silent: true,    //Disable event emitting
@@ -1695,7 +1697,7 @@ List.prototype.update = function(match, data, options) {
 
     if (updateItem) {
         updateItem.set(data, { noSync: true, silent: true });
-        
+
         if (!options.silent) {
             this.emit('item.update', updateItem);
         }
@@ -1746,7 +1748,7 @@ List.prototype.remove = function(match, options) {
 
     if (removedItem) {
         this.items.splice(index, 1);
-        
+
         if (!options.silent) {
             this.emit('item.remove', removedItem, index);
         }
@@ -1780,7 +1782,7 @@ List.prototype.clear = function(options) {
     if (this.items.length === 0) {
         return 0;
     }
-    
+
     var oldValue = this.toArray();
 
     this.items = [];
@@ -1811,7 +1813,7 @@ List.prototype.toArray = function() {
 
 /**
  * Compatibility, does the same as toArray()
- * @method toJSON   
+ * @method toJSON
  * @return {Array} Returns an array of list items
  */
 List.prototype.toJSON = function() {
@@ -1869,7 +1871,7 @@ List.prototype.find = function(query) {
         res = [];
 
     parent = this.items;
-    
+
     if (parent) {
         for (var i = 0; i < parent.length; i++) {
             var prop = parent[i],
@@ -4561,7 +4563,7 @@ require.register('./src/xqcore-synclist.js', function(module, exports, require) 
  *
  * Registers a few listeners:
  * synclist.push, synclist.shift, synclist.pop, synclist.unshift
- * 
+ *
  * </code>
  */
 'use strict';
@@ -4642,33 +4644,32 @@ SyncList.prototype.register = function(enableSync) {
     var opts = {
         noSync: true
     };
-    
+
     self.socket.on('synclist.push', function(data) {
         self.push(data, opts);
     });
-    
+
     self.socket.on('synclist.unshift', function(data) {
         self.push(data, opts);
     });
-    
+
     self.socket.on('synclist.pop', function() {
         self.push(opts);
     });
-    
+
     self.socket.on('synclist.shift', function() {
         self.push(opts);
     });
-    
+
     self.socket.on('synclist.update', function(match, data) {
         self.update(match, data, opts);
     });
-    
+
     self.socket.on('synclist.clear', function() {
         self.clear(opts);
     });
-    
+
     self.socket.on('synclist.init', function(data) {
-        console.log('Got initial data request:', data);
         self.push(data, opts);
     });
 
@@ -4827,7 +4828,6 @@ SyncModel.prototype.register = function(enableSync) {
     });
 
     self.socket.on('syncmodel.init', function(data) {
-        console.log('Got initial data request:', data);
         self.set(data, opts);
     });
 

@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementsByName('value')[0].value = '';
 
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '//localhost:6446/list/add');
+    xhr.open('POST', '//localhost:6446/list/');
     xhr.setRequestHeader('content-type', 'application/json');
     xhr.send(JSON.stringify(data));
 

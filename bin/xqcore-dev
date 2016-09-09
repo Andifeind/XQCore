@@ -62,13 +62,18 @@ app.get('/syncmodel', (req, res) => {
   });
 });
 
-
 app.get('/synclist', (req, res) => {
   res.render('synclist', {
     name: 'SyncList'
   });
 });
 
+app.get('/form', (req, res) => {
+  res.render('basic', {
+    name: 'Form',
+    jsFile: 'form'
+  });
+});
 
 app.listen(program.port || 5335);
 log.sys('Starting dev server on port', program.port || 5335)

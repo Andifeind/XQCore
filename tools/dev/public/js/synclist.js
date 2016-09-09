@@ -9,7 +9,7 @@ var SyncList = new XQCore.SyncList('example', function(self) {
   });
 });
 
-var SyncModel = new XQCore.SyncModel('example', function(self) {
+var ConnectionModel = new XQCore.SyncModel('connectionCounter', function(self) {
   self.on('data.change', function(data) {
     document.getElementsByClassName('connections')[0].innerHTML = data.connections;
   });

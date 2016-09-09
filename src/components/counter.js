@@ -1,5 +1,16 @@
 var Core = require('./core');
 
+/**
+ * Counter component
+ *
+ * @package XQCore
+ * @subpackage Components
+ * @module Counter
+ *
+ * @example {js}
+ * var cmp = new XQCore.Component('myCounter');
+ * cmp.value = 3;
+ */
 function Counter () {
   Core.call(this);
 

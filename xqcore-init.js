@@ -1,4 +1,5 @@
 var XQCore = require('./src/xqcore-core');
+require('./src/xqcore-utils');
 XQCore.Promise = require('./src/xqcore-promise');
 XQCore.Logger = require('./src/xqcore-logger');
 XQCore.ReadyState = require('./src/xqcore-readystate');
@@ -15,8 +16,7 @@ XQCore.SyncList = require('./src/xqcore-synclist');
 XQCore.SyncModel = require('./src/xqcore-syncmodel');
 XQCore.Tmpl = require('./src/xqcore-tmpl');
 XQCore.View = require('./src/xqcore-view');
-XQCore.Component = require('./src/xqcore-component');
+XQCore.Component = require('./src/xqcore-component')(XQCore);
 
-require('./src/xqcore-utils');
 
 module.exports = XQCore;

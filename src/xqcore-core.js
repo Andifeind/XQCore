@@ -14,69 +14,69 @@ var $ = require('jquery');
  * @type {Object}
  */
 var XQCore = {
-    /**
-     * Contains the current XQCore version
-     * @property {String} version
-     */
-    version: '0.13.1',
+  /**
+   * Contains the current XQCore version
+   * @property {String} version
+   */
+  version: '0.13.1',
 
-    /**
-     * Defines a default route
-     * @property {String} defaultRoute
-     */
-    defaultRoute: '/',
+  /**
+   * Defines a default route
+   * @property {String} defaultRoute
+   */
+  defaultRoute: '/',
 
-    /**
-     * Enables html5 routing support
-     * @property {Boolean} html5Routes
-     * @default false
-     */
-    html5Routes: false,
+  /**
+   * Enables html5 routing support
+   * @property {Boolean} html5Routes
+   * @default false
+   */
+  html5Routes: false,
 
-    /**
-     * Defines a base path of your projewt
-     * @type {String}
-     */
-    basePath: '',
+  /**
+   * Defines a base path of your projewt
+   * @type {String}
+   */
+  basePath: '',
 
-    /**
-     * Sets a hashbang for routing. This value is added to each route if html5Routes is set to false
-     * @property {String} hashBang
-     */
-    hashBang: '#!',
+  /**
+   * Sets a hashbang for routing. This value is added to each route if html5Routes is set to false
+   * @property {String} hashBang
+   */
+  hashBang: '#!',
 
-    /**
-     * Sets the default template engine
-     * @property {String} templateEngine
-     * @default firetpl
-     */
-    templateEngine: 'firetpl',
+  /**
+   * Sets the default template engine
+   * @property {String} templateEngine
+   * @default firetpl
+   */
+  templateEngine: 'firetpl',
 
-    /**
-     * Sets a views directory
-     * @property {String} viewsDir
-     */
-    viewsDir: './views/',
+  /**
+   * Sets a views directory
+   * @property {String} viewsDir
+   */
+  viewsDir: './views/',
 
-    /**
-     * Set the file extension for views
-     * @property {String} viewExt
-     */
-    viewExt: '.fire',
+  /**
+   * Set the file extension for views
+   * @property {String} viewExt
+   */
+  viewExt: '.fire',
 
-    /**
-     * Defines a default socket port
-     * @property {Number} socketPort
-     * @default 9889
-     */
-    socketPort: 9889,
+  /**
+   * Defines a default socket port
+   * @property {Number} socketPort
+   * @default 9889
+   */
+  socketPort: 9889,
 
-    /**
-     * Sets max length of event listener
-     * @property {Number} eventListenerMaxLength
-     * @default  1328
-     */
-    eventListenerMaxLength: 1328
+  /**
+   * Sets max length of event listener
+   * @property {Number} eventListenerMaxLength
+   * @default  1328
+   */
+  eventListenerMaxLength: 1328
 };
 
 
@@ -106,35 +106,35 @@ var XQCore = {
  *
  */
 Object.defineProperty(XQCore, 'extend', {
-    enumerable: false,
-    configurable: true,
-    writable: true,
-    value: function(target) {
-        if (target === undefined || target === null) {
-            throw new TypeError('Cannot convert first argument to object');
-        }
-
-        var to = Object(target);
-        for (var i = 1; i < arguments.length; i++) {
-            var nextSource = arguments[i];
-            if (nextSource === undefined || nextSource === null) {
-                continue;
-            }
-
-            nextSource = Object(nextSource);
-
-            var keysArray = Object.keys(nextSource);
-            for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-                var nextKey = keysArray[nextIndex];
-                var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-                if (desc !== undefined && desc.enumerable) {
-                    to[nextKey] = nextSource[nextKey];
-                }
-            }
-        }
-
-        return to;
+  enumerable: false,
+  configurable: true,
+  writable: true,
+  value: function(target) {
+    if (target === undefined || target === null) {
+      throw new TypeError('Cannot convert first argument to object');
     }
+
+    var to = Object(target);
+    for (var i = 1; i < arguments.length; i++) {
+      var nextSource = arguments[i];
+      if (nextSource === undefined || nextSource === null) {
+        continue;
+      }
+
+      nextSource = Object(nextSource);
+
+      var keysArray = Object.keys(nextSource);
+      for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+        var nextKey = keysArray[nextIndex];
+        var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+        if (desc !== undefined && desc.enumerable) {
+          to[nextKey] = nextSource[nextKey];
+        }
+      }
+    }
+
+    return to;
+  }
 });
 
 /**
@@ -169,7 +169,7 @@ XQCore.isFunction = $.isFunction;
  * @return {Boolean} Returns true if value is an valid objectId
  */
 XQCore.isObjectId = function(value) {
-    return (/^[a-zA-Z0-9]{24}$/).test(value);
+  return (/^[a-zA-Z0-9]{24}$/).test(value);
 };
 
 /**
@@ -179,7 +179,7 @@ XQCore.isObjectId = function(value) {
  * @param  {String}  locale Local string
  */
 XQCore.setLocale = function(locale) {
-    localStorage.setItem('xqcore.locale', locale);
+  localStorage.setItem('xqcore.locale', locale);
 };
 
 /**
@@ -188,12 +188,12 @@ XQCore.setLocale = function(locale) {
  * @return {[type]}  [description]
  */
 XQCore.getLocale = function() {
-    var locale = localStorage.getItem('xqcore.locale');
-    if (locale) {
-        return locale;
-    }
+  var locale = localStorage.getItem('xqcore.locale');
+  if (locale) {
+    return locale;
+  }
 
-    return navigator.language;
+  return navigator.language;
 };
 
 /**
@@ -221,23 +221,23 @@ XQCore.logLevel = 1;
  * @return {Object|String}      Returns all queries or one value.
  */
 XQCore.getQuery = function(name) {
-    if (!XQCore.__query) {
-        XQCore.__query = {};
-        location.search.substr(1).split('&').forEach(function(q) {
-            q = q.split('=');
-            if (q && q[0]) {
-                var val = encodeURI(q[1]);
-                XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
-            }
-        });
-    }
+  if (!XQCore.__query) {
+    XQCore.__query = {};
+    location.search.substr(1).split('&').forEach(function(q) {
+      q = q.split('=');
+      if (q && q[0]) {
+        var val = encodeURI(q[1]);
+        XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
+      }
+    });
+  }
 
-    if (name) {
-        return XQCore.__query[name];
-    }
-    else {
-        return XQCore.__query;
-    }
+  if (name) {
+    return XQCore.__query[name];
+  }
+  else {
+    return XQCore.__query;
+  }
 };
 
 /**
@@ -246,12 +246,12 @@ XQCore.getQuery = function(name) {
  * @return {Boolean}     Returns true if object is empty
  */
 XQCore.isEmptyObject = function(obj) {
-    var name;
-    //jshint forin:false
-    for (name in obj) {
-        return false;
-    }
-    return true;
+  var name;
+  //jshint forin:false
+  for (name in obj) {
+    return false;
+  }
+  return true;
 };
 
 /**
@@ -260,11 +260,19 @@ XQCore.isEmptyObject = function(obj) {
  * @return {Boolean}     Returns true if obj is empty
  */
 XQCore.isEmpty = function(obj) {
-    if (Array.isArray(obj)) {
-        return obj.length === 0;
-    }
+  if (Array.isArray(obj)) {
+    return obj.length === 0;
+  }
 
-    return XQCore.isEmptyObject(obj);
+  return XQCore.isEmptyObject(obj);
+};
+
+/**
+ * Create a component
+ */
+XQCore.cmp = function(cmpName, property) {
+  var cmp = new XQCore.Component(cmpName);
+  return cmp;
 };
 
 //--

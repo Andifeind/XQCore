@@ -1,6 +1,13 @@
 var Core = require('./core');
 var Tooltip = require('./tooltip');
 
+/**
+ * Renders an Input element
+ *
+ * @method Input
+ *
+ * @param  {[type]} name [description]
+ */
 function Input (name) {
   Core.call(this);
 

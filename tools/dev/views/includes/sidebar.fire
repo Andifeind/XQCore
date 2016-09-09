@@ -1,0 +1,7 @@
+ul class="sidebarLinks"
+    li class="sidebarItem"
+        a class="link" href="/syncmodel" "SyncModel"
+    li class="sidebarItem"
+        a class="link" href="/synclist" "SyncList"
+    li class="sidebarItem"
+        a class="link" href="/form" "Form"

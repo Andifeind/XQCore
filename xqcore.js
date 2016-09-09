@@ -103,6 +103,7 @@
     require.alias = {};
 
 require.register('./xqcore-init.js', function(module, exports, require) { var XQCore = require('./src/xqcore-core');
+require('./src/xqcore-utils');
 XQCore.Promise = require('./src/xqcore-promise');
 XQCore.Logger = require('./src/xqcore-logger');
 XQCore.ReadyState = require('./src/xqcore-readystate');
@@ -119,9 +120,8 @@ XQCore.SyncList = require('./src/xqcore-synclist');
 XQCore.SyncModel = require('./src/xqcore-syncmodel');
 XQCore.Tmpl = require('./src/xqcore-tmpl');
 XQCore.View = require('./src/xqcore-view');
-XQCore.Component = require('./src/xqcore-component');
+XQCore.Component = require('./src/xqcore-component')(XQCore);
 
-require('./src/xqcore-utils');
 
 module.exports = XQCore;
 
@@ -142,69 +142,69 @@ var $ = require('jquery');
  * @type {Object}
  */
 var XQCore = {
-    /**
-     * Contains the current XQCore version
-     * @property {String} version
-     */
-    version: '0.13.1',
+  /**
+   * Contains the current XQCore version
+   * @property {String} version
+   */
+  version: '0.13.1',
 
-    /**
-     * Defines a default route
-     * @property {String} defaultRoute
-     */
-    defaultRoute: '/',
+  /**
+   * Defines a default route
+   * @property {String} defaultRoute
+   */
+  defaultRoute: '/',
 
-    /**
-     * Enables html5 routing support
-     * @property {Boolean} html5Routes
-     * @default false
-     */
-    html5Routes: false,
+  /**
+   * Enables html5 routing support
+   * @property {Boolean} html5Routes
+   * @default false
+   */
+  html5Routes: false,
 
-    /**
-     * Defines a base path of your projewt
-     * @type {String}
-     */
-    basePath: '',
+  /**
+   * Defines a base path of your projewt
+   * @type {String}
+   */
+  basePath: '',
 
-    /**
-     * Sets a hashbang for routing. This value is added to each route if html5Routes is set to false
-     * @property {String} hashBang
-     */
-    hashBang: '#!',
+  /**
+   * Sets a hashbang for routing. This value is added to each route if html5Routes is set to false
+   * @property {String} hashBang
+   */
+  hashBang: '#!',
 
-    /**
-     * Sets the default template engine
-     * @property {String} templateEngine
-     * @default firetpl
-     */
-    templateEngine: 'firetpl',
+  /**
+   * Sets the default template engine
+   * @property {String} templateEngine
+   * @default firetpl
+   */
+  templateEngine: 'firetpl',
 
-    /**
-     * Sets a views directory
-     * @property {String} viewsDir
-     */
-    viewsDir: './views/',
+  /**
+   * Sets a views directory
+   * @property {String} viewsDir
+   */
+  viewsDir: './views/',
 
-    /**
-     * Set the file extension for views
-     * @property {String} viewExt
-     */
-    viewExt: '.fire',
+  /**
+   * Set the file extension for views
+   * @property {String} viewExt
+   */
+  viewExt: '.fire',
 
-    /**
-     * Defines a default socket port
-     * @property {Number} socketPort
-     * @default 9889
-     */
-    socketPort: 9889,
+  /**
+   * Defines a default socket port
+   * @property {Number} socketPort
+   * @default 9889
+   */
+  socketPort: 9889,
 
-    /**
-     * Sets max length of event listener
-     * @property {Number} eventListenerMaxLength
-     * @default  1328
-     */
-    eventListenerMaxLength: 1328
+  /**
+   * Sets max length of event listener
+   * @property {Number} eventListenerMaxLength
+   * @default  1328
+   */
+  eventListenerMaxLength: 1328
 };
 
 
@@ -234,35 +234,35 @@ var XQCore = {
  *
  */
 Object.defineProperty(XQCore, 'extend', {
-    enumerable: false,
-    configurable: true,
-    writable: true,
-    value: function(target) {
-        if (target === undefined || target === null) {
-            throw new TypeError('Cannot convert first argument to object');
-        }
-
-        var to = Object(target);
-        for (var i = 1; i < arguments.length; i++) {
-            var nextSource = arguments[i];
-            if (nextSource === undefined || nextSource === null) {
-                continue;
-            }
-
-            nextSource = Object(nextSource);
-
-            var keysArray = Object.keys(nextSource);
-            for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-                var nextKey = keysArray[nextIndex];
-                var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-                if (desc !== undefined && desc.enumerable) {
-                    to[nextKey] = nextSource[nextKey];
-                }
-            }
-        }
-
-        return to;
+  enumerable: false,
+  configurable: true,
+  writable: true,
+  value: function(target) {
+    if (target === undefined || target === null) {
+      throw new TypeError('Cannot convert first argument to object');
     }
+
+    var to = Object(target);
+    for (var i = 1; i < arguments.length; i++) {
+      var nextSource = arguments[i];
+      if (nextSource === undefined || nextSource === null) {
+        continue;
+      }
+
+      nextSource = Object(nextSource);
+
+      var keysArray = Object.keys(nextSource);
+      for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+        var nextKey = keysArray[nextIndex];
+        var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+        if (desc !== undefined && desc.enumerable) {
+          to[nextKey] = nextSource[nextKey];
+        }
+      }
+    }
+
+    return to;
+  }
 });
 
 /**
@@ -297,7 +297,7 @@ XQCore.isFunction = $.isFunction;
  * @return {Boolean} Returns true if value is an valid objectId
  */
 XQCore.isObjectId = function(value) {
-    return (/^[a-zA-Z0-9]{24}$/).test(value);
+  return (/^[a-zA-Z0-9]{24}$/).test(value);
 };
 
 /**
@@ -307,7 +307,7 @@ XQCore.isObjectId = function(value) {
  * @param  {String}  locale Local string
  */
 XQCore.setLocale = function(locale) {
-    localStorage.setItem('xqcore.locale', locale);
+  localStorage.setItem('xqcore.locale', locale);
 };
 
 /**
@@ -316,12 +316,12 @@ XQCore.setLocale = function(locale) {
  * @return {[type]}  [description]
  */
 XQCore.getLocale = function() {
-    var locale = localStorage.getItem('xqcore.locale');
-    if (locale) {
-        return locale;
-    }
+  var locale = localStorage.getItem('xqcore.locale');
+  if (locale) {
+    return locale;
+  }
 
-    return navigator.language;
+  return navigator.language;
 };
 
 /**
@@ -349,23 +349,23 @@ XQCore.logLevel = 1;
  * @return {Object|String}      Returns all queries or one value.
  */
 XQCore.getQuery = function(name) {
-    if (!XQCore.__query) {
-        XQCore.__query = {};
-        location.search.substr(1).split('&').forEach(function(q) {
-            q = q.split('=');
-            if (q && q[0]) {
-                var val = encodeURI(q[1]);
-                XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
-            }
-        });
-    }
+  if (!XQCore.__query) {
+    XQCore.__query = {};
+    location.search.substr(1).split('&').forEach(function(q) {
+      q = q.split('=');
+      if (q && q[0]) {
+        var val = encodeURI(q[1]);
+        XQCore.__query[q[0]] = (isNaN(val) ? val : Number(val));
+      }
+    });
+  }
 
-    if (name) {
-        return XQCore.__query[name];
-    }
-    else {
-        return XQCore.__query;
-    }
+  if (name) {
+    return XQCore.__query[name];
+  }
+  else {
+    return XQCore.__query;
+  }
 };
 
 /**
@@ -374,12 +374,12 @@ XQCore.getQuery = function(name) {
  * @return {Boolean}     Returns true if object is empty
  */
 XQCore.isEmptyObject = function(obj) {
-    var name;
-    //jshint forin:false
-    for (name in obj) {
-        return false;
-    }
-    return true;
+  var name;
+  //jshint forin:false
+  for (name in obj) {
+    return false;
+  }
+  return true;
 };
 
 /**
@@ -388,16 +388,250 @@ XQCore.isEmptyObject = function(obj) {
  * @return {Boolean}     Returns true if obj is empty
  */
 XQCore.isEmpty = function(obj) {
-    if (Array.isArray(obj)) {
-        return obj.length === 0;
-    }
+  if (Array.isArray(obj)) {
+    return obj.length === 0;
+  }
 
-    return XQCore.isEmptyObject(obj);
+  return XQCore.isEmptyObject(obj);
+};
+
+/**
+ * Create a component
+ */
+XQCore.cmp = function(cmpName, property) {
+  var cmp = new XQCore.Component(cmpName);
+  return cmp;
 };
 
 //--
 
 module.exports = XQCore;
+
+});
+require.register('./src/xqcore-utils.js', function(module, exports, require) { /**
+ * Extends XQCore with some usefull functions
+ *
+ * @module  XQCore.Utils
+ */
+'use strict';
+
+var XQCore = require('./xqcore-core');
+
+XQCore.undotify = function(path, obj) {
+  if(path) {
+    path = path.split('.');
+    path.forEach(function(key) {
+      obj = obj ? obj[key] : undefined;
+    });
+  }
+
+  return obj;
+};
+
+/**
+ * Creates a object from an dotified key and a value
+ *
+ * @public
+ * @method dedotify
+ *
+ * @param {Object} obj Add new value to obj. This param is optional.
+ * @param {String} key The dotified key
+ * @param {Any} value The value
+ *
+ * @returns {Object} Returns the extended object if obj was set otherwis a new object will be returned
+ */
+XQCore.dedotify = function(obj, key, value) {
+
+  if (typeof obj === 'string') {
+    value = key;
+    key = obj;
+    obj = {};
+  }
+
+  var newObj = obj;
+
+  if(key) {
+    key = key.split('.');
+    var len = key.length;
+    key.forEach(function(k, i) {
+      if (i === len - 1) {
+        if (/\[\]$/.test(k)) {
+          k = k.substr(0, k.length - 2);
+          if (!obj[k]) {
+            obj[k] = [];
+          }
+          obj[k].push(value);
+          return;
+        }
+
+        obj[k] = value;
+        return;
+      }
+
+      if (!obj[k]) {
+        obj[k] = {};
+      }
+
+      obj = obj[k];
+    });
+  }
+
+  obj = value;
+
+  return newObj;
+};
+
+/**
+ * Creates a unique id
+ *
+ * @param {Number} len (Optional) String length. Defaults to 7
+ * @returns {String} Unique string
+ */
+XQCore.uid = function(len) {
+  len = len || 7;
+  var str = '';
+
+  while (str.length < len) {
+    var part = Math.random().toString(36).substr(2);
+    str += part;
+  }
+
+  return str.substr(0, len);
+};
+
+/**
+ * Returns a promise object
+ *
+ * the returning object has two extra methods
+ *
+ * `resolve` to resolv the promise
+ * `reject` to reject the promise
+ *
+ * If callback is set it will be called, when promise will be resolved or rejected.
+ * Gets the reject data as first argument and the resolve data as second argument
+ *
+ * @example {js}
+ * var promise = XQCore.promise();
+ * promise.then(function() {
+ *     console.log('Resolve');
+ * });
+ *
+ * setTimeout(function() {
+ *     promise.resolve();
+ * }, 100);
+ *
+ * @method promise
+ * @param  {Function} [callback] Callback function, to be called on resolv or rejecting the promise
+ * @return {Object} Returns a promise object
+ */
+XQCore.promise = function(callback) {
+
+  var s, r;
+  var promise = new XQCore.Promise(function(resolve, reject) {
+    s = resolve;
+    r = reject;
+  });
+
+  promise.resolve = function(data) {
+    s(data);
+    if (typeof callback === 'function') {
+      callback(null, data);
+    }
+
+    return promise;
+  };
+
+  promise.reject = function(data) {
+    r(data);
+    if (typeof callback === 'function') {
+      callback(data);
+    }
+
+    return promise;
+  };
+
+  var chain = [];
+
+  promise.push = function(fn) {
+    if (typeof fn !== 'function') {
+      throw new Error('Could not create a promise chain! First arg is not a function in promise.push().');
+    }
+
+    chain.push(fn);
+    return this;
+  };
+
+  promise.each = function(data) {
+    var p = chain.shift();
+    if (!p) {
+      promise.resolve(data);
+      return;
+    }
+
+    p(data).then(function(data) {
+      promise.each(data);
+    }).catch(function(err) {
+      promise.reject(err);
+    });
+
+    return promise;
+  };
+
+  return promise;
+};
+
+/**
+ * Walks recursive through a nested object tree
+ * @param  {object|array}  tree Tree object
+ * @param  {Function} fn   Call function on each item
+ * @return {object|array}  Returns a resolved tree response
+ */
+XQCore.recurse = function(tree, fn) {
+  var res;
+  var i;
+  if (Array.isArray(tree)) {
+    res = [];
+
+    for (i = 0; i < tree.length; i++) {
+       res.push(fn(tree[i], function(data) {
+         return XQCore.recurse(data, fn)
+       }));
+    }
+
+    return res;
+  }
+  else if (tree && typeof tree === 'object') {
+    var keys = Object.keys(tree);
+    res = {};
+
+    for (i = 0; i < keys.length; i++) {
+       res[keys]= fn(tree[keys[i]], fn);
+    }
+
+    return res;
+  }
+
+};
+
+XQCore.assign = Object.assign || function(target) {
+  'use strict';
+  if (target == null) {
+    throw new TypeError('Cannot convert undefined or null to object');
+  }
+
+  target = Object(target);
+  for (var index = 1; index < arguments.length; index++) {
+    var source = arguments[index];
+    if (source != null) {
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+  }
+  return target;
+};
 
 });
 require.register('./src/xqcore-promise.js', function(module, exports, require) { 'use strict';
@@ -6137,100 +6371,142 @@ require.register('./src/xqcore-component.js', function(module, exports, require)
  */
 'use strict';
 
-var XQCore = require('./xqcore-core');
+module.exports = function(XQCore) {
+  var cmpElements = {
+    Core: require('./components/core'),
 
-var Logger = require('./xqcore-logger');
-var EventEmitter = require('./xqcore-event');
-var cmpElements = {
-  Core: require('./components/core'),
+    Counter: require('./components/counter'),
+    Grid: require('./components/grid'),
+    Input: require('./components/input'),
+    List: require('./components/list'),
+    ProgressBar: require('./components/progressBar'),
+    Table: require('./components/table'),
+    Tooltip: require('./components/tooltip')
+  };
 
-  Counter: require('./components/counter'),
-  Grid: require('./components/grid'),
-  Input: require('./components/input'),
-  List: require('./components/list'),
-  ProgressBar: require('./components/progressBar'),
-  Table: require('./components/table'),
-  Tooltip: require('./components/tooltip')
-};
+  /**
+   * XQCore.Component
+   *
+   * @class Component
+   * @constructor
+   *
+   * @param {object} conf Component configuration
+   */
+  function Component(tag, name) {
+    XQCore.Logger.call(this, tag + 'Component');
+    XQCore.Event.call(this);
 
-var cmps = {};
-
-/**
- * XQCore.Component
- *
- * @class Component
- * @constructor
- *
- * @param {object} conf Component configuration
- */
-function Component(tag, name) {
-  if (!cmps[tag]) {
-    var Cmp = function() {
-      cmpElements[tag].call(this, name);
-      EventEmitter.call(this);
-      this.cmpType = tag;
-    };
-
-    Cmp.prototype = Object.create(cmpElements[tag].prototype);
-    XQCore.assign(Cmp.prototype, EventEmitter.prototype);
-    XQCore.assign(Cmp.prototype, new Logger(tag + 'Component'));
-  }
-
-
-  var el = new Cmp(name);
-  el.create();
-
-  this.registerEventListener(el);
-  return el;
-}
-
-Component.prototype.registerEventListener = function(el) {
-  if (el.$change) {
-    el.$change(function(data, ev) {
-      el.emit('value.change', data);
-    });
-  }
-}
-
-/*
-class XQComponent {
-  constructor(tag) {
-    log = new Logger(tag + 'Component');
-
-    log.debug('Create new view');
-    if (!HTMLElements[tag]) {
-      tag = 'NotFoundElement';
-    }
-
-    let el = new HTMLElements[tag]();
+    var el = new cmpElements[tag](name);
     el.create();
     this.el = el;
+
+    this.registerEventListener();
   }
 
-  injectInto(domSelector) {
-    domSelector.appendChild(this.el.el);
+  XQCore.assign(Component.prototype, XQCore.Event.prototype);
+  XQCore.assign(Component.prototype, XQCore.Logger.prototype);
+
+  Component.prototype.registerEventListener = function() {
+    var self = this;
+    if (self.el.$change) {
+      self.el.$change(function(data, ev) {
+        self.emit('value.change', data);
+      });
+    }
   }
 
-  append(el) {
-    if (Array.isArray(el)) {
-      for (var i = 0; i < el.length; i++) {
-        this.el.el.appendChild(el[i].el.el);
+  Component.prototype.couple = function(model, prop) {
+    if (model instanceof XQCore.List) {
+      // var list = model;
+      // list.on('item.push', function(item) {
+      //   console.log('push item', item);
+      //   var val = item[0].get();
+      //   console.log('value', val);
+      //   this.push(val);
+      // });
+    }
+    else {
+      return this.coupleModel(model, prop);
+      //
+    }
+  }
+
+  Component.prototype.coupleModel = function(model, prop) {
+    var self = this;
+    model.on('data.change', function() {
+      self.el.value = model.get(prop);
+    });
+
+    this.on('value.change', function(data) {
+      console.log('CMP CHANGE', data);
+      model.set(data.name, data.value).then(function() {
+        this.el.errMessage = null;
+      }).catch(function(err) {
+        console.log('RES', err);
+        this.el.errMessage = err.err[0].msg;
+      });
+    });
+
+    model.on('validation.error', function(validationResult, other) {
+      console.log('VALIDATION', validationResult, other);
+      this.el.state = 'invalid';
+    });
+
+    model.on('state.change', function(state) {
+      this.state = state;
+    });
+  }
+
+  Component.prototype.appendTo = function(container) {
+    container.appendChild(this.el.domEl);
+  };
+
+  /*
+  class XQComponent {
+    constructor(tag) {
+      log = new Logger(tag + 'Component');
+
+      log.debug('Create new view');
+      if (!HTMLElements[tag]) {
+        tag = 'NotFoundElement';
       }
 
-      return;
+      let el = new HTMLElements[tag]();
+      el.create();
+      this.el = el;
     }
 
-    this.el.el.appendChild(el.el.el);
-  }
+    injectInto(domSelector) {
+      domSelector.appendChild(this.el.el);
+    }
 
-  static registerHTMLComponent(name, component) {
-    HTMLElements[name] = component;
-  }
-}
-*/
-//--
+    append(el) {
+      if (Array.isArray(el)) {
+        for (var i = 0; i < el.length; i++) {
+          this.el.el.appendChild(el[i].el.el);
+        }
 
-module.exports = Component;
+        return;
+      }
+
+      this.el.el.appendChild(el.el.el);
+    }
+
+    static registerHTMLComponent(name, component) {
+      HTMLElements[name] = component;
+    }
+  }
+  */
+  //--
+  //
+
+
+  Component.prototype.toHTML = function() {
+    return this.el.domEl.outerHTML;
+  };
+
+  return Component;
+};
 
 });
 require.register('./src/components/core.js', function(module, exports, require) { /**
@@ -6428,6 +6704,17 @@ module.exports = Core;
 });
 require.register('./src/components/counter.js', function(module, exports, require) { var Core = require('./core');
 
+/**
+ * Counter component
+ *
+ * @package XQCore
+ * @subpackage Components
+ * @module Counter
+ *
+ * @example {js}
+ * var cmp = new XQCore.Component('myCounter');
+ * cmp.value = 3;
+ */
 function Counter () {
   Core.call(this);
 
@@ -6502,6 +6789,13 @@ module.exports = Grid;
 require.register('./src/components/input.js', function(module, exports, require) { var Core = require('./core');
 var Tooltip = require('./tooltip');
 
+/**
+ * Renders an Input element
+ *
+ * @method Input
+ *
+ * @param  {[type]} name [description]
+ */
 function Input (name) {
   Core.call(this);
 
@@ -6727,232 +7021,6 @@ Object.defineProperty(Table.prototype, 'length', {
 });
 
 module.exports = Table;
-
-});
-require.register('./src/xqcore-utils.js', function(module, exports, require) { /**
- * Extends XQCore with some usefull functions
- *
- * @module  XQCore.Utils
- */
-'use strict';
-
-var XQCore = require('./xqcore-core');
-
-XQCore.undotify = function(path, obj) {
-  if(path) {
-    path = path.split('.');
-    path.forEach(function(key) {
-      obj = obj ? obj[key] : undefined;
-    });
-  }
-
-  return obj;
-};
-
-/**
- * Creates a object from an dotified key and a value
- *
- * @public
- * @method dedotify
- *
- * @param {Object} obj Add new value to obj. This param is optional.
- * @param {String} key The dotified key
- * @param {Any} value The value
- *
- * @returns {Object} Returns the extended object if obj was set otherwis a new object will be returned
- */
-XQCore.dedotify = function(obj, key, value) {
-
-  if (typeof obj === 'string') {
-    value = key;
-    key = obj;
-    obj = {};
-  }
-
-  var newObj = obj;
-
-  if(key) {
-    key = key.split('.');
-    var len = key.length;
-    key.forEach(function(k, i) {
-      if (i === len - 1) {
-        if (/\[\]$/.test(k)) {
-          k = k.substr(0, k.length - 2);
-          if (!obj[k]) {
-            obj[k] = [];
-          }
-          obj[k].push(value);
-          return;
-        }
-
-        obj[k] = value;
-        return;
-      }
-
-      if (!obj[k]) {
-        obj[k] = {};
-      }
-
-      obj = obj[k];
-    });
-  }
-
-  obj = value;
-
-  return newObj;
-};
-
-/**
- * Creates a unique id
- *
- * @param {Number} len (Optional) String length. Defaults to 7
- * @returns {String} Unique string
- */
-XQCore.uid = function(len) {
-  len = len || 7;
-  var str = '';
-
-  while (str.length < len) {
-    var part = Math.random().toString(36).substr(2);
-    str += part;
-  }
-
-  return str.substr(0, len);
-};
-
-/**
- * Returns a promise object
- *
- * the returning object has two extra methods
- *
- * `resolve` to resolv the promise
- * `reject` to reject the promise
- *
- * If callback is set it will be called, when promise will be resolved or rejected.
- * Gets the reject data as first argument and the resolve data as second argument
- *
- * @example {js}
- * var promise = XQCore.promise();
- * promise.then(function() {
- *     console.log('Resolve');
- * });
- *
- * setTimeout(function() {
- *     promise.resolve();
- * }, 100);
- *
- * @method promise
- * @param  {Function} [callback] Callback function, to be called on resolv or rejecting the promise
- * @return {Object} Returns a promise object
- */
-XQCore.promise = function(callback) {
-
-  var s, r;
-  var promise = new XQCore.Promise(function(resolve, reject) {
-    s = resolve;
-    r = reject;
-  });
-
-  promise.resolve = function(data) {
-    s(data);
-    if (typeof callback === 'function') {
-      callback(null, data);
-    }
-
-    return promise;
-  };
-
-  promise.reject = function(data) {
-    r(data);
-    if (typeof callback === 'function') {
-      callback(data);
-    }
-
-    return promise;
-  };
-
-  var chain = [];
-
-  promise.push = function(fn) {
-    if (typeof fn !== 'function') {
-      throw new Error('Could not create a promise chain! First arg is not a function in promise.push().');
-    }
-
-    chain.push(fn);
-    return this;
-  };
-
-  promise.each = function(data) {
-    var p = chain.shift();
-    if (!p) {
-      promise.resolve(data);
-      return;
-    }
-
-    p(data).then(function(data) {
-      promise.each(data);
-    }).catch(function(err) {
-      promise.reject(err);
-    });
-
-    return promise;
-  };
-
-  return promise;
-};
-
-/**
- * Walks recursive through a nested object tree
- * @param  {object|array}  tree Tree object
- * @param  {Function} fn   Call function on each item
- * @return {object|array}  Returns a resolved tree response
- */
-XQCore.recurse = function(tree, fn) {
-  var res;
-  var i;
-  if (Array.isArray(tree)) {
-    res = [];
-
-    for (i = 0; i < tree.length; i++) {
-       res.push(fn(tree[i], function(data) {
-         return XQCore.recurse(data, fn)
-       }));
-    }
-
-    return res;
-  }
-  else if (tree && typeof tree === 'object') {
-    var keys = Object.keys(tree);
-    res = {};
-
-    for (i = 0; i < keys.length; i++) {
-       res[keys]= fn(tree[keys[i]], fn);
-    }
-
-    return res;
-  }
-
-};
-
-XQCore.assign = Object.assign || function(target) {
-  'use strict';
-  if (target == null) {
-    throw new TypeError('Cannot convert undefined or null to object');
-  }
-
-  target = Object(target);
-  for (var index = 1; index < arguments.length; index++) {
-    var source = arguments[index];
-    if (source != null) {
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-  }
-  return target;
-};
 
 });
 return require('./xqcore-init.js');

@@ -12,6 +12,8 @@ html
     body class="pageMain"
         section class="pageHeader"
             div class="logo" "XQCore devt⚙⚙ls"
+        aside class="pageLeft"
+            >includes/sidebar
         section class="pageBody"
             h2 class="cmpName" $name
             section class="mdlViewbox"

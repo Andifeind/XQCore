@@ -1,3 +1,13 @@
+/**
+ * Table component
+ *
+ * @package XQCore
+ * @subpackage Components
+ * @model Table
+ */
+
+'use strict';
+
 var Core = require('./core');
 
 function Table () {
@@ -30,5 +40,6 @@ Object.defineProperty(Table.prototype, 'length', {
     return this.__items.length;
   }
 });
+
 
 module.exports = Table;

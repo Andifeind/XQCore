@@ -1,3 +1,13 @@
+/**
+ * List component
+ *
+ * @package XQCore
+ * @subpackage Components
+ * @model List
+ */
+
+'use strict';
+
 var Core = require('./core');
 
 function List() {

@@ -4,11 +4,11 @@
  * Produces logging output to the browser console. This module is in all XQCore modules as var `log` available.
  * It is not necessary to instantiate it. The logger module has 5 logging levels: `ERROR, WARN, INFO, DEBUG, TRACE`.
  * The log-levels can be controlled by setting it globally by setting the XQCore.logLevel property,
- * or locally for each module by change the log.logLevel property. The locally property overrides the globally property 
+ * or locally for each module by change the log.logLevel property. The locally property overrides the globally property
  * for the current module.
  *
  * @module XQCore.Logger
- * 
+ *
  */
 
 'use strict';
@@ -17,10 +17,10 @@ var XQCore = require('./xqcore-core');
 
 /**
  * XQCore Logger is a logging module to log messages, warnings, errors to the browser console
- * 
+ *
  * @constructor
  * @param {String} name Logger name (Optional)
- * 
+ *
  * @example {js}
  * var log = new XQCore.Logger('myLog');
  * log.log('Hello World');
@@ -32,11 +32,11 @@ var XQCore = require('./xqcore-core');
  *
  * //Logs this to the console: Hello World
  *
- * 
+ *
  */
 var Logger = function(name) {
-    this.loggerName = name;
-    this.logLevel = XQCore.logLevel;
+  this.loggerName = name;
+  this.logLevel = XQCore.logLevel;
 };
 
 /**
@@ -61,16 +61,16 @@ var Logger = function(name) {
  * @param {Any} msg logs all arguments to the console
  */
 Logger.prototype.log = function() {
-    var args;
-    if (XQCore.logLevel >= 3) {
-        args = Array.prototype.slice.call(arguments);
+  var args;
+  if (XQCore.logLevel >= 3) {
+    args = Array.prototype.slice.call(arguments);
 
-        if (this.loggerName) {
-            args.unshift('[' + this.loggerName + ']');
-        }
-
-        console.log.apply(console, args);
+    if (this.loggerName) {
+      args.unshift('[' + this.loggerName + ']');
     }
+
+    console.log.apply(console, args);
+  }
 };
 
 /**
@@ -88,15 +88,15 @@ Logger.prototype.log = function() {
  * @param {Any} msg logs all arguments to the console
  */
 Logger.prototype.warn = function() {
-    var args;
-    if (XQCore.logLevel >= 2) {
-        args = Array.prototype.slice.call(arguments);
-        if (this.loggerName) {
-            args.unshift('[' + this.loggerName + ']');
-        }
-
-        console.warn.apply(console, args);
+  var args;
+  if (XQCore.logLevel >= 2) {
+    args = Array.prototype.slice.call(arguments);
+    if (this.loggerName) {
+      args.unshift('[' + this.loggerName + ']');
     }
+
+    console.warn.apply(console, args);
+  }
 
 };
 
@@ -115,15 +115,15 @@ Logger.prototype.warn = function() {
  * @param {Any} msg logs all arguments to the console
  */
 Logger.prototype.error = function() {
-    var args;
-    if (XQCore.logLevel >= 1) {
-        args = Array.prototype.slice.call(arguments);
-        if (this.loggerName) {
-            args.unshift('[' + this.loggerName + ']');
-        }
-
-        console.error.apply(console, args);
+  var args;
+  if (XQCore.logLevel >= 1) {
+    args = Array.prototype.slice.call(arguments);
+    if (this.loggerName) {
+      args.unshift('[' + this.loggerName + ']');
     }
+
+    console.error.apply(console, args);
+  }
 
 };
 
@@ -149,16 +149,16 @@ Logger.prototype.error = function() {
  * @param {Any} msg logs all arguments to the console
  */
 Logger.prototype.debug = function() {
-    var args;
-    if (XQCore.logLevel >= 4) {
-        args = Array.prototype.slice.call(arguments);
+  var args;
+  if (XQCore.logLevel >= 4) {
+    args = Array.prototype.slice.call(arguments);
 
-        if (this.loggerName) {
-            args.unshift('[' + this.loggerName + ']');
-        }
-
-        console.debug.apply(console, args);
+    if (this.loggerName) {
+      args.unshift('[' + this.loggerName + ']');
     }
+
+    console.debug.apply(console, args);
+  }
 };
 
 /**
@@ -176,35 +176,35 @@ Logger.prototype.info = Logger.prototype.log;
  * @return {Object} Returns a TimerObject
  */
 Logger.prototype.timer = function(name) {
-    var self = this;
+  var self = this;
 
-    var timer = {
-        start: null,
-        stop: null,
-        name: name,
-        logger: this,
-        end: function() {
-            this.stop = Date.now();
-            this.logger.log('Timer ' + name + ' finished after ' + self.getHumanTime(this.stop - this.start));
-        }
-    };
+  var timer = {
+    start: null,
+    stop: null,
+    name: name,
+    logger: this,
+    end: function() {
+      this.stop = Date.now();
+      this.logger.log('Timer ' + name + ' finished after ' + self.getHumanTime(this.stop - this.start));
+    }
+  };
 
-    /*if (name) {
-        this.timerStore[name] = timer;
-    }*/
+  /*if (name) {
+    this.timerStore[name] = timer;
+  }*/
 
-    this.log('Start Timer ' + name);
+  this.log('Start Timer ' + name);
 
-    //Set timer start time
-    timer.start = Date.now();
-    return timer;
+  //Set timer start time
+  timer.start = Date.now();
+  return timer;
 };
 
 // --- new methods
 
 Logger.prototype.dev = function() {
-    this.warn('Logger.dev() is deprcated since v0.13! Use Logger.debug() instead');
-    this.debug.call(arguments);
+  this.warn('Logger.dev() is deprcated since v0.13! Use Logger.debug() instead');
+  this.debug.call(arguments);
 };
 
 Logger.prototype.req = Logger.prototype.log;
@@ -218,15 +218,15 @@ Logger.prototype.res = Logger.prototype.log;
  * @return {String}          Returns a readable time string
  */
 Logger.prototype.getHumanTime = function(time) {
-    if (time < 1000) {
-        return time + 'ms';
-    }
-    else if (time < 60000) {
-        return (Math.round(time / 100) / 10) + 'sec';
-    }
-    else {
-        return (Math.round(time / 60000)) + 'min ' + Math.round(time % 60000 / 1000) + 'sec';
-    }
+  if (time < 1000) {
+    return time + 'ms';
+  }
+  else if (time < 60000) {
+    return (Math.round(time / 100) / 10) + 'sec';
+  }
+  else {
+    return (Math.round(time / 60000)) + 'min ' + Math.round(time % 60000 / 1000) + 'sec';
+  }
 };
 
 //--

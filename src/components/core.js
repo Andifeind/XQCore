@@ -7,11 +7,19 @@
  * @submodule Core
  * @class Core
  */
-function Core() {
-  this.tag = 'section';
 
+var XQCore = require('../xqcore-core');
+var Event = require('../event');
+
+function Core() {
+  Event.call(this);
+
+  this.tag = 'section';
   this.__active = true;
 }
+
+
+XQCore.assign(Core.prototype, Event.prototype);
 
 /**
  * Creates the element
@@ -37,6 +45,9 @@ Core.prototype.create = function() {
 
   this.domEl.className = cssClass;
   this.render({});
+  if (this.onElementReady) {
+    this.onElementReady();
+  }
 }
 
 /**
@@ -136,18 +147,30 @@ Core.prototype.addClass = function(className) {
   }
 };
 
+Core.prototype.addAttribute = function(key, value) {
+  if (typeof key === 'object') {
+    Object.keys(key).forEach(function(name) {
+      this.domEl.setAttribute(name, key[name]);
+    });
+
+    return;
+  }
+
+  this.domEl.setAttribute(key, value);
+};
+
 Core.prototype.removeClass = function(className) {
   var classList = this.domEl.className;
   var reg = new RegExp(' ?\\b' + className + '\\b ?');
   this.domEl.className = classList.replace(reg, '');
 };
 
-Core.prototype.toHTML = function() {
-  return this.domEl.outerHTML;
-};
-
 Core.prototype.listen = function(event, fn) {
   this.domEl.addEventListener(event, fn);
+};
+
+Core.prototype.toHTML = function() {
+  return this.domEl.outerHTML;
 };
 
 Core.prototype.listenOnce = function(event, fn) {

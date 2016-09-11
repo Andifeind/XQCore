@@ -21,10 +21,21 @@ function loadSandbox() {
   var cmpName = document.getElementsByClassName('cmpName')[0].innerText;
   cmpName = cmpName.charAt(0).toUpperCase() + cmpName.substr(1);
 
-  var cmp = new XQCore.Component(cmpName, 'username');
+  var arg = 'username';
+  if (cmpName === 'Form') {
+    arg = [
+      { name: 'title', type: 'string' },
+      { name: 'description', type: 'text' },
+      { name: 'submit', type: 'button', action: 'submit', label: '', content: 'Submit' }
+    ];
+  }
+  else if (cmpName === 'Text') {
+    arg = 'description';
+  }
+
+  var cmp = new XQCore.Component(cmpName, arg);
   console.log('CMP', cmp); // eslint-disable-line
   cmp.appendTo(sandbox);
-  // cmp.render();
 
   if (cmpName === 'List') {
     var list = new XQCore.List('listing', function(self) {
@@ -69,6 +80,51 @@ function loadSandbox() {
     model.on('data.change', render);
     render();
   }
+  else if (cmpName === 'Text') {
+    var model = new XQCore.Model('text', function(self) {
+      self.schema = {
+        description: { type: 'string', min: 3, max: 225 }
+      };
+    });
+
+    var presenter; // eslint-disable-line
+    presenter = new XQCore.Presenter('text', function(self) {
+      self.coupleComponent(cmp, model);
+    });
+
+
+    var render = function() {
+      renderModel(model);
+      codebox.textContent = cmp.toHTML();
+    };
+
+    model.on('state.change', render);
+    model.on('data.change', render);
+    render();
+  }
+  else if(cmpName === 'Form') {
+    var model = new XQCore.Model('todo', function(self) {
+      self.schema = {
+        title: { type: 'string', min: 3, max: 25 },
+        description: { type: 'string', min: 3, max: 225 },
+      };
+    });
+
+    var presenter; // eslint-disable-line
+    presenter = new XQCore.Presenter('todo', function(self) {
+      self.coupleComponent(cmp, model);
+    });
+
+
+    var render = function() {
+      renderModel(model);
+      codebox.textContent = cmp.toHTML();
+    };
+
+    model.on('state.change', render);
+    model.on('data.change', render);
+    render();
+  }
   else if(cmpName === 'Tooltip') {
     cmp.content = 'Tooltip message!';
     codebox.textContent = cmp.toHTML();
@@ -99,6 +155,9 @@ function loadSandbox() {
       cmp.value++;
     }, 200);
   }
+  else if(cmpName === 'Button') {
+    cmp.content = 'Click me!';
+  }
   else if(cmpName === 'Grid') {
     ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S'].forEach(function(item) {
       cmp.push({ value: item });
@@ -127,7 +186,7 @@ function loadSandbox() {
       content: 'This is the third row'
     });
   }
-  
+
   codebox.textContent = cmp.toHTML();
 }
 

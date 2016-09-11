@@ -1,3 +1,13 @@
+/**
+ * Grid component
+ *
+ * @package XQCore
+ * @subpackage Components
+ * @model Grid
+ */
+
+'use strict';
+
 var Core = require('./core');
 
 function Grid () {

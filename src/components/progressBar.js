@@ -1,3 +1,13 @@
+/**
+ * ProgressBar component
+ *
+ * @package XQCore
+ * @subpackage Components
+ * @model ProgressBar
+ */
+
+'use strict';
+
 var Core = require('./core');
 
 function ProgressBar () {

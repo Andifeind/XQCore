@@ -5,12 +5,10 @@
  * @requires XQCore.Model
  * @requires XQCore.Socket
  */
-    'use strict';
+'use strict';
 
-var XQCore = require('./xqcore-core');
-
-
-var SyncModel = function(name, conf) {
+module.exports = function(XQCore) {
+  var SyncModel = function(name, conf) {
     /**
      * @property {Boolean} noAutoRegister Disables auto registration. SyncList.register() must be called manually to register the list at the socket server.
      */
@@ -26,49 +24,49 @@ var SyncModel = function(name, conf) {
     this.syncEnabled = false;
     this.connectToSocket();
     if (!this.noAutoRegister) {
-        this.register();
+      this.register();
     }
-};
+  };
 
-SyncModel.prototype = Object.create(XQCore.Model.prototype);
-SyncModel.prototype.constructor = SyncModel;
+  SyncModel.prototype = Object.create(XQCore.Model.prototype);
+  SyncModel.prototype.constructor = SyncModel;
 
-/**
- * Inherits a sync model prototype
- * @method inherit
- * @param  {String} name    model name
- * @param  {Object} options SyncModel properties
- * @return {Object}         Returns a XQCore.SyncModel prototype
- */
-SyncModel.inherit = function(name, options) {
+  /**
+   * Inherits a sync model prototype
+   * @method inherit
+   * @param  {String} name    model name
+   * @param  {Object} options SyncModel properties
+   * @return {Object}         Returns a XQCore.SyncModel prototype
+   */
+  SyncModel.inherit = function(name, options) {
     if (typeof name === 'object') {
-        options = name;
-        name = undefined;
+      options = name;
+      name = undefined;
     }
 
     var Proto = function() {
-        XQCore.SyncModel.call(this, name, options);
+      XQCore.SyncModel.call(this, name, options);
     };
 
     Proto.prototype = Object.create(XQCore.SyncModel.prototype);
     Proto.prototype.constructor = Proto;
     return Proto;
-};
+  };
 
-/**
- * Connect to a socket server
- *
- * @method connectToSocket
- */
-SyncModel.prototype.connectToSocket = function() {
+  /**
+   * Connect to a socket server
+   *
+   * @method connectToSocket
+   */
+  SyncModel.prototype.connectToSocket = function() {
     var socketServer = this.server + ':' + this.port + '/' + this.path;
     if (!this.socket) {
-        this.debug('Connect to socket:', socketServer);
-        this.socket = new XQCore.Socket(socketServer, this.channel);
+      this.debug('Connect to socket:', socketServer);
+      this.socket = new XQCore.Socket(socketServer, this.channel);
     }
-};
+  };
 
-SyncModel.prototype.register = function(enableSync) {
+  SyncModel.prototype.register = function(enableSync) {
     var self = this;
 
     this.syncEnabled = !!enableSync;
@@ -76,47 +74,47 @@ SyncModel.prototype.register = function(enableSync) {
     self.debug('Register syncmodel at server:', self.name);
 
     var opts = {
-        noSync: true
+      noSync: true
     };
 
     self.socket.on('syncmodel.set', function(data) {
-        self.set(data, opts);
+      self.set(data, opts);
     });
 
     self.socket.on('syncmodel.replace', function(data) {
-        opts.replace = true;
-        self.set(data, opts);
+      opts.replace = true;
+      self.set(data, opts);
     });
 
     self.socket.on('syncmodel.value', function(key, value) {
-        self.set(key, value, opts);
+      self.set(key, value, opts);
     });
 
     self.socket.on('syncmodel.insert', function(path, index, data) {
-        self.insert(path, index, data, opts);
+      self.insert(path, index, data, opts);
     });
 
     self.socket.on('syncmodel.remove', function(path, index, data) {
-        self.remove(path, index, data, opts);
+      self.remove(path, index, data, opts);
     });
 
     self.socket.on('syncmodel.reset', function() {
-        self.reset(opts);
+      self.reset(opts);
     });
 
     self.socket.on('syncmodel.init', function(data) {
-        self.set(data, opts);
+      self.set(data, opts);
     });
 
     self.socket.send('syncmodel.register', {
-        name: self.name
+      name: self.name
     });
-};
+  };
 
-SyncModel.prototype.unregister = function() {
+  SyncModel.prototype.unregister = function() {
     var modelName = this.conf.syncWith || this.name.replace(/Model$/,'');
     this.socket.send('syncmodel.unregister', {
-        name: modelName
+      name: modelName
     });
 
     this.socket.off('syncmodel.set');
@@ -126,29 +124,30 @@ SyncModel.prototype.unregister = function() {
     this.socket.off('syncmodel.remove');
     this.socket.off('syncmodel.reset');
     this.socket.off('syncmodel.init');
-};
+  };
 
-/**
- * Send a socket message to the server
- * @param  {String} eventName Event name
- * @param  {Object} data      Data object
- */
-SyncModel.prototype.emitRemote = function(eventName, data) {
+  /**
+   * Send a socket message to the server
+   * @param  {String} eventName Event name
+   * @param  {Object} data      Data object
+   */
+  SyncModel.prototype.emitRemote = function(eventName, data) {
     this.socket.send(eventName, data);
-};
+  };
 
-SyncModel.prototype.sync = function(method) {
+  SyncModel.prototype.sync = function(method) {
     if (!this.syncEnabled) {
-        return;
+      return;
     }
 
     var args = Array.prototype.slice.call(arguments, 1);
     args.unshift('syncmodel.' + method);
     this.emitRemote.apply(this, args);
-};
+  };
 
-SyncModel.prototype.fetchModel = function() {
+  SyncModel.prototype.fetchModel = function() {
     this.emitRemote('syncmodel.fetch');
-};
+  };
 
-module.exports = SyncModel;
+  return SyncModel;
+};

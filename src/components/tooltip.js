@@ -1,3 +1,13 @@
+/**
+ * Tooltip component
+ *
+ * @package XQCore
+ * @subpackage Components
+ * @model Tooltip
+ */
+
+'use strict';
+
 var Core = require('./core');
 
 function Tooltip () {
@@ -11,11 +21,6 @@ Tooltip.prototype = Object.create(Core.prototype);
 Tooltip.prototype.constructor = Tooltip
 
 Tooltip.prototype.setPosition = function() {
-  console.log('POS', this.domEl.offsetHeight);
-  if (this.appendix) {
-    console.log('POS', this.appendix);
-  }
-
   this.domEl.style.top = -this.domEl.offsetHeight + this.appendix.offsetTop - 10 + 'px';
 };
 

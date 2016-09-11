@@ -2,13 +2,13 @@ var Core = require('./core');
 var Tooltip = require('./tooltip');
 
 /**
- * Renders an Input element
+ * Renders an Text element
  *
- * @method Input
+ * @method Text
  *
  * @param  {[type]} name [description]
  */
-function Input (name) {
+function Text (name) {
   Core.call(this);
 
   var self = this;
@@ -19,9 +19,8 @@ function Input (name) {
     self.errorLabel.active = false;
     self.errorLabel.appendix = self.domEl;
 
-    self.inputField = document.createElement('input');
-    self.inputField.className = 'xq-input-field';
-    self.inputField.setAttribute('type', self.type);
+    self.inputField = document.createElement('textarea');
+    self.inputField.className = 'xq-text-field';
     self.inputField.setAttribute('name', self.name);
 
     var docFrag = document.createDocumentFragment();
@@ -30,15 +29,14 @@ function Input (name) {
     return docFrag;
   }
 
-  this.name = name || 'input';
-  this.type = 'text';
-  this.cssClass = 'xq-input';
+  this.name = name || 'text';
+  this.cssClass = 'xq-text';
 }
 
-Input.prototype = Object.create(Core.prototype);
-Input.prototype.constructor = Input;
+Text.prototype = Object.create(Core.prototype);
+Text.prototype.constructor = Text;
 
-Input.prototype.$change = function(fn) {
+Text.prototype.$change = function(fn) {
   var self = this;
   this.listen('change', function(ev) {
     fn({
@@ -48,19 +46,19 @@ Input.prototype.$change = function(fn) {
   });
 }
 
-Input.prototype.setError = function (err) {
+Text.prototype.setError = function (err) {
   this.errorLabel.content = err;
 };
 
-Input.prototype.getValue = function () {
+Text.prototype.getValue = function () {
   return this.inputField.value;
 };
 
-Input.prototype.setValue = function (value) {
+Text.prototype.setValue = function (value) {
   return this.inputField.value = value;
 };
 
-Object.defineProperty(Input.prototype, 'errMessage', {
+Object.defineProperty(Text.prototype, 'errMessage', {
   get: function() {
     return this.__errMessage;
   },
@@ -71,4 +69,4 @@ Object.defineProperty(Input.prototype, 'errMessage', {
   }
 });
 
-module.exports = Input;
+module.exports = Text;

@@ -9,7 +9,7 @@
 
 'use strict';
 
-var XQCore = require('./xqcore-core');
+var XQCore = require('./xqcore');
 var Logger = require('./logger');
 
 var cmpElements = {

@@ -194,7 +194,6 @@ module.exports = function(grunt) {
     grunt.registerTask('test', 'xqcoretest');
     grunt.registerTask('build', [
         'bumpup:prerelease',
-        'less',
         'jshint:files',
         'concat:build',
         'uglify'

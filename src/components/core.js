@@ -8,18 +8,18 @@
  * @class Core
  */
 
-var XQCore = require('../xqcore-core');
-var Event = require('../event');
+var XQCore = require('../xqcore');
+var EventEmitter = require('../event');
 
 function Core() {
-  Event.call(this);
+  EventEmitter.call(this);
 
   this.tag = 'section';
   this.__active = true;
 }
 
 
-XQCore.assign(Core.prototype, Event.prototype);
+XQCore.assign(Core.prototype, EventEmitter.prototype);
 
 /**
  * Creates the element
@@ -53,11 +53,9 @@ Core.prototype.create = function() {
 /**
  * Renders the elements content
  * @method render
+ * @chainable
  *
  * @param {object} data Render data
- *
- * @chainable
- * @return {object} Returns this value
  */
 Core.prototype.render = function(data) {
   var html = '';

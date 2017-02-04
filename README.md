@@ -6,22 +6,33 @@ The model view presenter pattern is a derivation of the model view controller pa
 
 XQCore comes with a set of components.
 
+
 ## Model
 A model represents your data and contains all logic to handle them.
 The data integrity can be controlled and validated by a model schema.
 
 ```js
-    var model = new XQCore.Model('mymodel', function(self) {
-        self.schema = {
-            title: { type: 'string', min: 3, max: 100, required: true },
-            description: { type: 'string', min: 5, max: 1000, required: true }
-        }
-    });
+var model = new XQCore.Model('mymodel', {
+  schema: {
+    title: { type: 'string', min: 3, max: 100, required: true },
+    description: { type: 'string', min: 5, max: 1000, required: true }
+  }
+});
 
-    model.set({
-        title: 'Test',
-        description: 'Lorem testum...'
-    });
+model.set({
+  title: 'Test',
+  description: 'Lorem testum...'
+});
+
+var data = model.get();
+
+/*
+data === {
+  title: 'Test',
+  description: 'Lorem testsum...'
+}
+*/
+
 ```
 ## List
 

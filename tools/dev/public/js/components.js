@@ -16,6 +16,9 @@ function renderModel(model) {
 }
 
 function loadSandbox() {
+  var model;
+  var render;
+
   var sandbox = document.getElementsByClassName('cmpSandbox')[0];
   var codebox = document.getElementsByClassName('cmpCodebox')[0];
   var cmpName = document.getElementsByClassName('cmpName')[0].innerText;
@@ -59,7 +62,7 @@ function loadSandbox() {
     }, 4000);
   }
   else if (cmpName === 'Input') {
-    var model = new XQCore.Model('input', function(self) {
+    model = new XQCore.Model('input', function(self) {
       self.schema = {
         username: { type: 'string', min: 3, max: 25 }
       };
@@ -71,7 +74,7 @@ function loadSandbox() {
     });
 
 
-    var render = function() {
+    render = function() {
       renderModel(model);
       codebox.textContent = cmp.toHTML();
     };
@@ -81,7 +84,7 @@ function loadSandbox() {
     render();
   }
   else if (cmpName === 'Text') {
-    var model = new XQCore.Model('text', function(self) {
+    model = new XQCore.Model('text', function(self) {
       self.schema = {
         description: { type: 'string', min: 3, max: 225 }
       };
@@ -93,7 +96,7 @@ function loadSandbox() {
     });
 
 
-    var render = function() {
+    render = function() {
       renderModel(model);
       codebox.textContent = cmp.toHTML();
     };
@@ -103,10 +106,10 @@ function loadSandbox() {
     render();
   }
   else if(cmpName === 'Form') {
-    var model = new XQCore.Model('todo', function(self) {
+    model = new XQCore.Model('todo', function(self) {
       self.schema = {
         title: { type: 'string', min: 3, max: 25 },
-        description: { type: 'string', min: 3, max: 225 },
+        description: { type: 'string', min: 3, max: 225 }
       };
     });
 
@@ -116,7 +119,7 @@ function loadSandbox() {
     });
 
 
-    var render = function() {
+    render = function() {
       renderModel(model);
       codebox.textContent = cmp.toHTML();
     };

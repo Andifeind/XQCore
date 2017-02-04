@@ -5,8 +5,6 @@
  * @module XQCore
  */
 
-var $ = require('jquery');
-
 /**
  * XQCore main object
  *
@@ -159,7 +157,9 @@ XQCore.isPlainObject = function(obj) {
  * @param {Object} obj The value which should be checked
  * @returns {Boolean} Returns true if value is a plain object, otherwise returns false
  */
-XQCore.isFunction = $.isFunction;
+XQCore.isFunction = function(fn) {
+  return typeof fn === 'function';
+}
 
 /**
  * Checks for a valid ObjectId
@@ -246,9 +246,7 @@ XQCore.getQuery = function(name) {
  * @return {Boolean}     Returns true if object is empty
  */
 XQCore.isEmptyObject = function(obj) {
-  var name;
-  //jshint forin:false
-  for (name in obj) {
+  for (var name in obj) { // eslint-disable-line
     return false;
   }
   return true;
@@ -504,6 +502,36 @@ XQCore.assign = Object.assign || function(target) {
     }
   }
   return target;
+};
+
+/**
+ * Registers a route listener and couples a presenter to it
+ *
+ * Calls presenter.active() if changed route is route
+ * and calls presenter.inactive() on all other route changes if presenter is active
+ *
+ * @method function
+ * @param {string} route Route
+ * @param {function} cb Callback function. Gets a presenter instance as its first argument
+ *
+ * @returns {object} Returns a presenter
+ *
+ * @example {js}
+ * XQCore.route('/foo', function(self) {
+ *   self.active = function(route) {
+ *   	 console.log('Route /foo called', router);
+ *   };
+ * });
+ */
+XQCore.route = function(route, fn) {
+  var routeName = 'route' + route;
+  var presenter = new XQCore.Presenter(routeName, fn);
+  presenter.path = route;
+  presenter.route(route, function(router) {
+    presenter.active(router);
+  });
+
+  return presenter;
 };
 
 //--

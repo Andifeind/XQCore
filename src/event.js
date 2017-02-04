@@ -1,12 +1,12 @@
 /**
-* XQCore Event
+* XQCore EventEmitter
 *
 * A powerfull event emitter
 *
-* @module XQCore.Event
+* @module XQCore.EventEmitter
 *
 * @example {js}
-* var ee = new XQCore.Event();
+* var ee = new XQCore.EventEmitter();
 * ee.on('echo', function(msg) {
 *     console.log('Msg:', msg);
 * });
@@ -16,19 +16,18 @@
 *
 * @example {js}
 * var MyModule = function() {
-*     //Call Event constructor
-*     XQCore.Event.call(this);
+*     //Call EventEmitter constructor
+*     XQCore.EventEmitter.call(this);
 * };
 *
 * //Extend MyModule with event emitter methods
-* XQCore.extend(MyModule.prototype, XQCore.Event.prototype);
+* XQCore.extend(MyModule.prototype, XQCore.EventEmitter.prototype);
 */
 
 'use strict';
 
-var XQCore = require('./xqcore-core');
+var XQCore = require('./xqcore');
 var Logger = require('./logger');
-
 
 var log;
 
@@ -38,7 +37,7 @@ var log;
  * Each event registration is an instance of EventListener
  *
  * @constructor
- * @group XQCore.Event.EventListener
+ * @group XQCore.EventEmitter.EventListener
  * @private
  * @method  EventListener
  */
@@ -49,7 +48,7 @@ var EventListener = function(ee, event, fn) {
 
   /**
    * Removes this event listener
-   * @group XQCore.Event.EventListener
+   * @group XQCore.EventEmitter.EventListener
    * @private
    * @method remove
    * @return {Boolean} Returns true if event was removed
@@ -59,16 +58,16 @@ var EventListener = function(ee, event, fn) {
   };
 };
 
-
-
 /**
- * Event emitter constructor
+ * EventEmitter emitter constructor
  *
  * @constructor
  * @method EventEmitter
  */
 var EventEmitter = function() {
-  log  = new Logger('EventEmitter');
+  log = new Logger('EventEmitter');
+  log.setLevel(XQCore.logLevel);
+
   this.__events = {};
   this.__logger = log;
 
@@ -82,8 +81,8 @@ var EventEmitter = function() {
 /**
  * Registers an event listener
  * @method on
- * @param  {String}   event Event name
- * @param  {Function} fn    Event function
+ * @param  {String}   event EventEmitter name
+ * @param  {Function} fn    EventEmitter function
  * @return {Object}         Returns an EventListener instance
  */
 EventEmitter.prototype.on = function(event, fn) {
@@ -107,8 +106,8 @@ EventEmitter.prototype.on = function(event, fn) {
  * Registers an once event listener. This listener is called only once a time.
  *
  * @method once
- * @param  {event}  event  Event name
- * @param  {Function} fn    Event function
+ * @param  {event}  event  EventEmitter name
+ * @param  {Function} fn    EventEmitter function
  * @return {Object}         Returns an EventListener instance
  */
 EventEmitter.prototype.once = function(event, fn) {
@@ -121,8 +120,8 @@ EventEmitter.prototype.once = function(event, fn) {
 /**
  * Emits an event
  * @method emit
- * @param  {String} event Event name
- * @param  {Any} data  Event data, you can use multiple args here
+ * @param  {String} event EventEmitter name
+ * @param  {Any} data  EventEmitter data, you can use multiple args here
  * @return {Number}    Returns the number of emited events
  */
 EventEmitter.prototype.emit = function(event, data) {
@@ -155,8 +154,8 @@ EventEmitter.prototype.emit = function(event, data) {
  * Unregisters events
  *
  * @method off
- * @param  {String}  event  Event name
- * @param  {Function}  [fn]  Event function. If this property is set only that function will be removed. Otherwis all events of this name will be removed
+ * @param  {String}  event  EventEmitter name
+ * @param  {Function}  [fn]  EventEmitter function. If this property is set only that function will be removed. Otherwis all events of this name will be removed
  * @return {Number} Returns the number of removed events
  */
 EventEmitter.prototype.off = function(event, fn) {

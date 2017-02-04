@@ -2,7 +2,7 @@
  * XQCore Logger module
  *
  * Produces logging output to the browser console. This module is in all XQCore modules as var `log` available.
- * It is not necessary to instantiate it. The logger module has 5 logging levels: `ERROR, WARN, INFO, DEBUG, TRACE`.
+ * It is not necessary to instantiate it. The logger module has 5 logging levels: `ERROR, WARN, INFO, DEBUG`.
  * The log-levels can be controlled by setting it globally by setting the XQCore.logLevel property,
  * or locally for each module by change the log.logLevel property. The locally property overrides the globally property
  * for the current module.
@@ -13,12 +13,12 @@
 
 'use strict';
 
-var XQCore = require('./xqcore-core');
-
 /**
  * XQCore Logger is a logging module to log messages, warnings, errors to the browser console
  *
  * @constructor
+ * @version 1.0.0
+ *
  * @param {String} name Logger name (Optional)
  *
  * @example {js}
@@ -36,8 +36,59 @@ var XQCore = require('./xqcore-core');
  */
 var Logger = function(name) {
   this.loggerName = name;
-  this.logLevel = XQCore.logLevel;
+  this.logLevel = 1;
 };
+
+/**
+ * Log level constan `ERROR`
+ * @const ERROR
+ * @version 1.0.0
+ */
+ Logger.ERROR = 1;
+
+/**
+ * Log level constan `WARN`
+ * @const WARN
+ * @version 1.0.0
+ */
+ Logger.WARN = 2;
+
+/**
+ * Log level constan `INFO`
+ * @const INFO
+ * @version 1.0.0
+ */
+ Logger.INFO = 3;
+
+/**
+ * Log level constan `DEBUG`
+ * @const DEBUG
+ * @version 1.0.0
+ */
+ Logger.DEBUG = 4;
+
+
+/**
+ * Sets a loglevel
+ *
+ * @method setLevel
+ * @version 1.0.0
+ *
+ * @param  {number|sstring} level Loglevel
+ *
+ * @example {js}
+ * var log = new XQCore.Logger('mylogger');
+ * log.setLevel(2); // sets log level to `info`
+ */
+Logger.prototype.setLevel = function(level) {
+  if (typeof level === 'string') {
+    level = Logger[level.toUpperCase()];
+  }
+
+  if (typeof level === 'number' && level > 0 && level < 5) {
+    this.logLevel = level;
+  }
+}
 
 /**
  * Logs a message to the console.
@@ -48,30 +99,31 @@ var Logger = function(name) {
  *
  * This method can have multiple arguments!
  *
- * @method log
- * @example {js}
- * log.logLevel = 3; //INFO
- * log.log('Write to console', {test: '123'});
- * //Logs only the first argument
+ * @method info
+ * @version 1.0.0
  *
- * log.logLevel = 4;
- * log.log('Write to console with args', {test: '123'});
- * //Logs all arguments
+ * @param  {any} ...args Log args. Logs all args to the console, seperated by a space.
+ *
+ * @example {js}
+ * log.setLevel('info');
+ * log.info('Write to console', {test: '123'});
  *
  * @param {Any} msg logs all arguments to the console
  */
-Logger.prototype.log = function() {
+Logger.prototype.info = function() {
   var args;
-  if (XQCore.logLevel >= 3) {
+  if (this.logLevel >= Logger.INFO) {
     args = Array.prototype.slice.call(arguments);
 
     if (this.loggerName) {
       args.unshift('[' + this.loggerName + ']');
     }
 
-    console.log.apply(console, args);
+    console.log.apply(console, args); // eslint-disable-line
   }
 };
+
+Logger.prototype.log = Logger.prototype.info;
 
 /**
  * Logs a warning message to the console.
@@ -81,23 +133,26 @@ Logger.prototype.log = function() {
  * This method can have multiple arguments!
  *
  * @method warn
+ * @version 1.0.0
+ *
+ * @param  {any} ...args Logs all args to the console, seperated by a space.
+ *
  * @example {js}
- * log.logLevel = 2; //WARNING
+ * log.setLevel('warn');
  * log.warn('Unvalid number', {test: '123'});
  *
  * @param {Any} msg logs all arguments to the console
  */
 Logger.prototype.warn = function() {
   var args;
-  if (XQCore.logLevel >= 2) {
+  if (this.logLevel >= Logger.WARN) {
     args = Array.prototype.slice.call(arguments);
     if (this.loggerName) {
       args.unshift('[' + this.loggerName + ']');
     }
 
-    console.warn.apply(console, args);
+    console.warn.apply(console, args); // eslint-disable-line
   }
-
 };
 
 /**
@@ -108,23 +163,24 @@ Logger.prototype.warn = function() {
  * This method can have multiple arguments!
  *
  * @method error
+ * @version 1.0.0
+ *
+ * @param  {any} ...args Logs all args to the console, seperated by a space.
+ *
  * @example {js}
  * log.logLevel = 1; //ERROR
  * log.error('Unvalid number', {test: '123'});
- *
- * @param {Any} msg logs all arguments to the console
  */
 Logger.prototype.error = function() {
   var args;
-  if (XQCore.logLevel >= 1) {
+  if (this.logLevel >= Logger.ERROR) {
     args = Array.prototype.slice.call(arguments);
     if (this.loggerName) {
       args.unshift('[' + this.loggerName + ']');
     }
 
-    console.error.apply(console, args);
+    console.error.apply(console, args); // eslint-disable-line
   }
-
 };
 
 /**
@@ -137,27 +193,24 @@ Logger.prototype.error = function() {
  * This method can have multiple arguments!
  *
  * @method debug
+ * @version 1.0.0
+ *
+ * @param  {any} ...args Logs all args to the console, seperated by a space.
+ *
  * @example {js}
- * log.logLevel = 3; //DEBUG
+ * log.setLevel('debug');
  * log.debug('Write to console', {test: '123'});
- * //Logs only the first argument
- *
- * log.logLevel = 4;
- * log.debug('Write to console with args', {test: '123'});
- * //Logs all arguments
- *
- * @param {Any} msg logs all arguments to the console
  */
 Logger.prototype.debug = function() {
   var args;
-  if (XQCore.logLevel >= 4) {
+  if (this.logLevel >= Logger.DEBUG) {
     args = Array.prototype.slice.call(arguments);
 
     if (this.loggerName) {
       args.unshift('[' + this.loggerName + ']');
     }
 
-    console.debug.apply(console, args);
+    console.debug.apply(console, args); // eslint-disable-line
   }
 };
 
@@ -172,6 +225,8 @@ Logger.prototype.info = Logger.prototype.log;
  * Start a timeTracer
  *
  * @method timer
+ * @version 1.0.0
+ * 
  * @param {String} timerName Set the name for your (Optional)
  * @return {Object} Returns a TimerObject
  */
@@ -199,16 +254,6 @@ Logger.prototype.timer = function(name) {
   timer.start = Date.now();
   return timer;
 };
-
-// --- new methods
-
-Logger.prototype.dev = function() {
-  this.warn('Logger.dev() is deprcated since v0.13! Use Logger.debug() instead');
-  this.debug.call(arguments);
-};
-
-Logger.prototype.req = Logger.prototype.log;
-Logger.prototype.res = Logger.prototype.log;
 
 /**
  * Returns a human readable time format

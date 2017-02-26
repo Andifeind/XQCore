@@ -116,15 +116,15 @@ SyncList.prototype.register = function(enableSync) {
   });
 
   self.socket.on('synclist.unshift', function(data) {
-    self.push(data, opts);
+    self.unshift(data, opts);
   });
 
   self.socket.on('synclist.pop', function() {
-    self.push(opts);
+    self.pop(opts);
   });
 
   self.socket.on('synclist.shift', function() {
-    self.push(opts);
+    self.shift(opts);
   });
 
   self.socket.on('synclist.update', function(match, data) {

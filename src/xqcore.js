@@ -534,6 +534,13 @@ XQCore.route = function(route, fn) {
   return presenter;
 };
 
+XQCore.couple = function(conf) {
+  var presenter = new XQCore.Presenter();
+  presenter.coupleComponent(conf.cmp, conf.list);
+
+  return presenter;
+};
+
 //--
 
 module.exports = XQCore;

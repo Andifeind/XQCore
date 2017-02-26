@@ -37,7 +37,8 @@ var Presenter = function(name, fn) {
   var self = this;
 
   if (typeof arguments[0] !== 'string') {
-    throw new Error('Name argument not set. Fisrt argument must be a presenter name!');
+    fn = name;
+    name = '';
   }
 
   /**
@@ -206,11 +207,35 @@ Presenter.prototype.couple = function(view, model, conf) {
 };
 
 Presenter.prototype.coupleComponent = function(cmp, model) {
+  model = new model();
   if (model instanceof List) {
     var list = model;
     list.on('item.push', function(item) {
-      var val = item[0].get();
+      if (Array.isArray(item)) {
+        item.forEach(function(model) {
+          var val = model.get();
+          cmp.push(val);
+        });
+
+        return;
+      }
+
+      var val = item.get();
       cmp.push(val);
+    });
+
+    list.on('item.unshift', function(item) {
+      if (Array.isArray(item)) {
+        item.forEach(function(model) {
+          var val = model.get();
+          cmp.unshift(val);
+        });
+
+        return;
+      }
+
+      var val = item.get();
+      cmp.unshift(val);
     });
   }
   else {

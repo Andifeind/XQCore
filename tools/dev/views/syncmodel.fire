@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+html
+    head
+        meta charset="utf8"
+        link rel="stylesheet" href="/css/main.css"
+        link rel="stylesheet" href="/css/xqcore.css"
+        script type="text/javascript" src="/firetpl.js"
+        script type="text/javascript" src="/jquery.js"
+        script type="text/javascript" src="/sockjs.js"
+        script type="text/javascript" src="/xqcore.js"
+        script type="text/javascript" src="/js/syncmodel.js"
+    body class="pageMain"
+        section class="pageHeader"
+            div class="logo" "XQCore devt⚙⚙ls"
+        aside class="pageLeft"
+            >includes/sidebar
+        section class="pageBody"
+            h2 class="cmpName" $name
+            section class="mdlViewbox"
+            section class="cmpSandbox"
+                div class="connections" "0"
+                div class="counter"
+                button class="countLink" "+1"
+                div class="statuslog"
+            section class="cmpCodebox"

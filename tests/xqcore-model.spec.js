@@ -724,6 +724,50 @@ describe('XQCore Model', function() {
                 bar: 123
             });
         });
+
+        it('Should set data in a model with a nested schema', function() {
+            model.schema = {
+                'title': { type: 'string', min: '3', max: '120', required: true },
+                'categoryId': {
+                    'ref': 'tasks-categories',
+                    'schema': {
+                        'category': { type: 'string', min: '3', max: '120', required: true }
+                    }
+                },
+                'content': { type: 'string', min: '3', max: '5000', required: true }
+            };
+
+            model.set({
+                title: 'Test item',
+                category: 'Test > Category',
+                content: 'Test content'
+            });
+
+            expect(model.lastValidationError).to.be(null);
+            expect(model.isValid()).to.be(true);
+        });
+
+        it('Should set data in a model with a nested schema and falidation should fail', function() {
+            model.schema = {
+                'title': { type: 'string', min: '3', max: '120', required: true },
+                'categoryId': {
+                    'ref': 'tasks-categories',
+                    'schema': {
+                        'category': { type: 'string', min: '3', max: '5', required: true }
+                    }
+                },
+                'content': { type: 'string', min: '3', max: '5000', required: true }
+            };
+
+            model.set({
+                title: 'Test item',
+                category: 'Test > Category',
+                content: 'Test content'
+            });
+
+            expect(model.isValid()).to.be(false);
+            expect(model.lastValidationError[0].errCode).to.be.eql(13);
+        });
     });
 
     describe('set with custom validation', function() {

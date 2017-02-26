@@ -1,0 +1,79 @@
+#!/usr/bin/env node
+'use strict';
+
+let path = require('path');
+let fs = require('fs');
+
+let program = require('commander');
+let logtopus = require('logtopus');
+let log = logtopus.getLogger('xqcore-dev');
+let pkg = require('../package.json');
+
+log.setLevel('sys');
+
+program
+  .version(pkg.version)
+  .option('-p, --port', 'Start server at port <port>. Defaults to 5335')
+  .parse(process.argv);
+
+function getComponents() {
+  let components = [];
+  let componentsDir = path.join(__dirname, '../src/components/');
+
+  let files = fs.readdirSync(componentsDir);
+  files.forEach(file => {
+    let cmp = file.slice(0, -3);
+    components.push({
+      name: cmp
+    });
+  });
+
+  log.sys('Load components', components.length + ' loaded');
+  log.sys(' ... load from ', componentsDir);
+  return components;
+}
+
+let express = require('express');
+let app = express();
+
+app.use(logtopus.express({
+  logLevel: 'debug'
+}));
+
+app.set('view engine', 'fire');
+app.set('views', path.join(__dirname, '../tools/dev/views'));
+app.engine('fire', require('firetpl').__express);
+app.use(express.static(path.join(__dirname, '../tools/dev/public')));
+
+app.get('/', (req, res) => {
+  res.redirect('/components');
+});
+
+app.get('/components', (req, res) => {
+  res.render('components', {
+    name: req.query.name,
+    components: getComponents()
+  });
+});
+
+app.get('/syncmodel', (req, res) => {
+  res.render('syncmodel', {
+    name: 'SyncModel'
+  });
+});
+
+app.get('/synclist', (req, res) => {
+  res.render('synclist', {
+    name: 'SyncList'
+  });
+});
+
+app.get('/form', (req, res) => {
+  res.render('basic', {
+    name: 'Form',
+    jsFile: 'form'
+  });
+});
+
+app.listen(program.port || 5335);
+log.sys('Starting dev server on port', program.port || 5335)

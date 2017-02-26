@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+html
+    head
+        meta charset="utf8"
+        link rel="stylesheet" href="/css/main.css"
+        link rel="stylesheet" href="/css/xqcore.css"
+        script type="text/javascript" src="/firetpl.js"
+        script type="text/javascript" src="/jquery.js"
+        script type="text/javascript" src="/sockjs.js"
+        script type="text/javascript" src="/xqcore.js"
+        script type="text/javascript" src="/js/synclist.js"
+    body class="pageMain"
+        section class="pageHeader"
+            div class="logo" "XQCore devt⚙⚙ls"
+        aside class="pageLeft"
+            >includes/sidebar
+        section class="pageBody"
+            h2 class="cmpName" $name
+            section class="mdlViewbox"
+            section class="cmpSandbox"
+                div class="connections" "0"
+                ul class="list"
+                div class="add-value"
+                    form class="add-value-form"
+                        input name="value" class="value-input"
+
+            section class="cmpCodebox"

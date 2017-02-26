@@ -7,7 +7,7 @@ var parseHTML = function(tmpl) {
         pointer = {};
 
     $el.find('span').each(function() {
-        
+
         var p = document.createTextNode('Hello'),
             k = $(this).attr('class');
         pointer[k] = p;
@@ -110,7 +110,7 @@ describe('DOM', function() {
                 ul.appendChild(d2).innerHTML = 'Purple';
                 var d3 = document.createElement('li');
                 ul.appendChild(d3).innerHTML = 'Lime';
-                
+
                 tmpl3.appendChild(ul);
             }
 

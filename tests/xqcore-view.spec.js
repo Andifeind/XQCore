@@ -38,7 +38,7 @@ describe('XQCore View', function() {
     describe('registerListener', function() {
         it('Should register listener for browser events', function() {
             var bindStub = sinon.stub($.fn, 'bind');
-            
+
             var el = '<div id="myDiv" on="show:show">' +
                 '<button data-filter="asc" on="click:filter">Filter ascend</button>' +
                 '<button data-filter="desc" on="click:filter">Filter descend</button>' +
@@ -245,7 +245,7 @@ describe('XQCore View', function() {
 
         beforeEach(function() {
             container = document.createElement('div');
-            
+
             view = new XQCore.View('test', function(self) {
                 self.container = container;
                 self.template = function(data) {
@@ -310,7 +310,7 @@ describe('XQCore View', function() {
 
         beforeEach(function() {
             container = document.createElement('div');
-            
+
             view = new XQCore.View('test', function(self) {
                 self.container = container;
                 self.template = function(data) {
@@ -394,7 +394,7 @@ describe('XQCore View', function() {
 
         it.skip('Should render a view with a simple template', function() {
             var $html = view.parse(simpleTmpl, data);
-            
+
             // try {
             //     console.log('SimpleTmpl', simpleTmpl.scopes);
             //     console.log('ScopeStore', simpleTmpl.scopeStore);
@@ -439,12 +439,12 @@ describe('XQCore View', function() {
             // var scope003Spy = sinon.spy(scopes, 'scope003');
 
             var $html = view.parse(tempalteStub, data, scopes);
-            
+
             expect(scope001Spy).to.be.calledOnce();
             expect(scope001Spy).to.be.calledWith(data.listing, data);
             expect(scope002Spy).to.be.calledThrice();
             expect(scope002Spy).to.be.calledWith(data.listing, data);
-            
+
             console.log('KEYS', Object.keys(scopes));
 
             expect(regularTmpl.scopes).to.be.an('object').and.have.keys('scope001', 'scope002');
@@ -847,13 +847,13 @@ describe('XQCore View', function() {
                     required: true
                 }
             };
-            
+
             view.$el = $($.parseHTML('<div><form on="submit:submit-form"><input type="text" name="title" value="test"></form></div>'));
         });
 
         it('Should setup a form', function() {
             var addEventStub = sinon.stub(view, 'addEvent');
-            
+
             view.isReady = true;
             view.formSetup(model);
 
@@ -868,13 +868,13 @@ describe('XQCore View', function() {
             var addClassStub = sinon.stub($.fn, 'addClass');
             var blurStub = sinon.stub(view, 'addEvent');
             var validateOneStub = sinon.stub(model, 'validateOne');
-            
+
             view.isReady = true;
 
             validateOneStub.returns({
                 isValid: false
             });
-            
+
             var input = view.$el.find('input').get(0);
             blurStub.withArgs(':input', 'blur', sinon.match.func).yieldsOn(input);
             view.formSetup(model);

@@ -1,0 +1,154 @@
+.pageMain {
+  margin: 0;
+  font-size: 13px;
+  font-family: sans-serif;
+}
+
+.pageLeft {
+  background-color: #eee;
+  padding: 10px;
+  position: absolute;
+  width: 200px;
+  box-sizing: border-box;
+}
+
+.pageBody {
+  padding: 10px;
+  margin-left: 200px;
+}
+
+.componentsListing {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.componentItem {
+}
+
+.link:link,
+.link:visited {
+  padding: 2px 5px;
+  color: #000;
+  display: inline-block;
+  text-decoration: none;
+  text-transform: capitalize;
+}
+
+.link:hover {
+  color: #000;
+  background-color: #ddd;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.cmpName {
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.cmpSandbox,
+.cmpCodebox {
+  background-color: #eee;
+  padding: 10px;
+  border-radius: 5px;
+  color: #333;
+  margin-top: 20px;
+}
+
+.cmpCodebox {
+  color: #00397e;
+}
+
+.mdlViewbox {
+  float: right;
+  width: 300px;
+  background-color: #eee;
+  border-radius: 5px;
+  position: relative;
+  padding: 10px;
+}
+
+.mdlViewbox .type-label {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: inline-block;
+  padding: 2px 5px;
+  color: #fff;
+  background-color: #00397e;
+  border-top-right-radius: 5px;
+}
+
+.mdlViewbox .label {
+  color: #222;
+  display: inline-block;
+  width: 80px;
+}
+
+.mdlViewbox .name,
+.mdlViewbox .state   {
+  display: inline-block;
+  width: 220px;
+}
+
+.mdlViewbox .value {
+  white-space: pre;
+  font-family: monospace;
+  padding: 5px;
+  margin-top: 10px;
+  background-color: #fbfbfb;
+  display: block;
+}
+
+button:focus {
+  outline: none;
+}
+
+.xq-grid {
+  margin-right: 300px;
+}
+
+.xq-grid .item {
+  border: 1px solid #00397e;
+  border-radius: 5px;
+  font-size: 30px;
+  font-weight: bold;
+  line-height: 80px;
+  color: #00397e;
+}
+
+
+.counter {
+  display: inline-block;
+}
+
+span.xq-counter,
+.connections {
+  background-color: rgb(0, 55, 161);
+  color: #fff;
+  font-size: 23px;
+  font-weight: normal;
+  display: inline-block;
+  width: 60px;
+  padding: 10px;
+  border-radius: 5px;
+  margin-right: 20px;
+  text-align: center;
+  border: none;
+}
+
+.connections {
+  background-color: #090d7c;
+  float: right;
+}
+
+.add-value {
+  margin-top: 30px;
+}
+
+.list li {
+  color: #333;
+  font-size: 16px;
+  padding: 2px 5px;
+}

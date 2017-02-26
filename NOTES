@@ -41,7 +41,7 @@ events: {
 sofern createItem im presenter nicht existiert leite an model weiter und rufe dort createItem als funktion auf. Übergeben wird nur data.
 
 model.createItem = function(data) {
-	
+
 }
 
 
@@ -121,4 +121,3 @@ Form Submit | setData => set  |  data.change
 Sync Events       Sync method        Sync event
 ---------------------------------------------------
 data.change
-

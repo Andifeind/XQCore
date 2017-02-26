@@ -1,12 +1,14 @@
 {
   "name": "xqcore",
-  "version": "0.13.1-0",
+  "version": "0.13.1",
   "description": "Model View Presenter Javascript Framework",
-  "main": "xqcore.js",
-  "dependencies": {},
+  "main": "xqcore-init.js",
+  "dependencies": {
+    "express": "^4.14.0"
+  },
   "devDependencies": {
     "commander": "^2.9.0",
-    "express": "~4.13.3",
+    "expect.js": "^0.3.1",
     "grunt": "~0.4.5",
     "grunt-available-tasks": "^0.6.1",
     "grunt-bumpup": "^0.6.2",
@@ -15,14 +17,17 @@
     "grunt-contrib-copy": "~0.8.2",
     "grunt-contrib-jshint": "~0.11.3",
     "grunt-contrib-less": "^1.0.1",
+    "grunt-contrib-stylus": "^1.2.0",
     "grunt-contrib-uglify": "~0.10.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-release": "^0.13.0",
     "grunt-version": "^1.0.0",
-    "handlebars": "^4.0.4",
+    "logtopus": "^0.2.1",
     "mkdirp": "^0.5.1",
     "node.extend": "~1.1.5",
-    "promptly": "^0.2.1"
+    "promptly": "^0.2.1",
+    "sinon": "^1.17.4",
+    "sinon-expect": "^0.3.0"
   },
   "scripts": {
     "test": "test"

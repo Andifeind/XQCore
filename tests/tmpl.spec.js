@@ -1,11 +1,11 @@
 /* global FireTPL:false */
-describe('Tmpl', function() {
+describe.skip('Tmpl', function() {
 	'use strict';
 
 	describe('getTemplate', function() {
 		it('Should throw an not precompiled error', function() {
 			var getTemplateSpy = sinon.spy(XQCore.Tmpl, 'getTemplate');
-			
+
 			FireTPL._loadFile = FireTPL.loadFile;
 			delete FireTPL.loadFile;
 

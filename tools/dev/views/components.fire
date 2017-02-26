@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+html
+    head
+        meta charset="utf8"
+        link rel="stylesheet" href="/css/main.css"
+        link rel="stylesheet" href="/css/xqcore.css"
+        script type="text/javascript" src="/firetpl.js"
+        script type="text/javascript" src="/jquery.js"
+        script type="text/javascript" src="/xqcore.js"
+        script type="text/javascript" src="/js/components.js"
+    body class="pageMain"
+        section class="pageHeader"
+            div class="logo" "XQCore devt⚙⚙ls"
+        aside class="pageLeft"
+            :each $components : ul class="componentsListing"
+                li class="componentItem"
+                    a class="link" href="?name=$name" $name
+        section class="pageBody"
+            h2 class="cmpName" $name
+            section class="mdlViewbox"
+            section class="cmpSandbox"
+            section class="cmpCodebox"

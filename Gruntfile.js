@@ -30,24 +30,25 @@ module.exports = function(grunt) {
             },
             build: {
                 src: [
+                    'xqcore-init.js',
                     'src/xqcore-core.js',
-                    'src/utils/xqcore-utils.js',
                     'src/xqcore-logger.js',
+                    'src/xqcore-utils.js',
                     'src/xqcore-event.js',
                     'src/xqcore-readystate.js',
-                    'src/sync/xqcore-sync.js',
+                    'src/xqcore-sync.js',
                     'src/xqcore-presenter.js',
                     'src/xqcore-model.js',
-                    'src/getset/xqcore-getset.js',
-                    'src/tmpl/xqcore-tmpl.js',
+                    'src/xqcore-getset.js',
+                    'src/xqcore-tmpl.js',
                     'src/xqcore-view.js',
                     'src/xqcore-utils-browser.js',
                     'src/xqcore-router.js',
                     'src/xqcore-socket-connection.js',
                     'src/xqcore-socket.js',
-                    'src/syncmodel/xqcore-syncmodel.js',
-                    'src/list/xqcore-list.js',
-                    'src/synclist/xqcore-synclist.js',
+                    'src/xqcore-syncmodel.js',
+                    'src/xqcore-list.js',
+                    'src/xqcore-synclist.js',
                     'src/xqcore-service.js'
                 ],
                 dest: 'xqcore.js'
@@ -76,7 +77,7 @@ module.exports = function(grunt) {
                         dest: '../component-builds/xqcore/xqcore.js'
                     }, {
                         src: ['component.json'],
-                        dest: '../component-builds/xqcore/',
+                        dest: '../component-builds/xqcore/'
                     }, {
                         src: ['xqcore.css'],
                         dest: '../component-builds/xqcore/xqcore.css'
@@ -102,19 +103,9 @@ module.exports = function(grunt) {
                 files: [
                     {
                         src: ['xqcore.css'],
-                        dest: '../component-builds/xqcore/xqcore.css'
+                        dest: 'tools/dev/public/css/xqcore.css'
                     }
                 ]
-            },
-        },
-        less: {
-            dist: {
-                options: {
-                    paths: 'less/'
-                },
-                files: {
-                    'xqcore.css': 'less/main.less'
-                }
             }
         },
         release: {
@@ -124,23 +115,64 @@ module.exports = function(grunt) {
                 tagName: 'v<%= version %>', //default: '<%= version %>'
                 commitMessage: 'Release v<%= version %>', //default: 'release <%= version %>'
                 tagMessage: 'Tagging release v<%= version %>', //default: 'Version <%= version %>',
-                beforeRelease: ['build']
+                beforeRelease: ['version']
+            }
+        },
+        stylus: {
+            dist: {
+                options: {
+                    paths: ['node_modules/lyssl', 'styl'],
+                    compress: false
+                },
+                files: {
+                    'xqcore.css': 'styl/main.styl'
+                }
+            }
+        },
+        superjoin: {
+            build: {
+                options: {
+                    verbose: true,
+                    main: './xqcore-init.js',
+                    umd: 'xqcore',
+                    umdDependencies: {
+                        'jquery': ['jquery', 'jquery', 'jQuery'],
+                        'firetpl': ['firetpl', 'firetpl', 'FireTPL'],
+                        'sockjs': ['./lib/sockjs', './lib/sockjs', 'SockJS']
+                    },
+                    banner:'/*!\n' +
+                        ' * XQCore - v<%= pkg.version %>\n' +
+                        ' * \n' +
+                        ' * <%= pkg.description %>\n' +
+                        ' *\n' +
+                        ' * XQCore is licenced under MIT Licence\n' +
+                        ' * http://opensource.org/licenses/MIT\n' +
+                        ' *\n' +
+                        ' * Copyright (c) 2012 - <%= grunt.template.today("yyyy") %> Noname Media, http://noname-media.com\n' +
+                        ' * Author Andi Heinkelein <andifeind@noname-media.com>\n' +
+                        ' *\n' +
+                        ' * Creation date: <%= grunt.template.today("yyyy-mm-dd") %>\n' +
+                        ' * \n' +
+                        ' */\n'
+                },
+                src: [],
+                dest: 'xqcore.js'
             }
         },
         version: {
-            component: {
-                src: ['../component-builds/xqcore/component.json']
+            xqcore: {
+                src: ['src/xqcore-core.js']
             }
         },
         watch: {
             js: {
                 files: 'src/**/*.js',
-                tasks: ['build']
+                tasks: ['superjoin']
             },
             styles: {
 
-                files: 'less/*.less',
-                tasks: ['less', 'copy:styles']
+                files: 'styl/*.styl',
+                tasks: ['stylus', 'copy:styles']
             }
         }
     });
@@ -148,22 +180,22 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-less');
+    grunt.loadNpmTasks('grunt-contrib-stylus');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.loadNpmTasks('grunt-available-tasks');
     grunt.loadNpmTasks('grunt-bumpup');
     grunt.loadNpmTasks('grunt-release');
+    grunt.loadNpmTasks('grunt-superjoin');
     grunt.loadNpmTasks('grunt-version');
-    
+
     grunt.registerTask('default', ['availabletasks']);
     grunt.registerTask('test', 'xqcoretest');
     grunt.registerTask('build', [
-        'less',
+        'bumpup:prerelease',
         'jshint:files',
         'concat:build',
-        'uglify',
-        'bumpup:prerelease'
+        'uglify'
     ]);
 };

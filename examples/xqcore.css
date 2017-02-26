@@ -1,8 +1,0 @@
-input[type=text],
-input[type=password] {
-  border: 1px solid #ccc;
-}
-input[type=text].xq-invalid,
-input[type=password].xq-invalid {
-  border-color: #d00;
-}
